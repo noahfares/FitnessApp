@@ -99,6 +99,12 @@ everything after it.
 | **0.2** Units foundation | `F-SET-001` `F-I18N-002` | `22-UNITS` `ADR-0003` |
 | **0.3** Theme | `F-THM-001` `F-THM-002` `F-THM-005` `F-SET-002` | `24-DESIGN-SYSTEM` |
 | **0.4** Shell & routing | `F-NAV-001` `F-NAV-002` | `23-NAVIGATION` |
+| **0.5** Database schema | — (no feature ID; see below) | `21-DATA-MODEL` `ADR-0003` `ADR-0008` |
+
+Batch **0.5** carries no feature ID because the schema is infrastructure every
+feature rests on rather than a feature itself. It was missing from the original
+0.1–0.4 breakdown — the roadmap listed the Drift schema under Phase 0 but
+outside the batches, so it fell through. It is the last item before Phase 1.
 
 Also, though not features: the Drift schema from
 [`21-DATA-MODEL.md`](21-DATA-MODEL.md), the `Mass`/`Length`/`Distance` value

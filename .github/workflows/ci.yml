@@ -54,6 +54,19 @@ jobs:
       - name: Resolve dependencies
         run: flutter pub get
 
+      # Generated files are committed so the APK job and IDEs need no codegen
+      # step. Regenerating here and failing on a diff is what stops them
+      # silently drifting from the tables they are generated from.
+      - name: Generated code is up to date
+        run: |
+          set -euo pipefail
+          dart run build_runner build
+          if ! git diff --quiet -- '*.g.dart'; then
+            echo "::error::Generated code is stale. Run: dart run build_runner build"
+            git diff --stat -- '*.g.dart'
+            exit 1
+          fi
+
       - name: Format
         run: dart format --set-exit-if-changed lib test
 

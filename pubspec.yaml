@@ -7,7 +7,7 @@ publish_to: none
 # Canonical source is the VERSION file at the repo root; CI fails if they
 # disagree. See docs/63-VERSIONING.md. The +N build number is set by the
 # release workflow (F-REL-005), not by hand.
-version: 0.7.0
+version: 0.8.0
 
 environment:
   sdk: ^3.11.0
@@ -15,6 +15,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # Database — ADR-0005. drift_flutter bundles sqlite3 and path_provider.
+  drift: ^2.34.3
+  drift_flutter: ^0.3.1
 
   # State and dependency injection — ADR-0006
   flutter_riverpod: ^3.0.3
@@ -35,12 +39,16 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
 
+  # Code generation. Generated .g.dart files are committed; CI regenerates and
+  # fails on a diff so they cannot silently drift from their sources.
+  build_runner: ^2.15.1
+  drift_dev: ^2.34.0
+
 flutter:
   uses-material-design: true
 # Dependencies deliberately not added yet — each arrives with the batch that
 # needs it, to keep `pub get` and CI fast:
-#   drift, sqlite3_flutter_libs, path_provider  → schema work (Phase 0)
-#   freezed, json_serializable, build_runner    → entities (Phase 0)
-#   fl_chart                                    → F-ANA-003 (Phase 3)
-#   flutter_local_notifications                 → F-TIM-003 (Phase 1)
-#   file_picker, share_plus                     → F-DAT-* (Phase 5)
+#   freezed, json_serializable   → domain entities, when they need unions
+#   fl_chart                     → F-ANA-003 (Phase 3)
+#   flutter_local_notifications  → F-TIM-003 (Phase 1)
+#   file_picker, share_plus      → F-DAT-* (Phase 5)
