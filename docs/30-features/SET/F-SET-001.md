@@ -1,6 +1,6 @@
 # F-SET-001 — Units
 
-Status: in-progress | Priority: P0 | Phase: 0
+Status: done | Priority: P0 | Phase: 0
 Blocks: F-LOG-003, F-BOD-001, F-PLT-002
 Reads: 22-UNITS, 70-decisions/ADR-0003-canonical-units
 Screens: Settings › Units
@@ -21,7 +21,8 @@ Screens: Settings › Units
 - [x] No database write occurs when a unit setting changes. One
       `SharedPreferences` key; no stored quantity is touched.
 - [ ] Increments follow the display unit — 2.5 kg or 5 lb (`F-SET-007`).
-      *Deferred with `F-SET-007` in Phase 2; nothing here precludes it.*
+      *Deferred with `F-SET-007` in Phase 2; nothing here precludes it, and the
+      steppers it applies to do not exist until `F-LOG-006`.*
 
 ## Implementation
 
@@ -33,8 +34,9 @@ Foundation complete (batch 0.2), **screen outstanding**:
 - `lib/core/formatting/` — `QuantityFormatter`, `QuantityParser` (`F-I18N-002`).
 - `lib/features/settings/application/unit_preferences_provider.dart` —
   persistence and the reactive binding.
-- Remaining: the Settings › Units screen, which needs the navigation shell
-  (`F-NAV-001`/`F-NAV-002`, batch 0.4). Flip to `done` then.
+- `lib/features/settings/presentation/units_screen.dart` — the screen, landed
+  in batch 0.4 once the shell existed. Carries a live preview so the
+  display-only claim is visible rather than taken on trust.
 
 ---
 

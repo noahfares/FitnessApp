@@ -148,14 +148,13 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.6.0**. **Phase 0 batches 0.1-0.3 done** — Flutter scaffold, CI
-(analyse/test/APK), auto-tagging, units foundation, and Material 3 theming with
-light/dark.
+Version **0.7.0**. **Phase 0 batches 0.1-0.4 done** — scaffold, CI, auto-tagging,
+units, theming, and the five-tab shell with routing and working settings screens.
 
-Next: **batch 0.4** (`F-NAV-001`, `F-NAV-002` — the navigation shell). That is
-also where `F-SET-001` closes, since Settings › Units finally has somewhere to
-live, and where `lib/features/shell/presentation/foundation_preview.dart` gets
-deleted.
+**Phase 0 is NOT finished.** Its exit criteria include "database created at v1
+with a passing migration test", and no batch covered it — the roadmap listed the
+Drift schema under Phase 0 but outside the batch breakdown. That is the
+remaining work before Phase 1.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform; regenerate

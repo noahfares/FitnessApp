@@ -107,7 +107,7 @@ F-DAT-008	5	planned	P2	Automatic local backups	F-DAT-003		21-DATA-MODEL, 22-UNIT
 F-DAT-009	—	idea	P2	File-based cloud sync	F-DAT-003		21-DATA-MODEL, 22-UNITS#import-and-export
 F-DAT-010	5	planned	P2	Wipe all data			21-DATA-MODEL, 22-UNITS#import-and-export
 F-DAT-011	1	planned	P0	Minimal JSON dump		F-DAT-001	21-DATA-MODEL, 22-UNITS#import-and-export
-F-SET-001	0	in-progress	P0	Units		F-LOG-003, F-BOD-001, F-PLT-002	22-UNITS, 70-decisions/ADR-0003-canonical-units
+F-SET-001	0	done	P0	Units		F-LOG-003, F-BOD-001, F-PLT-002	22-UNITS, 70-decisions/ADR-0003-canonical-units
 F-SET-002	0	done	P0	Theme mode			22-UNITS
 F-SET-003	1	planned	P1	Rest-timer defaults	F-TIM-005		22-UNITS
 F-SET-004	4	planned	P1	Bar and plate inventory	F-PLT-002		22-UNITS
@@ -115,7 +115,7 @@ F-SET-005	3	planned	P1	Week start		F-ANA-004, F-ANA-006	22-UNITS
 F-SET-006	3	planned	P2	e1RM formula	F-ANA-003		22-UNITS
 F-SET-007	2	planned	P1	Increment steps	F-SET-001		22-UNITS
 F-SET-008	2	planned	P2	Notification preferences	F-TIM-003		22-UNITS
-F-SET-009	1	planned	P1	About			22-UNITS
+F-SET-009	1	in-progress	P1	About			22-UNITS
 F-SET-010	5	planned	P3	App lock	F-BOD-004		22-UNITS
 F-SET-011	6	planned	P2	Onboarding			22-UNITS
 F-PLT-001	4	planned	P1	Plate calculator	F-PLT-002	F-PRG-012, F-LOG-020	22-UNITS, 21-DATA-MODEL#bars-and-plates
@@ -123,8 +123,8 @@ F-PLT-002	4	planned	P1	Bar and plate inventory		F-PLT-001	22-UNITS, 21-DATA-MODE
 F-PLT-003	4	planned	P2	Loading visualisation	F-PLT-001		22-UNITS, 21-DATA-MODEL#bars-and-plates
 F-PLT-004	4	planned	P1	Closest achievable weight	F-PLT-001, F-PLT-002	F-PRG-012	22-UNITS, 21-DATA-MODEL#bars-and-plates
 F-PLT-005	4	planned	P2	Machine and stack increments			22-UNITS, 21-DATA-MODEL#bars-and-plates
-F-NAV-001	0	planned	P0	App shell and bottom navigation		F-NAV-002, F-NAV-003	23-NAVIGATION
-F-NAV-002	0	planned	P0	Routing and deep links	F-NAV-001		23-NAVIGATION
+F-NAV-001	0	done	P0	App shell and bottom navigation		F-NAV-002, F-NAV-003	23-NAVIGATION
+F-NAV-002	0	done	P0	Routing and deep links	F-NAV-001		23-NAVIGATION
 F-NAV-003	1	planned	P0	Active-workout banner	F-LOG-001		23-NAVIGATION
 F-NAV-004	1	planned	P1	Dashboard			23-NAVIGATION
 F-NAV-005	1	planned	P1	Empty states			23-NAVIGATION

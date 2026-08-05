@@ -96,6 +96,20 @@ else
   bad "README says '${readme_versions:-none}', VERSION says ${V}"
 fi
 
+# 9. The About screen states the current version
+#    It is the only diagnostic context this app has — no telemetry, no crash
+#    reporting — so a stale version there makes bug reports unattributable.
+about=lib/features/settings/presentation/about_screen.dart
+if [ -f "$about" ]; then
+  shown=$(grep -oE "version = '[0-9]+\.[0-9]+\.[0-9]+'" "$about" \
+          | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
+  if [ "$shown" = "$V" ]; then
+    ok "About screen version current (${V})"
+  else
+    bad "About screen says '${shown:-none}', VERSION says ${V}"
+  fi
+fi
+
 echo
 [ "$fail" -eq 0 ] && echo "All checks passed." || echo "Some checks FAILED."
 exit "$fail"

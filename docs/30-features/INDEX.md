@@ -167,7 +167,7 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-SET-001](SET/F-SET-001.md) | Units | 0 | P0 | in-progress |
+| [F-SET-001](SET/F-SET-001.md) | Units | 0 | P0 | done |
 | [F-SET-002](SET/F-SET-002.md) | Theme mode | 0 | P0 | done |
 | [F-SET-003](SET/F-SET-003.md) | Rest-timer defaults | 1 | P1 | planned |
 | [F-SET-004](SET/F-SET-004.md) | Bar and plate inventory | 4 | P1 | planned |
@@ -175,7 +175,7 @@
 | [F-SET-006](SET/F-SET-006.md) | e1RM formula | 3 | P2 | planned |
 | [F-SET-007](SET/F-SET-007.md) | Increment steps | 2 | P1 | planned |
 | [F-SET-008](SET/F-SET-008.md) | Notification preferences | 2 | P2 | planned |
-| [F-SET-009](SET/F-SET-009.md) | About | 1 | P1 | planned |
+| [F-SET-009](SET/F-SET-009.md) | About | 1 | P1 | in-progress |
 | [F-SET-010](SET/F-SET-010.md) | App lock | 5 | P3 | planned |
 | [F-SET-011](SET/F-SET-011.md) | Onboarding | 6 | P2 | planned |
 
@@ -193,8 +193,8 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-NAV-001](NAV/F-NAV-001.md) | App shell and bottom navigation | 0 | P0 | planned |
-| [F-NAV-002](NAV/F-NAV-002.md) | Routing and deep links | 0 | P0 | planned |
+| [F-NAV-001](NAV/F-NAV-001.md) | App shell and bottom navigation | 0 | P0 | done |
+| [F-NAV-002](NAV/F-NAV-002.md) | Routing and deep links | 0 | P0 | done |
 | [F-NAV-003](NAV/F-NAV-003.md) | Active-workout banner | 1 | P0 | planned |
 | [F-NAV-004](NAV/F-NAV-004.md) | Dashboard | 1 | P1 | planned |
 | [F-NAV-005](NAV/F-NAV-005.md) | Empty states | 1 | P1 | planned |
