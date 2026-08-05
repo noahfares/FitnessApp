@@ -26,9 +26,17 @@ Runs on every push to any branch and on every pull request.
    ! grep -rE "^import 'package:flutter/|^import 'package:.*/data/" lib/domain/
    ```
    (Replaced by a proper `import_lint` rule once one is configured.)
-8. `flutter test --coverage`
-9. `flutter build apk --debug`
-10. Upload the debug APK as a build artefact, so any commit is installable
+8. **Version consistency check** — `VERSION`, `pubspec.yaml`'s `version:` field,
+   and (on a tag build) the tag itself must all agree. Required check, because
+   a mismatch silently produces a build that misreports itself in About
+   (`F-SET-009`) — the only diagnostic context this app has.
+   ```bash
+   V=$(cat VERSION)
+   grep -q "^version: ${V}" pubspec.yaml || { echo "VERSION=$V != pubspec.yaml"; exit 1; }
+   ```
+9. `flutter test --coverage`
+10. `flutter build apk --debug`
+11. Upload the debug APK as a build artefact, so any commit is installable
     without a local toolchain.
 
 **Requirements**
@@ -46,8 +54,10 @@ Runs only on tags matching `v*`. Produces the artefacts users actually install.
 
 **Steps**
 
-1. Everything from `ci.yml` steps 1–8. A tag that doesn't pass tests never
-   produces a release.
+1. Everything from `ci.yml` steps 1–9, including the version consistency check,
+   which additionally asserts the tag equals `v$(cat VERSION)`. A tag that
+   doesn't pass tests, or that disagrees with `VERSION`, never produces a
+   release.
 2. Decode the keystore from secrets:
    ```
    ANDROID_KEYSTORE_BASE64   base64 of the upload keystore

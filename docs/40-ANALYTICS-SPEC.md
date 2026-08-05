@@ -14,16 +14,22 @@ metric without a passing fixture test is not done.
 Applied once at the boundary of the analytics engine, so no individual metric
 can forget them:
 
-1. **Warm-up sets are excluded.** Always, from every metric.
+1. **Tombstoned rows are excluded.** `deleted_at IS NOT NULL` → dropped, at
+   every level: set, workout exercise, workout, exercise. Nothing is ever hard
+   deleted ([ADR-0008](70-decisions/ADR-0008-sync-ready-foundations.md)), so a
+   query that forgets this silently counts data the user deleted.
+2. **Warm-up sets are excluded.** Always, from every metric.
    (`set_type == warmup` → dropped.)
-2. **Incomplete sets are excluded.** `is_completed == false` → dropped.
-3. **Sets with null weight or reps are excluded** from metrics requiring them.
-4. **All computation is on canonical integers** — grams, seconds, metres.
+3. **Incomplete sets are excluded.** `is_completed == false` → dropped.
+4. **Sets with null weight or reps are excluded** from metrics requiring them.
+5. **All computation is on canonical integers** — grams, seconds, metres.
    Conversion to display units happens after the metric, never before.
-5. **Week boundaries follow the user's first-day-of-week setting** (`F-SET-005`).
-   A session belongs to the local calendar date of its `started_at`.
+6. **Week boundaries follow the user's first-day-of-week setting** (`F-SET-005`),
+   and a session belongs to the **local** calendar date derived from its
+   `started_at` plus `started_at_tz_offset_minutes` — never from UTC directly.
+   A 22:00 session in UTC+10 is not the next day.
 
-Set types `working`, `drop`, `failure`, and `amrap` all count.
+Set types `working`, `drop`, `failure`, `amrap`, and `backoff` all count.
 
 ---
 

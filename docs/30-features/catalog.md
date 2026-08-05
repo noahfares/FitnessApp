@@ -18,17 +18,22 @@ be fatal to a store release.
 
 **Behaviour**
 1. Catalogue ships as `assets/seed/exercises.json`, versioned, each record with
-   a stable UUID, name, primary muscle, secondary muscles, equipment, and
-   tracking type.
+   a stable UUID, the source dataset's `external_id`, name, primary muscle,
+   secondary muscles, equipment, and tracking type.
 2. Seeded into `exercises` on first launch.
-3. On app upgrade, re-seeding adds new records and updates unmodified seeded
-   ones. It never overwrites user-edited or custom rows.
+3. On app upgrade, re-seeding matches on `external_id` — adding new records and
+   updating unmodified seeded ones. It never overwrites user-edited or custom
+   rows. Matching on `external_id` rather than name is what makes upstream
+   corrections possible without duplicating rows or breaking references from
+   existing sets.
 4. `assets/seed/SOURCES.md` records provenance and licence for every record.
 
 **Acceptance criteria**
 - [ ] First launch yields a populated, searchable catalogue with no network access.
 - [ ] Every record has a primary muscle and a tracking type — no nulls.
 - [ ] Editing a seeded exercise, then upgrading, preserves the user's edit.
+- [ ] An upstream rename applied via `external_id` updates the row without
+      creating a duplicate or orphaning historical sets.
 - [ ] `SOURCES.md` accounts for every record with a verified licence.
 
 **Edge cases** — Seeding interrupted mid-write (wrap in a transaction). A seeded
@@ -39,7 +44,13 @@ never delete.
 - Source: a permissively licensed public dataset, or hand-authored? Requires
   reading actual licence text, not a README summary. **Blocking before any
   public release.**
-- How is "user-modified" tracked — a boolean flag or `updated_at` comparison?
+  - **Lead:** Free Exercise DB is the concrete candidate carried over from the
+    external schema handoff ([`../11-EXTERNAL-INPUTS.md`](../11-EXTERNAL-INPUTS.md)).
+    Licence still to be verified against the repository's actual licence file,
+    not its README. Note that its images, if any, may carry different terms from
+    its data — check both separately.
+- How is "user-modified" tracked — a boolean flag or comparing `updated_at`
+  against the seed timestamp?
 
 ---
 
@@ -55,15 +66,20 @@ decides which input fields the logger renders, so it has to exist before the
 set row is built rather than being bolted on.
 
 **Behaviour**
-1. `tracking_type` ∈ `weightReps`, `reps`, `time`, `distanceTime`, `weightTime`.
-2. The logger renders only the relevant inputs for the type.
-3. Analytics respect the type — volume load is meaningless for `time`, and those
+1. `tracking_type` ∈ `weightReps`, `bodyweightReps`, `reps`, `time`,
+   `distanceTime`, `weightTime`.
+2. All four measurement columns on `sets` — weight, reps, duration, distance —
+   are nullable from schema v1. The tracking type decides which are rendered and
+   required. **Phase 1 implements `weightReps` only**; the rest of the enum
+   exists in the schema from day one so no migration is needed to add them.
+3. The logger renders only the relevant inputs for the type.
+4. Analytics respect the type — volume load is meaningless for `time`, and those
    exercises are excluded from volume rather than counted as zero.
-4. Type is editable on custom exercises, and on seeded ones with a warning that
+5. Type is editable on custom exercises, and on seeded ones with a warning that
    existing history may become inconsistent.
 
 **Acceptance criteria**
-- [ ] Each of the five types renders correct inputs.
+- [ ] Each of the six types renders correct inputs.
 - [ ] Analytics exclude, rather than zero out, inapplicable metrics.
 
 **Edge cases** — Changing type on an exercise with history. Weighted pull-ups

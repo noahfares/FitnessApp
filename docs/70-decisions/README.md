@@ -16,6 +16,7 @@ wrong, argue with the ADR; don't route around it silently.
 | [0005](ADR-0005-drift.md) | Drift for persistence | Accepted | Medium |
 | [0006](ADR-0006-riverpod.md) | Riverpod for state and DI | Accepted | Low–medium |
 | [0007](ADR-0007-signing.md) | Signing and distribution strategy | Accepted | **Irreversible** after first public APK |
+| [0008](ADR-0008-sync-ready-foundations.md) | UUID keys, audit columns, soft deletes, timezone offsets | Accepted | **Very high** once real history exists |
 
 ## Format
 

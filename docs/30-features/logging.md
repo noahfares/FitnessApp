@@ -148,11 +148,14 @@ be distinguishable for the same reason. This has to exist in v1 because the
 information can't be recovered later.
 
 **Behaviour**
-1. Types: `warmup`, `working`, `drop`, `failure`, `amrap`. Default `working`.
+1. Types: `warmup`, `working`, `drop`, `failure`, `amrap`, `backoff`. Default
+   `working`. The full enum exists in schema v1 even though Phase 1 only
+   surfaces `warmup` and `working` in the UI — adding an enum value later is a
+   migration, and mislabelled historical sets cannot be recovered.
 2. Set by long-press on the set-number cell; indicated by letter and colour.
 3. Warm-up sets are numbered separately (W1, W2) from working sets (1, 2, 3).
 4. **Warm-ups are excluded from all analytics** — volume, PRs, e1RM, set counts.
-5. Drop, failure, and AMRAP sets count toward volume and PRs.
+5. Drop, failure, AMRAP, and back-off sets all count toward volume and PRs.
 
 **Acceptance criteria**
 - [ ] Changing a set's type updates all derived figures immediately.
@@ -216,7 +219,8 @@ Data: `workouts.notes`, `workout_exercises.notes`
 
 **Behaviour**
 1. A free-text note on the workout, and one per exercise within the workout.
-2. Distinct from the exercise's persistent sticky note (`F-CAT-007`).
+2. Distinct from the exercise's persistent sticky note (`F-CAT-007`) and from
+   per-set notes (`F-LOG-023`).
 3. Visible in workout detail and in per-exercise history.
 
 ---
@@ -434,3 +438,39 @@ mid-session is common with imprecise, sweaty taps.
 1. Set deletion offers undo via a snackbar for several seconds.
 2. Discarding a workout requires typed or held confirmation, not a single tap.
 3. Undo covers the last destructive action within the session.
+4. Undo is a `deleted_at` field update, not a re-insert — nothing is ever hard
+   deleted ([ADR-0008](../70-decisions/ADR-0008-sync-ready-foundations.md)), so
+   restoring is trivially correct and preserves the original ID and timestamps.
+
+---
+
+### F-LOG-023 — Per-set notes
+Status: planned | Priority: P1 | Phase: 1
+Depends on: F-LOG-003
+Data: `sets.notes`
+
+**Intent** — The catch-all for everything the schema didn't anticipate. "Left
+shoulder twinged", "belt too loose", "spotter took some of it", "bar slipped".
+This is unrecoverable data: the observation exists for about ten seconds after
+the set and then it's gone. A nullable text column costs nothing and captures
+what no structured field ever will.
+
+**Behaviour**
+1. Optional free-text note per set, distinct from workout and per-exercise notes
+   (`F-LOG-008`) and from the exercise's persistent sticky note (`F-CAT-007`).
+2. Entry must be genuinely incidental — an icon on the set row that opens a
+   small sheet, never a field competing for space in the row itself. The set row
+   is the most contested space in the app (`F-LOG-003`).
+3. A set carrying a note shows a subtle marker so it's findable later.
+4. Notes are visible in workout detail (`F-LOG-012`) and in per-exercise history
+   (`F-ANA-002`), and are searchable there.
+5. Included in export (`F-DAT-001`, `F-DAT-002`).
+
+**Acceptance criteria**
+- [ ] Adding a note never displaces or shrinks the weight, reps, or completion
+      controls.
+- [ ] Notes survive an export/import round-trip.
+- [ ] A set with a note is visually distinguishable without opening it.
+
+**Edge cases** — A very long note (truncate in list views, never in storage).
+Notes on a set that is later deleted — tombstoned with the set, restored by undo.

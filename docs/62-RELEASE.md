@@ -52,16 +52,23 @@ switch.
 
 ## Versioning (`F-REL-005`)
 
-`MAJOR.MINOR.PATCH+BUILD`, derived entirely from the git tag. Never hand-edited.
+**Full scheme and the mandatory bump-and-tag protocol:
+[`63-VERSIONING.md`](63-VERSIONING.md).** Summary as it affects releases:
 
-- Tag `v1.4.2` → version `1.4.2`, build number monotonically increasing.
-- Play rejects a reused build number, and hand-managed numbers are how that
-  happens.
+- `VERSION` at the repo root is the source of truth; the tag is `v` + its
+  contents; `pubspec.yaml` derives from it. CI fails if they disagree.
+- Every commit bumps and tags. A release is simply a tag someone decided to
+  build from — `release.yml` fires on `v*`.
+- Build number is monotonically increasing and derived, never hand-edited. Play
+  rejects a reused build number, and hand-management is how that happens.
 - Version and build are shown in About (`F-SET-009`) so a bug report can name an
-  exact build.
+  exact build. With no crash reporting or telemetry
+  ([ADR-0002](70-decisions/ADR-0002-local-first.md)), this is the only
+  diagnostic context that exists.
 
 Pre-1.0 while the schema is still moving. 1.0 means the data model is stable
-enough that a migration path is guaranteed from then on.
+enough that a migration path is guaranteed from then on — expected around the
+end of Phase 5.
 
 ---
 

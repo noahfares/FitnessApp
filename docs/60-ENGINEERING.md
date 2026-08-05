@@ -37,6 +37,11 @@ likely to be violated by accident. Violating one is a bug, not a style choice.
 5. **Write-through persistence.** Session state lives in the database, not in
    memory.
 6. **No network calls in the core app.**
+7. **Nothing is ever hard-deleted.** Every delete sets `deleted_at`; every read
+   filters `deleted_at IS NULL`; every write sets `updated_at`.
+   ([ADR-0008](70-decisions/ADR-0008-sync-ready-foundations.md))
+8. **Every user-meaningful timestamp stores its local UTC offset** beside the
+   UTC value. Local calendar dates are derived from the pair, never from UTC.
 
 ## Code style
 
@@ -86,6 +91,11 @@ Additional rules:
 
 ## Git conventions
 
+**Every commit bumps `VERSION` and gets a matching annotated tag.** No
+exceptions, no asking. The full protocol is in
+[`63-VERSIONING.md`](63-VERSIONING.md); the short version is: decide the bump,
+write `VERSION`, commit, `git tag -a vX.Y.Z`, push the branch and the tag.
+
 **Branches:** `claude/<domain>-<short-description>`, e.g.
 `claude/log-ghost-values`.
 
@@ -117,7 +127,10 @@ The checklist, in priority order:
 1. **Are the numbers right?** Any change touching a metric gets checked against
    its fixture by hand. This is the highest-consequence category of bug in the
    project.
-2. **Does it violate an invariant?** Especially units and the domain-layer rule.
+2. **Does it violate an invariant?** Especially units, the domain-layer rule,
+   and the `deleted_at` filter — a query that forgets the last one silently
+   resurrects deleted data, which looks like a data-integrity bug rather than a
+   missing `WHERE` clause.
 3. **Does it break the snapshot guarantee?** Anything touching routines or
    workouts.
 4. **Does the set row get slower?** Latency there outweighs almost any feature.

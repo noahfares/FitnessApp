@@ -40,6 +40,62 @@ analytics, progression automation, and full data export.
 - **No network calls in the core app.** Local-first, no account, no telemetry.
   See `ADR-0002`.
 
+## Versioning — MANDATORY, NEVER SKIP, NEVER ASK
+
+**Every single commit bumps the version and gets a tag. No exceptions.**
+
+Do this automatically as part of committing. Do **not** ask permission, do
+**not** wait for confirmation, do **not** batch several commits under one
+version. A commit without a version bump and a matching tag is an incomplete
+commit.
+
+The full scheme is in `docs/63-VERSIONING.md`. The procedure, every time:
+
+```bash
+# 1. Decide the bump (see rules below) and write the new version
+echo "0.4.0" > VERSION
+
+# 2. Stage everything including VERSION, then commit
+git add -A
+git commit -m "<type>(<domain>): <F-ID> <summary>"
+
+# 3. Annotated tag matching the VERSION file exactly
+git tag -a v0.4.0 -m "v0.4.0 — <one-line summary>"
+
+# 4. Push the commit AND the tag
+git push -u origin <branch>
+git push origin v0.4.0
+```
+
+**Bump rules while pre-1.0** (`MAJOR` stays `0` until the schema is stable):
+
+| Change | Bump |
+|---|---|
+| New feature, new phase work, schema change, new planning doc | **MINOR** — `0.3.0 → 0.4.0` |
+| Fix, clarification, refactor, doc edit, test-only change | **PATCH** — `0.3.0 → 0.3.1` |
+
+`VERSION` at the repo root is the single source of truth. Once `pubspec.yaml`
+exists, its `version:` field is derived from `VERSION` and must always match —
+CI enforces this (`F-REL-005`).
+
+If a tag push fails, say so explicitly and leave the local tag in place. Never
+silently skip the tag, and never delete or move a tag that has been pushed.
+
+## The roadmap is binding
+
+`docs/50-ROADMAP.md` is followed **strictly and in order**. Do not skip ahead,
+do not reorder phases, do not start Phase N+1 while Phase N has unmet exit
+criteria.
+
+What is allowed without asking: adding a **sub-feature** inside the current
+phase's scope — give it a new ID, add the entry, note it in the commit.
+
+What requires asking first: moving a feature between phases, reordering
+phases, starting a phase early, or declaring a phase complete with unmet exit
+criteria.
+
+If the roadmap looks wrong, say so and stop. Do not route around it.
+
 ## Conventions
 
 - Branch: `claude/<domain>-<short-desc>` — e.g. `claude/log-ghost-values`.
@@ -52,5 +108,5 @@ analytics, progression automation, and full data export.
 
 ## Current state
 
-No application code exists yet. The next build step is **Phase 0** in
-`docs/50-ROADMAP.md`. Do not scaffold until asked.
+Version **0.2.0**. No application code exists yet. The next build step is
+**Phase 0** in `docs/50-ROADMAP.md`. Do not scaffold until asked.

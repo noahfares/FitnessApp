@@ -90,6 +90,24 @@ to the template never alter history. A core invariant.
 representation used in storage and computation
 ([ADR-0003](70-decisions/ADR-0003-canonical-units.md)).
 
+**Tombstone** — A row marked deleted via `deleted_at` rather than removed.
+Nothing in this schema is ever hard-deleted
+([ADR-0008](70-decisions/ADR-0008-sync-ready-foundations.md)).
+
+**Soft delete** — Setting `deleted_at`. Every read filters `deleted_at IS NULL`.
+
+**Audit columns** — `created_at`, `updated_at`, `deleted_at`, `user_id`. Present
+on every table from schema v1.
+
+**External ID** — The seed dataset's own identifier for an exercise, stored
+alongside the row's UUID so the catalogue can be re-synced upstream without
+duplicating rows (`F-CAT-001`).
+
+**Unrecoverable data** — An observation that cannot be reconstructed after the
+fact: bodyweight on a given day, whether a set was a warm-up, the local time an
+session happened, what the lifter noticed mid-set. The reason several Phase 4
+features were pulled forward into Phase 1.
+
 **Display unit** — What the user sees: kg or lb, cm or in. A presentation
 concern only; changing it never touches stored data.
 

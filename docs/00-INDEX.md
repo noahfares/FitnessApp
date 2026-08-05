@@ -8,6 +8,7 @@ documents relevant to your task.
 
 ```
 10-VISION            why the project exists, what it will and won't be
+11-EXTERNAL-INPUTS   outside handoffs: what was adopted, what was rejected
    │
    ├── 70-decisions/ the load-bearing choices, with reversal costs
    │        │
@@ -23,11 +24,12 @@ documents relevant to your task.
    ├── 40-ANALYTICS-SPEC   formulas the ANA/PRG features implement
    │                                                   │
    ▼                                                   │
-50-ROADMAP    phases, expressed purely as lists of F-IDs ◄┘
+50-ROADMAP    phases, as lists of F-IDs — BINDING, followed in order ◄┘
 51-BACKLOG    unscheduled ideas, already ID'd
    │
    ▼
-60-ENGINEERING ── 61-CI-CD ── 62-RELEASE   how work gets built and shipped
+60-ENGINEERING ── 61-CI-CD ── 62-RELEASE ── 63-VERSIONING
+                                   how work gets built, versioned, shipped
 80-GLOSSARY   domain vocabulary
 ```
 
@@ -43,7 +45,9 @@ documents relevant to your task.
 | Building a screen | `23-NAVIGATION.md` + `24-DESIGN-SYSTEM.md` |
 | Deciding what to build next | `50-ROADMAP.md` |
 | Setting up CI or cutting a release | `61-CI-CD.md`, `62-RELEASE.md` |
+| **Committing anything at all** | `63-VERSIONING.md` — every commit bumps and tags |
 | Wondering why something is the way it is | `70-decisions/` |
+| Wondering whether an outside doc was already considered | `11-EXTERNAL-INPUTS.md` |
 | Confused by a term | `80-GLOSSARY.md` |
 
 ## Document register
@@ -51,6 +55,7 @@ documents relevant to your task.
 | File | Purpose |
 |---|---|
 | [`10-VISION.md`](10-VISION.md) | Principles, audience, non-goals, competitor gap, risks |
+| [`11-EXTERNAL-INPUTS.md`](11-EXTERNAL-INPUTS.md) | Handoff docs and prior art brought in from outside: what was adopted, what was rejected |
 | [`20-ARCHITECTURE.md`](20-ARCHITECTURE.md) | Layering, folder structure, dependencies |
 | [`21-DATA-MODEL.md`](21-DATA-MODEL.md) | Schema, relationships, migration policy |
 | [`22-UNITS.md`](22-UNITS.md) | Canonical storage, value objects, formatting |
@@ -62,7 +67,8 @@ documents relevant to your task.
 | [`51-BACKLOG.md`](51-BACKLOG.md) | Unscheduled features |
 | [`60-ENGINEERING.md`](60-ENGINEERING.md) | Conventions, testing, definition of done |
 | [`61-CI-CD.md`](61-CI-CD.md) | Workflow specifications |
-| [`62-RELEASE.md`](62-RELEASE.md) | Signing, versioning, store checklists |
+| [`62-RELEASE.md`](62-RELEASE.md) | Signing, distribution, store checklists |
+| [`63-VERSIONING.md`](63-VERSIONING.md) | **Version scheme and the mandatory bump-and-tag protocol** |
 | [`70-decisions/`](70-decisions/) | Architecture decision records |
 | [`80-GLOSSARY.md`](80-GLOSSARY.md) | Domain vocabulary |
 
@@ -75,13 +81,13 @@ features by ID rather than restating them.
 | Domain | Scope | File | Allocated |
 |---|---|---|---|
 | `CAT` | Exercise catalogue | [`30-features/catalog.md`](30-features/catalog.md) | 001–014 |
+| `LOG` | Workout logging | [`30-features/logging.md`](30-features/logging.md) | 001–023 |
 | `ROU` | Routines & programs | [`30-features/routines.md`](30-features/routines.md) | 001–015 |
-| `LOG` | Workout logging | [`30-features/logging.md`](30-features/logging.md) | 001–022 |
 | `TIM` | Timers | [`30-features/timers.md`](30-features/timers.md) | 001–009 |
 | `ANA` | Analytics & charts | [`30-features/analytics.md`](30-features/analytics.md) | 001–018 |
 | `PRG` | Progression engine | [`30-features/progression.md`](30-features/progression.md) | 001–012 |
 | `BOD` | Body metrics | [`30-features/body.md`](30-features/body.md) | 001–006 |
-| `DAT` | Data portability | [`30-features/data-portability.md`](30-features/data-portability.md) | 001–010 |
+| `DAT` | Data portability | [`30-features/data-portability.md`](30-features/data-portability.md) | 001–011 |
 | `SET` | Settings | [`30-features/settings.md`](30-features/settings.md) | 001–011 |
 | `PLT` | Plate mathematics | [`30-features/plate-math.md`](30-features/plate-math.md) | 001–005 |
 | `NAV` | App shell & navigation | [`30-features/shell.md`](30-features/shell.md) | 001–008 |

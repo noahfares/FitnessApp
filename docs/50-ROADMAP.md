@@ -6,6 +6,36 @@ sequence and when a phase is finished.
 
 Progress is tracked in the `Status:` field of each feature entry, never here.
 
+---
+
+## This roadmap is binding
+
+It is followed **strictly and in order**. It exists so the project cannot drift,
+cannot lose track of where it is, and cannot quietly skip a feature that turns
+out to matter.
+
+**Allowed without asking:**
+
+- Adding a **sub-feature** inside the current phase's scope. Give it a new ID,
+  write the entry, mention it in the commit. This is how the plan improves.
+- Fixing, clarifying, or expanding any entry's specification.
+- Reordering work *within* a phase.
+
+**Requires asking first:**
+
+- Moving a feature between phases.
+- Reordering or merging phases.
+- Starting phase *N+1* before phase *N*'s exit criteria are all met.
+- Declaring a phase complete with unmet exit criteria.
+- Dropping a feature entirely.
+
+If the roadmap looks wrong, **say so and stop**. Do not route around it, and do
+not silently reinterpret an exit criterion to make it pass. A roadmap that gets
+quietly bent is the same as no roadmap.
+
+Every change to this file is itself a versioned commit
+([`63-VERSIONING.md`](63-VERSIONING.md)), so the sequence has an audit trail.
+
 ## Sequencing principles
 
 1. **Every phase ends with something usable.** No phase produces only
@@ -19,6 +49,12 @@ Progress is tracked in the `Status:` field of each feature entry, never here.
 4. **Distribution is proved early.** A signed APK on a real phone in Phase 1, not
    at the end, because signing and CI failures discovered late are the expensive
    kind.
+5. **Unrecoverable data is captured before it is used.** A missing column can be
+   added later; a year of missing observations cannot. Bodyweight (`F-BOD-001`)
+   and per-set notes (`F-LOG-023`) are therefore in Phase 1, well before the
+   analytics that consume them, and the schema carries nullable columns that
+   Phase 1 never populates. See
+   [ADR-0008](70-decisions/ADR-0008-sync-ready-foundations.md).
 
 ---
 
@@ -66,13 +102,15 @@ The point of this phase is a real training session logged on a real phone.
 
 **Logging** `F-LOG-001` `F-LOG-002` `F-LOG-003` `F-LOG-004` `F-LOG-005`
 `F-LOG-006` `F-LOG-007` `F-LOG-008` `F-LOG-009` `F-LOG-011` `F-LOG-012`
-`F-LOG-018`
+`F-LOG-018` `F-LOG-023`
 
 **Timers** `F-TIM-001` `F-TIM-002` `F-TIM-003` `F-TIM-005` `F-TIM-006`
 
 **Shell** `F-NAV-003` `F-NAV-004` `F-NAV-005` `F-NAV-006` `F-A11Y-004`
 
 **Settings** `F-SET-003` `F-SET-009`
+
+**Unrecoverable capture** `F-BOD-001` `F-DAT-011`
 
 **Release** `F-REL-002` `F-REL-003` `F-REL-005`
 
@@ -84,6 +122,9 @@ The point of this phase is a real training session logged on a real phone.
 - [ ] Force-killing the app mid-session loses nothing.
 - [ ] The rest timer fires reliably with the phone in a pocket, screen off, on a
       device with aggressive battery management.
+- [ ] Bodyweight can be logged in under three taps from the dashboard.
+- [ ] `F-DAT-011` dumps every table to JSON, verified against a database with
+      real sessions in it.
 - [ ] A signed APK is installed on your own phone from a GitHub Release.
 - [ ] **Two weeks of real training logged before Phase 2 begins.**
 
@@ -147,7 +188,7 @@ The differentiator phase.
 **Plate maths** `F-PLT-001` `F-PLT-002` `F-PLT-003` `F-PLT-004` `F-PLT-005`
 `F-SET-004`
 
-**Body** `F-BOD-001` `F-BOD-002` `F-BOD-003`
+**Body** `F-BOD-002` `F-BOD-003` — capture (`F-BOD-001`) already landed in Phase 1
 
 **Advanced analytics** `F-ANA-009` `F-ANA-010` `F-ANA-011` `F-ANA-012`
 `F-ANA-013` `F-ANA-014`
@@ -171,6 +212,10 @@ public release.
 
 `F-DAT-001` `F-DAT-002` `F-DAT-003` `F-DAT-004` `F-DAT-005` `F-DAT-006`
 `F-DAT-007` `F-DAT-008` `F-DAT-010` `F-BOD-004` `F-SET-010`
+
+The minimal dump (`F-DAT-011`) already exists from Phase 1 as a schema-mistake
+escape hatch; this phase builds the real, versioned, round-trip-guaranteed
+format on top of it.
 
 **Exit criteria**
 - [ ] Export → wipe → import reproduces the database exactly, verified table by
@@ -217,11 +262,11 @@ wearable companions (`F-HLT-004`, `F-HLT-005`).
 | Phase | Features | Theme |
 |---|---|---|
 | 0 | 9 | Foundation |
-| 1 | 32 | MVP — a usable logger |
+| 1 | 35 | MVP — a usable logger |
 | 2 | 26 | Programs and templates |
 | 3 | 17 | Analytics |
-| 4 | 30 | Progression and automation |
+| 4 | 29 | Progression and automation |
 | 5 | 11 | Data portability |
 | 6 | 12 | Store release |
 | — | 23 | Backlog |
-| | **137 scheduled, 23 unscheduled, 160 defined** | |
+| | **139 scheduled, 23 unscheduled, 162 defined** | |
