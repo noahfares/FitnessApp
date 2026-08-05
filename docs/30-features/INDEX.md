@@ -167,7 +167,7 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-SET-001](SET/F-SET-001.md) | Units | 0 | P0 | planned |
+| [F-SET-001](SET/F-SET-001.md) | Units | 0 | P0 | in-progress |
 | [F-SET-002](SET/F-SET-002.md) | Theme mode | 0 | P0 | planned |
 | [F-SET-003](SET/F-SET-003.md) | Rest-timer defaults | 1 | P1 | planned |
 | [F-SET-004](SET/F-SET-004.md) | Bar and plate inventory | 4 | P1 | planned |
@@ -228,7 +228,7 @@
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
 | [F-I18N-001](I18N/F-I18N-001.md) | String externalisation | 6 | P1 | planned |
-| [F-I18N-002](I18N/F-I18N-002.md) | Locale-aware formatting | 0 | P1 | planned |
+| [F-I18N-002](I18N/F-I18N-002.md) | Locale-aware formatting | 0 | P1 | done |
 | [F-I18N-003](I18N/F-I18N-003.md) | Additional locales | — | P3 | idea |
 
 ## `HLT` — Health platform integration
@@ -245,7 +245,7 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-REL-001](REL/F-REL-001.md) | CI build and checks | 0 | P0 | in-progress |
+| [F-REL-001](REL/F-REL-001.md) | CI build and checks | 0 | P0 | done |
 | [F-REL-002](REL/F-REL-002.md) | Signed release APK | 1 | P0 | planned |
 | [F-REL-003](REL/F-REL-003.md) | GitHub Release automation | 1 | P1 | planned |
 | [F-REL-004](REL/F-REL-004.md) | App bundle for Play | 6 | P1 | planned |

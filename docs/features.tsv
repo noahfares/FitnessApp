@@ -107,7 +107,7 @@ F-DAT-008	5	planned	P2	Automatic local backups	F-DAT-003		21-DATA-MODEL, 22-UNIT
 F-DAT-009	—	idea	P2	File-based cloud sync	F-DAT-003		21-DATA-MODEL, 22-UNITS#import-and-export
 F-DAT-010	5	planned	P2	Wipe all data			21-DATA-MODEL, 22-UNITS#import-and-export
 F-DAT-011	1	planned	P0	Minimal JSON dump		F-DAT-001	21-DATA-MODEL, 22-UNITS#import-and-export
-F-SET-001	0	planned	P0	Units		F-LOG-003, F-BOD-001, F-PLT-002	22-UNITS, 70-decisions/ADR-0003-canonical-units
+F-SET-001	0	in-progress	P0	Units		F-LOG-003, F-BOD-001, F-PLT-002	22-UNITS, 70-decisions/ADR-0003-canonical-units
 F-SET-002	0	planned	P0	Theme mode			22-UNITS
 F-SET-003	1	planned	P1	Rest-timer defaults	F-TIM-005		22-UNITS
 F-SET-004	4	planned	P1	Bar and plate inventory	F-PLT-002		22-UNITS
@@ -143,14 +143,14 @@ F-A11Y-003	6	planned	P1	Contrast and colour independence			24-DESIGN-SYSTEM#acce
 F-A11Y-004	1	planned	P1	Touch targets and reach			24-DESIGN-SYSTEM#accessibility-baseline
 F-A11Y-005	6	planned	P2	Reduce motion			24-DESIGN-SYSTEM#accessibility-baseline
 F-I18N-001	6	planned	P1	String externalisation			22-UNITS, 24-DESIGN-SYSTEM
-F-I18N-002	0	planned	P1	Locale-aware formatting	F-SET-001		22-UNITS, 24-DESIGN-SYSTEM
+F-I18N-002	0	done	P1	Locale-aware formatting	F-SET-001		22-UNITS, 24-DESIGN-SYSTEM
 F-I18N-003	—	idea	P3	Additional locales			22-UNITS, 24-DESIGN-SYSTEM
 F-HLT-001	6	planned	P2	Health Connect write			20-ARCHITECTURE#cross-platform-discipline
 F-HLT-002	6	planned	P3	Health Connect read	F-BOD-001		20-ARCHITECTURE#cross-platform-discipline
 F-HLT-003	—	idea	P2	HealthKit parity	F-HLT-001		20-ARCHITECTURE#cross-platform-discipline
 F-HLT-004	—	idea	P3	Wear OS companion			20-ARCHITECTURE#cross-platform-discipline
 F-HLT-005	—	idea	P3	watchOS companion	F-HLT-004		20-ARCHITECTURE#cross-platform-discipline
-F-REL-001	0	in-progress	P0	CI build and checks		F-REL-002	62-RELEASE, 61-CI-CD
+F-REL-001	0	done	P0	CI build and checks		F-REL-002	62-RELEASE, 61-CI-CD
 F-REL-002	1	planned	P0	Signed release APK	F-REL-001		62-RELEASE, 70-decisions/ADR-0007-signing
 F-REL-003	1	planned	P1	GitHub Release automation	F-REL-002		62-RELEASE, 61-CI-CD
 F-REL-004	6	planned	P1	App bundle for Play	F-REL-002		62-RELEASE, 61-CI-CD

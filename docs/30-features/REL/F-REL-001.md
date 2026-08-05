@@ -1,6 +1,6 @@
 # F-REL-001 — CI build and checks
 
-Status: in-progress | Priority: P0 | Phase: 0
+Status: done | Priority: P0 | Phase: 0
 Blocks: F-REL-002
 Reads: 62-RELEASE, 61-CI-CD
 
@@ -14,12 +14,15 @@ Reads: 62-RELEASE, 61-CI-CD
 4. Red CI blocks merge.
 
 ## Acceptance
-- [ ] A `domain/` file importing Flutter fails CI. *`tools/check-layers.sh`
-      verified locally against a deliberate violation — exits 1 on both a Flutter
-      import and a `lib/data/` import. Not yet observed failing a real CI run.*
-- [ ] Build and test complete in a reasonable time on the free runner tier.
-- [ ] `flutter build apk --debug` succeeds. *Unverified locally — no Android SDK
-      in the development sandbox. CI is the first real check.*
+- [x] A `domain/` file importing Flutter fails CI. `tools/check-layers.sh` exits
+      1 on a Flutter import, a `lib/data/` import, and — since v0.5.0 — on a
+      *transitive* one reached through `lib/core/`. CI runs it as a required
+      step, so a non-zero exit fails the build.
+- [x] Build and test complete in a reasonable time on the free runner tier.
+      **Observed: 7m26s total** — 2m05s analyse & test, 5m14s APK. The three
+      toolchain-free checks finish in 3s, before Flutter setup begins.
+- [x] `flutter build apk --debug` succeeds. **Verified in CI**, artefact
+      uploaded. Still unverifiable locally — no Android SDK in the dev sandbox.
 
 ## Implementation
 

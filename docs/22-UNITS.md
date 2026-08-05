@@ -125,7 +125,11 @@ Non-negotiable, in `test/core/units/`:
 
 - Round-trip: `Mass.lb(x).inLb == x` within display precision for the full
   plausible range (0–1000 lb).
-- Exactness: `Mass.kg(100).grams == 100000`, `Mass.lb(45).grams == 20411`.
+- Exactness: `Mass.kg(100).grams == 100000`, `Mass.lb(45).grams == 20412`.
+  (45 × 453.59237 = 20411.657, which rounds to 20412. An earlier draft of this
+  document said 20411 — that was the *truncated* value, and truncation would
+  bias every imperial conversion downward. Conversions round to the nearest
+  gram.)
 - No drift: applying `+2.5 kg` 200 times gives exactly `500 kg` more.
 - Formatter output for every row of the display table above, in both units and
   in at least two locales (`en_US`, `de_DE` — comma decimal separator).

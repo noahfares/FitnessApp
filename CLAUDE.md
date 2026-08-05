@@ -148,11 +148,12 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.4.0**. **Phase 0, batch 0.1 done** — Flutter project scaffolded, CI
-running analyse/test/APK, `F-REL-012` auto-tagging verified working.
+Version **0.5.0**. **Phase 0 batches 0.1 and 0.2 done** — Flutter scaffold, CI
+(analyse/test/APK, all green), auto-tagging, and the units foundation
+(`Mass`/`Length`/`Distance`, formatter, parser, preferences).
 
-Next: **batch 0.2** (`F-SET-001`, `F-I18N-002` — the units foundation), then 0.3
-theming, 0.4 shell. See `docs/50-ROADMAP.md`.
+Next: **batch 0.3** (`F-THM-001/002/005`, `F-SET-002` — theming), then 0.4 shell.
+`F-SET-001` stays in-progress until its settings screen lands with the shell.
 
 Local toolchain notes: Flutter lives at `/opt/flutter` in this sandbox (add to
 `PATH`). There is **no Android SDK**, so `flutter build apk` cannot be verified

@@ -7,7 +7,7 @@ publish_to: none
 # Canonical source is the VERSION file at the repo root; CI fails if they
 # disagree. See docs/63-VERSIONING.md. The +N build number is set by the
 # release workflow (F-REL-005), not by hand.
-version: 0.4.0
+version: 0.5.0
 
 environment:
   sdk: ^3.11.0
@@ -25,6 +25,10 @@ dependencies:
   # Locale-aware number and date formatting — F-I18N-002. A German user typing
   # "102,5" must work; that is input correctness, not polish.
   intl: ^0.20.2
+
+  # Scalar settings only — unit and theme preferences (F-SET-001, F-SET-002).
+  # Anything relational lives in the database, not here.
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:
