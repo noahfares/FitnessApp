@@ -24,24 +24,11 @@ entry and say so. Don't quietly ignore it.
 
 ## Invariants
 
-Restated from [`../CLAUDE.md`](../CLAUDE.md) because they are the things most
-likely to be violated by accident. Violating one is a bug, not a style choice.
+**Canonical list: [`../CLAUDE.md`](../CLAUDE.md#invariants).** It is auto-loaded
+every session, so it is the one place that cannot go unread. Not restated here —
+a rule written in four places drifts in three of them.
 
-1. **Canonical units only** — grams, metres, seconds. No per-row unit flags.
-   ([`22-UNITS.md`](22-UNITS.md))
-2. **`lib/domain/` imports nothing from Flutter and nothing from `lib/data/`.**
-   Enforced by lint in CI.
-3. **Warm-up sets are excluded from every analytic.** Filtered once at the
-   engine boundary.
-4. **Workouts snapshot their template.** Editing a routine never alters history.
-5. **Write-through persistence.** Session state lives in the database, not in
-   memory.
-6. **No network calls in the core app.**
-7. **Nothing is ever hard-deleted.** Every delete sets `deleted_at`; every read
-   filters `deleted_at IS NULL`; every write sets `updated_at`.
-   ([ADR-0008](70-decisions/ADR-0008-sync-ready-foundations.md))
-8. **Every user-meaningful timestamp stores its local UTC offset** beside the
-   UTC value. Local calendar dates are derived from the pair, never from UTC.
+Violating one is a bug, not a style choice.
 
 ## Code style
 
@@ -91,10 +78,10 @@ Additional rules:
 
 ## Git conventions
 
-**Every commit bumps `VERSION` and gets a matching annotated tag.** No
-exceptions, no asking. The full protocol is in
-[`63-VERSIONING.md`](63-VERSIONING.md); the short version is: decide the bump,
-write `VERSION`, commit, `git tag -a vX.Y.Z`, push the branch and the tag.
+**Every commit bumps `VERSION`.** No exceptions, no asking. Tagging is then
+automatic — `.github/workflows/tag.yml` creates `v$VERSION` on push
+(`F-REL-012`), so don't create tags by hand. Full protocol:
+[`63-VERSIONING.md`](63-VERSIONING.md).
 
 **Branches:** `claude/<domain>-<short-description>`, e.g.
 `claude/log-ghost-values`.
@@ -165,25 +152,24 @@ phones are old and cold.
 The docs are the source of truth, so drift between them and the code is a defect
 in the docs.
 
-- New feature → new entry with a new ID, and update the **Allocated** column in
-  [`00-INDEX.md`](00-INDEX.md).
+- New feature → `tools/new-feature.sh <DOMAIN> "<title>"`, which allocates the
+  ID and regenerates the index. `features.tsv` and `30-features/INDEX.md` are
+  generated — never hand-edit them.
+- Built a feature and needed a document its `Reads:` line didn't list? Add it.
+  That line is what keeps future sessions cheap.
 - Decision that constrains future work → an ADR in
   [`70-decisions/`](70-decisions/).
 - Discovering a feature's spec was wrong → fix the spec, don't just fix the code.
 
 ### Cross-reference integrity
 
-Every `Depends on:` and `Blocks:` reference must resolve to a real entry, and
-every ID in [`50-ROADMAP.md`](50-ROADMAP.md) must exist in a feature file. To
-check:
-
 ```bash
-# every ID defined by a heading
-grep -rhoE '^### (F-[A-Z0-9]+-[0-9]{3})' docs/30-features/ | sed 's/^### //' | sort -u > /tmp/defined
-# every ID referenced anywhere
-grep -rhoE 'F-[A-Z0-9]+-[0-9]{3}' docs/ | sort -u > /tmp/referenced
-# anything referenced but never defined
-comm -13 /tmp/defined /tmp/referenced
+tools/check-docs.sh
 ```
 
-The last command should print nothing. Run it after any planning session.
+Verifies feature files are well formed, no ID is referenced without being
+defined, every `Reads:` target resolves, `features.tsv` and `INDEX.md` are
+current, every roadmap ID exists, counts reconcile, and `VERSION` agrees with
+`pubspec.yaml`.
+
+Run it after any planning session and before any commit that touches `docs/`.

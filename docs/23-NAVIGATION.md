@@ -1,7 +1,7 @@
 # Navigation & screens
 
 Routing with `go_router`. Features: `F-NAV-001`–`F-NAV-008` in
-[`30-features/shell.md`](30-features/shell.md).
+[`30-features/NAV/`](30-features/NAV/).
 
 ## Shell
 

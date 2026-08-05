@@ -1,0 +1,120 @@
+{
+  "$comment": "Worked fixtures from docs/40-ANALYTICS-SPEC.md, machine-readable so tests import them instead of transcribing tables into Dart. The spec document remains the human-readable source of truth; if the two ever disagree, the spec wins and this file is wrong. Weights here are in kilograms for readability; convert to canonical grams when loading (see docs/22-UNITS.md).",
+  "version": 1,
+
+  "e1rm": {
+    "spec": "40-ANALYTICS-SPEC#1-estimated-one-rep-max-e1rm",
+    "tolerance": 0.001,
+    "cases": [
+      { "weightKg": 100, "reps": 1,  "epley": 100.000, "brzycki": 100.000, "lombardi": 100.000, "reliable": true },
+      { "weightKg": 100, "reps": 5,  "epley": 116.667, "brzycki": 112.500, "lombardi": 117.462, "reliable": true },
+      { "weightKg": 100, "reps": 8,  "epley": 126.667, "brzycki": 124.138, "lombardi": 123.114, "reliable": true },
+      { "weightKg": 100, "reps": 10, "epley": 133.333, "brzycki": 133.333, "lombardi": 125.893, "reliable": true },
+      { "weightKg": 60,  "reps": 12, "epley": 84.000,  "brzycki": 86.400,  "lombardi": 76.049,  "reliable": true },
+      { "weightKg": 60,  "reps": 15, "reliable": false, "$note": "r > 12 is flagged unreliable" }
+    ]
+  },
+
+  "sessionE1rm": {
+    "spec": "40-ANALYTICS-SPEC#1-estimated-one-rep-max-e1rm",
+    "formula": "epley",
+    "sets": [
+      { "type": "warmup",  "weightKg": 60,  "reps": 10 },
+      { "type": "working", "weightKg": 100, "reps": 5  },
+      { "type": "working", "weightKg": 105, "reps": 3  },
+      { "type": "working", "weightKg": 95,  "reps": 8  }
+    ],
+    "expected": 120.333,
+    "$note": "From the 95x8 set, not the heaviest set. Warm-up excluded."
+  },
+
+  "volumeLoad": {
+    "spec": "40-ANALYTICS-SPEC#2-volume-load",
+    "sets": [
+      { "type": "warmup",  "weightKg": 60,  "reps": 10 },
+      { "type": "working", "weightKg": 100, "reps": 5  },
+      { "type": "working", "weightKg": 100, "reps": 5  },
+      { "type": "working", "weightKg": 95,  "reps": 8  }
+    ],
+    "expectedKg": 1760,
+    "expectedIfWarmupIncluded": 2360,
+    "$note": "Including the warm-up overstates by 34%."
+  },
+
+  "setsPerMuscle": {
+    "spec": "40-ANALYTICS-SPEC#3-hard-sets-per-muscle-group-per-week",
+    "primaryWeight": 1.0,
+    "secondaryWeight": 0.5,
+    "exercises": [
+      { "name": "Bench Press",   "primary": "chest",      "secondary": ["triceps", "frontDelts"], "workingSets": 4 },
+      { "name": "Overhead Press","primary": "frontDelts", "secondary": ["triceps"],               "workingSets": 3 }
+    ],
+    "expected": { "chest": 4.0, "frontDelts": 5.0, "triceps": 3.5 }
+  },
+
+  "prDetection": {
+    "spec": "40-ANALYTICS-SPEC#4-personal-records",
+    "history": [
+      { "weightKg": 100, "reps": 5, "e1rm": 116.667 },
+      { "weightKg": 105, "reps": 3, "e1rm": 116.550 }
+    ],
+    "newSet": { "weightKg": 102.5, "reps": 5, "e1rm": 119.583 },
+    "expected": {
+      "maxWeight": false,
+      "maxRepsAtWeight": true,
+      "bestE1rm": true,
+      "displayed": "bestE1rm"
+    },
+    "$note": "A heavier bar is not the only kind of progress; a naive is-it-heaviest check fails this."
+  },
+
+  "streak": {
+    "spec": "40-ANALYTICS-SPEC#5-consistency",
+    "weeklyTarget": 3,
+    "weeklySessionCounts": [3, 4, 3, 2, 3, 3, 3, 1],
+    "currentWeekInProgress": true,
+    "expected": { "currentStreak": 3, "longestStreak": 3, "sessionsPerWeek": 2.5 },
+    "$note": "The in-progress final week is provisional and does not break a streak."
+  },
+
+  "ema": {
+    "spec": "40-ANALYTICS-SPEC#6-bodyweight-trend-ema",
+    "periodN": 7,
+    "alpha": 0.25,
+    "tolerance": 0.001,
+    "inputKg":    [80.0,   80.6,   80.2,   81.0,   80.4,   80.8,   80.5  ],
+    "expectedKg": [80.000, 80.150, 80.163, 80.372, 80.379, 80.484, 80.488]
+  },
+
+  "slope": {
+    "spec": "40-ANALYTICS-SPEC#7-stall-detection",
+    "minSessions": 5,
+    "stallThresholdKgPerSession": 0.1,
+    "sessionE1rm": [126.7, 127.5, 127.0, 127.2, 126.9],
+    "expected": { "slope": 0.01, "stalled": true },
+    "tolerance": 0.0001
+  },
+
+  "acwr": {
+    "spec": "40-ANALYTICS-SPEC#8-acute-to-chronic-workload-ratio",
+    "weeklyVolumeKg": [10000, 11000, 10500, 15000],
+    "expected": { "acute": 15000, "chronic": 11625, "ratio": 1.290 },
+    "tolerance": 0.001
+  },
+
+  "pushPullRatio": {
+    "spec": "40-ANALYTICS-SPEC#9-muscle-balance-ratios",
+    "muscleSets": {
+      "chest": 12, "frontDelts": 6, "triceps": 9,
+      "lats": 10, "upperBack": 6, "biceps": 6
+    },
+    "expected": { "push": 27, "pull": 22, "ratio": 1.23 },
+    "tolerance": 0.01
+  },
+
+  "emptyInput": {
+    "$note": "Every analytics function must return a defined empty result for these, never throw and never zero. Zero and unknown are different things.",
+    "sets": [],
+    "expected": "insufficientData"
+  }
+}

@@ -1,0 +1,62 @@
+# F-REL-012 — create the tag for VERSION automatically on every push.
+#
+# The versioning protocol (docs/63-VERSIONING.md) requires every commit to carry
+# a matching tag. Doing it here rather than locally makes that a guarantee
+# instead of a discipline, and works from environments whose credentials cannot
+# push tags directly.
+name: tag
+
+on:
+  push:
+    branches: ['**']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tag-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read VERSION
+        id: v
+        run: |
+          set -euo pipefail
+          [ -f VERSION ] || { echo "::error::VERSION file missing"; exit 1; }
+          V=$(tr -d '[:space:]' < VERSION)
+          if ! printf '%s' "$V" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::VERSION '$V' is not MAJOR.MINOR.PATCH"; exit 1
+          fi
+          echo "version=$V"  >> "$GITHUB_OUTPUT"
+          echo "tag=v$V"     >> "$GITHUB_OUTPUT"
+
+      - name: Create tag if absent
+        env:
+          TAG: ${{ steps.v.outputs.tag }}
+        run: |
+          set -euo pipefail
+          SHA="${GITHUB_SHA}"
+
+          if existing=$(git rev-list -n1 "refs/tags/${TAG}" 2>/dev/null); then
+            if [ "$existing" = "$SHA" ]; then
+              echo "${TAG} already points at ${SHA} — nothing to do."
+              exit 0
+            fi
+            echo "::error::${TAG} already exists at ${existing} but this commit is ${SHA}."
+            echo "::error::Tags are immutable. Bump VERSION instead of reusing a version number."
+            exit 1
+          fi
+
+          SUBJECT=$(git log -1 --pretty=%s "$SHA")
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${TAG}" -m "${TAG} — ${SUBJECT}" "$SHA"
+          git push origin "refs/tags/${TAG}"
+          echo "Created ${TAG} at ${SHA}."

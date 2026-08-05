@@ -7,6 +7,7 @@ documents relevant to your task.
 ## How the pieces connect
 
 ```
+01-PLAIN-ENGLISH     what all the jargon means — start here if it's unfamiliar
 10-VISION            why the project exists, what it will and won't be
 11-EXTERNAL-INPUTS   outside handoffs: what was adopted, what was rejected
    │
@@ -19,7 +20,8 @@ documents relevant to your task.
    │        └── 24-DESIGN-SYSTEM          theme, components
    │                                │
    ▼                                ▼
-30-features/  ← every feature, with a stable F-ID ─────┐
+30-features/<DOM>/<F-ID>.md  ← one file each; `Reads:` names its deps ─┐
+features.tsv  ← all 163 in one small generated file                    │
    │                                                   │
    ├── 40-ANALYTICS-SPEC   formulas the ANA/PRG features implement
    │                                                   │
@@ -37,8 +39,10 @@ documents relevant to your task.
 
 | If you're… | Read |
 |---|---|
-| Implementing a feature | `30-features/<domain>.md` for the ID, plus whatever it links |
-| Adding a new feature idea | `30-features/README.md` (entry format), then `51-BACKLOG.md` |
+| **New to the vocabulary** | **`01-PLAIN-ENGLISH.md` — start here** |
+| Implementing a feature | `30-features/<DOM>/<F-ID>.md`, then only its `Reads:` line |
+| Seeing project state | `features.tsv` — don't open specs for this |
+| Adding a new feature idea | `tools/new-feature.sh`, then `51-BACKLOG.md` |
 | Touching the database | `21-DATA-MODEL.md`, then `60-ENGINEERING.md` §migrations |
 | Touching anything numeric | `22-UNITS.md` — non-negotiable |
 | Writing analytics or progression | `40-ANALYTICS-SPEC.md` — has worked fixtures for tests |
@@ -54,6 +58,7 @@ documents relevant to your task.
 
 | File | Purpose |
 |---|---|
+| [`01-PLAIN-ENGLISH.md`](01-PLAIN-ENGLISH.md) | Every technical term explained, in plain language |
 | [`10-VISION.md`](10-VISION.md) | Principles, audience, non-goals, competitor gap, risks |
 | [`11-EXTERNAL-INPUTS.md`](11-EXTERNAL-INPUTS.md) | Handoff docs and prior art brought in from outside: what was adopted, what was rejected |
 | [`20-ARCHITECTURE.md`](20-ARCHITECTURE.md) | Layering, folder structure, dependencies |
@@ -61,7 +66,8 @@ documents relevant to your task.
 | [`22-UNITS.md`](22-UNITS.md) | Canonical storage, value objects, formatting |
 | [`23-NAVIGATION.md`](23-NAVIGATION.md) | Screen inventory, routes, state patterns |
 | [`24-DESIGN-SYSTEM.md`](24-DESIGN-SYSTEM.md) | Colour, type, spacing, components, light/dark |
-| [`30-features/`](30-features/) | The feature catalogue — see below |
+| [`30-features/`](30-features/) | The feature catalogue — one file per feature |
+| [`features.tsv`](features.tsv) | Generated: whole project state in one file |
 | [`40-ANALYTICS-SPEC.md`](40-ANALYTICS-SPEC.md) | Every metric: formula, edge cases, fixtures |
 | [`50-ROADMAP.md`](50-ROADMAP.md) | Phases and exit criteria |
 | [`51-BACKLOG.md`](51-BACKLOG.md) | Unscheduled features |
@@ -74,31 +80,44 @@ documents relevant to your task.
 
 ## Feature ID registry
 
-Every feature has a permanent ID of the form `F-<DOMAIN>-<NNN>`. IDs are never
-changed and never reused. The roadmap, ADRs, commits, and tests all reference
-features by ID rather than restating them.
+Every feature has a permanent ID of the form `F-<DOMAIN>-<NNN>`, and lives in
+its own file named after it: `F-LOG-004` → `30-features/LOG/F-LOG-004.md`. The
+filename *is* the address, so nothing needs searching. IDs are never changed and
+never reused.
 
-| Domain | Scope | File | Allocated |
-|---|---|---|---|
-| `CAT` | Exercise catalogue | [`30-features/catalog.md`](30-features/catalog.md) | 001–014 |
-| `LOG` | Workout logging | [`30-features/logging.md`](30-features/logging.md) | 001–023 |
-| `ROU` | Routines & programs | [`30-features/routines.md`](30-features/routines.md) | 001–015 |
-| `TIM` | Timers | [`30-features/timers.md`](30-features/timers.md) | 001–009 |
-| `ANA` | Analytics & charts | [`30-features/analytics.md`](30-features/analytics.md) | 001–018 |
-| `PRG` | Progression engine | [`30-features/progression.md`](30-features/progression.md) | 001–012 |
-| `BOD` | Body metrics | [`30-features/body.md`](30-features/body.md) | 001–006 |
-| `DAT` | Data portability | [`30-features/data-portability.md`](30-features/data-portability.md) | 001–011 |
-| `SET` | Settings | [`30-features/settings.md`](30-features/settings.md) | 001–011 |
-| `PLT` | Plate mathematics | [`30-features/plate-math.md`](30-features/plate-math.md) | 001–005 |
-| `NAV` | App shell & navigation | [`30-features/shell.md`](30-features/shell.md) | 001–008 |
-| `THM` | Theming | [`30-features/shell.md`](30-features/shell.md) | 001–006 |
-| `A11Y` | Accessibility | [`30-features/shell.md`](30-features/shell.md) | 001–005 |
-| `I18N` | Localisation | [`30-features/shell.md`](30-features/shell.md) | 001–003 |
-| `HLT` | Health platform integration | [`30-features/health.md`](30-features/health.md) | 001–005 |
-| `REL` | Release & distribution | [`30-features/release.md`](30-features/release.md) | 001–011 |
+**[`features.tsv`](features.tsv)** holds the whole project state — 163 rows with
+phase, status, priority, dependencies and required reading. Read it to answer
+"what's next" or "what's left"; don't open spec files for that.
+**[`30-features/INDEX.md`](30-features/INDEX.md)** is the same data as a browsable
+table. Both are generated by `tools/gen-index.sh` — never hand-edit them.
 
-When allocating a new ID, take the next unused number in the domain and update
-the **Allocated** column above in the same commit.
+| Domain | Scope |
+|---|---|
+| [`CAT`](30-features/CAT/) | Exercise catalogue |
+| [`ROU`](30-features/ROU/) | Routines & programs |
+| [`LOG`](30-features/LOG/) | Workout logging |
+| [`TIM`](30-features/TIM/) | Timers |
+| [`ANA`](30-features/ANA/) | Analytics & charts |
+| [`PRG`](30-features/PRG/) | Progression engine |
+| [`BOD`](30-features/BOD/) | Body metrics |
+| [`DAT`](30-features/DAT/) | Data portability |
+| [`SET`](30-features/SET/) | Settings |
+| [`PLT`](30-features/PLT/) | Plate mathematics |
+| [`NAV`](30-features/NAV/) | App shell & navigation |
+| [`THM`](30-features/THM/) | Theming |
+| [`A11Y`](30-features/A11Y/) | Accessibility |
+| [`I18N`](30-features/I18N/) | Localisation |
+| [`HLT`](30-features/HLT/) | Health platform integration |
+| [`REL`](30-features/REL/) | Release & distribution |
+
+New IDs are allocated by `tools/new-feature.sh <DOMAIN> "<title>"`, which takes
+the next free number and regenerates the index.
+
+### The `Reads:` line
+
+Every feature declares the documents needed to build it. A build session opens
+those and nothing else — that is what keeps sessions cheap. Targets are verified
+by `tools/check-docs.sh`.
 
 ## Specification depth
 

@@ -68,12 +68,11 @@ definitions below.
 | `updated_at` | int NOT NULL | UTC epoch ms, rewritten on **every** modification |
 | `deleted_at` | int? | Soft-delete tombstone. **Nothing is ever hard-deleted** |
 
-Two rules that follow, both centralised so no feature can forget them:
-
-- **Every write sets `updated_at`.** Enforced in the repository layer.
-- **Every read filters `deleted_at IS NULL`.** Enforced in the DAOs. A query
-  that forgets this silently resurrects deleted rows — the single most likely
-  bug this schema introduces.
+Two rules follow, both [invariants](../CLAUDE.md#invariants) and both
+centralised so no feature can forget them: every write sets `updated_at`
+(repository layer), and every read filters `deleted_at IS NULL` (DAOs). A query
+that forgets the second silently resurrects deleted rows — the single most
+likely bug this schema introduces.
 
 ## Schema — v1
 

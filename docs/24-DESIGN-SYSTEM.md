@@ -1,7 +1,7 @@
 # Design system
 
 Material 3. Features `F-THM-001`–`F-THM-006` and `F-A11Y-001`–`F-A11Y-005` in
-[`30-features/shell.md`](30-features/shell.md).
+[`30-features/THM/`](30-features/THM/) and [`A11Y/`](30-features/A11Y/).
 
 ## Design brief
 

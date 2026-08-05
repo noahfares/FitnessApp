@@ -1,0 +1,164 @@
+id	phase	status	priority	title	depends	blocks	reads
+F-CAT-001	1	planned	P0	Seeded exercise catalogue		F-CAT-002, F-LOG-002	21-DATA-MODEL#exercises, 21-DATA-MODEL#seed-data, 10-VISION#risks
+F-CAT-002	1	planned	P0	Exercise model & tracking types	F-CAT-001	F-LOG-003	21-DATA-MODEL#exercises, 40-ANALYTICS-SPEC#universal-preconditions
+F-CAT-003	1	planned	P0	Custom exercises	F-CAT-002		21-DATA-MODEL#exercises
+F-CAT-004	1	planned	P0	Search	F-CAT-001		21-DATA-MODEL#exercises
+F-CAT-005	1	planned	P1	Filter by muscle and equipment	F-CAT-001		21-DATA-MODEL#exercises
+F-CAT-006	2	planned	P1	Favourites and recency ordering	F-CAT-004		21-DATA-MODEL#exercises
+F-CAT-007	2	planned	P1	Per-exercise sticky notes			21-DATA-MODEL#exercises
+F-CAT-008	2	planned	P2	Aliases and synonyms	F-CAT-004		21-DATA-MODEL#exercises
+F-CAT-009	2	planned	P1	Archive and hide			21-DATA-MODEL#exercises
+F-CAT-010	—	idea	P2	Merge duplicate exercises			21-DATA-MODEL#exercises
+F-CAT-011	—	idea	P3	Exercise media			21-DATA-MODEL#exercises
+F-CAT-012	—	idea	P2	Substitution suggestions	F-CAT-013		21-DATA-MODEL#exercises
+F-CAT-013	3	planned	P1	Muscle taxonomy and body map data		F-ANA-005, F-ANA-008, F-ANA-014	21-DATA-MODEL#exercises, 40-ANALYTICS-SPEC#3-hard-sets-per-muscle-group-per-week
+F-CAT-014	—	idea	P3	Exercise variants and modifiers			21-DATA-MODEL#exercises
+F-ROU-001	2	planned	P0	Routine CRUD		F-ROU-002, F-ROU-010	21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-002	2	planned	P0	Routine days	F-ROU-001		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-003	2	planned	P0	Exercise targets	F-ROU-002	F-PRG-001	21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-004	2	planned	P1	Reordering			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-005	2	planned	P1	Supersets and circuits		F-LOG-015	21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-006	2	planned	P1	Rest defaults	F-TIM-005		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-007	2	planned	P2	Folders			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-008	2	planned	P1	Duplicate and version	F-ROU-001		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-009	2	planned	P2	Archive routines			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-010	2	planned	P0	Start a workout from a routine day	F-ROU-003, F-LOG-001	F-PRG-001	70-decisions/ADR-0004-template-snapshot, 21-DATA-MODEL#workout_exercises
+F-ROU-011	3	planned	P2	Routine preview	F-ANA-005		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-012	3	planned	P2	Scheduling			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-013	—	idea	P2	Cycles, blocks and deload weeks			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-014	—	idea	P2	Share and import routines	F-DAT-001		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-015	3	planned	P2	Built-in starter programs			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-LOG-001	1	planned	P0	Start, finish, and discard a workout		F-LOG-002, F-LOG-003, F-LOG-007	21-DATA-MODEL#workouts, 23-NAVIGATION
+F-LOG-002	1	planned	P0	Add exercises to a session	F-LOG-001, F-CAT-001		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-003	1	planned	P0	Set row entry	F-LOG-002, F-CAT-002	F-LOG-004, F-LOG-005, F-LOG-006	21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory, 22-UNITS
+F-LOG-004	1	planned	P0	"Last time" ghost values	F-LOG-003	F-PRG-001	21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#colour, 22-UNITS, 60-ENGINEERING#performance-budgets
+F-LOG-005	1	planned	P0	Set types	F-LOG-003		21-DATA-MODEL#sets, 40-ANALYTICS-SPEC#universal-preconditions
+F-LOG-006	1	planned	P0	Numeric keypad and steppers	F-LOG-003	F-PLT-001	22-UNITS, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-007	1	planned	P0	Crash and kill recovery	F-LOG-001		21-DATA-MODEL#persistence-behaviour
+F-LOG-008	1	planned	P1	Session and exercise notes			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-009	1	planned	P0	Edit and delete past workouts			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-010	2	planned	P1	Modify a session in progress	F-LOG-002		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-011	1	planned	P0	Workout history list			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-012	1	planned	P0	Workout detail			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-013	2	planned	P1	PR detection and celebration	F-LOG-003		40-ANALYTICS-SPEC#4-personal-records, 21-DATA-MODEL#personal_records
+F-LOG-014	2	planned	P1	RPE and RIR		F-PRG-005	21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-015	2	planned	P1	Supersets in the logger	F-ROU-005		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-016	2	planned	P1	Repeat a previous session			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-017	2	planned	P1	Per-side versus total weight			22-UNITS, 21-DATA-MODEL#sets
+F-LOG-018	1	planned	P1	Session summary	F-LOG-001		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-019	4	planned	P2	Bodyweight-loaded exercises	F-BOD-001		40-ANALYTICS-SPEC#2-volume-load, 21-DATA-MODEL#exercises
+F-LOG-020	4	planned	P2	Warm-up set generator	F-PLT-001, F-LOG-005		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-021	—	idea	P2	Live session metrics			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-022	2	planned	P1	Undo and mis-tap protection			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-023	1	planned	P1	Per-set notes	F-LOG-003		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-TIM-001	1	planned	P0	Rest timer core		F-TIM-002, F-TIM-003	20-ARCHITECTURE#cross-platform-discipline
+F-TIM-002	1	planned	P0	Auto-start on set completion	F-TIM-001, F-LOG-003		20-ARCHITECTURE#cross-platform-discipline
+F-TIM-003	1	planned	P0	Background execution and notification	F-TIM-001		20-ARCHITECTURE#cross-platform-discipline
+F-TIM-004	2	planned	P2	Notification and lock-screen controls	F-TIM-003		20-ARCHITECTURE#cross-platform-discipline
+F-TIM-005	1	planned	P1	Default rest durations			20-ARCHITECTURE#cross-platform-discipline
+F-TIM-006	1	planned	P1	Alert style			20-ARCHITECTURE#cross-platform-discipline
+F-TIM-007	2	planned	P2	Rest-taken recording			20-ARCHITECTURE#cross-platform-discipline
+F-TIM-008	—	idea	P3	Interval / EMOM timer			20-ARCHITECTURE#cross-platform-discipline
+F-TIM-009	4	planned	P2	Stopwatch for timed exercises	F-CAT-002		20-ARCHITECTURE#cross-platform-discipline
+F-ANA-001	3	planned	P0	Analytics engine		F-ANA-002 … F-ANA-014	40-ANALYTICS-SPEC, 20-ARCHITECTURE#the-one-hard-rule
+F-ANA-002	3	planned	P0	Per-exercise history			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-003	3	planned	P1	Estimated 1RM trend	F-ANA-001		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-004	3	planned	P1	Volume charts	F-ANA-001		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-005	3	planned	P1	Sets per muscle group per week	F-CAT-013	F-ROU-011	40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-006	3	planned	P1	Consistency			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-007	3	planned	P1	PR timeline	F-LOG-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-008	3	planned	P2	Muscle balance	F-CAT-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-009	4	planned	P2	Stall detection	F-ANA-003		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-010	4	planned	P2	Acute-to-chronic workload ratio			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-011	4	planned	P2	Rep range and intensity distribution	F-LOG-014		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-012	4	planned	P3	Duration and rest compliance	F-TIM-007		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-013	4	planned	P2	Weekly insight cards	F-ANA-003, F-ANA-004, F-ANA-005, F-ANA-009		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-014	4	planned	P3	Body map heat overlay	F-CAT-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-015	3	planned	P1	Date range and filter controls			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-016	3	planned	P2	Chart interaction			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-017	—	idea	P3	Year in review			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-018	—	idea	P3	Exercise comparison			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-PRG-001	4	planned	P1	Progression engine core	F-ROU-003, F-ROU-010, F-LOG-004	F-PRG-002 … F-PRG-006	40-ANALYTICS-SPEC, 20-ARCHITECTURE#the-one-hard-rule, 22-UNITS
+F-PRG-002	4	planned	P1	Linear progression	F-PRG-001		40-ANALYTICS-SPEC, 22-UNITS
+F-PRG-003	4	planned	P1	Double progression	F-PRG-001		40-ANALYTICS-SPEC, 22-UNITS
+F-PRG-004	4	planned	P2	Percentage / training-max based	F-PRG-010		40-ANALYTICS-SPEC, 22-UNITS
+F-PRG-005	4	planned	P2	RPE-autoregulated	F-LOG-014		40-ANALYTICS-SPEC, 22-UNITS
+F-PRG-006	4	planned	P1	Manual carry-forward			40-ANALYTICS-SPEC, 22-UNITS
+F-PRG-007	4	planned	P1	Rule assignment			40-ANALYTICS-SPEC, 22-UNITS
+F-PRG-008	4	planned	P1	Target explanation	F-PRG-001		40-ANALYTICS-SPEC, 22-UNITS
+F-PRG-009	4	planned	P1	Failure and deload handling	F-PRG-002		40-ANALYTICS-SPEC, 22-UNITS
+F-PRG-010	4	planned	P2	Training max management		F-PRG-004	40-ANALYTICS-SPEC, 22-UNITS
+F-PRG-011	4	planned	P2	Deload suggestion	F-ANA-009, F-ANA-010		40-ANALYTICS-SPEC, 22-UNITS
+F-PRG-012	4	planned	P1	Plate-aware rounding	F-PLT-001		22-UNITS, 40-ANALYTICS-SPEC
+F-BOD-001	1	planned	P0	Bodyweight log		F-LOG-019, F-BOD-003	21-DATA-MODEL#body_measurements, 22-UNITS
+F-BOD-002	4	planned	P2	Circumference measurements			21-DATA-MODEL#body_measurements, 22-UNITS
+F-BOD-003	4	planned	P1	Trend charts with smoothing	F-BOD-001, F-ANA-001		21-DATA-MODEL#body_measurements, 22-UNITS
+F-BOD-004	5	planned	P2	Progress photos			21-DATA-MODEL#body_measurements, 22-UNITS
+F-BOD-005	—	idea	P3	Goals			21-DATA-MODEL#body_measurements, 22-UNITS
+F-BOD-006	—	idea	P3	Measurement reminders			21-DATA-MODEL#body_measurements, 22-UNITS
+F-DAT-001	5	planned	P0	JSON export		F-DAT-003, F-ROU-014	22-UNITS#import-and-export, 21-DATA-MODEL
+F-DAT-002	5	planned	P1	CSV export			21-DATA-MODEL, 22-UNITS#import-and-export
+F-DAT-003	5	planned	P0	Backup file	F-DAT-001		21-DATA-MODEL, 22-UNITS#import-and-export
+F-DAT-004	5	planned	P0	Restore	F-DAT-003		21-DATA-MODEL, 22-UNITS#import-and-export
+F-DAT-005	5	planned	P1	Strong CSV import		F-CAT-010	22-UNITS#import-and-export, 21-DATA-MODEL
+F-DAT-006	5	planned	P2	Hevy CSV import	F-DAT-005		21-DATA-MODEL, 22-UNITS#import-and-export
+F-DAT-007	5	planned	P1	Import mapping UI	F-DAT-005		21-DATA-MODEL, 22-UNITS#import-and-export
+F-DAT-008	5	planned	P2	Automatic local backups	F-DAT-003		21-DATA-MODEL, 22-UNITS#import-and-export
+F-DAT-009	—	idea	P2	File-based cloud sync	F-DAT-003		21-DATA-MODEL, 22-UNITS#import-and-export
+F-DAT-010	5	planned	P2	Wipe all data			21-DATA-MODEL, 22-UNITS#import-and-export
+F-DAT-011	1	planned	P0	Minimal JSON dump		F-DAT-001	21-DATA-MODEL, 22-UNITS#import-and-export
+F-SET-001	0	planned	P0	Units		F-LOG-003, F-BOD-001, F-PLT-002	22-UNITS, 70-decisions/ADR-0003-canonical-units
+F-SET-002	0	planned	P0	Theme mode			22-UNITS
+F-SET-003	1	planned	P1	Rest-timer defaults	F-TIM-005		22-UNITS
+F-SET-004	4	planned	P1	Bar and plate inventory	F-PLT-002		22-UNITS
+F-SET-005	3	planned	P1	Week start		F-ANA-004, F-ANA-006	22-UNITS
+F-SET-006	3	planned	P2	e1RM formula	F-ANA-003		22-UNITS
+F-SET-007	2	planned	P1	Increment steps	F-SET-001		22-UNITS
+F-SET-008	2	planned	P2	Notification preferences	F-TIM-003		22-UNITS
+F-SET-009	1	planned	P1	About			22-UNITS
+F-SET-010	5	planned	P3	App lock	F-BOD-004		22-UNITS
+F-SET-011	6	planned	P2	Onboarding			22-UNITS
+F-PLT-001	4	planned	P1	Plate calculator	F-PLT-002	F-PRG-012, F-LOG-020	22-UNITS, 21-DATA-MODEL#bars-and-plates
+F-PLT-002	4	planned	P1	Bar and plate inventory		F-PLT-001	22-UNITS, 21-DATA-MODEL#bars-and-plates
+F-PLT-003	4	planned	P2	Loading visualisation	F-PLT-001		22-UNITS, 21-DATA-MODEL#bars-and-plates
+F-PLT-004	4	planned	P1	Closest achievable weight	F-PLT-001, F-PLT-002	F-PRG-012	22-UNITS, 21-DATA-MODEL#bars-and-plates
+F-PLT-005	4	planned	P2	Machine and stack increments			22-UNITS, 21-DATA-MODEL#bars-and-plates
+F-NAV-001	0	planned	P0	App shell and bottom navigation		F-NAV-002, F-NAV-003	23-NAVIGATION
+F-NAV-002	0	planned	P0	Routing and deep links	F-NAV-001		23-NAVIGATION
+F-NAV-003	1	planned	P0	Active-workout banner	F-LOG-001		23-NAVIGATION
+F-NAV-004	1	planned	P1	Dashboard			23-NAVIGATION
+F-NAV-005	1	planned	P1	Empty states			23-NAVIGATION
+F-NAV-006	1	planned	P1	Error and loading states			23-NAVIGATION
+F-NAV-007	—	idea	P3	Home-screen widget			23-NAVIGATION
+F-NAV-008	—	idea	P3	App shortcuts			23-NAVIGATION
+F-THM-001	0	planned	P0	Material 3 foundation		F-THM-002, F-THM-003, F-THM-004	24-DESIGN-SYSTEM
+F-THM-002	0	planned	P0	Light and dark schemes	F-THM-001		24-DESIGN-SYSTEM, 30-features/LOG/F-LOG-004
+F-THM-003	2	planned	P2	Dynamic colour			24-DESIGN-SYSTEM
+F-THM-004	3	planned	P1	Chart theming	F-THM-001, F-ANA-001		24-DESIGN-SYSTEM
+F-THM-005	0	planned	P1	Typography	F-THM-001		24-DESIGN-SYSTEM
+F-THM-006	6	planned	P2	App icon and branding			24-DESIGN-SYSTEM
+F-A11Y-001	6	planned	P1	Screen reader support			24-DESIGN-SYSTEM#accessibility-baseline
+F-A11Y-002	6	planned	P1	Dynamic type			24-DESIGN-SYSTEM#accessibility-baseline
+F-A11Y-003	6	planned	P1	Contrast and colour independence			24-DESIGN-SYSTEM#accessibility-baseline
+F-A11Y-004	1	planned	P1	Touch targets and reach			24-DESIGN-SYSTEM#accessibility-baseline
+F-A11Y-005	6	planned	P2	Reduce motion			24-DESIGN-SYSTEM#accessibility-baseline
+F-I18N-001	6	planned	P1	String externalisation			22-UNITS, 24-DESIGN-SYSTEM
+F-I18N-002	0	planned	P1	Locale-aware formatting	F-SET-001		22-UNITS, 24-DESIGN-SYSTEM
+F-I18N-003	—	idea	P3	Additional locales			22-UNITS, 24-DESIGN-SYSTEM
+F-HLT-001	6	planned	P2	Health Connect write			20-ARCHITECTURE#cross-platform-discipline
+F-HLT-002	6	planned	P3	Health Connect read	F-BOD-001		20-ARCHITECTURE#cross-platform-discipline
+F-HLT-003	—	idea	P2	HealthKit parity	F-HLT-001		20-ARCHITECTURE#cross-platform-discipline
+F-HLT-004	—	idea	P3	Wear OS companion			20-ARCHITECTURE#cross-platform-discipline
+F-HLT-005	—	idea	P3	watchOS companion	F-HLT-004		20-ARCHITECTURE#cross-platform-discipline
+F-REL-001	0	planned	P0	CI build and checks		F-REL-002	62-RELEASE, 61-CI-CD
+F-REL-002	1	planned	P0	Signed release APK	F-REL-001		62-RELEASE, 70-decisions/ADR-0007-signing
+F-REL-003	1	planned	P1	GitHub Release automation	F-REL-002		62-RELEASE, 61-CI-CD
+F-REL-004	6	planned	P1	App bundle for Play	F-REL-002		62-RELEASE, 61-CI-CD
+F-REL-005	1	planned	P1	Versioning scheme			62-RELEASE, 61-CI-CD
+F-REL-006	6	planned	P2	Store listing assets	F-THM-006		62-RELEASE, 61-CI-CD
+F-REL-007	6	planned	P0	Privacy policy and data safety			62-RELEASE, 10-VISION#non-goals
+F-REL-008	—	idea	P2	Update check for sideloaded installs			62-RELEASE, 61-CI-CD
+F-REL-009	—	idea	P2	iOS build and TestFlight			62-RELEASE, 61-CI-CD
+F-REL-010	—	idea	P3	F-Droid			62-RELEASE, 61-CI-CD
+F-REL-011	—	idea	P2	Crash reporting			62-RELEASE, 61-CI-CD
+F-REL-012	0	planned	P0	Auto-tag from VERSION		F-REL-003	63-VERSIONING, 61-CI-CD

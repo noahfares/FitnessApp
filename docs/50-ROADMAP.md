@@ -70,13 +70,35 @@ likely way this project fails.
 
 ---
 
+## Batches
+
+Features are grouped into **batches** — sets that share the same background
+reading and are naturally built together. Building a batch in one session means
+the foundational documents get read once instead of once per feature, which is
+the single biggest lever on how much work fits in a session.
+
+Prefer batches over individual features. Each batch below lists its shared
+`Reads:` set; the per-feature files add anything extra.
+
+Phases 0–1 are batched in detail. Later phases get batched when they are
+scheduled — batching work that is years out would only be re-done.
+
+---
+
 ## Phase 0 — Foundation
 
 Project skeleton with no features. Everything here is load-bearing for
 everything after it.
 
 `F-NAV-001` `F-NAV-002` `F-THM-001` `F-THM-002` `F-THM-005` `F-I18N-002`
-`F-SET-001` `F-SET-002` `F-REL-001`
+`F-SET-001` `F-SET-002` `F-REL-001` `F-REL-012`
+
+| Batch | Features | Shared reads |
+|---|---|---|
+| **0.1** Project & CI | `F-REL-001` `F-REL-012` | `20-ARCHITECTURE` `61-CI-CD` `63-VERSIONING` |
+| **0.2** Units foundation | `F-SET-001` `F-I18N-002` | `22-UNITS` `ADR-0003` |
+| **0.3** Theme | `F-THM-001` `F-THM-002` `F-THM-005` `F-SET-002` | `24-DESIGN-SYSTEM` |
+| **0.4** Shell & routing | `F-NAV-001` `F-NAV-002` | `23-NAVIGATION` |
 
 Also, though not features: the Drift schema from
 [`21-DATA-MODEL.md`](21-DATA-MODEL.md), the `Mass`/`Length`/`Distance` value
@@ -91,6 +113,8 @@ objects from [`22-UNITS.md`](22-UNITS.md), and the layer-rule lint.
 - [ ] `flutter analyze` and `flutter test` green in CI; debug APK downloadable
       from a build artefact.
 - [ ] CI fails when a `domain/` file imports Flutter.
+- [ ] Pushing a `VERSION` bump creates the matching tag with no manual step
+      (`F-REL-012`).
 
 ---
 
@@ -113,6 +137,21 @@ The point of this phase is a real training session logged on a real phone.
 **Unrecoverable capture** `F-BOD-001` `F-DAT-011`
 
 **Release** `F-REL-002` `F-REL-003` `F-REL-005`
+
+| Batch | Features | Shared reads |
+|---|---|---|
+| **1.1** Catalogue data | `F-CAT-001` `F-CAT-002` `F-CAT-003` | `21-DATA-MODEL#exercises` `21-DATA-MODEL#seed-data` |
+| **1.2** Catalogue UI | `F-CAT-004` `F-CAT-005` | `23-NAVIGATION` `24-DESIGN-SYSTEM#component-inventory` |
+| **1.3** Session lifecycle | `F-LOG-001` `F-LOG-002` `F-LOG-007` | `21-DATA-MODEL#workouts` `21-DATA-MODEL#persistence-behaviour` |
+| **1.4** The set row | `F-LOG-003` `F-LOG-004` `F-LOG-005` `F-LOG-006` `F-LOG-023` | `21-DATA-MODEL#sets` `24-DESIGN-SYSTEM#component-inventory` `22-UNITS` |
+| **1.5** Rest timer | `F-TIM-001` `F-TIM-002` `F-TIM-003` `F-TIM-005` `F-TIM-006` `F-SET-003` | `20-ARCHITECTURE#cross-platform-discipline` |
+| **1.6** History | `F-LOG-008` `F-LOG-009` `F-LOG-011` `F-LOG-012` `F-LOG-018` | `21-DATA-MODEL` `23-NAVIGATION` |
+| **1.7** Shell & empty states | `F-NAV-003` `F-NAV-004` `F-NAV-005` `F-NAV-006` `F-A11Y-004` | `23-NAVIGATION` `24-DESIGN-SYSTEM` |
+| **1.8** Unrecoverable capture | `F-BOD-001` `F-DAT-011` | `21-DATA-MODEL#body_measurements` `22-UNITS` |
+| **1.9** Ship it | `F-REL-002` `F-REL-003` `F-REL-005` `F-SET-009` | `62-RELEASE` `ADR-0007` `63-VERSIONING` |
+
+Batch **1.4** is the heart of the app and the one to take most care over —
+everything else in Phase 1 exists to support it.
 
 **Exit criteria**
 - [ ] A complete training session can be logged start to finish without touching
@@ -259,14 +298,17 @@ wearable companions (`F-HLT-004`, `F-HLT-005`).
 
 ## Phase summary
 
-| Phase | Features | Theme |
-|---|---|---|
-| 0 | 9 | Foundation |
-| 1 | 35 | MVP — a usable logger |
-| 2 | 26 | Programs and templates |
-| 3 | 17 | Analytics |
-| 4 | 29 | Progression and automation |
-| 5 | 11 | Data portability |
-| 6 | 12 | Store release |
-| — | 23 | Backlog |
-| | **139 scheduled, 23 unscheduled, 162 defined** | |
+| Phase | Features | Batches | Theme |
+|---|---|---|---|
+| 0 | 10 | 4 | Foundation |
+| 1 | 35 | 9 | MVP — a usable logger |
+| 2 | 26 | TBD | Programs and templates |
+| 3 | 17 | TBD | Analytics |
+| 4 | 29 | TBD | Progression and automation |
+| 5 | 11 | TBD | Data portability |
+| 6 | 12 | TBD | Store release |
+| — | 23 | — | Backlog |
+| | **140 scheduled, 23 unscheduled, 163 defined** | | |
+
+Live counts are in [`features.tsv`](features.tsv); `tools/check-docs.sh`
+verifies this table still reconciles.

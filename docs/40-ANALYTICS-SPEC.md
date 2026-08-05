@@ -3,11 +3,15 @@
 Every metric the app computes: definition, formula, edge cases, and a worked
 numeric fixture. Implemented as pure functions in `lib/domain/analytics/`
 (`F-ANA-001`); presented by the features in
-[`30-features/analytics.md`](30-features/analytics.md).
+[`30-features/ANA/`](30-features/ANA/).
 
-**The fixtures in this document are the unit tests.** Each one is copied
-verbatim into `test/domain/analytics/` when its function is implemented. A
-metric without a passing fixture test is not done.
+**The fixtures in this document are the unit tests.** They are also available
+machine-readable in [`fixtures/analytics.json`](fixtures/analytics.json) —
+tests load that file rather than transcribing these tables into Dart, so the two
+cannot drift apart. This document stays the source of truth: if they ever
+disagree, the JSON is wrong.
+
+A metric without a passing fixture test is not done.
 
 ## Universal preconditions
 

@@ -1,6 +1,6 @@
 # Release & distribution
 
-Operational runbook. Features: [`30-features/release.md`](30-features/release.md).
+Operational runbook. Features: [`30-features/REL/`](30-features/REL/).
 Workflows: [`61-CI-CD.md`](61-CI-CD.md). Decision:
 [ADR-0007](70-decisions/ADR-0007-signing.md).
 
@@ -50,10 +50,10 @@ switch.
 
 ---
 
-## Versioning (`F-REL-005`)
+## Versioning (`F-REL-005`, `F-REL-012`)
 
-**Full scheme and the mandatory bump-and-tag protocol:
-[`63-VERSIONING.md`](63-VERSIONING.md).** Summary as it affects releases:
+**Canonical: [`63-VERSIONING.md`](63-VERSIONING.md).** Only what affects
+releases is noted here:
 
 - `VERSION` at the repo root is the source of truth; the tag is `v` + its
   contents; `pubspec.yaml` derives from it. CI fails if they disagree.
