@@ -83,8 +83,13 @@ automatic — `.github/workflows/tag.yml` creates `v$VERSION` on push
 (`F-REL-012`), so don't create tags by hand. Full protocol:
 [`63-VERSIONING.md`](63-VERSIONING.md).
 
-**Branches:** `claude/<domain>-<short-description>`, e.g.
-`claude/log-ghost-values`.
+**Branches: none.** Work goes straight onto `main`. This is a solo project with
+no reviewer, so a branch exists only to be merged by the person who wrote it.
+
+Reconsider once `F-REL-001` gives CI a real test suite: a pull request would then
+run tests *before* the code lands, keeping `main` always-green, which is a
+genuine benefit rather than ceremony. Until there are tests to run, a PR gates
+nothing.
 
 **Commits:** `<type>(<domain>): <F-ID> <summary>`
 
@@ -103,9 +108,13 @@ Commits that implement a feature **must** cite its ID and update its `Status:`.
 Commits without an ID are for infrastructure, refactoring, and documentation
 only.
 
-**Pull requests:** not required for solo work, but any change touching the
-schema, an ADR, or an invariant gets one — as a record of the reasoning, even if
-self-merged.
+**Pull requests: not used.** The reasoning behind a change belongs in an ADR
+([`70-decisions/`](70-decisions/)) and its commit message — both versioned, both
+in the repo, both read by future sessions. A PR description is a third copy that
+goes stale.
+
+With no PR, **the commit message is the whole record.** Write it accordingly:
+what changed, why, and what was deliberately not done.
 
 ## Reviewing changes
 

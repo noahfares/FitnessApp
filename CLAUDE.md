@@ -102,7 +102,7 @@ Do not ask permission, do not batch several commits under one version.
 ```bash
 echo "0.4.0" > VERSION          # 1. bump
 git add -A && git commit -m "<type>(<domain>): <F-ID> <summary>"
-git push -u origin <branch>     # 2. push — CI tags it (F-REL-012)
+git push origin main            # 2. push — CI tags it (F-REL-012)
 ```
 
 **Tagging is automatic.** `.github/workflows/tag.yml` reads `VERSION` on every
@@ -134,9 +134,14 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Conventions
 
-- Branch: `claude/<domain>-<short-desc>` — e.g. `claude/log-ghost-values`.
+- **Work directly on `main`. Commit and push there.** No feature branches, no
+  pull requests — solo project, and a self-approved PR is ceremony. Revisit once
+  CI has a real test suite to gate on (`F-REL-001`); until then a PR gates
+  nothing.
 - Commit: `<type>(<domain>): <F-ID> <summary>` — e.g.
   `feat(log): F-LOG-004 last-time ghost values in set rows`.
+- Commits are the unit of review. Keep them coherent and their messages honest —
+  with no PR descriptions, the commit message *is* the record.
 - Every pure-domain function needs a unit test using its worked fixture from
   `docs/40-ANALYTICS-SPEC.md` (machine-readable copies in `docs/fixtures/`).
 - Definition of done: `docs/60-ENGINEERING.md`.

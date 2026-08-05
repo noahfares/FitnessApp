@@ -77,24 +77,28 @@ echo "0.4.0" > VERSION
 git add -A
 git commit -m "feat(log): F-LOG-004 last-time ghost values in set rows"
 
-# 3. Annotated tag — must match VERSION exactly
-git tag -a v0.4.0 -m "v0.4.0 — ghost values in set rows"
-
-# 4. Push both
-git push -u origin claude/<branch>
-git push origin v0.4.0
+# 3. Push to main — CI creates the tag (F-REL-012)
+git push origin main
 ```
+
+**Do not create tags locally.** `.github/workflows/tag.yml` reads `VERSION` on
+every push and creates `v$VERSION` annotated at that commit. It is the single
+authority on tagging, which is what makes "every commit is tagged" a guarantee
+rather than something anyone has to remember.
 
 ### Rules
 
-1. **Annotated tags** (`-a`), never lightweight. The message is the release note.
+1. **CI creates the tag, not you.** Annotated, message derived from the commit
+   subject. If the tag is missing after a push, the workflow failed — check it
+   rather than tagging by hand.
 2. **One commit, one version, one tag.** Never batch commits under a version.
 3. **Tags are immutable once pushed.** Never delete, never move. A mistake is
    fixed by a new version, not by rewriting a tag.
 4. **Tag messages** are one line summarising user-visible change. For a release,
    a short body listing the feature IDs included.
-5. **If the tag push fails, say so.** Leave the local tag in place, report it,
-   and do not silently continue as though it succeeded.
+5. **If the tag doesn't appear after a push, say so.** Don't silently continue
+   as though it succeeded, and don't work around it by tagging locally — fix the
+   workflow.
 6. **Version numbers are never reused or rolled back.** Play rejects a reused
    build number, and a reused tag makes history unreadable.
 
@@ -104,6 +108,8 @@ git push origin v0.4.0
 |---|---|
 | `0.1.0` | Planning system established — 160 features, 7-phase roadmap, 7 ADRs, analytics spec |
 | `0.2.0` | Schema requirements integrated from external handoff; versioning protocol; roadmap made binding |
+| `0.3.0` | Docs restructured: one file per feature, `Reads:` lines, batches, tooling, plain-English guide, `F-REL-012` auto-tagging |
+| `0.3.1` | Workflow moved to trunk-based: direct commits to `main`, no pull requests |
 
 Maintained on every minor bump. Patch releases are not listed individually.
 
@@ -117,16 +123,12 @@ The one alignment: **completing a phase gets its own minor bump and a tag whose
 message lists the exit criteria met.** That's the checkpoint worth being able to
 find later.
 
-## Known environment limitation
+## A note on how this used to fail
 
-Tag pushes may be blocked by egress policy in some Claude Code sessions (the
-git proxy returns 403 on `refs/tags` while allowing branch pushes). When that
-happens the local tag still exists and is correct. Push it from a normal
-environment:
+Claude Code sessions in this environment can push branches but not `refs/tags`
+(403, with no proxy denial logged — the refusal is in the credential's scope,
+not egress policy). That is why tagging moved into CI (`F-REL-012`), which is a
+better design regardless: the tag is created by the same system that will build
+and sign the release from it.
 
-```bash
-git fetch origin
-git push origin --tags
-```
-
-This does not change the protocol — the tag is still created on every commit.
+Verified working as of `v0.3.0`.
