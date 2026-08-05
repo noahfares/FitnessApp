@@ -168,7 +168,7 @@
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
 | [F-SET-001](SET/F-SET-001.md) | Units | 0 | P0 | in-progress |
-| [F-SET-002](SET/F-SET-002.md) | Theme mode | 0 | P0 | planned |
+| [F-SET-002](SET/F-SET-002.md) | Theme mode | 0 | P0 | done |
 | [F-SET-003](SET/F-SET-003.md) | Rest-timer defaults | 1 | P1 | planned |
 | [F-SET-004](SET/F-SET-004.md) | Bar and plate inventory | 4 | P1 | planned |
 | [F-SET-005](SET/F-SET-005.md) | Week start | 3 | P1 | planned |
@@ -206,11 +206,11 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-THM-001](THM/F-THM-001.md) | Material 3 foundation | 0 | P0 | planned |
-| [F-THM-002](THM/F-THM-002.md) | Light and dark schemes | 0 | P0 | planned |
+| [F-THM-001](THM/F-THM-001.md) | Material 3 foundation | 0 | P0 | done |
+| [F-THM-002](THM/F-THM-002.md) | Light and dark schemes | 0 | P0 | done |
 | [F-THM-003](THM/F-THM-003.md) | Dynamic colour | 2 | P2 | planned |
 | [F-THM-004](THM/F-THM-004.md) | Chart theming | 3 | P1 | planned |
-| [F-THM-005](THM/F-THM-005.md) | Typography | 0 | P1 | planned |
+| [F-THM-005](THM/F-THM-005.md) | Typography | 0 | P1 | done |
 | [F-THM-006](THM/F-THM-006.md) | App icon and branding | 6 | P2 | planned |
 
 ## `A11Y` — Accessibility

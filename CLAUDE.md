@@ -148,12 +148,18 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.5.0**. **Phase 0 batches 0.1 and 0.2 done** — Flutter scaffold, CI
-(analyse/test/APK, all green), auto-tagging, and the units foundation
-(`Mass`/`Length`/`Distance`, formatter, parser, preferences).
+Version **0.6.0**. **Phase 0 batches 0.1-0.3 done** — Flutter scaffold, CI
+(analyse/test/APK), auto-tagging, units foundation, and Material 3 theming with
+light/dark.
 
-Next: **batch 0.3** (`F-THM-001/002/005`, `F-SET-002` — theming), then 0.4 shell.
-`F-SET-001` stays in-progress until its settings screen lands with the shell.
+Next: **batch 0.4** (`F-NAV-001`, `F-NAV-002` — the navigation shell). That is
+also where `F-SET-001` closes, since Settings › Units finally has somewhere to
+live, and where `lib/features/shell/presentation/foundation_preview.dart` gets
+deleted.
+
+Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
+`flutter build apk` is CI-only. Flutter web is not a target platform; regenerate
+`web/` on demand if screenshots are wanted, and do not commit it.
 
 Local toolchain notes: Flutter lives at `/opt/flutter` in this sandbox (add to
 `PATH`). There is **no Android SDK**, so `flutter build apk` cannot be verified

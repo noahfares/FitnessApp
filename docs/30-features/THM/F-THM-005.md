@@ -1,6 +1,6 @@
 # F-THM-005 — Typography
 
-Status: planned | Priority: P1 | Phase: 0
+Status: done | Priority: P1 | Phase: 0
 Depends on: F-THM-001
 Reads: 24-DESIGN-SYSTEM
 

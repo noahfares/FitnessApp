@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'core/theme/app_theme.dart';
+import 'features/settings/application/theme_provider.dart';
+import 'features/shell/presentation/foundation_preview.dart';
 
 /// Root widget.
 ///
-/// Deliberately bare. Theming arrives with F-THM-001/002 (batch 0.3) and the
-/// navigation shell with F-NAV-001/002 (batch 0.4); this exists so Phase 0
-/// batch 0.1 has something that builds, runs, and can be smoke-tested in CI.
-class FitnessApp extends StatelessWidget {
+/// The navigation shell (F-NAV-001/002) replaces [FoundationPreview] as `home`
+/// in batch 0.4. Theming is wired now because everything built afterwards
+/// depends on it.
+class FitnessApp extends ConsumerWidget {
   const FitnessApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MaterialApp(
       title: 'FitnessApp',
       debugShowCheckedModeBanner: false,
-      home: _PlaceholderHome(),
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      // Applies instantly, no restart (F-SET-002).
+      themeMode: ref.watch(themeModeProvider),
+      home: const FoundationPreview(),
     );
-  }
-}
-
-class _PlaceholderHome extends StatelessWidget {
-  const _PlaceholderHome();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text('Phase 0 — foundation')));
   }
 }

@@ -15,12 +15,12 @@ under [`docs/`](docs/) and is built out phase by phase, in order.
 
 | | |
 |---|---|
-| Version | `0.5.0` — canonical in [`VERSION`](VERSION); scheme in [versioning](docs/63-VERSIONING.md) |
+| Version | `0.6.0` — canonical in [`VERSION`](VERSION); scheme in [versioning](docs/63-VERSIONING.md) |
 | Stack | Flutter + Dart ([ADR-0001](docs/70-decisions/ADR-0001-flutter.md)) |
 | Platforms | Android first, distributed as an APK via GitHub Releases; iOS and app-store releases planned |
 | Data | Local SQLite (Drift), no backend ([ADR-0002](docs/70-decisions/ADR-0002-local-first.md)) |
 | Progress | 163 features planned, 140 scheduled — see [`docs/features.tsv`](docs/features.tsv) |
-| Next step | Phase 0, batch 0.3 in the [roadmap](docs/50-ROADMAP.md) |
+| Next step | Phase 0, batch 0.4 — the navigation shell |
 | Licence | TBD |
 
 ## Documentation

@@ -1,6 +1,6 @@
 # F-THM-001 — Material 3 foundation
 
-Status: planned | Priority: P0 | Phase: 0
+Status: done | Priority: P0 | Phase: 0
 Blocks: F-THM-002, F-THM-003, F-THM-004
 Reads: 24-DESIGN-SYSTEM
 

@@ -1,6 +1,6 @@
 # F-THM-002 — Light and dark schemes
 
-Status: planned | Priority: P0 | Phase: 0
+Status: done | Priority: P0 | Phase: 0
 Depends on: F-THM-001
 Reads: 24-DESIGN-SYSTEM, 30-features/LOG/F-LOG-004
 

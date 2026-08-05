@@ -108,7 +108,7 @@ F-DAT-009	—	idea	P2	File-based cloud sync	F-DAT-003		21-DATA-MODEL, 22-UNITS#i
 F-DAT-010	5	planned	P2	Wipe all data			21-DATA-MODEL, 22-UNITS#import-and-export
 F-DAT-011	1	planned	P0	Minimal JSON dump		F-DAT-001	21-DATA-MODEL, 22-UNITS#import-and-export
 F-SET-001	0	in-progress	P0	Units		F-LOG-003, F-BOD-001, F-PLT-002	22-UNITS, 70-decisions/ADR-0003-canonical-units
-F-SET-002	0	planned	P0	Theme mode			22-UNITS
+F-SET-002	0	done	P0	Theme mode			22-UNITS
 F-SET-003	1	planned	P1	Rest-timer defaults	F-TIM-005		22-UNITS
 F-SET-004	4	planned	P1	Bar and plate inventory	F-PLT-002		22-UNITS
 F-SET-005	3	planned	P1	Week start		F-ANA-004, F-ANA-006	22-UNITS
@@ -131,11 +131,11 @@ F-NAV-005	1	planned	P1	Empty states			23-NAVIGATION
 F-NAV-006	1	planned	P1	Error and loading states			23-NAVIGATION
 F-NAV-007	—	idea	P3	Home-screen widget			23-NAVIGATION
 F-NAV-008	—	idea	P3	App shortcuts			23-NAVIGATION
-F-THM-001	0	planned	P0	Material 3 foundation		F-THM-002, F-THM-003, F-THM-004	24-DESIGN-SYSTEM
-F-THM-002	0	planned	P0	Light and dark schemes	F-THM-001		24-DESIGN-SYSTEM, 30-features/LOG/F-LOG-004
+F-THM-001	0	done	P0	Material 3 foundation		F-THM-002, F-THM-003, F-THM-004	24-DESIGN-SYSTEM
+F-THM-002	0	done	P0	Light and dark schemes	F-THM-001		24-DESIGN-SYSTEM, 30-features/LOG/F-LOG-004
 F-THM-003	2	planned	P2	Dynamic colour			24-DESIGN-SYSTEM
 F-THM-004	3	planned	P1	Chart theming	F-THM-001, F-ANA-001		24-DESIGN-SYSTEM
-F-THM-005	0	planned	P1	Typography	F-THM-001		24-DESIGN-SYSTEM
+F-THM-005	0	done	P1	Typography	F-THM-001		24-DESIGN-SYSTEM
 F-THM-006	6	planned	P2	App icon and branding			24-DESIGN-SYSTEM
 F-A11Y-001	6	planned	P1	Screen reader support			24-DESIGN-SYSTEM#accessibility-baseline
 F-A11Y-002	6	planned	P1	Dynamic type			24-DESIGN-SYSTEM#accessibility-baseline

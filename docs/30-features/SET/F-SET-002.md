@@ -1,6 +1,6 @@
 # F-SET-002 — Theme mode
 
-Status: planned | Priority: P0 | Phase: 0
+Status: done | Priority: P0 | Phase: 0
 Reads: 22-UNITS
 Screens: Settings › Appearance
 
