@@ -1,0 +1,42 @@
+name: fitness_app
+description: >-
+  An offline-first strength-training tracker. No account, no server, no
+  telemetry.
+publish_to: none
+
+# Canonical source is the VERSION file at the repo root; CI fails if they
+# disagree. See docs/63-VERSIONING.md. The +N build number is set by the
+# release workflow (F-REL-005), not by hand.
+version: 0.4.0
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State and dependency injection — ADR-0006
+  flutter_riverpod: ^3.0.3
+
+  # Routing — deep links are load-bearing for F-NAV-007/008 and F-TIM-003
+  go_router: ^17.2.1
+
+  # Locale-aware number and date formatting — F-I18N-002. A German user typing
+  # "102,5" must work; that is input correctness, not polish.
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+# Dependencies deliberately not added yet — each arrives with the batch that
+# needs it, to keep `pub get` and CI fast:
+#   drift, sqlite3_flutter_libs, path_provider  → schema work (Phase 0)
+#   freezed, json_serializable, build_runner    → entities (Phase 0)
+#   fl_chart                                    → F-ANA-003 (Phase 3)
+#   flutter_local_notifications                 → F-TIM-003 (Phase 1)
+#   file_picker, share_plus                     → F-DAT-* (Phase 5)

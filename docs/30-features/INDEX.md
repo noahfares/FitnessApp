@@ -245,7 +245,7 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-REL-001](REL/F-REL-001.md) | CI build and checks | 0 | P0 | planned |
+| [F-REL-001](REL/F-REL-001.md) | CI build and checks | 0 | P0 | in-progress |
 | [F-REL-002](REL/F-REL-002.md) | Signed release APK | 1 | P0 | planned |
 | [F-REL-003](REL/F-REL-003.md) | GitHub Release automation | 1 | P1 | planned |
 | [F-REL-004](REL/F-REL-004.md) | App bundle for Play | 6 | P1 | planned |
@@ -256,5 +256,5 @@
 | [F-REL-009](REL/F-REL-009.md) | iOS build and TestFlight | — | P2 | idea |
 | [F-REL-010](REL/F-REL-010.md) | F-Droid | — | P3 | idea |
 | [F-REL-011](REL/F-REL-011.md) | Crash reporting | — | P2 | idea |
-| [F-REL-012](REL/F-REL-012.md) | Auto-tag from VERSION | 0 | P0 | planned |
+| [F-REL-012](REL/F-REL-012.md) | Auto-tag from VERSION | 0 | P0 | done |
 

@@ -150,7 +150,7 @@ F-HLT-002	6	planned	P3	Health Connect read	F-BOD-001		20-ARCHITECTURE#cross-plat
 F-HLT-003	—	idea	P2	HealthKit parity	F-HLT-001		20-ARCHITECTURE#cross-platform-discipline
 F-HLT-004	—	idea	P3	Wear OS companion			20-ARCHITECTURE#cross-platform-discipline
 F-HLT-005	—	idea	P3	watchOS companion	F-HLT-004		20-ARCHITECTURE#cross-platform-discipline
-F-REL-001	0	planned	P0	CI build and checks		F-REL-002	62-RELEASE, 61-CI-CD
+F-REL-001	0	in-progress	P0	CI build and checks		F-REL-002	62-RELEASE, 61-CI-CD
 F-REL-002	1	planned	P0	Signed release APK	F-REL-001		62-RELEASE, 70-decisions/ADR-0007-signing
 F-REL-003	1	planned	P1	GitHub Release automation	F-REL-002		62-RELEASE, 61-CI-CD
 F-REL-004	6	planned	P1	App bundle for Play	F-REL-002		62-RELEASE, 61-CI-CD
@@ -161,4 +161,4 @@ F-REL-008	—	idea	P2	Update check for sideloaded installs			62-RELEASE, 61-CI-C
 F-REL-009	—	idea	P2	iOS build and TestFlight			62-RELEASE, 61-CI-CD
 F-REL-010	—	idea	P3	F-Droid			62-RELEASE, 61-CI-CD
 F-REL-011	—	idea	P2	Crash reporting			62-RELEASE, 61-CI-CD
-F-REL-012	0	planned	P0	Auto-tag from VERSION		F-REL-003	63-VERSIONING, 61-CI-CD
+F-REL-012	0	done	P0	Auto-tag from VERSION		F-REL-003	63-VERSIONING, 61-CI-CD

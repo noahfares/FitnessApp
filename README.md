@@ -10,16 +10,17 @@ take it with you at any time.
 
 ## Status
 
-**Planning — v0.2.0.** No application code yet. The design is documented in full
-under [`docs/`](docs/) and is being built out incrementally, phase by phase.
+Building **Phase 0** — the project skeleton. The design is documented in full
+under [`docs/`](docs/) and is built out phase by phase, in order.
 
 | | |
 |---|---|
-| Version | `0.2.0` — see [`VERSION`](VERSION) and [versioning](docs/63-VERSIONING.md) |
+| Version | `0.4.0` — canonical in [`VERSION`](VERSION); scheme in [versioning](docs/63-VERSIONING.md) |
 | Stack | Flutter + Dart ([ADR-0001](docs/70-decisions/ADR-0001-flutter.md)) |
 | Platforms | Android first, distributed as an APK via GitHub Releases; iOS and app-store releases planned |
 | Data | Local SQLite (Drift), no backend ([ADR-0002](docs/70-decisions/ADR-0002-local-first.md)) |
-| Next step | Phase 0 in the [roadmap](docs/50-ROADMAP.md) |
+| Progress | 163 features planned, 140 scheduled — see [`docs/features.tsv`](docs/features.tsv) |
+| Next step | Phase 0, batch 0.2 in the [roadmap](docs/50-ROADMAP.md) |
 | Licence | TBD |
 
 ## Documentation
@@ -39,14 +40,26 @@ Quick links:
 
 ## Building
 
-Nothing to build yet. Once Phase 0 lands:
+Requires the Flutter SDK (pinned to the version in
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
 
 ```bash
 flutter pub get
-dart run build_runner build --delete-conflicting-outputs
 flutter test
 flutter run
 ```
+
+Checks that CI runs, and that you can run locally:
+
+```bash
+tools/check-docs.sh     # docs integrity: IDs, Reads: targets, version agreement
+tools/check-layers.sh   # lib/domain/ imports no Flutter and no data layer
+flutter analyze --fatal-infos
+dart format --set-exit-if-changed lib test
+```
+
+Debug APKs are attached to every CI run as a build artefact, so any commit is
+installable without a local toolchain.
 
 ## Contributing
 

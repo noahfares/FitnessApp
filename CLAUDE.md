@@ -148,5 +148,12 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.3.0**. No application code yet. Next build step is **Phase 0** in
-`docs/50-ROADMAP.md`. Do not scaffold until asked.
+Version **0.4.0**. **Phase 0, batch 0.1 done** — Flutter project scaffolded, CI
+running analyse/test/APK, `F-REL-012` auto-tagging verified working.
+
+Next: **batch 0.2** (`F-SET-001`, `F-I18N-002` — the units foundation), then 0.3
+theming, 0.4 shell. See `docs/50-ROADMAP.md`.
+
+Local toolchain notes: Flutter lives at `/opt/flutter` in this sandbox (add to
+`PATH`). There is **no Android SDK**, so `flutter build apk` cannot be verified
+locally — CI is the check for anything Android-specific.

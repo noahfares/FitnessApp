@@ -1,0 +1,33 @@
+include: package:flutter_lints/flutter.yaml
+
+# Conventions: docs/60-ENGINEERING.md
+# The domain-layer purity rule is NOT enforced here — the analyzer has no
+# directory-scoped import rule out of the box. It is enforced by
+# tools/check-layers.sh, which runs in CI (F-REL-001).
+
+analyzer:
+  errors:
+    # Warnings are errors in CI, so make the ones that matter unmissable locally.
+    todo: ignore
+    missing_required_param: error
+    missing_return: error
+    # Silently ignoring a Future is how write-through persistence (F-LOG-007)
+    # quietly stops persisting.
+    unawaited_futures: error
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+
+linter:
+  rules:
+    - always_declare_return_types
+    - avoid_print
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_final_locals
+    - unawaited_futures
+    # Immutable data everywhere — freezed entities, const widgets.
+    - prefer_const_constructors_in_immutables
+    - avoid_unused_constructor_parameters
+    - unnecessary_await_in_return
+    - use_super_parameters

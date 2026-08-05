@@ -41,15 +41,21 @@ badreads=$(grep -h '^Reads:' docs/30-features/*/F-*.md \
   || { bad "unresolvable Reads: targets"; note "$badreads"; }
 
 # 4. features.tsv in sync with the feature files
-if [ -f docs/features.tsv ]; then
+#    Compares regenerated content against what is on disk. Deliberately NOT a
+#    git-diff check: that conflates "stale" with "merely uncommitted" and
+#    false-alarms during ordinary work.
+if [ -f docs/features.tsv ] && [ -f docs/30-features/INDEX.md ]; then
+  _tsv=$(mktemp) _idx=$(mktemp)
+  cp docs/features.tsv "$_tsv"; cp docs/30-features/INDEX.md "$_idx"
   python3 tools/gen_index.py >/dev/null 2>&1
-  if git diff --quiet -- docs/features.tsv docs/30-features/INDEX.md 2>/dev/null; then
+  if cmp -s "$_tsv" docs/features.tsv && cmp -s "$_idx" docs/30-features/INDEX.md; then
     ok "features.tsv and INDEX.md current"
   else
-    bad "features.tsv/INDEX.md stale — regenerated, commit the result"
+    bad "features.tsv/INDEX.md were stale — regenerated in place, include them in your commit"
   fi
+  rm -f "$_tsv" "$_idx"
 else
-  bad "docs/features.tsv missing — run tools/gen-index.sh"
+  bad "generated index missing — run tools/gen-index.sh"
 fi
 
 # 5. Every ID scheduled in the roadmap exists
@@ -76,6 +82,18 @@ if [ -f pubspec.yaml ]; then
     || bad "VERSION=${V} does not match pubspec.yaml"
 else
   ok "VERSION=${V} (no pubspec.yaml yet)"
+fi
+
+# 8. README states the current version, and states it exactly once
+#    (it silently went stale once already — hence the check rather than care)
+readme_versions=$(grep -oE '`[0-9]+\.[0-9]+\.[0-9]+`' README.md | tr -d '`' | sort -u)
+count=$(printf '%s\n' "$readme_versions" | grep -c . || true)
+if [ "$count" -eq 1 ] && [ "$readme_versions" = "$V" ]; then
+  ok "README version current (${V})"
+elif [ "$count" -gt 1 ]; then
+  bad "README names several versions (${readme_versions//$'\n'/, }) — keep exactly one"
+else
+  bad "README says '${readme_versions:-none}', VERSION says ${V}"
 fi
 
 echo

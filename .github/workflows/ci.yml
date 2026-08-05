@@ -1,0 +1,104 @@
+# F-REL-001 — checks on every push and pull request.
+#
+# Spec: docs/61-CI-CD.md. Must stay fast (target under ~10 minutes) because it
+# runs constantly. Uses no secrets, so it works correctly on a fork.
+name: ci
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.44.8'
+
+jobs:
+  check:
+    name: analyse & test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      # Cheap checks first: they need no toolchain, so a docs mistake fails in
+      # seconds rather than after a four-minute Flutter setup.
+      - name: Documentation integrity
+        run: ./tools/check-docs.sh
+
+      - name: Layer rule — lib/domain/ imports no Flutter, no data layer
+        run: ./tools/check-layers.sh
+
+      - name: Version consistency
+        run: |
+          set -euo pipefail
+          V=$(tr -d '[:space:]' < VERSION)
+          grep -q "^version: ${V}$" pubspec.yaml || {
+            echo "::error::VERSION is '${V}' but pubspec.yaml disagrees:"
+            grep '^version:' pubspec.yaml
+            exit 1
+          }
+          echo "VERSION and pubspec.yaml agree: ${V}"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - run: flutter --version
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Format
+        run: dart format --set-exit-if-changed lib test
+
+      - name: Analyse
+        run: flutter analyze --fatal-infos
+
+      - name: Test
+        run: flutter test --coverage
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/lcov.info
+          if-no-files-found: ignore
+
+  apk:
+    name: debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Build debug APK
+        run: flutter build apk --debug
+
+      # So any commit is installable without a local toolchain.
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: fitness-app-debug-${{ github.sha }}
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
