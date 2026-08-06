@@ -171,10 +171,10 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.15.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.16.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
-**Phase 1 in progress.** Batches 1.1–1.7 done:
+**Phase 1 in progress.** Batches 1.1–1.8 done:
 
 - **1.1–1.2** — 100-exercise seeded catalogue, `ExerciseRepository`, custom
   exercises, catalogue screen with search and filtering (`F-CAT-001`–`F-CAT-005`).
@@ -212,9 +212,19 @@ link have not. Its acceptance criteria are on-device.
   (`F-NAV-003`–`F-NAV-006`, `F-A11Y-004`). No schema change. Dashboard cards
   for today's scheduled day, streaks, recent PRs and insight cards wait on
   their own Phase 2/3 features, same reasoning as batch 1.6's deferrals.
+- **1.8** — unrecoverable capture: `BodyMeasurementRepository` (bodyweight
+  log, dashboard quick-entry card, the `/body` screen), a workout's
+  `bodyweight_grams` derived from it at start and recomputed on every
+  backfill or edit, and `JsonDumpService` — every table to one JSON file via
+  the system share sheet, one table at a time so memory stays bounded
+  (`F-BOD-001`, `F-DAT-011`). No schema change — `body_measurements` and
+  `workouts.bodyweight_grams` have existed since v1. Adds `share_plus` (the
+  one `F-DAT-*` dependency Phase 1 actually needs) and a `core/app_version.dart`
+  constant, now the single source both the About screen and the dump read.
 
-Next is **batch 1.8**, unrecoverable capture (`F-BOD-001`, `F-DAT-011`),
-reading `21-DATA-MODEL#body_measurements` and `22-UNITS`.
+Next is **batch 1.9**, ship it (`F-REL-002`, `F-REL-003`, `F-REL-005`,
+`F-SET-009`), reading `62-RELEASE`, `ADR-0007` and `63-VERSIONING` — the last
+batch of Phase 1.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform.

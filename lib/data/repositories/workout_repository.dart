@@ -176,6 +176,25 @@ class WorkoutRepository {
             updatedAt: now.millisecondsSinceEpoch,
           ),
         );
+    // Bodyweight-loaded exercises need an effective-load basis (`F-LOG-019`),
+    // supplied by the most recent bodyweight entry at or before this moment
+    // (`F-BOD-001` §3). A single-row correlated subquery rather than a
+    // dependency on `BodyMeasurementRepository` — this table is the only
+    // other one `start()` needs to know about.
+    await _db.customUpdate(
+      '''
+      UPDATE workouts
+         SET bodyweight_grams = (
+               SELECT m.value_canonical FROM body_measurements m
+                WHERE m.type = 'bodyweight' AND m.deleted_at IS NULL
+                  AND m.measured_at <= workouts.started_at
+                ORDER BY m.measured_at DESC LIMIT 1
+             )
+       WHERE id = ?
+      ''',
+      variables: [Variable<String>(id)],
+      updates: {_db.workouts},
+    );
     return (await findById(id))!;
   }
 

@@ -90,7 +90,7 @@ F-PRG-009	4	planned	P1	Failure and deload handling	F-PRG-002		40-ANALYTICS-SPEC,
 F-PRG-010	4	planned	P2	Training max management		F-PRG-004	40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-011	4	planned	P2	Deload suggestion	F-ANA-009, F-ANA-010		40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-012	4	planned	P1	Plate-aware rounding	F-PLT-001		22-UNITS, 40-ANALYTICS-SPEC
-F-BOD-001	1	planned	P0	Bodyweight log		F-LOG-019, F-BOD-003	21-DATA-MODEL#body_measurements, 22-UNITS
+F-BOD-001	1	done	P0	Bodyweight log		F-LOG-019, F-BOD-003	21-DATA-MODEL#body_measurements, 22-UNITS
 F-BOD-002	4	planned	P2	Circumference measurements			21-DATA-MODEL#body_measurements, 22-UNITS
 F-BOD-003	4	planned	P1	Trend charts with smoothing	F-BOD-001, F-ANA-001		21-DATA-MODEL#body_measurements, 22-UNITS
 F-BOD-004	5	planned	P2	Progress photos			21-DATA-MODEL#body_measurements, 22-UNITS
@@ -106,7 +106,7 @@ F-DAT-007	5	planned	P1	Import mapping UI	F-DAT-005		21-DATA-MODEL, 22-UNITS#impo
 F-DAT-008	5	planned	P2	Automatic local backups	F-DAT-003		21-DATA-MODEL, 22-UNITS#import-and-export
 F-DAT-009	—	idea	P2	File-based cloud sync	F-DAT-003		21-DATA-MODEL, 22-UNITS#import-and-export
 F-DAT-010	5	planned	P2	Wipe all data			21-DATA-MODEL, 22-UNITS#import-and-export
-F-DAT-011	1	planned	P0	Minimal JSON dump		F-DAT-001	21-DATA-MODEL, 22-UNITS#import-and-export
+F-DAT-011	1	done	P0	Minimal JSON dump		F-DAT-001	21-DATA-MODEL, 22-UNITS#import-and-export
 F-SET-001	0	done	P0	Units		F-LOG-003, F-BOD-001, F-PLT-002	22-UNITS, 70-decisions/ADR-0003-canonical-units
 F-SET-002	0	done	P0	Theme mode			22-UNITS
 F-SET-003	1	done	P1	Rest-timer defaults	F-TIM-005		22-UNITS

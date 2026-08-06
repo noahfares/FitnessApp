@@ -46,5 +46,11 @@ abstract final class AppRoutes {
   static const String settingsUnits = '/settings/units';
   static const String settingsAppearance = '/settings/appearance';
   static const String settingsRestTimer = '/settings/rest-timer';
+  static const String settingsData = '/settings/data';
   static const String settingsAbout = '/settings/about';
+
+  /// Bodyweight log (`F-BOD-001`). Reached from Home, same as settings — body
+  /// metrics is a Phase 4 destination, but this one screen of it moved up
+  /// with the feature that owns it.
+  static const String body = '/body';
 }

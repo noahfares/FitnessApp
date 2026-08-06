@@ -3,11 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
 import '../../../domain/history/workout_history.dart';
+import '../../body/application/body_providers.dart';
+import '../../body/presentation/log_bodyweight_sheet.dart';
 import '../../history/application/history_providers.dart';
 import '../../logging/application/active_workout_providers.dart';
 import '../../logging/presentation/active_workout_screen.dart'
@@ -46,6 +49,8 @@ class DashboardScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(AppSpacing.screen),
         children: [
           const _ResumeOrStartCard(),
+          const SizedBox(height: AppSpacing.md),
+          const _BodyweightCard(),
           const SizedBox(height: AppSpacing.xl),
           Text('Recent workouts', style: theme.textTheme.titleMedium),
           const SizedBox(height: AppSpacing.sm),
@@ -159,6 +164,44 @@ class _ResumeOrStartCard extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Quick bodyweight entry (`F-BOD-001` §4) — cheap enough to actually happen,
+/// which is the whole point of capturing something unrecoverable.
+class _BodyweightCard extends ConsumerWidget {
+  const _BodyweightCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final latest = ref.watch(latestBodyweightProvider).value;
+    final formatter = ref.watch(quantityFormatterProvider);
+
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.monitor_weight_outlined),
+        title: Text(
+          latest == null
+              ? 'No bodyweight logged yet'
+              : formatter.bodyweight(Mass.grams(latest.valueCanonical)),
+          style: theme.textTheme.titleMedium,
+        ),
+        subtitle: latest == null
+            ? const Text('Log it to track alongside your lifts.')
+            : Text(
+                DateFormat.yMMMd().format(
+                  DateTime.fromMillisecondsSinceEpoch(latest.measuredAt),
+                ),
+              ),
+        trailing: IconButton(
+          icon: const Icon(Icons.add),
+          tooltip: 'Log bodyweight',
+          onPressed: () => unawaited(showLogBodyweightSheet(context)),
+        ),
+        onTap: () => context.push(AppRoutes.body),
       ),
     );
   }

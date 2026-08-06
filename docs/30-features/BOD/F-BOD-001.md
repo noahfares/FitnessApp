@@ -1,6 +1,6 @@
 # F-BOD-001 — Bodyweight log
 
-Status: planned | Priority: P0 | Phase: 1
+Status: done | Priority: P0 | Phase: 1
 Blocks: F-LOG-019, F-BOD-003
 Reads: 21-DATA-MODEL#body_measurements, 22-UNITS
 Screens: Body Metrics, Dashboard | Data: `body_measurements`

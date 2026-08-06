@@ -53,6 +53,18 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push(AppRoutes.settingsRestTimer),
           ),
+          ListTile(
+            leading: const Icon(Icons.monitor_weight_outlined),
+            title: const Text('Bodyweight'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRoutes.body),
+          ),
+          ListTile(
+            leading: const Icon(Icons.import_export),
+            title: const Text('Data'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRoutes.settingsData),
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.info_outline),

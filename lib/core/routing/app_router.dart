@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/body/presentation/body_weight_screen.dart';
 import '../../features/catalog/presentation/exercise_catalog_screen.dart';
 import '../../features/catalog/presentation/exercise_editor_screen.dart';
 import '../../features/history/presentation/edit_past_workout_screen.dart';
@@ -13,6 +14,7 @@ import '../../features/logging/presentation/session_summary_screen.dart';
 import '../../features/logging/presentation/start_workout_screen.dart';
 import '../../features/settings/presentation/about_screen.dart';
 import '../../features/settings/presentation/appearance_screen.dart';
+import '../../features/settings/presentation/data_screen.dart';
 import '../../features/settings/presentation/rest_timer_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/settings/presentation/units_screen.dart';
@@ -180,11 +182,25 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const RestTimerScreen(),
           ),
           GoRoute(
+            path: 'data',
+            parentNavigatorKey: _rootNavigatorKey,
+            builder: (context, state) => const DataScreen(),
+          ),
+          GoRoute(
             path: 'about',
             parentNavigatorKey: _rootNavigatorKey,
             builder: (context, state) => const AboutScreen(),
           ),
         ],
+      ),
+
+      // Reached from Home, same as settings (docs/23-NAVIGATION.md) — the
+      // rest of body metrics is Phase 4, but this one screen moved up with
+      // the feature that owns it (`F-BOD-001`).
+      GoRoute(
+        path: AppRoutes.body,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const BodyWeightScreen(),
       ),
     ],
     errorBuilder: (context, state) => UnknownRouteScreen(uri: state.uri),

@@ -140,7 +140,7 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-BOD-001](BOD/F-BOD-001.md) | Bodyweight log | 1 | P0 | planned |
+| [F-BOD-001](BOD/F-BOD-001.md) | Bodyweight log | 1 | P0 | done |
 | [F-BOD-002](BOD/F-BOD-002.md) | Circumference measurements | 4 | P2 | planned |
 | [F-BOD-003](BOD/F-BOD-003.md) | Trend charts with smoothing | 4 | P1 | planned |
 | [F-BOD-004](BOD/F-BOD-004.md) | Progress photos | 5 | P2 | planned |
@@ -161,7 +161,7 @@
 | [F-DAT-008](DAT/F-DAT-008.md) | Automatic local backups | 5 | P2 | planned |
 | [F-DAT-009](DAT/F-DAT-009.md) | File-based cloud sync | — | P2 | idea |
 | [F-DAT-010](DAT/F-DAT-010.md) | Wipe all data | 5 | P2 | planned |
-| [F-DAT-011](DAT/F-DAT-011.md) | Minimal JSON dump | 1 | P0 | planned |
+| [F-DAT-011](DAT/F-DAT-011.md) | Minimal JSON dump | 1 | P0 | done |
 
 ## `SET` — Settings
 

@@ -1,0 +1,27 @@
+import 'dart:io';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
+
+/// Hands an exported file to the system share sheet (`F-DAT-011` §4).
+///
+/// A seam, the same reasoning as `RestTimerService`: `share_plus` uses a
+/// platform channel, which a widget test cannot exercise, so production code
+/// depends on this interface rather than the plugin directly
+/// (docs/20-ARCHITECTURE.md §cross-platform-discipline).
+abstract interface class ExportSharer {
+  Future<void> share(File file, {required String subject});
+}
+
+class SystemExportSharer implements ExportSharer {
+  @override
+  Future<void> share(File file, {required String subject}) async {
+    await SharePlus.instance.share(
+      ShareParams(files: [XFile(file.path)], subject: subject),
+    );
+  }
+}
+
+final exportSharerProvider = Provider<ExportSharer>(
+  (ref) => SystemExportSharer(),
+);

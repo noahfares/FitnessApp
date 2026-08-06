@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/app_version.dart';
 import '../../../core/theme/app_spacing.dart';
 
 /// Settings › About (`F-SET-009`, partial).
@@ -14,12 +15,6 @@ import '../../../core/theme/app_spacing.dart';
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
-  /// Kept in step with `VERSION` and `pubspec.yaml` by CI.
-  ///
-  /// Read from the package at runtime once `F-REL-005` wires the build number
-  /// through; a constant is honest for now and cheaper than a plugin.
-  static const String version = '0.15.0';
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -27,7 +22,7 @@ class AboutScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('About')),
       body: ListView(
         children: [
-          const ListTile(title: Text('Version'), subtitle: Text(version)),
+          const ListTile(title: Text('Version'), subtitle: Text(appVersion)),
           const Divider(),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.screen),

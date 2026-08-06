@@ -3,15 +3,13 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:fitness_app/app.dart';
 import 'package:fitness_app/core/routing/app_router.dart';
 import 'package:fitness_app/core/routing/app_routes.dart';
 import 'package:fitness_app/data/db/app_database.dart';
-import 'package:fitness_app/data/db/database_provider.dart';
 import 'package:fitness_app/data/db/tables/enums.dart';
-import 'package:fitness_app/features/settings/application/unit_preferences_provider.dart';
+
+import '../../support/harness.dart';
 
 /// Batch 1.2 — the catalogue screen (`F-CAT-004`, `F-CAT-005`) and the editor
 /// it finally makes reachable (`F-CAT-003`).
@@ -84,23 +82,7 @@ void main() {
     WidgetTester tester, {
     String route = AppRoutes.exercises,
   }) async {
-    SharedPreferences.setMockInitialValues({});
-    final prefs = await SharedPreferences.getInstance();
-    final container = ProviderContainer(
-      overrides: [
-        sharedPreferencesProvider.overrideWithValue(prefs),
-        databaseProvider.overrideWithValue(db),
-      ],
-    );
-    addTearDown(container.dispose);
-
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const FitnessApp(),
-      ),
-    );
-    await tester.pumpAndSettle();
+    final container = await pumpApp(tester, db: db);
 
     container.read(routerProvider).go(route);
     await tester.pumpAndSettle();
@@ -128,6 +110,10 @@ void main() {
       await seedCatalogue();
       await openCatalogue(tester, route: AppRoutes.home);
 
+      // The dashboard's quick links sit below the fold on the default test
+      // surface now that it has a bodyweight card above them — scroll to
+      // them the same way a real finger would.
+      await tester.scrollUntilVisible(find.text('Exercises'), 200);
       await tester.tap(find.text('Exercises'));
       await tester.pumpAndSettle();
 
