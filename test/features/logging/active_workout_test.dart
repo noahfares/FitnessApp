@@ -1,18 +1,15 @@
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:fitness_app/app.dart';
 import 'package:fitness_app/core/routing/app_routes.dart';
 import 'package:fitness_app/data/db/app_database.dart';
-import 'package:fitness_app/data/db/database_provider.dart';
 import 'package:fitness_app/data/db/tables/enums.dart';
 import 'package:fitness_app/data/repositories/workout_repository.dart';
 import 'package:fitness_app/features/logging/application/active_workout_providers.dart';
 import 'package:fitness_app/features/logging/presentation/active_workout_screen.dart';
-import 'package:fitness_app/features/settings/application/unit_preferences_provider.dart';
+
+import '../../support/harness.dart';
 
 /// Batch 1.3 — session lifecycle (`F-LOG-001`), adding exercises
 /// (`F-LOG-002`), and kill recovery (`F-LOG-007`).
@@ -23,10 +20,9 @@ void main() {
   late WorkoutRepository repo;
 
   setUp(() {
-    db = AppDatabase(NativeDatabase.memory());
+    db = testDatabase();
     repo = WorkoutRepository(db);
   });
-  tearDown(() => db.close());
 
   Future<void> seedExercises() async {
     for (final (id, name, muscle) in [
@@ -50,38 +46,13 @@ void main() {
     }
   }
 
-  Future<ProviderContainer> pumpApp(
+  /// The whole app, router included — these tests are about where navigation
+  /// lands, so the shared `pumpScreen` is not enough.
+  Future<ProviderContainer> pump(
     WidgetTester tester, {
     String? startAt,
     DateTime? now,
-  }) async {
-    SharedPreferences.setMockInitialValues({});
-    final prefs = await SharedPreferences.getInstance();
-    final container = ProviderContainer(
-      overrides: [
-        sharedPreferencesProvider.overrideWithValue(prefs),
-        databaseProvider.overrideWithValue(db),
-        if (startAt != null)
-          startupLocationProvider.overrideWithValue(startAt),
-        // A periodic tick means `pumpAndSettle` never settles. Pinning the
-        // clock keeps the elapsed display real without making every test
-        // hand-roll its pumping.
-        clockTickProvider.overrideWith(
-          (ref) => Stream<DateTime>.value(now ?? DateTime.now()),
-        ),
-      ],
-    );
-    addTearDown(container.dispose);
-
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const FitnessApp(),
-      ),
-    );
-    await tester.pumpAndSettle();
-    return container;
-  }
+  }) => pumpApp(tester, db: db, startAt: startAt, now: now);
 
   Future<void> openStartSheet(WidgetTester tester) async {
     await tester.tap(find.byIcon(Icons.add_circle_outline));
@@ -90,7 +61,7 @@ void main() {
 
   group('starting and finishing (F-LOG-001)', () {
     testWidgets('the centre tab opens a sheet, not a page', (tester) async {
-      await pumpApp(tester);
+      await pump(tester);
       await openStartSheet(tester);
 
       expect(find.text('Start empty workout'), findsOneWidget);
@@ -100,7 +71,7 @@ void main() {
     });
 
     testWidgets('starting lands in the session', (tester) async {
-      await pumpApp(tester);
+      await pump(tester);
       await openStartSheet(tester);
       await tester.tap(find.text('Start empty workout'));
       await tester.pumpAndSettle();
@@ -117,7 +88,7 @@ void main() {
       tester,
     ) async {
       await repo.start(name: 'Push A');
-      await pumpApp(tester);
+      await pump(tester);
       await openStartSheet(tester);
 
       // Which session was meant to survive is not the app's call
@@ -134,7 +105,7 @@ void main() {
       tester,
     ) async {
       final workout = await repo.start(name: 'Push A');
-      await pumpApp(tester, startAt: AppRoutes.activeWorkout);
+      await pump(tester, startAt: AppRoutes.activeWorkout);
 
       await tester.tap(find.text('Finish'));
       await tester.pumpAndSettle();
@@ -150,7 +121,7 @@ void main() {
 
     testWidgets('"Finish anyway" keeps the session in history', (tester) async {
       final workout = await repo.start();
-      await pumpApp(tester, startAt: AppRoutes.activeWorkout);
+      await pump(tester, startAt: AppRoutes.activeWorkout);
 
       await tester.tap(find.text('Finish'));
       await tester.pumpAndSettle();
@@ -169,7 +140,7 @@ void main() {
       await seedExercises();
       final workout = await repo.start();
       await repo.addExercises(workout.id, ['bench', 'squat']);
-      await pumpApp(tester, startAt: AppRoutes.activeWorkout);
+      await pump(tester, startAt: AppRoutes.activeWorkout);
 
       await tester.tap(find.byIcon(Icons.more_vert));
       await tester.pumpAndSettle();
@@ -194,7 +165,7 @@ void main() {
       tester,
     ) async {
       final workout = await repo.start();
-      await pumpApp(tester, startAt: AppRoutes.activeWorkout);
+      await pump(tester, startAt: AppRoutes.activeWorkout);
 
       await tester.tap(find.byIcon(Icons.more_vert));
       await tester.pumpAndSettle();
@@ -213,7 +184,7 @@ void main() {
     ) async {
       await seedExercises();
       await repo.start();
-      await pumpApp(tester, startAt: AppRoutes.activeWorkout);
+      await pump(tester, startAt: AppRoutes.activeWorkout);
 
       // 1 — open the picker.
       await tester.tap(find.text('Add exercises'));
@@ -234,7 +205,7 @@ void main() {
     ) async {
       await seedExercises();
       final workout = await repo.start();
-      await pumpApp(tester, startAt: AppRoutes.activeWorkout);
+      await pump(tester, startAt: AppRoutes.activeWorkout);
 
       await tester.tap(find.text('Add exercises'));
       await tester.pumpAndSettle();
@@ -254,7 +225,7 @@ void main() {
     ) async {
       await seedExercises();
       await repo.start();
-      await pumpApp(tester, startAt: AppRoutes.activeWorkout);
+      await pump(tester, startAt: AppRoutes.activeWorkout);
 
       await tester.tap(find.text('Add exercises'));
       await tester.pumpAndSettle();
@@ -291,7 +262,7 @@ void main() {
 
       // Nothing was held in memory to begin with, so "relaunching" is just
       // building the app again against the same database.
-      await pumpApp(tester, startAt: startupLocationFor(workout));
+      await pump(tester, startAt: startupLocationFor(workout));
 
       // No "restore session?" prompt — it just resumes (`F-LOG-007` §4).
       expect(find.text('Push A'), findsOneWidget);
@@ -307,7 +278,7 @@ void main() {
       await WorkoutRepository(db, clock: () => start).start();
 
       // 25 minutes later, in a process that was not running for any of them.
-      await pumpApp(
+      await pump(
         tester,
         startAt: AppRoutes.activeWorkout,
         now: start.add(const Duration(minutes: 25, seconds: 12)),
@@ -320,7 +291,7 @@ void main() {
       final start = DateTime(2026, 8, 6, 18);
       await WorkoutRepository(db, clock: () => start).start();
 
-      await pumpApp(
+      await pump(
         tester,
         startAt: AppRoutes.activeWorkout,
         now: start.add(const Duration(hours: 14)),
@@ -337,7 +308,7 @@ void main() {
     testWidgets('a stale deep link into a finished session is not a crash', (
       tester,
     ) async {
-      await pumpApp(tester, startAt: AppRoutes.activeWorkout);
+      await pump(tester, startAt: AppRoutes.activeWorkout);
 
       expect(find.text('No workout in progress.'), findsOneWidget);
       expect(tester.takeException(), isNull);

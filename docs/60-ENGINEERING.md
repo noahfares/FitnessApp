@@ -75,6 +75,13 @@ Additional rules:
 4. **Bug fixes start with a failing test.** Always.
 5. Coverage is not a target in itself, but a `domain/` function without a test
    does not merit review.
+6. **Widget tests build on `test/support/harness.dart`** — `pumpScreen` for a
+   single screen, `pumpApp` when navigation is the subject. It pins the two
+   defaults that otherwise cost a debugging round trip every time: the test
+   locale is `en_US`, which makes units imperial on first run, and
+   `clockTickProvider` ticks once a second, which means `pumpAndSettle` never
+   settles. A test that is *about* either overrides it back explicitly.
+7. Run it with **`tools/test.sh`** — failures only, one line when green.
 
 ## Git conventions
 

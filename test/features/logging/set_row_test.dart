@@ -1,21 +1,16 @@
 import 'package:drift/drift.dart' show Value;
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:fitness_app/core/theme/app_theme.dart';
 import 'package:fitness_app/core/units/mass.dart';
 import 'package:fitness_app/data/db/app_database.dart';
-import 'package:fitness_app/data/db/database_provider.dart';
 import 'package:fitness_app/data/db/tables/enums.dart';
 import 'package:fitness_app/data/repositories/set_repository.dart';
 import 'package:fitness_app/data/repositories/workout_repository.dart';
-import 'package:fitness_app/features/logging/application/active_workout_providers.dart';
 import 'package:fitness_app/features/logging/presentation/active_workout_screen.dart';
 import 'package:fitness_app/features/logging/presentation/set_row.dart';
-import 'package:fitness_app/features/settings/application/unit_preferences_provider.dart';
+
+import '../../support/harness.dart';
 
 /// Batch 1.4 — the set row (`F-LOG-003`), ghosts (`F-LOG-004`), set types
 /// (`F-LOG-005`), the keypad (`F-LOG-006`) and per-set notes (`F-LOG-023`).
@@ -28,12 +23,11 @@ void main() {
   var clock = DateTime(2026, 8, 6, 18, 30);
 
   setUp(() {
-    db = AppDatabase(NativeDatabase.memory());
+    db = testDatabase();
     clock = DateTime(2026, 8, 6, 18, 30);
     workouts = WorkoutRepository(db, clock: () => clock);
     sets = SetRepository(db, clock: () => clock);
   });
-  tearDown(() => db.close());
 
   Future<void> makeExercise(
     String id, {
@@ -93,36 +87,18 @@ void main() {
     clock = saved;
   }
 
-  Future<void> pumpSession(WidgetTester tester, {double textScale = 1}) async {
-    SharedPreferences.setMockInitialValues({});
-    final prefs = await SharedPreferences.getInstance();
-    final container = ProviderContainer(
-      overrides: [
-        sharedPreferencesProvider.overrideWithValue(prefs),
-        databaseProvider.overrideWithValue(db),
-        localeProvider.overrideWithValue('en_US'),
-        // en_US would otherwise make the first-run default imperial, which is
-        // a different test than this one.
-        deviceCountryProvider.overrideWithValue(null),
-        clockTickProvider.overrideWith((ref) => Stream.value(clock)),
-      ],
-    );
-    addTearDown(container.dispose);
-
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: MaterialApp(
-          theme: AppTheme.light(),
-          home: MediaQuery(
-            data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
-            child: const ActiveWorkoutScreen(),
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-  }
+  Future<void> pumpSession(
+    WidgetTester tester, {
+    double textScale = 1,
+    Map<String, Object> prefs = const {},
+  }) => pumpScreen(
+    tester,
+    const ActiveWorkoutScreen(),
+    db: db,
+    now: clock,
+    textScale: textScale,
+    prefs: prefs,
+  );
 
   group('the row (F-LOG-003)', () {
     testWidgets('renders the exercise\'s own columns, not a fixed pair', (
@@ -344,30 +320,7 @@ void main() {
       ]);
       await startWith('bench');
 
-      SharedPreferences.setMockInitialValues({'units.load': 'lb'});
-      final prefs = await SharedPreferences.getInstance();
-      final container = ProviderContainer(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(prefs),
-          databaseProvider.overrideWithValue(db),
-          localeProvider.overrideWithValue('en_US'),
-        // en_US would otherwise make the first-run default imperial, which is
-        // a different test than this one.
-        deviceCountryProvider.overrideWithValue(null),
-          clockTickProvider.overrideWith((ref) => Stream.value(clock)),
-        ],
-      );
-      addTearDown(container.dispose);
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp(
-            theme: AppTheme.light(),
-            home: const ActiveWorkoutScreen(),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
+      await pumpSession(tester, prefs: {'units.load': 'lb'});
 
       // 100 kg is 220.462 lb; displaying it is right, storing it back is not
       // (docs/22-UNITS.md §rounding).

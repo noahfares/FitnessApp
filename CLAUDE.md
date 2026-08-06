@@ -32,6 +32,22 @@ explore the docs to build context; the context you need is declared for you.
 Read the shared documents **once**, then all the batch's feature files. This is
 the cheapest way to work — prefer it over one feature at a time.
 
+### Read one section of a document
+
+`tools/read.sh <DOC>#<anchor>` prints just that section — `Reads:` lines name
+sections, not files, and `21-DATA-MODEL` is 324 lines of which `#sets` is 30.
+`tools/read.sh F-LOG-003` prints a feature file without its `## Why`, which the
+recipe above says to skip anyway.
+
+### Run the tests
+
+`tools/test.sh` — failures only, one line when the suite is green (254 lines of
+"passed" is 254 lines of nothing). `tools/test.sh -v` when debugging, and it
+takes paths: `tools/test.sh test/domain`.
+
+Widget tests build on `test/support/harness.dart`; read it before writing a new
+one rather than re-deriving the provider overrides.
+
 ### Check project state
 
 Read `docs/features.tsv`. 163 rows, everything: phase, status, priority,
@@ -148,7 +164,7 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.12.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.12.1**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
 **Phase 1 in progress.** Batches 1.1–1.4 done:
