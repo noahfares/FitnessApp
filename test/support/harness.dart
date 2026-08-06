@@ -8,6 +8,11 @@
 ///   `220.5 lb` for reasons that have nothing to do with what it is testing.
 /// - **A live clock never settles.** `clockTickProvider` emits once a second,
 ///   so `pumpAndSettle` spins forever unless it is pinned (`F-LOG-007`).
+/// - **The rest timer schedules a real `Timer`.** Completing a set auto-starts
+///   a rest (`F-TIM-002`), and a pending timer at the end of a test fails it
+///   with "A Timer is still pending" — a message that says nothing about the
+///   set row the test was actually exercising. [FakeRestTimerService] records
+///   instead of scheduling.
 ///
 /// Tests that are *about* those things override them back explicitly, which
 /// then reads as the deliberate choice it is.
@@ -25,8 +30,42 @@ import 'package:fitness_app/app.dart';
 import 'package:fitness_app/core/theme/app_theme.dart';
 import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/database_provider.dart';
+import 'package:fitness_app/data/platform/rest_timer_service.dart';
+import 'package:fitness_app/domain/timing/rest_settings.dart';
 import 'package:fitness_app/features/logging/application/active_workout_providers.dart';
 import 'package:fitness_app/features/settings/application/unit_preferences_provider.dart';
+import 'package:fitness_app/features/timing/application/rest_timer_providers.dart';
+
+/// A [RestTimerService] that schedules nothing and remembers everything.
+///
+/// [scheduledFor] is the last target it was handed, which is how a test asserts
+/// that a rest of the right length was started without waiting for it.
+class FakeRestTimerService implements RestTimerService {
+  DateTime? scheduledFor;
+  RestAlertStyle? style;
+  int cancels = 0;
+
+  @override
+  Future<void> schedule({
+    required DateTime firesAt,
+    required RestAlertStyle style,
+    Duration preWarning = Duration.zero,
+    void Function()? onFired,
+    void Function()? onWarning,
+  }) async {
+    scheduledFor = firesAt;
+    this.style = style;
+  }
+
+  @override
+  Future<void> cancel() async {
+    scheduledFor = null;
+    cancels++;
+  }
+
+  @override
+  Future<bool> requestPermission() async => true;
+}
 
 /// A fresh in-memory database, closed when the test ends.
 ///
@@ -63,6 +102,10 @@ Future<ProviderContainer> testContainer({
       clockTickProvider.overrideWith(
         (ref) => Stream.value(now ?? DateTime.now()),
       ),
+      // Pinned to the same instant as the display tick, so a rest started
+      // during a test counts down from where the test thinks it is.
+      restClockProvider.overrideWithValue(() => now ?? DateTime.now()),
+      restTimerServiceProvider.overrideWithValue(FakeRestTimerService()),
       // Caller overrides come last so they win.
       ...overrides,
     ],

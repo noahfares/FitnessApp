@@ -14,6 +14,7 @@ import '../../../data/repositories/set_repository.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/set_numbering.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import '../../timing/application/rest_timer_providers.dart';
 import 'numeric_keypad_sheet.dart';
 import 'set_note_sheet.dart';
 import 'set_type_sheet.dart';
@@ -33,6 +34,7 @@ class SetRow extends ConsumerWidget {
     required this.ghost,
     required this.fields,
     required this.equipment,
+    required this.restSeconds,
     this.incrementGrams,
   });
 
@@ -47,6 +49,11 @@ class SetRow extends ConsumerWidget {
   /// Stored `Equipment` name, for the stepper's default increment.
   final String equipment;
   final int? incrementGrams;
+
+  /// The rest this exercise gets, already resolved (`F-TIM-005`). Passed in
+  /// rather than looked up per row: it is the same for every set of the
+  /// exercise, and resolving it here would do it once per row per rebuild.
+  final int restSeconds;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -85,7 +92,12 @@ class SetRow extends ConsumerWidget {
           ),
         ),
     ];
-    final toggle = _CompletionToggle(set: set, fields: fields, ghost: ghost);
+    final toggle = _CompletionToggle(
+      set: set,
+      fields: fields,
+      ghost: ghost,
+      restSeconds: restSeconds,
+    );
 
     // Swipe to delete, with undo (`F-LOG-003` §6). Undo is a field update
     // rather than a resurrection because the delete is a tombstone (ADR-0008).
@@ -304,11 +316,13 @@ class _CompletionToggle extends ConsumerWidget {
     required this.set,
     required this.fields,
     required this.ghost,
+    required this.restSeconds,
   });
 
   final WorkoutSet set;
   final List<SetField> fields;
   final GhostSet? ghost;
+  final int restSeconds;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -331,9 +345,21 @@ class _CompletionToggle extends ConsumerWidget {
   /// progressive overload, and making it cost one tap is the single reason the
   /// ghost exists. Only genuinely empty fields are adopted — a typed value is
   /// never overwritten.
+  ///
+  /// The rest timer hangs off this seam (`F-TIM-002`): a completion starts it,
+  /// and un-ticking the set that started it takes it back. The timer is nudged
+  /// before the write is awaited, because the countdown starts when the bar is
+  /// racked, not when SQLite says so.
   Future<void> _toggle(WidgetRef ref, bool completed) async {
     final repo = ref.read(setRepositoryProvider);
-    if (!completed) return repo.uncomplete(set.id);
+    final timer = ref.read(restTimerProvider.notifier);
+
+    if (!completed) {
+      timer.cancelForSet(set.id);
+      return repo.uncomplete(set.id);
+    }
+
+    timer.startForSet(setId: set.id, seconds: restSeconds);
 
     final previous = ghost;
     return repo.complete(

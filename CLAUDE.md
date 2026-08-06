@@ -171,10 +171,10 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.12.3**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.13.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
-**Phase 1 in progress.** Batches 1.1–1.4 done:
+**Phase 1 in progress.** Batches 1.1–1.5 done:
 
 - **1.1–1.2** — 100-exercise seeded catalogue, `ExerciseRepository`, custom
   exercises, catalogue screen with search and filtering (`F-CAT-001`–`F-CAT-005`).
@@ -184,11 +184,19 @@ theming, five-tab shell, and the Drift schema (now at **v3**).
 - **1.4** — the set row: `SetRepository`, ghost values, set types, the numeric
   keypad and per-set notes (`F-LOG-003`–`F-LOG-006`, `F-LOG-023`). No schema
   change — the `sets` table has held all of this since v1.
+- **1.5** — the rest timer: `RestTimer` as a target timestamp, auto-start on set
+  completion, per-exercise-type defaults, the bar on the active workout and the
+  preferences screen (`F-TIM-001`, `F-TIM-002`, `F-TIM-005`, `F-TIM-006`,
+  `F-SET-003`). No schema change — `exercises.default_rest_seconds` already
+  existed.
 
-A complete session can now be logged end to end. Next is **batch 1.5**, the rest
-timer (`F-TIM-001`, `F-TIM-002`, `F-TIM-003`, `F-TIM-005`, `F-TIM-006`,
-`F-SET-003`), reading `20-ARCHITECTURE#cross-platform-discipline`. A completion
-is where it starts, and `SetRepository.complete` is the seam it hangs off.
+`F-TIM-003` (background execution and notification) is the one batch-1.5 item
+still `in-progress`: the `RestTimerService` seam and an in-app implementation
+have landed, but `flutter_local_notifications`, the manifest work and the deep
+link have not. Its acceptance criteria are on-device.
+
+Next is **batch 1.6**, history (`F-LOG-008`, `F-LOG-009`, `F-LOG-011`,
+`F-LOG-012`, `F-LOG-018`), reading `21-DATA-MODEL` and `23-NAVIGATION`.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform.

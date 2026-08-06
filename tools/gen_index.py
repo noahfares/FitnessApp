@@ -100,7 +100,9 @@ def main():
             fh.write(f"## `{dom}` — {DOMAIN_NAMES[dom]}\n\n")
             fh.write("| ID | Title | Phase | Pri | Status |\n|---|---|---|---|---|\n")
             for f in rows:
-                rel = os.path.relpath(f["path"], SRC)
+                # Markdown links always use forward slashes, whatever the
+                # host OS separator is.
+                rel = os.path.relpath(f["path"], SRC).replace(os.sep, "/")
                 fh.write(f"| [{f['id']}]({rel}) | {f['title']} | "
                          f"{f['phase']} | {f['priority']} | {f['status']} |\n")
             fh.write("\n")

@@ -1,6 +1,6 @@
 # F-TIM-001 — Rest timer core
 
-Status: planned | Priority: P0 | Phase: 1
+Status: done | Priority: P0 | Phase: 1
 Blocks: F-TIM-002, F-TIM-003
 Reads: 20-ARCHITECTURE#cross-platform-discipline
 Screens: Active Workout
@@ -14,6 +14,9 @@ Screens: Active Workout
    it stays accurate across app backgrounding and doze.
 
 ## Acceptance
-- [ ] Remains accurate to within a second after several minutes backgrounded.
-- [ ] Surviving an app kill is not required — but the app must not crash or show
-      a stale timer on relaunch.
+- [x] Remains accurate to within a second after several minutes backgrounded —
+      `RestTimer` is a target timestamp, so nothing about it changes while the
+      app is asleep and there is no accumulated error to drift.
+- [x] Surviving an app kill is not required — but the app must not crash or show
+      a stale timer on relaunch. State is in memory only, so a relaunch starts
+      idle; a fired timer is not rendered either (`isVisibleAt`).

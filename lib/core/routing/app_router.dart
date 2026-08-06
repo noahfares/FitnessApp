@@ -9,6 +9,7 @@ import '../../features/logging/presentation/active_workout_screen.dart';
 import '../../features/logging/presentation/start_workout_screen.dart';
 import '../../features/settings/presentation/about_screen.dart';
 import '../../features/settings/presentation/appearance_screen.dart';
+import '../../features/settings/presentation/rest_timer_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/settings/presentation/units_screen.dart';
 import '../../features/shell/presentation/app_shell.dart';
@@ -145,6 +146,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'appearance',
             parentNavigatorKey: _rootNavigatorKey,
             builder: (context, state) => const AppearanceScreen(),
+          ),
+          GoRoute(
+            path: 'rest-timer',
+            parentNavigatorKey: _rootNavigatorKey,
+            builder: (context, state) => const RestTimerScreen(),
           ),
           GoRoute(
             path: 'about',

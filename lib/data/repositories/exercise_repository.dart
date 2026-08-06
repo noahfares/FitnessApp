@@ -61,6 +61,7 @@ class ExerciseRepository {
     List<Muscle> secondaryMuscles = const [],
     List<String> aliases = const [],
     String? notes,
+    int? defaultRestSeconds,
   }) async {
     final timestamp = _now;
     await _db
@@ -75,6 +76,7 @@ class ExerciseRepository {
             secondaryMuscles: Value([for (final m in secondaryMuscles) m.name]),
             aliases: Value(aliases),
             notes: Value(notes),
+            defaultRestSeconds: Value(defaultRestSeconds),
             isCustom: const Value(true),
             createdAt: timestamp,
             updatedAt: timestamp,

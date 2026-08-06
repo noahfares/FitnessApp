@@ -86,12 +86,12 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-TIM-001](TIM/F-TIM-001.md) | Rest timer core | 1 | P0 | planned |
-| [F-TIM-002](TIM/F-TIM-002.md) | Auto-start on set completion | 1 | P0 | planned |
-| [F-TIM-003](TIM/F-TIM-003.md) | Background execution and notification | 1 | P0 | planned |
+| [F-TIM-001](TIM/F-TIM-001.md) | Rest timer core | 1 | P0 | done |
+| [F-TIM-002](TIM/F-TIM-002.md) | Auto-start on set completion | 1 | P0 | done |
+| [F-TIM-003](TIM/F-TIM-003.md) | Background execution and notification | 1 | P0 | in-progress |
 | [F-TIM-004](TIM/F-TIM-004.md) | Notification and lock-screen controls | 2 | P2 | planned |
-| [F-TIM-005](TIM/F-TIM-005.md) | Default rest durations | 1 | P1 | planned |
-| [F-TIM-006](TIM/F-TIM-006.md) | Alert style | 1 | P1 | planned |
+| [F-TIM-005](TIM/F-TIM-005.md) | Default rest durations | 1 | P1 | done |
+| [F-TIM-006](TIM/F-TIM-006.md) | Alert style | 1 | P1 | done |
 | [F-TIM-007](TIM/F-TIM-007.md) | Rest-taken recording | 2 | P2 | planned |
 | [F-TIM-008](TIM/F-TIM-008.md) | Interval / EMOM timer | — | P3 | idea |
 | [F-TIM-009](TIM/F-TIM-009.md) | Stopwatch for timed exercises | 4 | P2 | planned |
@@ -169,7 +169,7 @@
 |---|---|---|---|---|
 | [F-SET-001](SET/F-SET-001.md) | Units | 0 | P0 | done |
 | [F-SET-002](SET/F-SET-002.md) | Theme mode | 0 | P0 | done |
-| [F-SET-003](SET/F-SET-003.md) | Rest-timer defaults | 1 | P1 | planned |
+| [F-SET-003](SET/F-SET-003.md) | Rest-timer defaults | 1 | P1 | done |
 | [F-SET-004](SET/F-SET-004.md) | Bar and plate inventory | 4 | P1 | planned |
 | [F-SET-005](SET/F-SET-005.md) | Week start | 3 | P1 | planned |
 | [F-SET-006](SET/F-SET-006.md) | e1RM formula | 3 | P2 | planned |

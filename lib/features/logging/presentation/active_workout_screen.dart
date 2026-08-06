@@ -12,8 +12,11 @@ import '../../../data/db/database_provider.dart';
 import '../../../data/repositories/workout_repository.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/set_numbering.dart';
+import '../../../domain/timing/rest_defaults.dart';
 import '../../catalog/presentation/exercise_labels.dart';
+import '../../settings/application/rest_timer_settings_provider.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import '../../timing/presentation/rest_timer_bar.dart';
 import '../application/active_workout_providers.dart';
 import '../application/set_providers.dart';
 import 'exercise_picker_sheet.dart';
@@ -155,21 +158,30 @@ class _ActiveWorkout extends ConsumerWidget {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.screen),
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: FilledButton.tonalIcon(
-                  onPressed: () => unawaited(_addExercises(context, ref)),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add exercises'),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: FilledButton(
-                  onPressed: () => unawaited(_finish(context, ref)),
-                  child: const Text('Finish'),
-                ),
+              // Above the actions rather than pinned to the top of the screen:
+              // the countdown is glanced at between sets from the same thumb
+              // position the buttons are pressed from.
+              const RestTimerBar(),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.tonalIcon(
+                      onPressed: () => unawaited(_addExercises(context, ref)),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add exercises'),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () => unawaited(_finish(context, ref)),
+                      child: const Text('Finish'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -349,6 +361,16 @@ class _SessionExerciseTile extends ConsumerWidget {
     // Which columns exist is a property of the exercise, not of each row
     // (`F-CAT-002`), so it is resolved once here.
     final fields = setFieldsFor(exercise.trackingType.name);
+
+    // Same reasoning: the rest duration is a property of the exercise, and
+    // resolving it once per tile keeps the rule out of the completion handler
+    // (`F-TIM-005`).
+    final restSeconds = resolveRestSeconds(
+      equipment: exercise.equipment.name,
+      primaryMuscle: exercise.primaryMuscle.name,
+      exerciseSeconds: exercise.defaultRestSeconds,
+      globalSeconds: ref.watch(restTimerSettingsProvider).defaultSeconds,
+    );
     final labels = labelSets([
       for (final set in sets ?? const <WorkoutSet>[]) set.setType.name,
     ]);
@@ -387,6 +409,7 @@ class _SessionExerciseTile extends ConsumerWidget {
               fields: fields,
               equipment: exercise.equipment.name,
               incrementGrams: exercise.incrementGrams,
+              restSeconds: restSeconds,
             ),
         AddSetButton(workoutExerciseId: exercise.workoutExerciseId),
         const Divider(height: 1),

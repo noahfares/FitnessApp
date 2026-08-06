@@ -9,6 +9,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/db/tables/enums.dart';
+import '../../../domain/timing/rest_defaults.dart';
 import 'exercise_labels.dart';
 
 /// Create or edit an exercise (`F-CAT-003`).
@@ -37,6 +38,10 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
   Set<Muscle> _secondaryMuscles = <Muscle>{};
   Equipment _equipment = Equipment.barbell;
   TrackingType _trackingType = TrackingType.weightReps;
+
+  /// Null means "use the global setting, then the built-in for this kind of
+  /// exercise" (`F-TIM-005`).
+  int? _defaultRestSeconds;
 
   /// The row being edited, once loaded. Null while loading and for a new one.
   Exercise? _existing;
@@ -81,6 +86,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         };
         _equipment = row.equipment;
         _trackingType = row.trackingType;
+        _defaultRestSeconds = row.defaultRestSeconds;
       }
     });
   }
@@ -124,6 +130,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         equipment: _equipment,
         trackingType: _trackingType,
         secondaryMuscles: _secondaryMuscles.toList(),
+        defaultRestSeconds: _defaultRestSeconds,
       );
     } else {
       await repo.update(
@@ -134,6 +141,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
           secondaryMuscles: Value(secondary),
           equipment: Value(_equipment),
           trackingType: Value(_trackingType),
+          defaultRestSeconds: Value(_defaultRestSeconds),
         ),
       );
     }
@@ -325,6 +333,29 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
             onChanged: (type) {
               if (type != null) setState(() => _trackingType = type);
             },
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          // The per-exercise override in the middle of `F-TIM-005`'s
+          // resolution order. Left on "Default" it changes nothing, which is
+          // what almost every exercise wants.
+          DropdownButtonFormField<int>(
+            initialValue: _defaultRestSeconds ?? 0,
+            decoration: const InputDecoration(
+              labelText: 'Rest timer',
+              border: OutlineInputBorder(),
+              helperText: 'Overrides the global default for this exercise.',
+            ),
+            items: [
+              const DropdownMenuItem(value: 0, child: Text('Default')),
+              for (final seconds in restDurationChoices)
+                DropdownMenuItem(
+                  value: seconds,
+                  child: Text(formatRestDuration(seconds)),
+                ),
+            ],
+            onChanged: (seconds) => setState(
+              () => _defaultRestSeconds = (seconds ?? 0) == 0 ? null : seconds,
+            ),
           ),
           const SizedBox(height: AppSpacing.lg),
           Text('Secondary muscles', style: theme.textTheme.titleSmall),

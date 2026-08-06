@@ -1,6 +1,6 @@
 # F-SET-003 — Rest-timer defaults
 
-Status: planned | Priority: P1 | Phase: 1
+Status: done | Priority: P1 | Phase: 1
 Depends on: F-TIM-005
 Reads: 22-UNITS
 

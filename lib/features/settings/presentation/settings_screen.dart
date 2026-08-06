@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/app_routes.dart';
+import '../../../domain/timing/rest_defaults.dart';
+import '../application/rest_timer_settings_provider.dart';
 import '../application/theme_provider.dart';
 import '../application/unit_preferences_provider.dart';
 
@@ -17,6 +19,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final units = ref.watch(unitPreferencesProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final restTimer = ref.watch(restTimerSettingsProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
@@ -38,6 +41,17 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: Text(themeMode.label),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push(AppRoutes.settingsAppearance),
+          ),
+          ListTile(
+            leading: const Icon(Icons.timer_outlined),
+            title: const Text('Rest timer'),
+            subtitle: Text(
+              '${restTimer.autoStart ? 'Starts automatically' : 'Manual start'}'
+              ' · '
+              '${restTimer.defaultSeconds == null ? 'automatic length' : formatRestDuration(restTimer.defaultSeconds!)}',
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRoutes.settingsRestTimer),
           ),
           const Divider(),
           ListTile(

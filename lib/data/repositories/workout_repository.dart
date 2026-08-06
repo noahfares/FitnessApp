@@ -31,6 +31,7 @@ class SessionExercise {
     required this.equipment,
     required this.trackingType,
     required this.incrementGrams,
+    required this.defaultRestSeconds,
     required this.position,
     required this.setCount,
     required this.completedSetCount,
@@ -48,6 +49,10 @@ class SessionExercise {
   /// Per-exercise stepper increment in canonical grams, or null to fall back to
   /// the equipment default (`F-SET-007`, `F-LOG-006` §2).
   final int? incrementGrams;
+
+  /// This exercise's own rest duration, or null to fall through to the global
+  /// setting and then to the built-in default for its kind (`F-TIM-005`).
+  final int? defaultRestSeconds;
 
   final int position;
   final int setCount;
@@ -252,6 +257,7 @@ class WorkoutRepository {
                  e.equipment      AS equipment,
                  e.tracking_type  AS tracking_type,
                  e.increment_grams AS increment_grams,
+                 e.default_rest_seconds AS default_rest_seconds,
                  (SELECT COUNT(*) FROM sets s
                    WHERE s.workout_exercise_id = we.id
                      AND s.deleted_at IS NULL)                   AS set_count,
@@ -291,6 +297,7 @@ class WorkoutRepository {
                   TrackingType.weightReps,
                 ),
                 incrementGrams: row.read<int?>('increment_grams'),
+                defaultRestSeconds: row.read<int?>('default_rest_seconds'),
                 position: row.read<int>('position'),
                 setCount: row.read<int>('set_count'),
                 completedSetCount: row.read<int>('done_count'),

@@ -1,6 +1,6 @@
 # F-TIM-006 — Alert style
 
-Status: planned | Priority: P1 | Phase: 1
+Status: done | Priority: P1 | Phase: 1
 Reads: 20-ARCHITECTURE#cross-platform-discipline
 
 ## Spec

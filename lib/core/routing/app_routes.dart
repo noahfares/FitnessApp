@@ -32,5 +32,6 @@ abstract final class AppRoutes {
   static const String settings = '/settings';
   static const String settingsUnits = '/settings/units';
   static const String settingsAppearance = '/settings/appearance';
+  static const String settingsRestTimer = '/settings/rest-timer';
   static const String settingsAbout = '/settings/about';
 }

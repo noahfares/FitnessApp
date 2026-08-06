@@ -1,6 +1,6 @@
 # F-TIM-005 — Default rest durations
 
-Status: planned | Priority: P1 | Phase: 1
+Status: done | Priority: P1 | Phase: 1
 Reads: 20-ARCHITECTURE#cross-platform-discipline
 Data: `exercises.default_rest_seconds`, app settings
 

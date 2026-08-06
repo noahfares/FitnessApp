@@ -1,6 +1,6 @@
 # F-TIM-002 — Auto-start on set completion
 
-Status: planned | Priority: P0 | Phase: 1
+Status: done | Priority: P0 | Phase: 1
 Depends on: F-TIM-001, F-LOG-003
 Reads: 20-ARCHITECTURE#cross-platform-discipline
 
