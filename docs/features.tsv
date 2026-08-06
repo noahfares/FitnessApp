@@ -1,9 +1,9 @@
 id	phase	status	priority	title	depends	blocks	reads
 F-CAT-001	1	done	P0	Seeded exercise catalogue		F-CAT-002, F-LOG-002	21-DATA-MODEL#exercises, 21-DATA-MODEL#seed-data, 10-VISION#risks
 F-CAT-002	1	done	P0	Exercise model & tracking types	F-CAT-001	F-LOG-003	21-DATA-MODEL#exercises, 40-ANALYTICS-SPEC#universal-preconditions
-F-CAT-003	1	in-progress	P0	Custom exercises	F-CAT-002		21-DATA-MODEL#exercises
-F-CAT-004	1	planned	P0	Search	F-CAT-001		21-DATA-MODEL#exercises
-F-CAT-005	1	planned	P1	Filter by muscle and equipment	F-CAT-001		21-DATA-MODEL#exercises
+F-CAT-003	1	done	P0	Custom exercises	F-CAT-002		21-DATA-MODEL#exercises
+F-CAT-004	1	done	P0	Search	F-CAT-001		21-DATA-MODEL#exercises
+F-CAT-005	1	done	P1	Filter by muscle and equipment	F-CAT-001		21-DATA-MODEL#exercises
 F-CAT-006	2	planned	P1	Favourites and recency ordering	F-CAT-004		21-DATA-MODEL#exercises
 F-CAT-007	2	planned	P1	Per-exercise sticky notes			21-DATA-MODEL#exercises
 F-CAT-008	2	planned	P2	Aliases and synonyms	F-CAT-004		21-DATA-MODEL#exercises
@@ -28,13 +28,13 @@ F-ROU-012	3	planned	P2	Scheduling			21-DATA-MODEL#routine_days, 70-decisions/ADR
 F-ROU-013	—	idea	P2	Cycles, blocks and deload weeks			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-014	—	idea	P2	Share and import routines	F-DAT-001		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-015	3	planned	P2	Built-in starter programs			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
-F-LOG-001	1	planned	P0	Start, finish, and discard a workout		F-LOG-002, F-LOG-003, F-LOG-007	21-DATA-MODEL#workouts, 23-NAVIGATION
-F-LOG-002	1	planned	P0	Add exercises to a session	F-LOG-001, F-CAT-001		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
-F-LOG-003	1	planned	P0	Set row entry	F-LOG-002, F-CAT-002	F-LOG-004, F-LOG-005, F-LOG-006	21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory, 22-UNITS
-F-LOG-004	1	planned	P0	"Last time" ghost values	F-LOG-003	F-PRG-001	21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#colour, 22-UNITS, 60-ENGINEERING#performance-budgets
-F-LOG-005	1	planned	P0	Set types	F-LOG-003		21-DATA-MODEL#sets, 40-ANALYTICS-SPEC#universal-preconditions
-F-LOG-006	1	planned	P0	Numeric keypad and steppers	F-LOG-003	F-PLT-001	22-UNITS, 24-DESIGN-SYSTEM#component-inventory
-F-LOG-007	1	planned	P0	Crash and kill recovery	F-LOG-001		21-DATA-MODEL#persistence-behaviour
+F-LOG-001	1	done	P0	Start, finish, and discard a workout		F-LOG-002, F-LOG-003, F-LOG-007	21-DATA-MODEL#workouts, 23-NAVIGATION
+F-LOG-002	1	done	P0	Add exercises to a session	F-LOG-001, F-CAT-001		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-003	1	done	P0	Set row entry	F-LOG-002, F-CAT-002	F-LOG-004, F-LOG-005, F-LOG-006	21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory, 22-UNITS
+F-LOG-004	1	done	P0	"Last time" ghost values	F-LOG-003	F-PRG-001	21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#colour, 22-UNITS, 60-ENGINEERING#performance-budgets
+F-LOG-005	1	done	P0	Set types	F-LOG-003		21-DATA-MODEL#sets, 40-ANALYTICS-SPEC#universal-preconditions
+F-LOG-006	1	done	P0	Numeric keypad and steppers	F-LOG-003	F-PLT-001	22-UNITS, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-007	1	done	P0	Crash and kill recovery	F-LOG-001		21-DATA-MODEL#persistence-behaviour
 F-LOG-008	1	planned	P1	Session and exercise notes			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-009	1	planned	P0	Edit and delete past workouts			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-010	2	planned	P1	Modify a session in progress	F-LOG-002		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
@@ -50,7 +50,7 @@ F-LOG-019	4	planned	P2	Bodyweight-loaded exercises	F-BOD-001		40-ANALYTICS-SPEC#
 F-LOG-020	4	planned	P2	Warm-up set generator	F-PLT-001, F-LOG-005		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-021	—	idea	P2	Live session metrics			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-022	2	planned	P1	Undo and mis-tap protection			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
-F-LOG-023	1	planned	P1	Per-set notes	F-LOG-003		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-023	1	done	P1	Per-set notes	F-LOG-003		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-TIM-001	1	planned	P0	Rest timer core		F-TIM-002, F-TIM-003	20-ARCHITECTURE#cross-platform-discipline
 F-TIM-002	1	planned	P0	Auto-start on set completion	F-TIM-001, F-LOG-003		20-ARCHITECTURE#cross-platform-discipline
 F-TIM-003	1	planned	P0	Background execution and notification	F-TIM-001		20-ARCHITECTURE#cross-platform-discipline

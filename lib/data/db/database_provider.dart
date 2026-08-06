@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../repositories/exercise_repository.dart';
+import '../repositories/set_repository.dart';
+import '../repositories/workout_repository.dart';
 import 'app_database.dart';
 
 /// The single database instance.
@@ -19,4 +21,16 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 /// (docs/20-ARCHITECTURE.md).
 final exerciseRepositoryProvider = Provider<ExerciseRepository>(
   (ref) => ExerciseRepository(ref.watch(databaseProvider)),
+);
+
+/// Sessions and everything hanging off them (`F-LOG-001`, `F-LOG-002`,
+/// `F-LOG-007`).
+final workoutRepositoryProvider = Provider<WorkoutRepository>(
+  (ref) => WorkoutRepository(ref.watch(databaseProvider)),
+);
+
+/// The `sets` table — the app's hot path (`F-LOG-003`–`F-LOG-006`,
+/// `F-LOG-023`).
+final setRepositoryProvider = Provider<SetRepository>(
+  (ref) => SetRepository(ref.watch(databaseProvider)),
 );

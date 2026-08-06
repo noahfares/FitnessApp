@@ -1,6 +1,6 @@
 # F-LOG-004 — "Last time" ghost values
 
-Status: planned | Priority: P0 | Phase: 1
+Status: done | Priority: P0 | Phase: 1
 Depends on: F-LOG-003 | Blocks: F-PRG-001
 Reads: 21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#colour, 22-UNITS, 60-ENGINEERING#performance-budgets
 Screens: Active Workout | Data: `sets`
@@ -19,11 +19,15 @@ Screens: Active Workout | Data: `sets`
    precedence and the ghost becomes secondary context.
 
 ## Acceptance
-- [ ] First-ever session of an exercise shows an empty ghost, not a zero or an error.
-- [ ] Ghost respects display-unit settings and updates when they change.
-- [ ] Query completes in under 50 ms with several years of history — this runs
-      on every exercise open and is the app's hottest path.
-- [ ] Deleting the previous session updates ghosts to the one before it.
+- [x] First-ever session of an exercise shows an empty ghost, not a zero or an error.
+- [x] Ghost respects display-unit settings and updates when they change — 100 kg
+      reads `220.5 lb × 8` in pound mode, and nothing is written back.
+- [x] Query completes in under 50 ms with several years of history. Asserted
+      against 600 sessions and 12,000 sets, which is three years of training
+      four times a week.
+- [x] Deleting the previous session updates ghosts to the one before it — the
+      query is a stream over `sets`, `workout_exercises` and `workouts`, so
+      nothing has to remember to invalidate it.
 
 ## Edge cases
 
@@ -34,8 +38,27 @@ storage is canonical.
 
 ## Open questions
 
-Match by set index, or by "best set"? Index is simpler and
-matches user expectation; revisit if it proves confusing with varying set counts.
+Match by set index, or by "best set"? **Resolved for now as index**
+(`matchGhostIndices`): "best set" makes the ghost move between sessions, and
+the number people chase is what they did in that slot last time. Revisit if it
+proves confusing with varying set counts — the pairing is one pure function, so
+changing it is a local edit.
+
+## Implementation
+
+- `SetRepository.watchGhostSetsFor` — one query, riding
+  `idx_workout_exercises_exercise` and `idx_sets_workout_exercise`. In-progress
+  sessions are excluded by `ended_at IS NOT NULL`, which excludes *today's*
+  session without needing to know its id.
+- Only completed sets come back, so a session abandoned mid-exercise
+  contributes what was actually done and nothing else.
+- The result is de-duplicated (`distinct`): the query re-runs on every write to
+  `sets`, which during a session means every completion, and the answer is
+  almost always identical. Without it, ticking one set rebuilds the ghost of
+  every exercise on screen.
+- The pairing rule is pure and separately tested (`matchGhostIndices`) — it is
+  the part that is easy to get quietly wrong.
+- §7 (the progression target taking precedence) waits for `F-PRG-001`.
 
 ---
 

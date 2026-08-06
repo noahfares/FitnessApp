@@ -32,6 +32,29 @@ explore the docs to build context; the context you need is declared for you.
 Read the shared documents **once**, then all the batch's feature files. This is
 the cheapest way to work — prefer it over one feature at a time.
 
+### Read one section of a document
+
+`tools/read.sh <DOC>#<anchor>` prints just that section — `Reads:` lines name
+sections, not files, and `21-DATA-MODEL` is 324 lines of which `#sets` is 30.
+`tools/read.sh F-LOG-003` prints a feature file without its `## Why`, which the
+recipe above says to skip anyway.
+
+### Verify before committing
+
+`tools/verify.sh` — format, analyze, test, layers, docs, in **CI's order**. CI's
+first gate is `dart format --set-exit-if-changed`, which fails the job before a
+single test runs, so a green local suite is not evidence of a green build.
+`tools/verify.sh --fix` formats in place first.
+
+### Run the tests
+
+`tools/test.sh` — failures only, one line when the suite is green (254 lines of
+"passed" is 254 lines of nothing). `tools/test.sh -v` when debugging, and it
+takes paths: `tools/test.sh test/domain`.
+
+Widget tests build on `test/support/harness.dart`; read it before writing a new
+one rather than re-deriving the provider overrides.
+
 ### Check project state
 
 Read `docs/features.tsv`. 163 rows, everything: phase, status, priority,
@@ -148,13 +171,24 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.9.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
-theming, five-tab shell, and the Drift schema (now at v2).
+Version **0.12.3**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+theming, five-tab shell, and the Drift schema (now at **v3**).
 
-**Phase 1 in progress.** Batch 1.1 done: 100-exercise seeded catalogue,
-`ExerciseRepository`, custom exercises. Next is **batch 1.2** (`F-CAT-004`,
-`F-CAT-005` — catalogue search and filter), which is also where `F-CAT-003`
-closes, since the custom-exercise editor needs a screen to be reached from.
+**Phase 1 in progress.** Batches 1.1–1.4 done:
+
+- **1.1–1.2** — 100-exercise seeded catalogue, `ExerciseRepository`, custom
+  exercises, catalogue screen with search and filtering (`F-CAT-001`–`F-CAT-005`).
+- **1.3** — session lifecycle: start/finish/discard, the exercise picker, and
+  kill recovery (`F-LOG-001`, `F-LOG-002`, `F-LOG-007`). Schema v3 adds the
+  partial unique index enforcing one in-progress workout.
+- **1.4** — the set row: `SetRepository`, ghost values, set types, the numeric
+  keypad and per-set notes (`F-LOG-003`–`F-LOG-006`, `F-LOG-023`). No schema
+  change — the `sets` table has held all of this since v1.
+
+A complete session can now be logged end to end. Next is **batch 1.5**, the rest
+timer (`F-TIM-001`, `F-TIM-002`, `F-TIM-003`, `F-TIM-005`, `F-TIM-006`,
+`F-SET-003`), reading `20-ARCHITECTURE#cross-platform-discipline`. A completion
+is where it starts, and `SetRepository.complete` is the seam it hangs off.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform.

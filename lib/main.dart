@@ -5,7 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app.dart';
 import 'data/db/app_database.dart';
 import 'data/db/database_provider.dart';
+import 'data/repositories/workout_repository.dart';
 import 'data/seed/exercise_seeder.dart';
+import 'features/logging/application/active_workout_providers.dart';
 import 'features/settings/application/unit_preferences_provider.dart';
 
 Future<void> main() async {
@@ -26,11 +28,18 @@ Future<void> main() async {
     database,
   ).seedIfNeeded(now: () => DateTime.now().millisecondsSinceEpoch);
 
+  // Crash recovery is a query, not a serialised-state restore: any workout
+  // with a null `ended_at` is still in progress, so the app simply opens there
+  // (`F-LOG-007`). Resolved before the first frame, so recovery is not a
+  // visible flash of the dashboard.
+  final active = await WorkoutRepository(database).findActive();
+
   runApp(
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(sharedPreferences),
         databaseProvider.overrideWithValue(database),
+        startupLocationProvider.overrideWithValue(startupLocationFor(active)),
       ],
       child: const FitnessApp(),
     ),

@@ -1,6 +1,6 @@
 # F-LOG-023 — Per-set notes
 
-Status: planned | Priority: P1 | Phase: 1
+Status: done | Priority: P1 | Phase: 1
 Depends on: F-LOG-003
 Reads: 21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 Data: `sets.notes`
@@ -17,15 +17,29 @@ Data: `sets.notes`
 5. Included in export (`F-DAT-001`, `F-DAT-002`).
 
 ## Acceptance
-- [ ] Adding a note never displaces or shrinks the weight, reps, or completion
-      controls.
-- [ ] Notes survive an export/import round-trip.
-- [ ] A set with a note is visually distinguishable without opening it.
+- [x] Adding a note never displaces or shrinks the weight, reps, or completion
+      controls — the marker is a fixed 32 dp icon, and the value cells stay
+      flexible whether a note exists or not.
+- [ ] Notes survive an export/import round-trip. *There is no export yet
+      (`F-DAT-001`, `F-DAT-002`, Phase 4). The column is populated from the
+      first session, which is the part that cannot be backfilled.*
+- [x] A set with a note is visually distinguishable without opening it — the
+      icon fills and takes the primary colour.
 
 ## Edge cases
 
 A very long note (truncate in list views, never in storage).
 Notes on a set that is later deleted — tombstoned with the set, restored by undo.
+
+## Implementation
+
+- `set_note_sheet.dart`, opened from the row's icon. This is the one place the
+  system keyboard is right: free text, typed between sets rather than during
+  one.
+- An empty or whitespace-only note is stored as null, so "has a note" stays a
+  single null check everywhere it is asked.
+- §4 — visibility in workout detail and per-exercise history — arrives with
+  `F-LOG-012` and `F-ANA-002`.
 
 ---
 
