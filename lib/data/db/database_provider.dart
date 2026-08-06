@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../io/json_dump_service.dart';
+import '../repositories/body_measurement_repository.dart';
 import '../repositories/exercise_repository.dart';
 import '../repositories/set_repository.dart';
 import '../repositories/workout_repository.dart';
@@ -33,4 +35,14 @@ final workoutRepositoryProvider = Provider<WorkoutRepository>(
 /// `F-LOG-023`).
 final setRepositoryProvider = Provider<SetRepository>(
   (ref) => SetRepository(ref.watch(databaseProvider)),
+);
+
+/// Bodyweight and future body measurements (`F-BOD-001`).
+final bodyMeasurementRepositoryProvider = Provider<BodyMeasurementRepository>(
+  (ref) => BodyMeasurementRepository(ref.watch(databaseProvider)),
+);
+
+/// The rescue-artefact JSON dump (`F-DAT-011`).
+final jsonDumpServiceProvider = Provider<JsonDumpService>(
+  (ref) => JsonDumpService(ref.watch(databaseProvider)),
 );

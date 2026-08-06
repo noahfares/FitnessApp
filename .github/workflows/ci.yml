@@ -1,13 +1,19 @@
-# F-REL-001 — checks on every push and pull request.
+# F-REL-001 — checks on every push.
 #
 # Spec: docs/61-CI-CD.md. Must stay fast (target under ~10 minutes) because it
 # runs constantly. Uses no secrets, so it works correctly on a fork.
+#
+# Push-only, deliberately: a `pull_request` trigger alongside `push` runs CI
+# twice for the same commit on any branch with an open PR, since a
+# same-repo PR's head is also a branch push. GitHub attaches any workflow
+# run against a commit's SHA to that commit's PR checks regardless of which
+# event triggered it, so pushing is sufficient here — solo project, no fork
+# contributors to accommodate. Revisit if that changes (`F-REL-010`).
 name: ci
 
 on:
   push:
     branches: ['**']
-  pull_request:
 
 concurrency:
   group: ci-${{ github.ref }}

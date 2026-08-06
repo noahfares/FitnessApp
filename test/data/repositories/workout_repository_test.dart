@@ -273,4 +273,250 @@ void main() {
       expect(await repo.watchExercises(keep.id).first, hasLength(1));
     });
   });
+
+  /// Completes the sole set of [workoutExerciseId] with [weightGrams] ×
+  /// [reps], so history queries have something to aggregate.
+  Future<void> completeSet(
+    String workoutExerciseId, {
+    required int weightGrams,
+    required int reps,
+  }) async {
+    final set =
+        (await (db.select(db.sets)
+                  ..where((s) => s.workoutExerciseId.equals(workoutExerciseId)))
+                .get())
+            .first;
+    await (db.update(db.sets)..where((s) => s.id.equals(set.id))).write(
+      SetsCompanion(
+        isCompleted: const Value(true),
+        weightGrams: Value(weightGrams),
+        reps: Value(reps),
+      ),
+    );
+  }
+
+  group('watchHistory (F-LOG-011)', () {
+    test('only finished sessions, newest first', () async {
+      await makeExercise('bench', 'Bench Press');
+      final older = await repo.start(name: 'Older');
+      await repo.addExercises(older.id, ['bench']);
+      await completeSet(
+        (await repo.watchExercises(older.id).first).single.workoutExerciseId,
+        weightGrams: 100000,
+        reps: 5,
+      );
+      await repo.finish(older.id);
+
+      clock = DateTime(2026, 8, 7);
+      final newer = await repo.start(name: 'Newer');
+      await repo.addExercises(newer.id, ['bench']);
+      await repo.finish(newer.id);
+
+      // The still in-progress session never shows up in history.
+      await repo.start(name: 'Still going');
+
+      final history = await repo.watchHistory().first;
+      expect([for (final h in history) h.name], ['Newer', 'Older']);
+      expect(history.last.totalVolumeGrams, 500000);
+      expect(history.last.completedSetCount, 1);
+    });
+
+    test('excludes the warm-up from the volume total', () async {
+      await makeExercise('bench', 'Bench Press');
+      final workout = await repo.start();
+      await repo.addExercises(workout.id, ['bench']);
+      final we = (await repo.watchExercises(workout.id).first).single;
+      await db
+          .into(db.sets)
+          .insert(
+            SetsCompanion.insert(
+              id: 'warmup-set',
+              workoutExerciseId: we.workoutExerciseId,
+              position: 1,
+              setType: const Value(SetType.warmup),
+              isCompleted: const Value(true),
+              weightGrams: const Value(60000),
+              reps: const Value(10),
+              createdAt: 1,
+              updatedAt: 1,
+            ),
+          );
+      await completeSet(we.workoutExerciseId, weightGrams: 100000, reps: 5);
+      await repo.finish(workout.id);
+
+      final history = await repo.watchHistory().first;
+      // Only the working set counts: the seeded empty set plus the warm-up's
+      // own weight must not leak in (`F-LOG-005`).
+      expect(history.single.totalVolumeGrams, 500000);
+    });
+
+    test('matches by workout name or by an exercise inside it', () async {
+      await makeExercise('bench', 'Bench Press');
+      await makeExercise('squat', 'Back Squat');
+      final byName = await repo.start(name: 'Leg Day');
+      await repo.addExercises(byName.id, ['squat']);
+      await repo.finish(byName.id);
+
+      clock = DateTime(2026, 8, 7);
+      final byExercise = await repo.start(name: 'Push A');
+      await repo.addExercises(byExercise.id, ['bench']);
+      await repo.finish(byExercise.id);
+
+      expect((await repo.watchHistory(query: 'leg').first).map((h) => h.name), [
+        'Leg Day',
+      ]);
+      expect(
+        (await repo.watchHistory(query: 'bench').first).map((h) => h.name),
+        ['Push A'],
+      );
+      expect(await repo.watchHistory(query: 'nonexistent').first, isEmpty);
+    });
+
+    test('limit bounds how many rows come back', () async {
+      await makeExercise('bench', 'Bench Press');
+      for (var i = 0; i < 3; i++) {
+        clock = DateTime(2026, 8, 6 + i);
+        final workout = await repo.start(name: 'Session $i');
+        await repo.addExercises(workout.id, ['bench']);
+        await repo.finish(workout.id);
+      }
+
+      expect(await repo.watchHistory(limit: 2).first, hasLength(2));
+    });
+  });
+
+  group('editing a past workout (F-LOG-009)', () {
+    test('rename, reschedule and notes all write through', () async {
+      final workout = await repo.start();
+      await repo.finish(workout.id);
+
+      await repo.rename(workout.id, '  Heavy day  ');
+      final rescheduled = DateTime(2026, 1, 1, 9);
+      await repo.reschedule(workout.id, rescheduled);
+      await repo.setWorkoutNotes(workout.id, '  felt strong  ');
+
+      final updated = await repo.findById(workout.id);
+      expect(updated!.name, 'Heavy day');
+      expect(updated.startedAt, rescheduled.millisecondsSinceEpoch);
+      expect(
+        updated.startedAtTzOffsetMinutes,
+        rescheduled.timeZoneOffset.inMinutes,
+      );
+      expect(updated.notes, 'felt strong');
+    });
+
+    test('a blank note clears rather than storing empty text', () async {
+      final workout = await repo.start();
+      await repo.setWorkoutNotes(workout.id, 'first');
+      await repo.setWorkoutNotes(workout.id, '   ');
+      expect((await repo.findById(workout.id))!.notes, isNull);
+    });
+
+    test('exercise notes are independent of the workout note', () async {
+      await makeExercise('bench', 'Bench Press');
+      final workout = await repo.start();
+      await repo.addExercises(workout.id, ['bench']);
+      final we = (await repo.watchExercises(workout.id).first).single;
+
+      await repo.setExerciseNotes(we.workoutExerciseId, 'seat pin 4');
+
+      final after = (await repo.watchExercises(workout.id).first).single;
+      expect(after.notes, 'seat pin 4');
+    });
+
+    test('removing an exercise cascades its sets', () async {
+      await makeExercise('bench', 'Bench Press');
+      final workout = await repo.start();
+      await repo.addExercises(workout.id, ['bench']);
+      final we = (await repo.watchExercises(workout.id).first).single;
+
+      await repo.removeExerciseFromWorkout(we.workoutExerciseId);
+
+      expect(await repo.watchExercises(workout.id).first, isEmpty);
+      final rawSets = await db.select(db.sets).get();
+      expect(rawSets.single.deletedAt, isNotNull);
+    });
+
+    test('deleteWorkout tombstones the same way discard does', () async {
+      final workout = await repo.start();
+      await repo.finish(workout.id);
+
+      await repo.deleteWorkout(workout.id);
+
+      expect(await repo.findById(workout.id), isNull);
+      expect((await db.select(db.workouts).get()).single.deletedAt, isNotNull);
+    });
+  });
+
+  group('createRetroactive (F-LOG-009 §4)', () {
+    test('logs an already-finished session at the chosen time', () async {
+      final startedAt = DateTime(2026, 1, 1, 8);
+      final endedAt = DateTime(2026, 1, 1, 9);
+
+      final workout = await repo.createRetroactive(
+        name: 'Remembered leg day',
+        startedAt: startedAt,
+        endedAt: endedAt,
+      );
+
+      expect(workout.name, 'Remembered leg day');
+      expect(workout.startedAt, startedAt.millisecondsSinceEpoch);
+      expect(workout.endedAt, endedAt.millisecondsSinceEpoch);
+      // It does not occupy the active-workout slot.
+      expect(await repo.findActive(), isNull);
+    });
+
+    test('a blank name falls back the same way a live session does', () async {
+      final workout = await repo.createRetroactive(
+        name: '  ',
+        startedAt: DateTime(2026, 1, 1, 8),
+        endedAt: DateTime(2026, 1, 1, 9),
+      );
+      expect(workout.name, 'Morning Workout');
+    });
+  });
+
+  group('summaryStats (F-LOG-018)', () {
+    test(
+      'totals the session and compares it to the last of the same name',
+      () async {
+        await makeExercise('bench', 'Bench Press');
+        final first = await repo.start(name: 'Push A');
+        await repo.addExercises(first.id, ['bench']);
+        await completeSet(
+          (await repo.watchExercises(first.id).first).single.workoutExerciseId,
+          weightGrams: 90000,
+          reps: 5,
+        );
+        await repo.finish(first.id);
+
+        clock = DateTime(2026, 8, 13);
+        final second = await repo.start(name: 'Push A');
+        await repo.addExercises(second.id, ['bench']);
+        await completeSet(
+          (await repo.watchExercises(second.id).first).single.workoutExerciseId,
+          weightGrams: 100000,
+          reps: 5,
+        );
+        await repo.finish(second.id);
+
+        final stats = await repo.summaryStats(second.id);
+        expect(stats.totalVolumeGrams, 500000);
+        expect(stats.completedSetCount, 1);
+        expect(stats.exerciseCount, 1);
+        expect(stats.muscles, {Muscle.chest});
+        expect(stats.previous, isNotNull);
+        expect(stats.previous!.totalVolumeGrams, 450000);
+      },
+    );
+
+    test('a first-ever session has no previous to compare against', () async {
+      await makeExercise('bench', 'Bench Press');
+      final workout = await repo.start(name: 'Push A');
+      await repo.addExercises(workout.id, ['bench']);
+      await repo.finish(workout.id);
+
+      expect((await repo.summaryStats(workout.id)).previous, isNull);
+    });
+  });
 }

@@ -1,6 +1,6 @@
 # F-DAT-011 — Minimal JSON dump
 
-Status: planned | Priority: P0 | Phase: 1
+Status: done | Priority: P0 | Phase: 1
 Blocks: F-DAT-001
 Reads: 21-DATA-MODEL, 22-UNITS#import-and-export
 

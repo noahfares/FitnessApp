@@ -5,6 +5,8 @@ import '../../../core/theme/app_spacing.dart';
 import '../../catalog/application/exercise_catalog_providers.dart';
 import '../../catalog/presentation/catalog_filter_bar.dart';
 import '../../catalog/presentation/exercise_labels.dart';
+import '../../shell/widgets/async_view.dart';
+import '../../shell/widgets/empty_state.dart';
 
 /// Multi-select exercise picker (`F-LOG-002`).
 ///
@@ -78,33 +80,33 @@ class _ExercisePickerSheetState extends ConsumerState<_ExercisePickerSheet> {
             ),
             CatalogFilterBar(filterProvider: pickerFilterProvider),
             Expanded(
-              child: results.when(
-                loading: () =>
-                    const Center(child: CircularProgressIndicator.adaptive()),
-                error: (error, _) => Center(child: Text('$error')),
-                data: (exercises) {
-                  if (exercises.isEmpty) {
-                    return const Center(child: Text('No exercises match'));
-                  }
-                  return ListView.builder(
-                    itemCount: exercises.length,
-                    itemBuilder: (context, i) {
-                      final exercise = exercises[i];
-                      return CheckboxListTile(
-                        value: selection.contains(exercise.id),
-                        title: Text(exercise.name),
-                        subtitle: Text(
-                          '${exercise.primaryMuscle.label} · '
-                          '${exercise.equipment.label}',
-                        ),
-                        onChanged: (_) => ref
-                            .read(pickerSelectionProvider.notifier)
-                            .toggle(exercise.id),
-                      );
-                    },
+              child: results.view(errorTitle: 'Exercises could not be read', (
+                exercises,
+              ) {
+                if (exercises.isEmpty) {
+                  return const EmptyState(
+                    icon: Icons.search_off,
+                    title: 'No exercises match',
                   );
-                },
-              ),
+                }
+                return ListView.builder(
+                  itemCount: exercises.length,
+                  itemBuilder: (context, i) {
+                    final exercise = exercises[i];
+                    return CheckboxListTile(
+                      value: selection.contains(exercise.id),
+                      title: Text(exercise.name),
+                      subtitle: Text(
+                        '${exercise.primaryMuscle.label} · '
+                        '${exercise.equipment.label}',
+                      ),
+                      onChanged: (_) => ref
+                          .read(pickerSelectionProvider.notifier)
+                          .toggle(exercise.id),
+                    );
+                  },
+                );
+              }),
             ),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.screen),

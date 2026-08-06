@@ -6,6 +6,8 @@ import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/app_database.dart';
 import '../../../domain/catalog/exercise_search.dart';
+import '../../shell/widgets/async_view.dart';
+import '../../shell/widgets/empty_state.dart';
 import '../application/exercise_catalog_providers.dart';
 import 'catalog_filter_bar.dart';
 import 'exercise_labels.dart';
@@ -79,19 +81,13 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
           ),
           CatalogFilterBar(filterProvider: catalogFilterProvider),
           Expanded(
-            child: results.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator.adaptive()),
-              error: (error, _) => _CatalogMessage(
-                icon: Icons.error_outline,
-                title: 'The catalogue could not be read',
-                detail: '$error',
-              ),
-              data: (exercises) => _ExerciseList(
+            child: results.view(
+              (exercises) => _ExerciseList(
                 exercises: exercises,
                 total: total,
                 filter: filter,
               ),
+              errorTitle: 'The catalogue could not be read',
             ),
           ),
         ],
@@ -119,12 +115,12 @@ class _ExerciseList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (exercises.isEmpty) {
-      return _CatalogMessage(
+      return EmptyState(
         icon: filter.isActive ? Icons.search_off : Icons.fitness_center,
         title: filter.isActive
             ? 'No exercises match'
             : 'The catalogue is empty',
-        detail: filter.isActive
+        message: filter.isActive
             ? 'Try a shorter search, or clear a filter.'
             : 'Seeding runs at startup; this should not happen.',
       );
@@ -168,44 +164,6 @@ class _ExerciseList extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _CatalogMessage extends StatelessWidget {
-  const _CatalogMessage({
-    required this.icon,
-    required this.title,
-    required this.detail,
-  });
-
-  final IconData icon;
-  final String title;
-  final String detail;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 40, color: theme.colorScheme.onSurfaceVariant),
-            const SizedBox(height: AppSpacing.md),
-            Text(title, style: theme.textTheme.titleMedium),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              detail,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

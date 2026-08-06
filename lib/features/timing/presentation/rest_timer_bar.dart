@@ -80,9 +80,7 @@ class RestTimerBar extends ConsumerWidget {
                   onPressed: timer.isPaused
                       ? controller.resume
                       : controller.pause,
-                  icon: Icon(
-                    timer.isPaused ? Icons.play_arrow : Icons.pause,
-                  ),
+                  icon: Icon(timer.isPaused ? Icons.play_arrow : Icons.pause),
                 ),
                 IconButton(
                   tooltip: 'Skip rest',
