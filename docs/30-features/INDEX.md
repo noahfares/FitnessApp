@@ -175,7 +175,7 @@
 | [F-SET-006](SET/F-SET-006.md) | e1RM formula | 3 | P2 | planned |
 | [F-SET-007](SET/F-SET-007.md) | Increment steps | 2 | P1 | planned |
 | [F-SET-008](SET/F-SET-008.md) | Notification preferences | 2 | P2 | planned |
-| [F-SET-009](SET/F-SET-009.md) | About | 1 | P1 | in-progress |
+| [F-SET-009](SET/F-SET-009.md) | About | 1 | P1 | done |
 | [F-SET-010](SET/F-SET-010.md) | App lock | 5 | P3 | planned |
 | [F-SET-011](SET/F-SET-011.md) | Onboarding | 6 | P2 | planned |
 
@@ -246,10 +246,10 @@
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
 | [F-REL-001](REL/F-REL-001.md) | CI build and checks | 0 | P0 | done |
-| [F-REL-002](REL/F-REL-002.md) | Signed release APK | 1 | P0 | planned |
-| [F-REL-003](REL/F-REL-003.md) | GitHub Release automation | 1 | P1 | planned |
+| [F-REL-002](REL/F-REL-002.md) | Signed release APK | 1 | P0 | done |
+| [F-REL-003](REL/F-REL-003.md) | GitHub Release automation | 1 | P1 | done |
 | [F-REL-004](REL/F-REL-004.md) | App bundle for Play | 6 | P1 | planned |
-| [F-REL-005](REL/F-REL-005.md) | Versioning scheme | 1 | P1 | planned |
+| [F-REL-005](REL/F-REL-005.md) | Versioning scheme | 1 | P1 | done |
 | [F-REL-006](REL/F-REL-006.md) | Store listing assets | 6 | P2 | planned |
 | [F-REL-007](REL/F-REL-007.md) | Privacy policy and data safety | 6 | P0 | planned |
 | [F-REL-008](REL/F-REL-008.md) | Update check for sideloaded installs | — | P2 | idea |

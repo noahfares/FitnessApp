@@ -115,7 +115,7 @@ F-SET-005	3	planned	P1	Week start		F-ANA-004, F-ANA-006	22-UNITS
 F-SET-006	3	planned	P2	e1RM formula	F-ANA-003		22-UNITS
 F-SET-007	2	planned	P1	Increment steps	F-SET-001		22-UNITS
 F-SET-008	2	planned	P2	Notification preferences	F-TIM-003		22-UNITS
-F-SET-009	1	in-progress	P1	About			22-UNITS
+F-SET-009	1	done	P1	About			22-UNITS
 F-SET-010	5	planned	P3	App lock	F-BOD-004		22-UNITS
 F-SET-011	6	planned	P2	Onboarding			22-UNITS
 F-PLT-001	4	planned	P1	Plate calculator	F-PLT-002	F-PRG-012, F-LOG-020	22-UNITS, 21-DATA-MODEL#bars-and-plates
@@ -151,10 +151,10 @@ F-HLT-003	—	idea	P2	HealthKit parity	F-HLT-001		20-ARCHITECTURE#cross-platform
 F-HLT-004	—	idea	P3	Wear OS companion			20-ARCHITECTURE#cross-platform-discipline
 F-HLT-005	—	idea	P3	watchOS companion	F-HLT-004		20-ARCHITECTURE#cross-platform-discipline
 F-REL-001	0	done	P0	CI build and checks		F-REL-002	62-RELEASE, 61-CI-CD
-F-REL-002	1	planned	P0	Signed release APK	F-REL-001		62-RELEASE, 70-decisions/ADR-0007-signing
-F-REL-003	1	planned	P1	GitHub Release automation	F-REL-002		62-RELEASE, 61-CI-CD
+F-REL-002	1	done	P0	Signed release APK	F-REL-001		62-RELEASE, 70-decisions/ADR-0007-signing
+F-REL-003	1	done	P1	GitHub Release automation	F-REL-002		62-RELEASE, 61-CI-CD
 F-REL-004	6	planned	P1	App bundle for Play	F-REL-002		62-RELEASE, 61-CI-CD
-F-REL-005	1	planned	P1	Versioning scheme			62-RELEASE, 61-CI-CD
+F-REL-005	1	done	P1	Versioning scheme			62-RELEASE, 61-CI-CD
 F-REL-006	6	planned	P2	Store listing assets	F-THM-006		62-RELEASE, 61-CI-CD
 F-REL-007	6	planned	P0	Privacy policy and data safety			62-RELEASE, 10-VISION#non-goals
 F-REL-008	—	idea	P2	Update check for sideloaded installs			62-RELEASE, 61-CI-CD

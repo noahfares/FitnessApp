@@ -32,6 +32,7 @@ import 'package:fitness_app/app.dart';
 import 'package:fitness_app/core/theme/app_theme.dart';
 import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/database_provider.dart';
+import 'package:fitness_app/data/platform/app_info_service.dart';
 import 'package:fitness_app/data/platform/export_sharer.dart';
 import 'package:fitness_app/data/platform/rest_timer_service.dart';
 import 'package:fitness_app/domain/timing/rest_settings.dart';
@@ -83,6 +84,17 @@ class FakeExportSharer implements ExportSharer {
   }
 }
 
+/// An [AppInfoService] that returns a fixed value instead of hitting the
+/// `package_info_plus` platform channel, which `flutter_test` cannot service
+/// (`F-REL-005`, `F-SET-009`).
+class FakeAppInfoService implements AppInfoService {
+  const FakeAppInfoService();
+
+  @override
+  Future<AppVersionInfo> current() async =>
+      const AppVersionInfo(version: '0.0.0', buildNumber: '0');
+}
+
 /// A fresh in-memory database, closed when the test ends.
 ///
 /// Each test gets its own: sharing one would make ordering matter, and a suite
@@ -122,6 +134,7 @@ Future<ProviderContainer> testContainer({
       // during a test counts down from where the test thinks it is.
       restClockProvider.overrideWithValue(() => now ?? DateTime.now()),
       restTimerServiceProvider.overrideWithValue(FakeRestTimerService()),
+      appInfoServiceProvider.overrideWithValue(const FakeAppInfoService()),
       // Caller overrides come last so they win.
       ...overrides,
     ],

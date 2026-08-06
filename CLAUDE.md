@@ -171,10 +171,10 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.16.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.17.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
-**Phase 1 in progress.** Batches 1.1–1.8 done:
+**Phase 1 in progress.** Batches 1.1–1.9 done:
 
 - **1.1–1.2** — 100-exercise seeded catalogue, `ExerciseRepository`, custom
   exercises, catalogue screen with search and filtering (`F-CAT-001`–`F-CAT-005`).
@@ -222,9 +222,28 @@ link have not. Its acceptance criteria are on-device.
   one `F-DAT-*` dependency Phase 1 actually needs) and a `core/app_version.dart`
   constant, now the single source both the About screen and the dump read.
 
-Next is **batch 1.9**, ship it (`F-REL-002`, `F-REL-003`, `F-REL-005`,
-`F-SET-009`), reading `62-RELEASE`, `ADR-0007` and `63-VERSIONING` — the last
-batch of Phase 1.
+- **1.9** — ship it: `.github/workflows/release.yml` on tag `v*` — decodes
+  the upload keystore from GitHub Secrets, fails the job outright if any
+  signing secret is missing rather than falling back to a debug-signed APK
+  (`android/app/build.gradle.kts` throws when `REQUIRE_RELEASE_SIGNING=true`
+  and the keystore isn't configured), builds a `--split-per-abi` release APK
+  with `--build-name`/`--build-number` derived from `VERSION` and commit
+  count, computes SHA-256 checksums, and creates a GitHub Release with
+  generated notes (`F-REL-002`, `F-REL-003`, `F-REL-005`). `AboutScreen` now
+  reads version and build number from the installed package via
+  `package_info_plus` (`AppInfoService`, faked in tests) instead of a
+  constant, and adds the open-source licences page and a repository link via
+  `url_launcher` (`F-SET-009`, now done).
+
+  **This is the last batch of Phase 1, but Phase 1's exit criteria are not
+  met.** Everything code-shaped is done; what's left is entirely manual and
+  on-device (see `docs/50-ROADMAP.md`): the upload keystore itself has to be
+  generated once, offline, by a human and added to GitHub Secrets — this
+  session cannot and must not do that — after which a tag push needs to
+  actually produce and be installed as a real APK, the rest timer verified
+  with the screen off, a force-kill verified on a real device, and two weeks
+  of real training logged before Phase 2 begins. Don't start Phase 2 until
+  that's done and confirmed.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform.
