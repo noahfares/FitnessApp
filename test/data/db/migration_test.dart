@@ -46,7 +46,9 @@ void main() {
 
     if (version < 3) {
       // v3 added only this index.
-      await raw.runCustom('DROP INDEX IF EXISTS idx_workouts_single_in_progress');
+      await raw.runCustom(
+        'DROP INDEX IF EXISTS idx_workouts_single_in_progress',
+      );
     }
     if (version < 2) {
       // v2 added only this column.
@@ -119,51 +121,59 @@ void main() {
         "started_at_tz_offset_minutes) "
         "VALUES ('$id', 1, 1, 'Session $id', $startedAt, 0)";
 
-    test('closes out all but the most recent rather than failing to open', () async {
-      // A database written at v2 could legitimately hold several open sessions;
-      // the unique index cannot be created over them. An app that cannot open
-      // its own database is a far worse outcome than an auto-closed session.
-      await buildHistoricalDatabase(
-        2,
-        then: [
-          insertWorkout('w-0', 1000),
-          insertWorkout('w-1', 2000),
-          insertWorkout('w-2', 3000),
-        ],
-      );
+    test(
+      'closes out all but the most recent rather than failing to open',
+      () async {
+        // A database written at v2 could legitimately hold several open sessions;
+        // the unique index cannot be created over them. An app that cannot open
+        // its own database is a far worse outcome than an auto-closed session.
+        await buildHistoricalDatabase(
+          2,
+          then: [
+            insertWorkout('w-0', 1000),
+            insertWorkout('w-1', 2000),
+            insertWorkout('w-2', 3000),
+          ],
+        );
 
-      final db = await reopen();
+        final db = await reopen();
 
-      final open = await db
-          .customSelect(
-            'SELECT id FROM workouts '
-            'WHERE ended_at IS NULL AND deleted_at IS NULL',
-          )
-          .get();
-      expect(open, hasLength(1));
-      // The most recently started survives — it is the one plausibly still
-      // being trained.
-      expect(open.single.read<String>('id'), 'w-2');
+        final open = await db
+            .customSelect(
+              'SELECT id FROM workouts '
+              'WHERE ended_at IS NULL AND deleted_at IS NULL',
+            )
+            .get();
+        expect(open, hasLength(1));
+        // The most recently started survives — it is the one plausibly still
+        // being trained.
+        expect(open.single.read<String>('id'), 'w-2');
 
-      // The others were *ended*, not deleted. Nothing is ever hard-deleted, and
-      // a session someone actually trained still belongs in their history.
-      final all = await db
-          .customSelect('SELECT COUNT(*) AS n FROM workouts WHERE deleted_at IS NULL')
-          .getSingle();
-      expect(all.read<int>('n'), 3);
-    });
+        // The others were *ended*, not deleted. Nothing is ever hard-deleted, and
+        // a session someone actually trained still belongs in their history.
+        final all = await db
+            .customSelect(
+              'SELECT COUNT(*) AS n FROM workouts WHERE deleted_at IS NULL',
+            )
+            .getSingle();
+        expect(all.read<int>('n'), 3);
+      },
+    );
 
-    test('the database itself then refuses a second in-progress workout', () async {
-      await buildHistoricalDatabase(2, then: [insertWorkout('w-0', 1000)]);
-      final db = await reopen();
+    test(
+      'the database itself then refuses a second in-progress workout',
+      () async {
+        await buildHistoricalDatabase(2, then: [insertWorkout('w-0', 1000)]);
+        final db = await reopen();
 
-      // The acceptance criterion in F-LOG-001: enforced at the database level,
-      // not merely by whichever repository happens to sit in front of it.
-      await expectLater(
-        db.customStatement(insertWorkout('w-new', 9999)),
-        throwsA(isA<Exception>()),
-      );
-    });
+        // The acceptance criterion in F-LOG-001: enforced at the database level,
+        // not merely by whichever repository happens to sit in front of it.
+        await expectLater(
+          db.customStatement(insertWorkout('w-new', 9999)),
+          throwsA(isA<Exception>()),
+        );
+      },
+    );
 
     test('an ended workout is no obstacle to starting the next one', () async {
       await buildHistoricalDatabase(2, then: [insertWorkout('w-0', 1000)]);

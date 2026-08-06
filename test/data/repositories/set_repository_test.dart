@@ -95,10 +95,7 @@ void main() {
       expect(stored.isCompleted, isTrue);
       expect(stored.completedAt, clock.millisecondsSinceEpoch);
       // Rest intervals are derived from these afterwards (`F-TIM-007`).
-      expect(
-        stored.completedAtTzOffsetMinutes,
-        clock.timeZoneOffset.inMinutes,
-      );
+      expect(stored.completedAtTzOffsetMinutes, clock.timeZoneOffset.inMinutes);
     });
 
     test('un-ticking keeps the values but clears the completion time', () async {
@@ -214,7 +211,10 @@ void main() {
       final ghosts = await sets.ghostSetsFor('bench');
       expect([for (final g in ghosts) g.weightGrams], [100000, 100000]);
       expect([for (final g in ghosts) g.reps], [8, 6]);
-      expect(ghosts.first.performedAt, DateTime(2026, 7, 8).millisecondsSinceEpoch);
+      expect(
+        ghosts.first.performedAt,
+        DateTime(2026, 7, 8).millisecondsSinceEpoch,
+      );
     });
 
     test('the session in progress is not its own ghost', () async {
@@ -260,34 +260,42 @@ void main() {
       expect(await sets.ghostSetsFor('bench'), hasLength(1));
     });
 
-    test('discarding the previous session falls back to the one before', () async {
-      await makeExercise('bench');
-      await logSession('bench', DateTime(2026, 7, 1), [
-        (weight: 90000, reps: 8, type: SetType.working),
-      ]);
-      await logSession('bench', DateTime(2026, 7, 8), [
-        (weight: 100000, reps: 8, type: SetType.working),
-      ]);
-      expect((await sets.ghostSetsFor('bench')).single.weightGrams, 100000);
+    test(
+      'discarding the previous session falls back to the one before',
+      () async {
+        await makeExercise('bench');
+        await logSession('bench', DateTime(2026, 7, 1), [
+          (weight: 90000, reps: 8, type: SetType.working),
+        ]);
+        await logSession('bench', DateTime(2026, 7, 8), [
+          (weight: 100000, reps: 8, type: SetType.working),
+        ]);
+        expect((await sets.ghostSetsFor('bench')).single.weightGrams, 100000);
 
-      final recent = (await db.select(db.workouts).get())
-          .where((w) => w.startedAt == DateTime(2026, 7, 8).millisecondsSinceEpoch)
-          .single;
-      await workouts.discard(recent.id);
+        final recent = (await db.select(db.workouts).get())
+            .where(
+              (w) => w.startedAt == DateTime(2026, 7, 8).millisecondsSinceEpoch,
+            )
+            .single;
+        await workouts.discard(recent.id);
 
-      expect((await sets.ghostSetsFor('bench')).single.weightGrams, 90000);
-    });
+        expect((await sets.ghostSetsFor('bench')).single.weightGrams, 90000);
+      },
+    );
 
-    test('warm-ups come back labelled, so they can be matched as warm-ups', () async {
-      await makeExercise('bench');
-      await logSession('bench', DateTime(2026, 7, 1), [
-        (weight: 40000, reps: 10, type: SetType.warmup),
-        (weight: 100000, reps: 5, type: SetType.working),
-      ]);
+    test(
+      'warm-ups come back labelled, so they can be matched as warm-ups',
+      () async {
+        await makeExercise('bench');
+        await logSession('bench', DateTime(2026, 7, 1), [
+          (weight: 40000, reps: 10, type: SetType.warmup),
+          (weight: 100000, reps: 5, type: SetType.working),
+        ]);
 
-      final ghosts = await sets.ghostSetsFor('bench');
-      expect([for (final g in ghosts) g.setType], ['warmup', 'working']);
-    });
+        final ghosts = await sets.ghostSetsFor('bench');
+        expect([for (final g in ghosts) g.setType], ['warmup', 'working']);
+      },
+    );
 
     test('stays under the 50 ms budget with years of history', () async {
       // The hottest path in the app, run on every exercise open
@@ -371,7 +379,8 @@ void main() {
       expect(
         stopwatch.elapsedMilliseconds,
         lessThan(50),
-        reason: 'ghost lookup over 12,000 sets took '
+        reason:
+            'ghost lookup over 12,000 sets took '
             '${stopwatch.elapsedMilliseconds} ms',
       );
     });

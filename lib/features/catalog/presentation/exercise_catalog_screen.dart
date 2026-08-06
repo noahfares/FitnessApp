@@ -162,8 +162,7 @@ class _ExerciseList extends StatelessWidget {
                   '${exercise.equipment.label}',
                 ),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () =>
-                    context.push(AppRoutes.exerciseEdit(exercise.id)),
+                onTap: () => context.push(AppRoutes.exerciseEdit(exercise.id)),
               );
             },
           ),

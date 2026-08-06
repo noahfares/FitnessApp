@@ -44,10 +44,7 @@ void main() {
       expect(workout.endedAt, isNull);
       // Without the offset it is impossible to reconstruct which local day a
       // session belongs to (ADR-0008).
-      expect(
-        workout.startedAtTzOffsetMinutes,
-        clock.timeZoneOffset.inMinutes,
-      );
+      expect(workout.startedAtTzOffsetMinutes, clock.timeZoneOffset.inMinutes);
     });
 
     test('names the session after the time of day when given nothing', () {

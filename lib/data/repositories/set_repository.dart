@@ -206,10 +206,7 @@ class SetRepository {
   Future<void> deleteSet(String id) async {
     final timestamp = _now;
     await (_db.update(_db.sets)..where((s) => s.id.equals(id))).write(
-      SetsCompanion(
-        deletedAt: Value(timestamp),
-        updatedAt: Value(timestamp),
-      ),
+      SetsCompanion(deletedAt: Value(timestamp), updatedAt: Value(timestamp)),
     );
   }
 
@@ -245,9 +242,8 @@ class SetRepository {
   /// which during a session means every completion, and the answer is almost
   /// always the same one. Without this, ticking a set rebuilds the ghost of
   /// every exercise on screen.
-  Stream<List<GhostSet>> watchGhostSetsFor(String exerciseId) => _ghostQuery(
-    exerciseId,
-  ).watch().map(_mapGhosts).distinct(_sameGhosts);
+  Stream<List<GhostSet>> watchGhostSetsFor(String exerciseId) =>
+      _ghostQuery(exerciseId).watch().map(_mapGhosts).distinct(_sameGhosts);
 
   Selectable<QueryRow> _ghostQuery(String exerciseId) => _db.customSelect(
     '''

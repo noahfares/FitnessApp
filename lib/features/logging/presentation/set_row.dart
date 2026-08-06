@@ -85,11 +85,7 @@ class SetRow extends ConsumerWidget {
           ),
         ),
     ];
-    final toggle = _CompletionToggle(
-      set: set,
-      fields: fields,
-      ghost: ghost,
-    );
+    final toggle = _CompletionToggle(set: set, fields: fields, ghost: ghost);
 
     // Swipe to delete, with undo (`F-LOG-003` §6). Undo is a field update
     // rather than a resurrection because the delete is a tombstone (ADR-0008).
@@ -269,11 +265,7 @@ class _GhostCell extends StatelessWidget {
 }
 
 class _ValueCell extends StatelessWidget {
-  const _ValueCell({
-    super.key,
-    required this.text,
-    required this.onTap,
-  });
+  const _ValueCell({super.key, required this.text, required this.onTap});
 
   final String? text;
   final VoidCallback onTap;

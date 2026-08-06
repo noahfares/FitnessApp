@@ -42,18 +42,13 @@ final ghostsForExerciseProvider = Provider.family<List<GhostSet?>, GhostQuery>((
     currentTypes: [for (final set in sets) set.setType.name],
     previousTypes: [for (final ghost in previous) ghost.setType],
   );
-  return [
-    for (final index in indices) index == null ? null : previous[index],
-  ];
+  return [for (final index in indices) index == null ? null : previous[index]];
 });
 
 /// The two ids a ghost lookup needs. A record would do, but a named type keeps
 /// the family key readable in devtools and in error messages.
 class GhostQuery {
-  const GhostQuery({
-    required this.workoutExerciseId,
-    required this.exerciseId,
-  });
+  const GhostQuery({required this.workoutExerciseId, required this.exerciseId});
 
   final String workoutExerciseId;
   final String exerciseId;

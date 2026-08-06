@@ -18,7 +18,7 @@ class AboutScreen extends StatelessWidget {
   ///
   /// Read from the package at runtime once `F-REL-005` wires the build number
   /// through; a constant is honest for now and cheaper than a plugin.
-  static const String version = '0.12.2';
+  static const String version = '0.12.3';
 
   @override
   Widget build(BuildContext context) {

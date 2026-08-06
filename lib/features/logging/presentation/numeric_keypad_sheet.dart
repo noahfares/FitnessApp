@@ -96,9 +96,10 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
     final formatter = ref.read(quantityFormatterProvider);
     for (final field in widget.fields) {
       _text[field] = switch (field) {
-        SetField.duration => widget.set.durationSeconds == null
-            ? ''
-            : digitsFromSeconds(widget.set.durationSeconds!),
+        SetField.duration =>
+          widget.set.durationSeconds == null
+              ? ''
+              : digitsFromSeconds(widget.set.durationSeconds!),
         _ => formatSetField(widget.set, field, formatter, prefs) ?? '',
       };
     }
@@ -247,9 +248,7 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
         final current = _parseGrams() ?? 0;
         final stepped = steppedGrams(current, _step, direction);
         _write(
-          ref
-              .read(quantityFormatterProvider)
-              .setWeight(Mass.grams(stepped)),
+          ref.read(quantityFormatterProvider).setWeight(Mass.grams(stepped)),
         );
       case SetField.reps:
         final current = int.tryParse(_text[_field] ?? '') ?? 0;
@@ -299,8 +298,10 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
     final parser = ref.read(quantityParserProvider);
     final value = parser.parseNumber(text);
     if (value == null) return null;
-    return Distance.inUnit(value, ref.read(unitPreferencesProvider).distance)
-        .metres;
+    return Distance.inUnit(
+      value,
+      ref.read(unitPreferencesProvider).distance,
+    ).metres;
   }
 
   /// Sets the buffer and writes it through immediately.
@@ -334,10 +335,7 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
       case SetField.distance:
         if (text.isEmpty) {
           unawaited(
-            repo.updateValues(
-              widget.set.id,
-              distanceMetres: const Value(null),
-            ),
+            repo.updateValues(widget.set.id, distanceMetres: const Value(null)),
           );
           return;
         }
@@ -351,10 +349,7 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
         final seconds = text.isEmpty ? null : secondsFromDigits(text);
         if (text.isEmpty || seconds != null) {
           unawaited(
-            repo.updateValues(
-              widget.set.id,
-              durationSeconds: Value(seconds),
-            ),
+            repo.updateValues(widget.set.id, durationSeconds: Value(seconds)),
           );
         }
     }

@@ -39,6 +39,13 @@ sections, not files, and `21-DATA-MODEL` is 324 lines of which `#sets` is 30.
 `tools/read.sh F-LOG-003` prints a feature file without its `## Why`, which the
 recipe above says to skip anyway.
 
+### Verify before committing
+
+`tools/verify.sh` — format, analyze, test, layers, docs, in **CI's order**. CI's
+first gate is `dart format --set-exit-if-changed`, which fails the job before a
+single test runs, so a green local suite is not evidence of a green build.
+`tools/verify.sh --fix` formats in place first.
+
 ### Run the tests
 
 `tools/test.sh` — failures only, one line when the suite is green (254 lines of
@@ -164,7 +171,7 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.12.2**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.12.3**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
 **Phase 1 in progress.** Batches 1.1–1.4 done:

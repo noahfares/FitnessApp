@@ -28,7 +28,6 @@ import 'package:fitness_app/data/db/database_provider.dart';
 import 'package:fitness_app/features/logging/application/active_workout_providers.dart';
 import 'package:fitness_app/features/settings/application/unit_preferences_provider.dart';
 
-
 /// A fresh in-memory database, closed when the test ends.
 ///
 /// Each test gets its own: sharing one would make ordering matter, and a suite
@@ -139,10 +138,7 @@ Future<ProviderContainer> pumpApp(
   );
 
   await tester.pumpWidget(
-    UncontrolledProviderScope(
-      container: container,
-      child: const FitnessApp(),
-    ),
+    UncontrolledProviderScope(container: container, child: const FitnessApp()),
   );
   await tester.pumpAndSettle();
   return container;

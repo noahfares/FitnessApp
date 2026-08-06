@@ -24,8 +24,9 @@ void main() {
     lastUsedAt: lastUsedAt,
   );
 
-  List<String> namesOf(List<ExerciseCandidate> results) =>
-      [for (final c in results) c.name];
+  List<String> namesOf(List<ExerciseCandidate> results) => [
+    for (final c in results) c.name,
+  ];
 
   List<String> search(List<ExerciseCandidate> all, String query) =>
       namesOf(searchExercises(all, ExerciseFilter(query: query)));

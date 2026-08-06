@@ -96,15 +96,18 @@ void main() {
       );
     });
 
-    test('a shorter previous session leaves later rows without a ghost (§5)', () {
-      expect(
-        matchGhostIndices(
-          currentTypes: ['working', 'working', 'working'],
-          previousTypes: ['working'],
-        ),
-        [0, null, null],
-      );
-    });
+    test(
+      'a shorter previous session leaves later rows without a ghost (§5)',
+      () {
+        expect(
+          matchGhostIndices(
+            currentTypes: ['working', 'working', 'working'],
+            previousTypes: ['working'],
+          ),
+          [0, null, null],
+        );
+      },
+    );
 
     test('no previous session at all is empty ghosts, not an error', () {
       expect(
@@ -123,10 +126,7 @@ void main() {
         defaultStep(equipment: 'barbell', unit: MassUnit.kg),
         Mass.kg(2.5),
       );
-      expect(
-        defaultStep(equipment: 'dumbbell', unit: MassUnit.kg),
-        Mass.kg(2),
-      );
+      expect(defaultStep(equipment: 'dumbbell', unit: MassUnit.kg), Mass.kg(2));
       // Pounds step by 5 regardless: that is how the plates come.
       expect(defaultStep(equipment: 'barbell', unit: MassUnit.lb), Mass.lb(5));
       expect(defaultStep(equipment: 'dumbbell', unit: MassUnit.lb), Mass.lb(5));

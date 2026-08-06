@@ -232,7 +232,11 @@ String foldForSearch(String input) {
 }
 
 bool _isWhitespace(int rune) =>
-    rune == 0x20 || rune == 0x09 || rune == 0x0A || rune == 0x0D || rune == 0xA0;
+    rune == 0x20 ||
+    rune == 0x09 ||
+    rune == 0x0A ||
+    rune == 0x0D ||
+    rune == 0xA0;
 
 /// Latin-1 Supplement and Latin Extended-A, folded to ASCII.
 ///

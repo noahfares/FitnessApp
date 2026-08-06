@@ -314,10 +314,7 @@ class WorkoutRepository {
                 AND s.deleted_at IS NULL
                 AND s.is_completed = 1)                          AS done
           ''',
-          variables: [
-            Variable<String>(workoutId),
-            Variable<String>(workoutId),
-          ],
+          variables: [Variable<String>(workoutId), Variable<String>(workoutId)],
           readsFrom: {_db.workoutExercises, _db.sets},
         )
         .getSingle();

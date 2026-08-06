@@ -17,13 +17,12 @@ import '../../../domain/logging/set_fields.dart';
 /// Column header text. Weight and distance carry the unit here so the values
 /// themselves do not: screen space in the set row is the scarcest resource in
 /// the app (docs/22-UNITS.md §display-rules).
-String fieldHeader(SetField field, UnitPreferences prefs) =>
-    switch (field) {
-      SetField.weight => prefs.load.symbol,
-      SetField.reps => 'Reps',
-      SetField.distance => prefs.distance.symbol,
-      SetField.duration => 'Time',
-    };
+String fieldHeader(SetField field, UnitPreferences prefs) => switch (field) {
+  SetField.weight => prefs.load.symbol,
+  SetField.reps => 'Reps',
+  SetField.distance => prefs.distance.symbol,
+  SetField.duration => 'Time',
+};
 
 /// The stored value of [field], or null when the set has none yet.
 String? formatSetField(
@@ -32,17 +31,22 @@ String? formatSetField(
   QuantityFormatter formatter,
   UnitPreferences prefs,
 ) => switch (field) {
-  SetField.weight => set.weightGrams == null
-      ? null
-      : formatter.setWeight(Mass.grams(set.weightGrams!)),
+  SetField.weight =>
+    set.weightGrams == null
+        ? null
+        : formatter.setWeight(Mass.grams(set.weightGrams!)),
   SetField.reps => set.reps?.toString(),
-  SetField.distance => set.distanceMetres == null
-      ? null
-      : formatter.distance(Distance.metres(set.distanceMetres!),
-          showUnit: false),
-  SetField.duration => set.durationSeconds == null
-      ? null
-      : formatDurationSeconds(set.durationSeconds!),
+  SetField.distance =>
+    set.distanceMetres == null
+        ? null
+        : formatter.distance(
+            Distance.metres(set.distanceMetres!),
+            showUnit: false,
+          ),
+  SetField.duration =>
+    set.durationSeconds == null
+        ? null
+        : formatDurationSeconds(set.durationSeconds!),
 };
 
 /// The same, for a ghost.
@@ -52,17 +56,22 @@ String? formatGhostField(
   QuantityFormatter formatter,
   UnitPreferences prefs,
 ) => switch (field) {
-  SetField.weight => ghost.weightGrams == null
-      ? null
-      : formatter.setWeight(Mass.grams(ghost.weightGrams!)),
+  SetField.weight =>
+    ghost.weightGrams == null
+        ? null
+        : formatter.setWeight(Mass.grams(ghost.weightGrams!)),
   SetField.reps => ghost.reps?.toString(),
-  SetField.distance => ghost.distanceMetres == null
-      ? null
-      : formatter.distance(Distance.metres(ghost.distanceMetres!),
-          showUnit: false),
-  SetField.duration => ghost.durationSeconds == null
-      ? null
-      : formatDurationSeconds(ghost.durationSeconds!),
+  SetField.distance =>
+    ghost.distanceMetres == null
+        ? null
+        : formatter.distance(
+            Distance.metres(ghost.distanceMetres!),
+            showUnit: false,
+          ),
+  SetField.duration =>
+    ghost.durationSeconds == null
+        ? null
+        : formatDurationSeconds(ghost.durationSeconds!),
 };
 
 /// Last time, as one line: `100 kg × 8` (`F-LOG-004` §3).

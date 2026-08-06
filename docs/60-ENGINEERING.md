@@ -82,6 +82,9 @@ Additional rules:
    `clockTickProvider` ticks once a second, which means `pumpAndSettle` never
    settles. A test that is *about* either overrides it back explicitly.
 7. Run it with **`tools/test.sh`** — failures only, one line when green.
+8. **`tools/verify.sh` before every push.** It runs what CI runs, in CI's order.
+   Formatting is CI's *first* gate and fails the job before any test executes,
+   so a green suite alone proves nothing about the build.
 
 ## Git conventions
 

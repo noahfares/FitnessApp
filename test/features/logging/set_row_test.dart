@@ -352,10 +352,7 @@ void main() {
       // (`F-LOG-005` §3).
       expect(find.text('W1'), findsOneWidget);
       expect(
-        find.descendant(
-          of: find.byType(SetRow).last,
-          matching: find.text('1'),
-        ),
+        find.descendant(of: find.byType(SetRow).last, matching: find.text('1')),
         findsOneWidget,
       );
       expect(find.text('2'), findsNothing);
@@ -413,10 +410,7 @@ void main() {
       await tester.tap(find.byTooltip('Increase'));
       await tester.pumpAndSettle();
 
-      expect(
-        (await sets.getSets(we)).single.weightGrams,
-        Mass.kg(102.5).grams,
-      );
+      expect((await sets.getSets(we)).single.weightGrams, Mass.kg(102.5).grams);
     });
 
     testWidgets('switching field keeps the keypad open', (tester) async {
