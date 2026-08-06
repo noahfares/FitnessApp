@@ -164,7 +164,7 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.12.1**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.12.2**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
 **Phase 1 in progress.** Batches 1.1–1.4 done:

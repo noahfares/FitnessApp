@@ -198,8 +198,8 @@ class _NumberCell extends StatelessWidget {
       onLongPress: onLongPress,
       borderRadius: BorderRadius.circular(8),
       child: SizedBox(
-        width: 44,
-        height: 48,
+        width: AppSpacing.setNumberColumn,
+        height: AppSpacing.minTouchTarget,
         child: Center(
           child: Text(
             label.badge == null ? label.text : '${label.text}${label.badge}',
@@ -227,10 +227,13 @@ class _NoteButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final hasNote = set.notes != null && set.notes!.isNotEmpty;
     return SizedBox(
-      width: 32,
+      width: AppSpacing.setNoteColumn,
       child: IconButton(
         padding: EdgeInsets.zero,
-        constraints: const BoxConstraints(minWidth: 32, minHeight: 48),
+        constraints: const BoxConstraints(
+          minWidth: AppSpacing.setNoteColumn,
+          minHeight: AppSpacing.minTouchTarget,
+        ),
         tooltip: hasNote ? 'Edit note' : 'Add note',
         iconSize: 18,
         color: hasNote ? Theme.of(context).colorScheme.primary : null,
@@ -279,13 +282,13 @@ class _ValueCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs / 2),
       child: InkWell(
         // The purpose-built keypad, never the system keyboard (`F-LOG-006`).
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Container(
-          height: 48,
+          height: AppSpacing.minTouchTarget,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
@@ -318,10 +321,10 @@ class _CompletionToggle extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox(
-      // 56 dp: hit mid-set, one-handed, with imprecise aim
-      // (docs/24-DESIGN-SYSTEM.md §spacing).
-      width: 56,
-      height: 56,
+      // Bigger than the 48 dp minimum: hit mid-set, one-handed, with imprecise
+      // aim (docs/24-DESIGN-SYSTEM.md §spacing).
+      width: AppSpacing.setRowTouchTarget,
+      height: AppSpacing.setRowTouchTarget,
       child: Checkbox(
         value: set.isCompleted,
         onChanged: (value) => unawaited(_toggle(ref, value ?? false)),

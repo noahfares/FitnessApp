@@ -20,4 +20,10 @@ abstract final class AppSpacing {
   /// sweaty aim (F-A11Y-004). Missing a checkbox with a rest clock running is
   /// the interaction failure that matters most in this app.
   static const double setRowTouchTarget = 56;
+
+  /// The set row's two fixed columns: the number/type cell, and the note
+  /// marker. Fixed so that weight, reps and the completion toggle never shrink
+  /// because a set happens to carry a note (`F-LOG-023`).
+  static const double setNumberColumn = 44;
+  static const double setNoteColumn = 32;
 }

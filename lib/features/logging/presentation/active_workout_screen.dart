@@ -417,11 +417,13 @@ class _ColumnHeaders extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const SizedBox(width: 44 + 32),
+          const SizedBox(
+            width: AppSpacing.setNumberColumn + AppSpacing.setNoteColumn,
+          ),
           Expanded(flex: 3, child: cell('Last time')),
           for (final field in fields)
             Expanded(flex: 2, child: cell(fieldHeader(field, prefs))),
-          const SizedBox(width: 56),
+          const SizedBox(width: AppSpacing.setRowTouchTarget),
         ],
       ),
     );

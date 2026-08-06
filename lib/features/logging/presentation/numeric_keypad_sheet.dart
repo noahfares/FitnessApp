@@ -34,7 +34,7 @@ Future<void> showSetKeypad(
     isScrollControlled: true,
     // Nothing behind it is dimmed to the point of being unreadable — the point
     // is that the rest of the session stays legible while typing.
-    barrierColor: Colors.black26,
+    barrierColor: Theme.of(context).colorScheme.scrim.withValues(alpha: 0.2),
     builder: (context) => NumericKeypadSheet(
       set: set,
       fields: fields,
@@ -431,10 +431,10 @@ class _StepperButton extends StatelessWidget {
       onLongPressEnd: (_) => onRelease(),
       onLongPressCancel: onRelease,
       child: SizedBox(
-        // 56 dp, not the 48 dp minimum: hit mid-set with imprecise aim
+        // Bigger than the 48 dp minimum: hit mid-set with imprecise aim
         // (docs/24-DESIGN-SYSTEM.md §spacing).
-        width: 56,
-        height: 56,
+        width: AppSpacing.setRowTouchTarget,
+        height: AppSpacing.setRowTouchTarget,
         child: IconButton.filledTonal(
           tooltip: semanticLabel,
           onPressed: onPressed,
@@ -466,9 +466,9 @@ class _Keys extends StatelessWidget {
     Widget key(Widget child, VoidCallback? onTap, {String? semantics}) =>
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(4),
+            padding: const EdgeInsets.all(AppSpacing.xs),
             child: SizedBox(
-              height: 56,
+              height: AppSpacing.setRowTouchTarget,
               child: FilledButton.tonal(
                 onPressed: onTap,
                 style: FilledButton.styleFrom(
