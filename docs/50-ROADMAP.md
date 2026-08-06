@@ -191,6 +191,16 @@ Turns the logger into something you run a program on.
 
 **Settings & theme** `F-SET-007` `F-SET-008` `F-THM-003`
 
+| Batch | Features | Shared reads |
+|---|---|---|
+| **2.1** Routine core | `F-ROU-001` `F-ROU-002` `F-ROU-003` `F-ROU-010` | `21-DATA-MODEL#routine_days` `70-decisions/ADR-0004-template-snapshot` |
+
+Batch **2.1** started before Phase 1's exit criteria were fully confirmed —
+the on-device checks and two-week training window in Phase 1's exit criteria
+above were still outstanding. Done at the user's explicit request to override
+the standing instruction, not by silently routing around it; recorded here so
+the deviation has an audit trail.
+
 **Exit criteria**
 - [ ] A full training week runs from routine days, with targets pre-filled.
 - [ ] Editing a routine provably leaves historical workouts unchanged.

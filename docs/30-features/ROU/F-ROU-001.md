@@ -1,6 +1,6 @@
 # F-ROU-001 — Routine CRUD
 
-Status: planned | Priority: P0 | Phase: 2
+Status: done | Priority: P0 | Phase: 2
 Blocks: F-ROU-002, F-ROU-010
 Reads: 21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 Screens: Routine List, Routine Editor | Data: `routines`
@@ -14,5 +14,5 @@ Screens: Routine List, Routine Editor | Data: `routines`
    `source_routine_day_id` is nulled.
 
 ## Acceptance
-- [ ] Deleting a routine leaves all historical workouts intact and correctly rendered.
-- [ ] Duplicating produces a fully independent copy, including days and targets.
+- [x] Deleting a routine leaves all historical workouts intact and correctly rendered.
+- [x] Duplicating produces a fully independent copy, including days and targets.

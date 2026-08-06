@@ -18,6 +18,8 @@ import '../../logging/application/set_providers.dart';
 import '../../logging/presentation/active_workout_screen.dart'
     show formatElapsed;
 import '../../logging/presentation/set_value_format.dart';
+import '../../routines/presentation/routine_list_screen.dart'
+    show promptRoutineName;
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
@@ -26,10 +28,9 @@ import '../application/history_providers.dart';
 
 /// A finished session, in full (`F-LOG-012`).
 ///
-/// Repeating a session (`F-LOG-016`) and saving one as a routine
-/// (`F-ROU-001`) are Phase 2 features and are deliberately not offered here
-/// yet — this batch is Phase 1, and starting Phase 2 work early is out of
-/// scope (docs/50-ROADMAP.md).
+/// Repeating a session (`F-LOG-016`) is still Phase 2 out of scope here.
+/// Saving one as a routine (`F-ROU-001` §3) is offered — the logged working
+/// sets become that routine's starting targets.
 class WorkoutDetailScreen extends ConsumerWidget {
   const WorkoutDetailScreen({required this.workoutId, super.key});
 
@@ -51,6 +52,11 @@ class WorkoutDetailScreen extends ConsumerWidget {
                 context.push(AppRoutes.historyWorkoutEdit(workoutId)),
           ),
           IconButton(
+            icon: const Icon(Icons.playlist_add_outlined),
+            tooltip: 'Save as routine',
+            onPressed: () => unawaited(_saveAsRoutine(context, ref)),
+          ),
+          IconButton(
             icon: const Icon(Icons.delete_outline),
             tooltip: 'Delete',
             onPressed: () => unawaited(_delete(context, ref)),
@@ -61,6 +67,20 @@ class WorkoutDetailScreen extends ConsumerWidget {
           ? const LoadingView()
           : _Detail(workout: workout, exercises: exercises),
     );
+  }
+
+  Future<void> _saveAsRoutine(BuildContext context, WidgetRef ref) async {
+    final name = await promptRoutineName(
+      context,
+      title: 'Save as routine',
+      initial: ref.read(workoutByIdProvider(workoutId)).value?.name ?? '',
+    );
+    if (name == null || name.trim().isEmpty) return;
+    final routine = await ref
+        .read(routineRepositoryProvider)
+        .createFromWorkout(workoutId, name: name);
+    if (!context.mounted) return;
+    context.push(AppRoutes.routine(routine.id));
   }
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {

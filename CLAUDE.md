@@ -235,15 +235,33 @@ link have not. Its acceptance criteria are on-device.
   constant, and adds the open-source licences page and a repository link via
   `url_launcher` (`F-SET-009`, now done).
 
-  **This is the last batch of Phase 1, but Phase 1's exit criteria are not
-  met.** Everything code-shaped is done; what's left is entirely manual and
-  on-device (see `docs/50-ROADMAP.md`): the upload keystore itself has to be
-  generated once, offline, by a human and added to GitHub Secrets — this
-  session cannot and must not do that — after which a tag push needs to
-  actually produce and be installed as a real APK, the rest timer verified
-  with the screen off, a force-kill verified on a real device, and two weeks
-  of real training logged before Phase 2 begins. Don't start Phase 2 until
-  that's done and confirmed.
+  **This was the last batch of Phase 1, but Phase 1's exit criteria are still
+  not met.** Everything code-shaped is done; what's left is entirely manual
+  and on-device (see `docs/50-ROADMAP.md`): the upload keystore itself has to
+  be generated once, offline, by a human and added to GitHub Secrets, after
+  which a tag push needs to actually produce and be installed as a real APK,
+  the rest timer verified with the screen off, a force-kill verified on a real
+  device, and two weeks of real training logged. The roadmap's standing
+  instruction is to not start Phase 2 until that's done and confirmed — Phase
+  2 batch 2.1 below started anyway, at the user's explicit request to override
+  that instruction rather than by silently routing around it. The on-device
+  checks and the two-week window are still outstanding and still owed.
+
+**Phase 2 started — batch 2.1 done.** Routine CRUD, days, per-exercise
+targets, and starting a workout from a routine day
+(`F-ROU-001`–`F-ROU-003`, `F-ROU-010`): `RoutineRepository`, the Routines tab
+(list, editor, day editor with a target-editing sheet), and
+`WorkoutRepository.startFromRoutineDay` — the `ADR-0004` snapshot copy of a
+day's exercises, order and targets into fresh `workout_exercises`/`sets` rows.
+Set rows are created empty and uncompleted; the target is shown alongside the
+ghost value rather than written into the row, so a target is never
+indistinguishable from something actually logged. "Save as routine"
+(`F-LOG-012` §3) is included as part of `F-ROU-001` §3's third creation path.
+No schema change — `routine_folders`, `routines`, `routine_days` and
+`routine_exercises` have existed since schema v3. Superset grouping
+(`F-ROU-005`), day/exercise reordering UI (`F-ROU-004`), and rest-default
+inheritance display (`F-ROU-006`) are not part of this batch and remain
+`planned`.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform.
