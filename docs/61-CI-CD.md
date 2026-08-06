@@ -7,9 +7,15 @@ that runs on tags and must be exactly right.
 
 ---
 
-## `ci.yml` — every push and pull request
+## `ci.yml` — every push
 
-Runs on every push to any branch and on every pull request.
+Runs on every push to any branch. Deliberately **not** also on `pull_request`:
+for a same-repo PR (the only kind this solo project has), the PR's head is a
+branch push, so a `pull_request` trigger alongside `push` would just run CI
+twice for the same commit. GitHub attaches a push-triggered run to a PR's
+checks by commit SHA regardless of which event triggered it, so push-only
+loses nothing here. Reconsider if the project ever takes fork contributions
+(`F-REL-010`), since a fork's push doesn't reach this repo — only its PR does.
 
 **Steps**
 
