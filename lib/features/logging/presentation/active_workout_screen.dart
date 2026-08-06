@@ -6,12 +6,19 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/units/unit_preferences.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/repositories/workout_repository.dart';
+import '../../../domain/logging/set_fields.dart';
+import '../../../domain/logging/set_numbering.dart';
 import '../../catalog/presentation/exercise_labels.dart';
+import '../../settings/application/unit_preferences_provider.dart';
 import '../application/active_workout_providers.dart';
+import '../application/set_providers.dart';
 import 'exercise_picker_sheet.dart';
+import 'set_row.dart';
+import 'set_value_format.dart';
 
 /// The session in progress (`F-LOG-001`, `F-LOG-002`, `F-LOG-007`).
 ///
@@ -319,32 +326,104 @@ class _NothingAddedYet extends StatelessWidget {
   }
 }
 
-class _SessionExerciseTile extends StatelessWidget {
+/// One exercise and its sets (`F-LOG-003`).
+class _SessionExerciseTile extends ConsumerWidget {
   const _SessionExerciseTile({required this.exercise});
 
   final SessionExercise exercise;
 
   @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final prefs = ref.watch(unitPreferencesProvider);
+    final sets = ref.watch(setsProvider(exercise.workoutExerciseId)).value;
+    final ghosts = ref.watch(
+      ghostsForExerciseProvider(
+        GhostQuery(
+          workoutExerciseId: exercise.workoutExerciseId,
+          exerciseId: exercise.exerciseId,
+        ),
+      ),
+    );
+
+    // Which columns exist is a property of the exercise, not of each row
+    // (`F-CAT-002`), so it is resolved once here.
+    final fields = setFieldsFor(exercise.trackingType.name);
+    final labels = labelSets([
+      for (final set in sets ?? const <WorkoutSet>[]) set.setType.name,
+    ]);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ListTile(
+          leading: CircleAvatar(child: Text('${exercise.position + 1}')),
+          title: Text(exercise.name),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${exercise.primaryMuscle.label} · ${exercise.equipment.label}',
+                style: theme.textTheme.bodySmall,
+              ),
+              Text(
+                '${exercise.completedSetCount} of ${exercise.setCount} '
+                '${exercise.setCount == 1 ? 'set' : 'sets'} done',
+                style: theme.textTheme.bodySmall,
+              ),
+            ],
+          ),
+          isThreeLine: true,
+        ),
+        // The unit lives in the column header so the values themselves do not
+        // have to carry it (docs/22-UNITS.md §display-rules).
+        _ColumnHeaders(fields: fields, prefs: prefs),
+        if (sets != null)
+          for (var i = 0; i < sets.length; i++)
+            SetRow(
+              set: sets[i],
+              label: labels[i],
+              ghost: i < ghosts.length ? ghosts[i] : null,
+              fields: fields,
+              equipment: exercise.equipment.name,
+              incrementGrams: exercise.incrementGrams,
+            ),
+        AddSetButton(workoutExerciseId: exercise.workoutExerciseId),
+        const Divider(height: 1),
+      ],
+    );
+  }
+}
+
+class _ColumnHeaders extends StatelessWidget {
+  const _ColumnHeaders({required this.fields, required this.prefs});
+
+  final List<SetField> fields;
+  final UnitPreferences prefs;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ListTile(
-      leading: CircleAvatar(child: Text('${exercise.position + 1}')),
-      title: Text(exercise.name),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    final style = theme.textTheme.labelSmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    Widget cell(String text, {TextAlign align = TextAlign.center}) =>
+        Text(text, textAlign: align, style: style);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      child: Row(
         children: [
-          Text(
-            '${exercise.primaryMuscle.label} · ${exercise.equipment.label}',
-            style: theme.textTheme.bodySmall,
-          ),
-          Text(
-            '${exercise.completedSetCount} of ${exercise.setCount} '
-            '${exercise.setCount == 1 ? 'set' : 'sets'} done',
-            style: theme.textTheme.bodySmall,
-          ),
+          const SizedBox(width: 44 + 32),
+          Expanded(flex: 3, child: cell('Last time')),
+          for (final field in fields)
+            Expanded(flex: 2, child: cell(fieldHeader(field, prefs))),
+          const SizedBox(width: 56),
         ],
       ),
-      isThreeLine: true,
     );
   }
 }

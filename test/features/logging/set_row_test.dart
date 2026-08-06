@@ -1,0 +1,507 @@
+import 'package:drift/drift.dart' show Value;
+import 'package:drift/native.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:fitness_app/core/theme/app_theme.dart';
+import 'package:fitness_app/core/units/mass.dart';
+import 'package:fitness_app/data/db/app_database.dart';
+import 'package:fitness_app/data/db/database_provider.dart';
+import 'package:fitness_app/data/db/tables/enums.dart';
+import 'package:fitness_app/data/repositories/set_repository.dart';
+import 'package:fitness_app/data/repositories/workout_repository.dart';
+import 'package:fitness_app/features/logging/application/active_workout_providers.dart';
+import 'package:fitness_app/features/logging/presentation/active_workout_screen.dart';
+import 'package:fitness_app/features/logging/presentation/set_row.dart';
+import 'package:fitness_app/features/settings/application/unit_preferences_provider.dart';
+
+/// Batch 1.4 — the set row (`F-LOG-003`), ghosts (`F-LOG-004`), set types
+/// (`F-LOG-005`), the keypad (`F-LOG-006`) and per-set notes (`F-LOG-023`).
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late AppDatabase db;
+  late WorkoutRepository workouts;
+  late SetRepository sets;
+  var clock = DateTime(2026, 8, 6, 18, 30);
+
+  setUp(() {
+    db = AppDatabase(NativeDatabase.memory());
+    clock = DateTime(2026, 8, 6, 18, 30);
+    workouts = WorkoutRepository(db, clock: () => clock);
+    sets = SetRepository(db, clock: () => clock);
+  });
+  tearDown(() => db.close());
+
+  Future<void> makeExercise(
+    String id, {
+    String? name,
+    TrackingType tracking = TrackingType.weightReps,
+    Equipment equipment = Equipment.barbell,
+  }) async {
+    await db
+        .into(db.exercises)
+        .insert(
+          ExercisesCompanion.insert(
+            id: id,
+            name: name ?? id,
+            primaryMuscle: Muscle.chest,
+            equipment: equipment,
+            trackingType: tracking,
+            createdAt: 1,
+            updatedAt: 1,
+          ),
+        );
+  }
+
+  /// Starts a session containing [exerciseId] and returns its
+  /// `workout_exercises` id.
+  Future<String> startWith(String exerciseId) async {
+    final workout = await workouts.start();
+    await workouts.addExercises(workout.id, [exerciseId]);
+    return (await workouts.watchExercises(workout.id).first)
+        .single
+        .workoutExerciseId;
+  }
+
+  /// A finished session, so the next one has something to ghost.
+  Future<void> logPreviousSession(
+    String exerciseId,
+    List<({int weight, int reps, SetType type})> performed, {
+    DateTime? when,
+  }) async {
+    final saved = clock;
+    clock = when ?? DateTime(2026, 7, 30);
+    final workout = await workouts.start();
+    await workouts.addExercises(workout.id, [exerciseId]);
+    final we = (await workouts.watchExercises(workout.id).first)
+        .single
+        .workoutExerciseId;
+    final first = (await sets.getSets(we)).single;
+    for (var i = 0; i < performed.length; i++) {
+      final id = i == 0 ? first.id : await sets.addSet(we);
+      await sets.setType(id, performed[i].type);
+      await sets.complete(
+        id,
+        weightGrams: Value(performed[i].weight),
+        reps: Value(performed[i].reps),
+      );
+    }
+    await workouts.finish(workout.id);
+    clock = saved;
+  }
+
+  Future<void> pumpSession(WidgetTester tester, {double textScale = 1}) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final container = ProviderContainer(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+        databaseProvider.overrideWithValue(db),
+        localeProvider.overrideWithValue('en_US'),
+        // en_US would otherwise make the first-run default imperial, which is
+        // a different test than this one.
+        deviceCountryProvider.overrideWithValue(null),
+        clockTickProvider.overrideWith((ref) => Stream.value(clock)),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: MediaQuery(
+            data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
+            child: const ActiveWorkoutScreen(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  group('the row (F-LOG-003)', () {
+    testWidgets('renders the exercise\'s own columns, not a fixed pair', (
+      tester,
+    ) async {
+      await makeExercise('bench', name: 'Bench Press');
+      await makeExercise(
+        'plank',
+        name: 'Plank',
+        tracking: TrackingType.time,
+        equipment: Equipment.bodyweight,
+      );
+      final workout = await workouts.start();
+      await workouts.addExercises(workout.id, ['bench', 'plank']);
+
+      await pumpSession(tester);
+
+      // Weight × reps for the barbell lift, a clock for the hold
+      // (`F-CAT-002`).
+      expect(find.text('kg'), findsOneWidget);
+      expect(find.text('Reps'), findsOneWidget);
+      expect(find.text('Time'), findsOneWidget);
+    });
+
+    testWidgets('a run logs distance and time', (tester) async {
+      await makeExercise(
+        'row-erg',
+        name: 'Rowing Machine',
+        tracking: TrackingType.distanceTime,
+        equipment: Equipment.machine,
+      );
+      await startWith('row-erg');
+
+      await pumpSession(tester);
+
+      expect(find.text('km'), findsOneWidget);
+      expect(find.text('Time'), findsOneWidget);
+      expect(find.text('Reps'), findsNothing);
+    });
+
+    testWidgets('adding a set appends one, pre-filled', (tester) async {
+      await makeExercise('bench', name: 'Bench Press');
+      final we = await startWith('bench');
+      await sets.complete(
+        (await sets.getSets(we)).single.id,
+        weightGrams: const Value(100000),
+        reps: const Value(8),
+      );
+
+      await pumpSession(tester);
+      await tester.tap(find.text('Add set'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('2'), findsOneWidget);
+      // Both rows now read 100 — the new one inherited it (`F-LOG-003` §5).
+      expect(find.text('100'), findsNWidgets(2));
+    });
+
+    testWidgets('swiping a set away offers undo, and undo brings it back', (
+      tester,
+    ) async {
+      await makeExercise('bench', name: 'Bench Press');
+      final we = await startWith('bench');
+      await sets.addSet(we);
+      await pumpSession(tester);
+
+      await tester.drag(find.text('2'), const Offset(-600, 0));
+      await tester.pumpAndSettle();
+
+      expect(await sets.getSets(we), hasLength(1));
+      expect(find.text('Set 2 deleted'), findsOneWidget);
+
+      await tester.tap(find.text('Undo'));
+      await tester.pumpAndSettle();
+
+      expect(await sets.getSets(we), hasLength(2));
+    });
+
+    testWidgets('announces itself as a set, not as loose numbers', (
+      tester,
+    ) async {
+      await makeExercise('bench', name: 'Bench Press');
+      final we = await startWith('bench');
+      await sets.complete(
+        (await sets.getSets(we)).single.id,
+        weightGrams: const Value(100000),
+        reps: const Value(8),
+      );
+      await pumpSession(tester);
+
+      // Without this the row is a grid of unlabelled numbers (`F-A11Y-001`).
+      // The controls keep their own nodes — the checkbox stays operable — so
+      // this is a describing node above them, not a merge.
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              widget.properties.label == 'Set 1, kg 100, Reps 8, completed',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('stays operable at 200% text scale', (tester) async {
+      await makeExercise('bench', name: 'Bench Press');
+      await startWith('bench');
+
+      await pumpSession(tester, textScale: 2);
+
+      // No overflow, and every control still on screen (`F-A11Y-002`).
+      expect(tester.takeException(), isNull);
+      expect(find.byType(Checkbox), findsOneWidget);
+      expect(
+        find.descendant(of: find.byType(SetRow), matching: find.text('1')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(SetRow),
+          matching: find.byKey(const ValueKey('value-cell-weight')),
+        ),
+        findsOneWidget,
+      );
+    });
+  });
+
+  group('ghost values (F-LOG-004)', () {
+    testWidgets('shows last time in the display unit, with the unit', (
+      tester,
+    ) async {
+      await makeExercise('bench', name: 'Bench Press');
+      await logPreviousSession('bench', [
+        (weight: 100000, reps: 8, type: SetType.working),
+      ]);
+      await startWith('bench');
+
+      await pumpSession(tester);
+
+      expect(find.text('100 kg × 8'), findsOneWidget);
+    });
+
+    testWidgets('a first-ever session shows an empty ghost, not a zero', (
+      tester,
+    ) async {
+      await makeExercise('bench', name: 'Bench Press');
+      await startWith('bench');
+
+      await pumpSession(tester);
+
+      expect(find.text('—'), findsOneWidget);
+      expect(find.text('0 kg × 0'), findsNothing);
+    });
+
+    testWidgets('completing an empty set adopts the ghost in one tap', (
+      tester,
+    ) async {
+      await makeExercise('bench', name: 'Bench Press');
+      await logPreviousSession('bench', [
+        (weight: 100000, reps: 8, type: SetType.working),
+      ]);
+      final we = await startWith('bench');
+
+      await pumpSession(tester);
+      // One tap — the acceptance criterion in `F-LOG-003`.
+      await tester.tap(find.byType(Checkbox));
+      await tester.pumpAndSettle();
+
+      final stored = (await sets.getSets(we)).single;
+      expect(stored.isCompleted, isTrue);
+      expect(stored.weightGrams, 100000);
+      expect(stored.reps, 8);
+    });
+
+    testWidgets('a typed value is never overwritten by the ghost', (
+      tester,
+    ) async {
+      await makeExercise('bench', name: 'Bench Press');
+      await logPreviousSession('bench', [
+        (weight: 100000, reps: 8, type: SetType.working),
+      ]);
+      final we = await startWith('bench');
+      await sets.updateValues(
+        (await sets.getSets(we)).single.id,
+        weightGrams: const Value(105000),
+      );
+
+      await pumpSession(tester);
+      await tester.tap(find.byType(Checkbox));
+      await tester.pumpAndSettle();
+
+      final stored = (await sets.getSets(we)).single;
+      expect(stored.weightGrams, 105000);
+      // The empty field still adopts.
+      expect(stored.reps, 8);
+    });
+
+    testWidgets('a warm-up does not take the working set\'s ghost', (
+      tester,
+    ) async {
+      await makeExercise('bench', name: 'Bench Press');
+      await logPreviousSession('bench', [
+        (weight: 100000, reps: 8, type: SetType.working),
+      ]);
+      final we = await startWith('bench');
+      await sets.setType((await sets.getSets(we)).single.id, SetType.warmup);
+
+      await pumpSession(tester);
+
+      // Last time's working set is not a target for today's warm-up
+      // (`F-LOG-004` §6).
+      expect(find.text('100 kg × 8'), findsNothing);
+      expect(find.text('—'), findsOneWidget);
+    });
+
+    testWidgets('follows the display unit setting', (tester) async {
+      await makeExercise('bench', name: 'Bench Press');
+      await logPreviousSession('bench', [
+        (weight: 100000, reps: 8, type: SetType.working),
+      ]);
+      await startWith('bench');
+
+      SharedPreferences.setMockInitialValues({'units.load': 'lb'});
+      final prefs = await SharedPreferences.getInstance();
+      final container = ProviderContainer(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          databaseProvider.overrideWithValue(db),
+          localeProvider.overrideWithValue('en_US'),
+        // en_US would otherwise make the first-run default imperial, which is
+        // a different test than this one.
+        deviceCountryProvider.overrideWithValue(null),
+          clockTickProvider.overrideWith((ref) => Stream.value(clock)),
+        ],
+      );
+      addTearDown(container.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: AppTheme.light(),
+            home: const ActiveWorkoutScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // 100 kg is 220.462 lb; displaying it is right, storing it back is not
+      // (docs/22-UNITS.md §rounding).
+      expect(find.text('220.5 lb × 8'), findsOneWidget);
+      expect(find.text('lb'), findsOneWidget);
+    });
+  });
+
+  group('set types (F-LOG-005)', () {
+    testWidgets('a long-press makes a set a warm-up, and renumbers', (
+      tester,
+    ) async {
+      await makeExercise('bench', name: 'Bench Press');
+      final we = await startWith('bench');
+      await sets.addSet(we);
+      await pumpSession(tester);
+
+      await tester.longPress(
+        find.descendant(
+          of: find.byType(SetRow).first,
+          matching: find.text('1'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Warm-up'));
+      await tester.pumpAndSettle();
+
+      // Warm-ups are numbered apart, so the working set below becomes 1
+      // (`F-LOG-005` §3).
+      expect(find.text('W1'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(SetRow).last,
+          matching: find.text('1'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('2'), findsNothing);
+      expect((await sets.getSets(we)).first.setType, SetType.warmup);
+    });
+  });
+
+  group('the keypad (F-LOG-006)', () {
+    testWidgets('tapping a value opens the keypad, not the system keyboard', (
+      tester,
+    ) async {
+      await makeExercise('bench', name: 'Bench Press');
+      await startWith('bench');
+      await pumpSession(tester);
+
+      await tester.tap(find.byKey(const ValueKey('value-cell-weight')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Clear'), findsOneWidget);
+      // No text field anywhere: the system keyboard covers the set list and
+      // has targets too small for imprecise thumbs (`F-LOG-006`).
+      expect(find.byType(EditableText), findsNothing);
+    });
+
+    testWidgets('digits write through immediately', (tester) async {
+      await makeExercise('bench', name: 'Bench Press');
+      final we = await startWith('bench');
+      await pumpSession(tester);
+
+      await tester.tap(find.byKey(const ValueKey('value-cell-weight')));
+      await tester.pumpAndSettle();
+      for (final digit in ['1', '0', '0']) {
+        await tester.tap(find.widgetWithText(FilledButton, digit).last);
+        await tester.pump();
+      }
+
+      // No "save" step — an app kill mid-entry must not lose the number
+      // (`F-LOG-003` §7).
+      expect((await sets.getSets(we)).single.weightGrams, 100000);
+    });
+
+    testWidgets('the stepper moves by the equipment\'s increment', (
+      tester,
+    ) async {
+      await makeExercise('bench', name: 'Bench Press');
+      final we = await startWith('bench');
+      await sets.updateValues(
+        (await sets.getSets(we)).single.id,
+        weightGrams: const Value(100000),
+      );
+      await pumpSession(tester);
+
+      await tester.tap(find.byKey(const ValueKey('value-cell-weight')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Increase'));
+      await tester.pumpAndSettle();
+
+      expect(
+        (await sets.getSets(we)).single.weightGrams,
+        Mass.kg(102.5).grams,
+      );
+    });
+
+    testWidgets('switching field keeps the keypad open', (tester) async {
+      await makeExercise('bench', name: 'Bench Press');
+      final we = await startWith('bench');
+      await pumpSession(tester);
+
+      await tester.tap(find.byKey(const ValueKey('value-cell-weight')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Reps').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, '8').last);
+      await tester.pump();
+
+      expect(find.text('Clear'), findsOneWidget);
+      expect((await sets.getSets(we)).single.reps, 8);
+    });
+  });
+
+  group('per-set notes (F-LOG-023)', () {
+    testWidgets('a note is entered from the row and marked on it', (
+      tester,
+    ) async {
+      await makeExercise('bench', name: 'Bench Press');
+      final we = await startWith('bench');
+      await pumpSession(tester);
+
+      expect(find.byIcon(Icons.sticky_note_2_outlined), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.sticky_note_2_outlined));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'Left shoulder twinged');
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+
+      expect((await sets.getSets(we)).single.notes, 'Left shoulder twinged');
+      // Findable later without opening it (`F-LOG-023` §3).
+      expect(find.byIcon(Icons.sticky_note_2), findsOneWidget);
+    });
+  });
+}

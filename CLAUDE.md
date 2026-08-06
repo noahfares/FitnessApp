@@ -148,22 +148,24 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.11.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.12.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
-**Phase 1 in progress.** Batches 1.1–1.3 done:
+**Phase 1 in progress.** Batches 1.1–1.4 done:
 
 - **1.1–1.2** — 100-exercise seeded catalogue, `ExerciseRepository`, custom
   exercises, catalogue screen with search and filtering (`F-CAT-001`–`F-CAT-005`).
 - **1.3** — session lifecycle: start/finish/discard, the exercise picker, and
   kill recovery (`F-LOG-001`, `F-LOG-002`, `F-LOG-007`). Schema v3 adds the
   partial unique index enforcing one in-progress workout.
+- **1.4** — the set row: `SetRepository`, ghost values, set types, the numeric
+  keypad and per-set notes (`F-LOG-003`–`F-LOG-006`, `F-LOG-023`). No schema
+  change — the `sets` table has held all of this since v1.
 
-A session can be started, exercises added, and the app killed without loss —
-but sets cannot be **logged** yet. That is **batch 1.4** (`F-LOG-003`–`F-LOG-006`,
-`F-LOG-023` — the set row), the heart of the app and the one to take most care
-over. It reads `21-DATA-MODEL#sets`, `24-DESIGN-SYSTEM#component-inventory`
-and `22-UNITS`.
+A complete session can now be logged end to end. Next is **batch 1.5**, the rest
+timer (`F-TIM-001`, `F-TIM-002`, `F-TIM-003`, `F-TIM-005`, `F-TIM-006`,
+`F-SET-003`), reading `20-ARCHITECTURE#cross-platform-discipline`. A completion
+is where it starts, and `SetRepository.complete` is the seam it hangs off.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform.

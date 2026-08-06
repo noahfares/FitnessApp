@@ -1,6 +1,6 @@
 # F-LOG-006 — Numeric keypad and steppers
 
-Status: planned | Priority: P0 | Phase: 1
+Status: done | Priority: P0 | Phase: 1
 Depends on: F-LOG-003 | Blocks: F-PLT-001
 Reads: 22-UNITS, 24-DESIGN-SYSTEM#component-inventory
 
@@ -15,9 +15,26 @@ Reads: 22-UNITS, 24-DESIGN-SYSTEM#component-inventory
 6. The set list stays visible above the sheet.
 
 ## Acceptance
-- [ ] Entering weight and reps for a set requires no system keyboard.
-- [ ] Steppers produce exact values with no floating-point drift over hundreds
-      of increments.
+- [x] Entering weight and reps for a set requires no system keyboard — the
+      sheet contains no text field at all, asserted rather than assumed.
+- [x] Steppers produce exact values with no floating-point drift over hundreds
+      of increments: 200 × 2.5 kg lands on exactly 500 kg, because stepping
+      happens on canonical integer grams.
+
+## Implementation
+
+- `numeric_keypad_sheet.dart`. Not full height, so the set list stays visible
+  above it (§6) — the number being typed only means anything next to the ones
+  above it.
+- **Writes through on every keystroke** (`F-LOG-003` §7). The buffer holds text
+  rather than a parsed number, so a half-typed `102.` survives the next key;
+  unparseable input leaves the stored value alone rather than clearing it.
+- Durations are typed as a gym timer reads them — `130` is 1:30 — rather than
+  as a raw number of seconds, which would ask for mental division mid-set.
+- Steppers: 2.5 kg / 2 kg by equipment, 5 lb in pound mode, overridden by
+  `exercises.increment_grams` when set (`F-SET-007`). Defined in the display
+  unit and converted once, because that is how plates come.
+- §5, the plate calculator, waits for `F-PLT-001`.
 
 ---
 

@@ -29,6 +29,8 @@ class SessionExercise {
     required this.name,
     required this.primaryMuscle,
     required this.equipment,
+    required this.trackingType,
+    required this.incrementGrams,
     required this.position,
     required this.setCount,
     required this.completedSetCount,
@@ -39,6 +41,14 @@ class SessionExercise {
   final String name;
   final Muscle primaryMuscle;
   final Equipment equipment;
+
+  /// Decides which inputs the set rows render (`F-CAT-002`, `F-LOG-003` §1).
+  final TrackingType trackingType;
+
+  /// Per-exercise stepper increment in canonical grams, or null to fall back to
+  /// the equipment default (`F-SET-007`, `F-LOG-006` §2).
+  final int? incrementGrams;
+
   final int position;
   final int setCount;
   final int completedSetCount;
@@ -240,6 +250,8 @@ class WorkoutRepository {
                  e.name           AS name,
                  e.primary_muscle AS primary_muscle,
                  e.equipment      AS equipment,
+                 e.tracking_type  AS tracking_type,
+                 e.increment_grams AS increment_grams,
                  (SELECT COUNT(*) FROM sets s
                    WHERE s.workout_exercise_id = we.id
                      AND s.deleted_at IS NULL)                   AS set_count,
@@ -273,6 +285,12 @@ class WorkoutRepository {
                   row.read<String>('equipment'),
                   Equipment.other,
                 ),
+                trackingType: _enumByName(
+                  TrackingType.values,
+                  row.read<String>('tracking_type'),
+                  TrackingType.weightReps,
+                ),
+                incrementGrams: row.read<int?>('increment_grams'),
                 position: row.read<int>('position'),
                 setCount: row.read<int>('set_count'),
                 completedSetCount: row.read<int>('done_count'),
