@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../logging/presentation/start_workout_screen.dart';
+import '../widgets/active_workout_banner.dart';
 
 /// The five-tab shell (F-NAV-001).
 ///
@@ -35,18 +36,26 @@ class AppShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: (index) =>
-            _onDestinationSelected(context, index),
-        destinations: [
-          for (final destination in destinations)
-            NavigationDestination(
-              icon: Icon(destination.icon),
-              selectedIcon: Icon(destination.selectedIcon),
-              label: destination.label,
-              tooltip: destination.label,
-            ),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Directly above the bar on every shell screen, never inside a tab
+          // (`F-NAV-003`) — it must survive switching tabs, not just scrolling.
+          const ActiveWorkoutBanner(),
+          NavigationBar(
+            selectedIndex: navigationShell.currentIndex,
+            onDestinationSelected: (index) =>
+                _onDestinationSelected(context, index),
+            destinations: [
+              for (final destination in destinations)
+                NavigationDestination(
+                  icon: Icon(destination.icon),
+                  selectedIcon: Icon(destination.selectedIcon),
+                  label: destination.label,
+                  tooltip: destination.label,
+                ),
+            ],
+          ),
         ],
       ),
     );

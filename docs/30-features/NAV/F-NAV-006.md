@@ -1,6 +1,6 @@
 # F-NAV-006 — Error and loading states
 
-Status: planned | Priority: P1 | Phase: 1
+Status: done | Priority: P1 | Phase: 1
 Reads: 23-NAVIGATION
 
 ## Spec

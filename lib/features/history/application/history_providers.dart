@@ -58,6 +58,14 @@ final workoutByIdProvider = StreamProvider.family<Workout?, String>(
   (ref, workoutId) => ref.watch(workoutRepositoryProvider).watchById(workoutId),
 );
 
+/// The last few finished sessions, for the dashboard (`F-NAV-004`).
+///
+/// Independent of [historyProvider]'s search text and page size — the
+/// dashboard's list is a fixed-size preview, not the paged History screen.
+final recentWorkoutsProvider = StreamProvider<List<WorkoutHistoryEntry>>(
+  (ref) => ref.watch(workoutRepositoryProvider).watchHistory(limit: 3),
+);
+
 /// Totals for the finish summary (`F-LOG-018`).
 final workoutSummaryStatsProvider =
     FutureProvider.family<WorkoutSummaryStats, String>(

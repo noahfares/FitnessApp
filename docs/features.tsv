@@ -125,10 +125,10 @@ F-PLT-004	4	planned	P1	Closest achievable weight	F-PLT-001, F-PLT-002	F-PRG-012	
 F-PLT-005	4	planned	P2	Machine and stack increments			22-UNITS, 21-DATA-MODEL#bars-and-plates
 F-NAV-001	0	done	P0	App shell and bottom navigation		F-NAV-002, F-NAV-003	23-NAVIGATION
 F-NAV-002	0	done	P0	Routing and deep links	F-NAV-001		23-NAVIGATION
-F-NAV-003	1	planned	P0	Active-workout banner	F-LOG-001		23-NAVIGATION
-F-NAV-004	1	planned	P1	Dashboard			23-NAVIGATION
-F-NAV-005	1	planned	P1	Empty states			23-NAVIGATION
-F-NAV-006	1	planned	P1	Error and loading states			23-NAVIGATION
+F-NAV-003	1	done	P0	Active-workout banner	F-LOG-001		23-NAVIGATION
+F-NAV-004	1	done	P1	Dashboard			23-NAVIGATION
+F-NAV-005	1	done	P1	Empty states			23-NAVIGATION
+F-NAV-006	1	done	P1	Error and loading states			23-NAVIGATION
 F-NAV-007	—	idea	P3	Home-screen widget			23-NAVIGATION
 F-NAV-008	—	idea	P3	App shortcuts			23-NAVIGATION
 F-THM-001	0	done	P0	Material 3 foundation		F-THM-002, F-THM-003, F-THM-004	24-DESIGN-SYSTEM
@@ -140,7 +140,7 @@ F-THM-006	6	planned	P2	App icon and branding			24-DESIGN-SYSTEM
 F-A11Y-001	6	planned	P1	Screen reader support			24-DESIGN-SYSTEM#accessibility-baseline
 F-A11Y-002	6	planned	P1	Dynamic type			24-DESIGN-SYSTEM#accessibility-baseline
 F-A11Y-003	6	planned	P1	Contrast and colour independence			24-DESIGN-SYSTEM#accessibility-baseline
-F-A11Y-004	1	planned	P1	Touch targets and reach			24-DESIGN-SYSTEM#accessibility-baseline
+F-A11Y-004	1	done	P1	Touch targets and reach			24-DESIGN-SYSTEM#accessibility-baseline
 F-A11Y-005	6	planned	P2	Reduce motion			24-DESIGN-SYSTEM#accessibility-baseline
 F-I18N-001	6	planned	P1	String externalisation			22-UNITS, 24-DESIGN-SYSTEM
 F-I18N-002	0	done	P1	Locale-aware formatting	F-SET-001		22-UNITS, 24-DESIGN-SYSTEM

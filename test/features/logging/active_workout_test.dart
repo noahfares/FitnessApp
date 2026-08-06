@@ -67,7 +67,7 @@ void main() {
       expect(find.text('Start empty workout'), findsOneWidget);
       // A sheet preserves what is behind it (docs/23-NAVIGATION.md), so Home
       // is still there.
-      expect(find.text('Phase 0 complete'), findsOneWidget);
+      expect(find.text('Ready to train?'), findsOneWidget);
     });
 
     testWidgets('starting lands in the session', (tester) async {

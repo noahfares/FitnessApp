@@ -16,6 +16,9 @@ import '../../logging/application/active_workout_providers.dart';
 import '../../logging/application/set_providers.dart';
 import '../../logging/presentation/exercise_picker_sheet.dart';
 import '../../logging/presentation/set_row.dart' show AddSetButton;
+import '../../shell/widgets/async_view.dart';
+import '../../shell/widgets/confirm_sheet.dart';
+import '../../shell/widgets/empty_state.dart';
 import '../application/history_providers.dart';
 import 'history_set_row.dart';
 
@@ -43,7 +46,7 @@ class EditPastWorkoutScreen extends ConsumerWidget {
         ],
       ),
       body: workout == null
-          ? const Center(child: CircularProgressIndicator.adaptive())
+          ? const LoadingView()
           : _Editor(workout: workout, exercises: exercises),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () =>
@@ -152,14 +155,12 @@ class _EditorState extends ConsumerState<_Editor> {
         Text('Exercises', style: theme.textTheme.titleMedium),
         const SizedBox(height: AppSpacing.sm),
         if (exercises == null)
-          const Center(child: CircularProgressIndicator.adaptive())
+          const LoadingView()
         else if (exercises.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-            child: Text(
-              'No exercises yet. Add the first one below.',
-              style: theme.textTheme.bodyMedium,
-            ),
+          const EmptyState(
+            icon: Icons.fitness_center,
+            title: 'No exercises yet',
+            message: 'Add the first one below.',
           )
         else
           for (final exercise in exercises)
@@ -307,24 +308,13 @@ class _ExerciseEditorState extends ConsumerState<_ExerciseEditor> {
   );
 
   Future<void> _removeExercise(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Remove ${widget.exercise.name}?'),
-        content: const Text('Its sets in this session will be removed too.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Keep it'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Remove'),
-          ),
-        ],
-      ),
+    final confirmed = await showConfirmSheet(
+      context,
+      title: 'Remove ${widget.exercise.name}?',
+      message: 'Its sets in this session will be removed too.',
+      confirmLabel: 'Remove',
     );
-    if (!(confirmed ?? false)) return;
+    if (!confirmed) return;
     await ref
         .read(workoutRepositoryProvider)
         .removeExerciseFromWorkout(widget.exercise.workoutExerciseId);

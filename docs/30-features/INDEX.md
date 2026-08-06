@@ -195,10 +195,10 @@
 |---|---|---|---|---|
 | [F-NAV-001](NAV/F-NAV-001.md) | App shell and bottom navigation | 0 | P0 | done |
 | [F-NAV-002](NAV/F-NAV-002.md) | Routing and deep links | 0 | P0 | done |
-| [F-NAV-003](NAV/F-NAV-003.md) | Active-workout banner | 1 | P0 | planned |
-| [F-NAV-004](NAV/F-NAV-004.md) | Dashboard | 1 | P1 | planned |
-| [F-NAV-005](NAV/F-NAV-005.md) | Empty states | 1 | P1 | planned |
-| [F-NAV-006](NAV/F-NAV-006.md) | Error and loading states | 1 | P1 | planned |
+| [F-NAV-003](NAV/F-NAV-003.md) | Active-workout banner | 1 | P0 | done |
+| [F-NAV-004](NAV/F-NAV-004.md) | Dashboard | 1 | P1 | done |
+| [F-NAV-005](NAV/F-NAV-005.md) | Empty states | 1 | P1 | done |
+| [F-NAV-006](NAV/F-NAV-006.md) | Error and loading states | 1 | P1 | done |
 | [F-NAV-007](NAV/F-NAV-007.md) | Home-screen widget | — | P3 | idea |
 | [F-NAV-008](NAV/F-NAV-008.md) | App shortcuts | — | P3 | idea |
 
@@ -220,7 +220,7 @@
 | [F-A11Y-001](A11Y/F-A11Y-001.md) | Screen reader support | 6 | P1 | planned |
 | [F-A11Y-002](A11Y/F-A11Y-002.md) | Dynamic type | 6 | P1 | planned |
 | [F-A11Y-003](A11Y/F-A11Y-003.md) | Contrast and colour independence | 6 | P1 | planned |
-| [F-A11Y-004](A11Y/F-A11Y-004.md) | Touch targets and reach | 1 | P1 | planned |
+| [F-A11Y-004](A11Y/F-A11Y-004.md) | Touch targets and reach | 1 | P1 | done |
 | [F-A11Y-005](A11Y/F-A11Y-005.md) | Reduce motion | 6 | P2 | planned |
 
 ## `I18N` — Localisation

@@ -9,6 +9,7 @@ import '../../../data/repositories/workout_repository.dart';
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../history/application/history_providers.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import '../../shell/widgets/async_view.dart';
 import 'active_workout_screen.dart' show formatElapsed;
 
 /// Shown on finishing a workout (`F-LOG-018`) — one of only two celebratory
@@ -27,11 +28,9 @@ class SessionSummaryScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Workout complete')),
-      body: stats.when(
-        loading: () =>
-            const Center(child: CircularProgressIndicator.adaptive()),
-        error: (error, _) => Center(child: Text('$error')),
-        data: (stats) => _Summary(stats: stats),
+      body: stats.view(
+        (stats) => _Summary(stats: stats),
+        errorTitle: 'This summary could not be read',
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(

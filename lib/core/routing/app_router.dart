@@ -17,6 +17,7 @@ import '../../features/settings/presentation/rest_timer_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/settings/presentation/units_screen.dart';
 import '../../features/shell/presentation/app_shell.dart';
+import '../../features/shell/presentation/dashboard_screen.dart';
 import '../../features/shell/presentation/placeholder_screen.dart';
 import 'app_routes.dart';
 
@@ -44,7 +45,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.home,
-                builder: (context, state) => const HomeScreen(),
+                builder: (context, state) => const DashboardScreen(),
               ),
             ],
           ),

@@ -3,9 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:fitness_app/app.dart';
 import 'package:fitness_app/features/settings/application/theme_provider.dart';
 import 'package:fitness_app/features/settings/application/unit_preferences_provider.dart';
+
+import '../../support/harness.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -55,20 +56,11 @@ void main() {
     testWidgets('changing the mode re-themes without a restart', (
       tester,
     ) async {
-      SharedPreferences.setMockInitialValues({'appearance.themeMode': 'light'});
-      final prefs = await SharedPreferences.getInstance();
-      final container = ProviderContainer(
-        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+      final container = await pumpApp(
+        tester,
+        db: testDatabase(),
+        prefs: {'appearance.themeMode': 'light'},
       );
-      addTearDown(container.dispose);
-
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const FitnessApp(),
-        ),
-      );
-      await tester.pumpAndSettle();
 
       MaterialApp app() => tester.widget<MaterialApp>(find.byType(MaterialApp));
       expect(app().themeMode, ThemeMode.light);

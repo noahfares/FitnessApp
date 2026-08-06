@@ -171,10 +171,10 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.14.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.15.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
-**Phase 1 in progress.** Batches 1.1–1.6 done:
+**Phase 1 in progress.** Batches 1.1–1.7 done:
 
 - **1.1–1.2** — 100-exercise seeded catalogue, `ExerciseRepository`, custom
   exercises, catalogue screen with search and filtering (`F-CAT-001`–`F-CAT-005`).
@@ -204,9 +204,17 @@ link have not. Its acceptance criteria are on-device.
   have held this since v1–v3. PR badges, repeat-as-workout, and save-as-routine
   are left for their owning Phase 2 features (`F-LOG-013`, `F-LOG-016`,
   `F-ROU-001`) rather than built early.
+- **1.7** — shell and empty states: the real Dashboard (resume/start a
+  workout, recent workouts), the active-workout banner above the bottom nav
+  on every shell screen, shared `EmptyState`, `ErrorView`/`LoadingView` and
+  `ConfirmSheet` components retrofitted across the catalogue, history, active
+  workout and exercise editor screens, and 48 dp touch targets on all of them
+  (`F-NAV-003`–`F-NAV-006`, `F-A11Y-004`). No schema change. Dashboard cards
+  for today's scheduled day, streaks, recent PRs and insight cards wait on
+  their own Phase 2/3 features, same reasoning as batch 1.6's deferrals.
 
-Next is **batch 1.7**, shell and empty states (`F-NAV-003`–`F-NAV-006`,
-`F-A11Y-004`), reading `23-NAVIGATION` and `24-DESIGN-SYSTEM`.
+Next is **batch 1.8**, unrecoverable capture (`F-BOD-001`, `F-DAT-011`),
+reading `21-DATA-MODEL#body_measurements` and `22-UNITS`.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform.

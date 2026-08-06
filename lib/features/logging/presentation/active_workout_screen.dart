@@ -16,6 +16,9 @@ import '../../../domain/timing/rest_defaults.dart';
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../settings/application/rest_timer_settings_provider.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import '../../shell/widgets/async_view.dart';
+import '../../shell/widgets/confirm_sheet.dart';
+import '../../shell/widgets/empty_state.dart';
 import '../../timing/presentation/rest_timer_bar.dart';
 import '../application/active_workout_providers.dart';
 import '../application/set_providers.dart';
@@ -37,12 +40,10 @@ class ActiveWorkoutScreen extends ConsumerWidget {
     final active = ref.watch(activeWorkoutProvider);
 
     return active.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator.adaptive()),
-      ),
+      loading: () => const Scaffold(body: LoadingView()),
       error: (error, _) => Scaffold(
         appBar: AppBar(title: const Text('Workout')),
-        body: Center(child: Text('$error')),
+        body: const ErrorView(title: 'This workout could not be read'),
       ),
       data: (workout) => workout == null
           ? const _NoActiveWorkout()
@@ -142,9 +143,13 @@ class _ActiveWorkout extends ConsumerWidget {
           const Divider(height: 1),
           Expanded(
             child: exercises == null
-                ? const Center(child: CircularProgressIndicator.adaptive())
+                ? const LoadingView()
                 : exercises.isEmpty
-                ? const _NothingAddedYet()
+                ? const EmptyState(
+                    icon: Icons.fitness_center,
+                    title: 'No exercises yet',
+                    message: 'Add the first one to start logging.',
+                  )
                 : ListView.builder(
                     itemCount: exercises.length,
                     itemBuilder: (context, i) =>
@@ -249,33 +254,20 @@ class _ActiveWorkout extends ConsumerWidget {
     final tally = await repo.tally(workout.id);
     if (!context.mounted) return;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Discard this workout?'),
-        // Names what is being lost, per the navigation invariants.
-        content: Text(
-          tally.exercises == 0
-              ? 'Nothing has been added to it yet.'
-              : '${tally.exercises} '
-                    '${tally.exercises == 1 ? 'exercise' : 'exercises'} and '
-                    '${tally.completedSets} completed '
-                    '${tally.completedSets == 1 ? 'set' : 'sets'} will be '
-                    'removed from this session.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Keep it'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Discard'),
-          ),
-        ],
-      ),
+    // Names what is being lost, per the navigation invariants.
+    final confirmed = await showConfirmSheet(
+      context,
+      title: 'Discard this workout?',
+      message: tally.exercises == 0
+          ? 'Nothing has been added to it yet.'
+          : '${tally.exercises} '
+                '${tally.exercises == 1 ? 'exercise' : 'exercises'} and '
+                '${tally.completedSets} completed '
+                '${tally.completedSets == 1 ? 'set' : 'sets'} will be '
+                'removed from this session.',
+      confirmLabel: 'Discard',
     );
-    if (!(confirmed ?? false)) return;
+    if (!confirmed) return;
 
     await repo.discard(workout.id);
     if (!context.mounted) return;
@@ -299,39 +291,6 @@ class _StaleSessionNotice extends StatelessWidget {
         'it if you are done.',
         style: theme.textTheme.bodySmall?.copyWith(
           color: theme.colorScheme.onTertiaryContainer,
-        ),
-      ),
-    );
-  }
-}
-
-class _NothingAddedYet extends StatelessWidget {
-  const _NothingAddedYet();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.fitness_center,
-              size: 40,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Text('No exercises yet', style: theme.textTheme.titleMedium),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              'Add the first one to start logging.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
         ),
       ),
     );

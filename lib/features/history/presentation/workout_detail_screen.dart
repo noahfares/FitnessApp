@@ -19,6 +19,9 @@ import '../../logging/presentation/active_workout_screen.dart'
     show formatElapsed;
 import '../../logging/presentation/set_value_format.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import '../../shell/widgets/async_view.dart';
+import '../../shell/widgets/confirm_sheet.dart';
+import '../../shell/widgets/empty_state.dart';
 import '../application/history_providers.dart';
 
 /// A finished session, in full (`F-LOG-012`).
@@ -55,32 +58,20 @@ class WorkoutDetailScreen extends ConsumerWidget {
         ],
       ),
       body: workout == null
-          ? const Center(child: CircularProgressIndicator.adaptive())
+          ? const LoadingView()
           : _Detail(workout: workout, exercises: exercises),
     );
   }
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete this workout?'),
-        content: const Text(
-          'This session and all its sets will be removed from your history.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Keep it'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+    final confirmed = await showConfirmSheet(
+      context,
+      title: 'Delete this workout?',
+      message:
+          'This session and all its sets will be removed from your '
+          'history.',
     );
-    if (!(confirmed ?? false)) return;
+    if (!confirmed) return;
 
     await ref.read(workoutRepositoryProvider).deleteWorkout(workoutId);
     if (!context.mounted) return;
@@ -136,11 +127,11 @@ class _Detail extends StatelessWidget {
         ],
         const SizedBox(height: AppSpacing.xl),
         if (exercises == null)
-          const Center(child: CircularProgressIndicator.adaptive())
+          const LoadingView()
         else if (exercises.isEmpty)
-          Text(
-            'No exercises in this session.',
-            style: theme.textTheme.bodyMedium,
+          const EmptyState(
+            icon: Icons.fitness_center,
+            title: 'No exercises in this session',
           )
         else
           for (final exercise in exercises)

@@ -8,6 +8,8 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
 import '../../../domain/history/workout_history.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import '../../shell/widgets/async_view.dart';
+import '../../shell/widgets/empty_state.dart';
 import '../application/history_providers.dart';
 import 'log_past_workout_sheet.dart';
 
@@ -85,12 +87,20 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             ),
           ),
           Expanded(
-            child: history.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator.adaptive()),
-              error: (error, _) => Center(child: Text('$error')),
-              data: (entries) => entries.isEmpty
-                  ? _EmptyHistory(isSearching: search.isNotEmpty)
+            child: history.view(
+              errorTitle: 'History could not be read',
+              (entries) => entries.isEmpty
+                  ? EmptyState(
+                      icon: search.isNotEmpty
+                          ? Icons.search_off
+                          : Icons.calendar_month_outlined,
+                      title: search.isNotEmpty
+                          ? 'No sessions match'
+                          : 'No sessions logged yet',
+                      message: search.isNotEmpty
+                          ? 'Try a shorter search.'
+                          : 'Finished workouts show up here.',
+                    )
                   : CustomScrollView(
                       controller: _scroll,
                       slivers: [
@@ -180,46 +190,6 @@ class _WorkoutTile extends ConsumerWidget {
       ),
       trailing: const Icon(Icons.chevron_right),
       onTap: () => context.push(AppRoutes.historyWorkout(entry.id)),
-    );
-  }
-}
-
-class _EmptyHistory extends StatelessWidget {
-  const _EmptyHistory({required this.isSearching});
-
-  final bool isSearching;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isSearching ? Icons.search_off : Icons.calendar_month_outlined,
-              size: 40,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              isSearching ? 'No sessions match' : 'No sessions logged yet',
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              isSearching
-                  ? 'Try a shorter search.'
-                  : 'Finished workouts show up here.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
