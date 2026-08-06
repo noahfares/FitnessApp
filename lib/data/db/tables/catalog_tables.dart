@@ -61,6 +61,18 @@ class Exercises extends Table with SyncColumns {
   /// Fraction of bodyweight loaded, for `bodyweightReps` (`F-LOG-019`).
   RealColumn get bodyweightCoefficient =>
       real().named('bodyweight_coefficient').nullable()();
+
+  /// `updatedAt` as of the last time **seeding** wrote this row.
+  ///
+  /// Resolves the open question in `F-CAT-001`: a seeded row counts as
+  /// user-edited when `updatedAt != seedUpdatedAt`, so re-seeding never
+  /// clobbers an edit. Comparing `updatedAt` to `createdAt` instead would work
+  /// exactly once — the first re-seed makes them differ and every row then
+  /// looks edited forever.
+  ///
+  /// Null for custom exercises, which seeding never touches.
+  IntColumn get seedUpdatedAt =>
+      integer().named('seed_updated_at').nullable()();
 }
 
 /// Barbells and other loadable implements (`F-PLT-002`).

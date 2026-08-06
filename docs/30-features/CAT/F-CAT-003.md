@@ -1,6 +1,6 @@
 # F-CAT-003 — Custom exercises
 
-Status: planned | Priority: P0 | Phase: 1
+Status: in-progress | Priority: P0 | Phase: 1
 Depends on: F-CAT-002
 Reads: 21-DATA-MODEL#exercises
 Screens: Custom Exercise Editor | Data: `exercises`
@@ -15,9 +15,27 @@ Screens: Custom Exercise Editor | Data: `exercises`
 4. Duplicate-name warning, not a block — "Bench Press (Smith)" is legitimate.
 
 ## Acceptance
-- [ ] Created exercise is immediately usable in the picker.
+- [x] Created exercise is immediately usable — `ExerciseRepository.createCustom`
+      returns the row and `watchAll` re-emits, so no manual refresh exists to
+      forget.
+- [x] Seeding never touches a custom exercise: `external_id` and
+      `seed_updated_at` are both null, so it is not matched and not refreshed.
 - [ ] Deleting one with history is prevented, with archive offered.
-- [ ] Survives export/import round-trip with its UUID intact.
+      *`hasHistory` exists and is tested; the confirmation UI needs the
+      catalogue screen (batch 1.2).*
+- [ ] Survives export/import round-trip with its UUID intact. *Phase 5.*
+
+## Implementation
+
+Data layer complete (batch 1.1), **editor screen outstanding**:
+
+- `lib/data/repositories/exercise_repository.dart` — create, rename, notes,
+  favourite, archive, soft delete, restore. Every read filters
+  `deleted_at IS NULL` and every write stamps `updated_at`, so no feature can
+  forget either invariant.
+- Duplicate names warn rather than block: "Bench Press (Smith)" is legitimate.
+- Remaining: the Custom Exercise Editor screen, which needs somewhere to be
+  reached from (`F-CAT-004`, batch 1.2).
 
 ---
 

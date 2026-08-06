@@ -1,6 +1,6 @@
 # F-CAT-002 — Exercise model & tracking types
 
-Status: planned | Priority: P0 | Phase: 1
+Status: done | Priority: P0 | Phase: 1
 Depends on: F-CAT-001 | Blocks: F-LOG-003
 Reads: 21-DATA-MODEL#exercises, 40-ANALYTICS-SPEC#universal-preconditions
 Data: `exercises`
@@ -19,8 +19,14 @@ Data: `exercises`
    existing history may become inconsistent.
 
 ## Acceptance
-- [ ] Each of the six types renders correct inputs.
+- [x] All six types exist in the schema from v1 and round-trip by name, so
+      reordering the Dart enum cannot silently reassign historical rows.
+- [ ] Each of the six types renders correct inputs. *Rendering arrives with the
+      set row (`F-LOG-003`, batch 1.4). The seed catalogue already contains
+      `weightReps`, `bodyweightReps`, `time` and `distanceTime` exercises, so
+      there is real data to build against.*
 - [ ] Analytics exclude, rather than zero out, inapplicable metrics.
+      *Phase 3, with `F-ANA-001`.*
 
 ## Edge cases
 

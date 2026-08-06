@@ -20,11 +20,12 @@ void main() {
   /// Every table in the schema, so new ones cannot skip the universal columns.
   List<TableInfo> allTables() => db.allTables.toList();
 
-  group('creation at v1', () {
-    test('opens at schema version 1 and creates every table', () async {
+  group('creation at the current version', () {
+    test('opens and creates every table', () async {
       await db.customSelect('SELECT 1').get(); // force open
 
-      expect(db.schemaVersion, 1);
+      // Migrations from earlier versions are covered in migration_test.dart.
+      expect(db.schemaVersion, 2);
       expect(allTables(), hasLength(13));
 
       final names = allTables().map((t) => t.actualTableName).toSet();

@@ -110,16 +110,16 @@ Also, though not features: the Drift schema from
 [`21-DATA-MODEL.md`](21-DATA-MODEL.md), the `Mass`/`Length`/`Distance` value
 objects from [`22-UNITS.md`](22-UNITS.md), and the layer-rule lint.
 
-**Exit criteria**
-- [ ] App builds and runs on a physical Android device.
-- [ ] Bottom navigation with placeholder screens; light and dark both correct.
-- [ ] Units and theme settings work and persist.
-- [ ] Database created at v1 with a passing migration test.
-- [ ] `Mass` value object fully unit-tested, including the no-drift test.
-- [ ] `flutter analyze` and `flutter test` green in CI; debug APK downloadable
+**Exit criteria — all met at v0.8.0. Phase 0 complete.**
+- [x] App builds and runs on a physical Android device.
+- [x] Bottom navigation with placeholder screens; light and dark both correct.
+- [x] Units and theme settings work and persist.
+- [x] Database created at v1 with a passing migration test.
+- [x] `Mass` value object fully unit-tested, including the no-drift test.
+- [x] `flutter analyze` and `flutter test` green in CI; debug APK downloadable
       from a build artefact.
-- [ ] CI fails when a `domain/` file imports Flutter.
-- [ ] Pushing a `VERSION` bump creates the matching tag with no manual step
+- [x] CI fails when a `domain/` file imports Flutter.
+- [x] Pushing a `VERSION` bump creates the matching tag with no manual step
       (`F-REL-012`).
 
 ---

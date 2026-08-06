@@ -1,7 +1,7 @@
 id	phase	status	priority	title	depends	blocks	reads
-F-CAT-001	1	planned	P0	Seeded exercise catalogue		F-CAT-002, F-LOG-002	21-DATA-MODEL#exercises, 21-DATA-MODEL#seed-data, 10-VISION#risks
-F-CAT-002	1	planned	P0	Exercise model & tracking types	F-CAT-001	F-LOG-003	21-DATA-MODEL#exercises, 40-ANALYTICS-SPEC#universal-preconditions
-F-CAT-003	1	planned	P0	Custom exercises	F-CAT-002		21-DATA-MODEL#exercises
+F-CAT-001	1	done	P0	Seeded exercise catalogue		F-CAT-002, F-LOG-002	21-DATA-MODEL#exercises, 21-DATA-MODEL#seed-data, 10-VISION#risks
+F-CAT-002	1	done	P0	Exercise model & tracking types	F-CAT-001	F-LOG-003	21-DATA-MODEL#exercises, 40-ANALYTICS-SPEC#universal-preconditions
+F-CAT-003	1	in-progress	P0	Custom exercises	F-CAT-002		21-DATA-MODEL#exercises
 F-CAT-004	1	planned	P0	Search	F-CAT-001		21-DATA-MODEL#exercises
 F-CAT-005	1	planned	P1	Filter by muscle and equipment	F-CAT-001		21-DATA-MODEL#exercises
 F-CAT-006	2	planned	P1	Favourites and recency ordering	F-CAT-004		21-DATA-MODEL#exercises

@@ -1,0 +1,1294 @@
+{
+  "seedVersion": 1,
+  "exercises": [
+    {
+      "uuid": "f121b162-0219-519d-84d2-19bc99c04b6f",
+      "externalId": "barbell-bench-press",
+      "name": "Bench Press",
+      "primaryMuscle": "chest",
+      "secondaryMuscles": [
+        "triceps",
+        "frontDelts"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "flat bench",
+        "bp"
+      ]
+    },
+    {
+      "uuid": "2fd024b8-d079-5993-9894-8df14e5b857d",
+      "externalId": "incline-barbell-bench-press",
+      "name": "Incline Bench Press",
+      "primaryMuscle": "chest",
+      "secondaryMuscles": [
+        "frontDelts",
+        "triceps"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "51b952e2-8a37-58bb-a82a-deca2b2d1f7f",
+      "externalId": "decline-barbell-bench-press",
+      "name": "Decline Bench Press",
+      "primaryMuscle": "chest",
+      "secondaryMuscles": [
+        "triceps"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "a9b09ad0-0669-5494-86e8-3c14379e7a7b",
+      "externalId": "dumbbell-bench-press",
+      "name": "Dumbbell Bench Press",
+      "primaryMuscle": "chest",
+      "secondaryMuscles": [
+        "triceps",
+        "frontDelts"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "db press"
+      ]
+    },
+    {
+      "uuid": "3bc905d5-35ed-554a-940c-536a6936783e",
+      "externalId": "incline-dumbbell-press",
+      "name": "Incline Dumbbell Press",
+      "primaryMuscle": "chest",
+      "secondaryMuscles": [
+        "frontDelts",
+        "triceps"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "cf41b907-8ae9-525e-9b6a-54b8b2540004",
+      "externalId": "machine-chest-press",
+      "name": "Machine Chest Press",
+      "primaryMuscle": "chest",
+      "secondaryMuscles": [
+        "triceps",
+        "frontDelts"
+      ],
+      "equipment": "machine",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "c0faaece-b2d6-57ac-9be0-0a72666e4ff0",
+      "externalId": "cable-fly",
+      "name": "Cable Fly",
+      "primaryMuscle": "chest",
+      "secondaryMuscles": [
+        "frontDelts"
+      ],
+      "equipment": "cable",
+      "trackingType": "weightReps",
+      "aliases": [
+        "cable crossover"
+      ]
+    },
+    {
+      "uuid": "62138fbc-73cf-5784-95da-21fa49951977",
+      "externalId": "dumbbell-fly",
+      "name": "Dumbbell Fly",
+      "primaryMuscle": "chest",
+      "secondaryMuscles": [
+        "frontDelts"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "60c515a8-95cf-5cc2-b45b-283c31309add",
+      "externalId": "pec-deck",
+      "name": "Pec Deck",
+      "primaryMuscle": "chest",
+      "secondaryMuscles": [
+        "frontDelts"
+      ],
+      "equipment": "machine",
+      "trackingType": "weightReps",
+      "aliases": [
+        "machine fly"
+      ]
+    },
+    {
+      "uuid": "0f1c9f70-16a5-573b-a42d-6854f764153b",
+      "externalId": "push-up",
+      "name": "Push-Up",
+      "primaryMuscle": "chest",
+      "secondaryMuscles": [
+        "triceps",
+        "frontDelts"
+      ],
+      "equipment": "bodyweight",
+      "trackingType": "bodyweightReps",
+      "aliases": [
+        "press-up"
+      ]
+    },
+    {
+      "uuid": "278f601d-429e-5881-9c6f-ef8b412bd6cf",
+      "externalId": "chest-dip",
+      "name": "Chest Dip",
+      "primaryMuscle": "chest",
+      "secondaryMuscles": [
+        "triceps",
+        "frontDelts"
+      ],
+      "equipment": "bodyweight",
+      "trackingType": "bodyweightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "e005aa61-50bd-5e66-95c8-dddb27757bd3",
+      "externalId": "conventional-deadlift",
+      "name": "Deadlift",
+      "primaryMuscle": "lowerBack",
+      "secondaryMuscles": [
+        "glutes",
+        "hamstrings",
+        "traps",
+        "lats"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "conventional deadlift"
+      ]
+    },
+    {
+      "uuid": "00f1f779-fc9f-5094-a255-a961337f6b0e",
+      "externalId": "sumo-deadlift",
+      "name": "Sumo Deadlift",
+      "primaryMuscle": "glutes",
+      "secondaryMuscles": [
+        "quads",
+        "lowerBack",
+        "traps"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "9f9f38bc-23c5-54ff-83c9-daa89c3695fe",
+      "externalId": "barbell-row",
+      "name": "Barbell Row",
+      "primaryMuscle": "lats",
+      "secondaryMuscles": [
+        "upperBack",
+        "biceps",
+        "lowerBack"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "bent over row",
+        "bor"
+      ]
+    },
+    {
+      "uuid": "090a610d-445c-54d4-8d2a-a4aa4da0c8d8",
+      "externalId": "pendlay-row",
+      "name": "Pendlay Row",
+      "primaryMuscle": "lats",
+      "secondaryMuscles": [
+        "upperBack",
+        "biceps"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "35f84b30-8afa-54c0-9f3e-e084ea1c3057",
+      "externalId": "dumbbell-row",
+      "name": "Dumbbell Row",
+      "primaryMuscle": "lats",
+      "secondaryMuscles": [
+        "upperBack",
+        "biceps"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "one arm row"
+      ]
+    },
+    {
+      "uuid": "1792c8ca-0d59-5526-918a-7cf62806d477",
+      "externalId": "seated-cable-row",
+      "name": "Seated Cable Row",
+      "primaryMuscle": "lats",
+      "secondaryMuscles": [
+        "upperBack",
+        "biceps"
+      ],
+      "equipment": "cable",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "5740477e-a7bb-5d71-a3b2-20c395cd703e",
+      "externalId": "chest-supported-row",
+      "name": "Chest Supported Row",
+      "primaryMuscle": "upperBack",
+      "secondaryMuscles": [
+        "lats",
+        "biceps"
+      ],
+      "equipment": "machine",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "047a3258-640f-5b69-b127-0c0539e50f69",
+      "externalId": "t-bar-row",
+      "name": "T-Bar Row",
+      "primaryMuscle": "lats",
+      "secondaryMuscles": [
+        "upperBack",
+        "biceps"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "22d3c0c4-d124-5cd4-aa9c-be8982cd6167",
+      "externalId": "lat-pulldown",
+      "name": "Lat Pulldown",
+      "primaryMuscle": "lats",
+      "secondaryMuscles": [
+        "biceps",
+        "upperBack"
+      ],
+      "equipment": "cable",
+      "trackingType": "weightReps",
+      "aliases": [
+        "pulldown"
+      ]
+    },
+    {
+      "uuid": "a2cf750a-a753-558e-bac7-5ba52a57fc31",
+      "externalId": "pull-up",
+      "name": "Pull-Up",
+      "primaryMuscle": "lats",
+      "secondaryMuscles": [
+        "biceps",
+        "upperBack"
+      ],
+      "equipment": "bodyweight",
+      "trackingType": "bodyweightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "a0388f5c-8713-501d-8681-a36a9bbe80ce",
+      "externalId": "chin-up",
+      "name": "Chin-Up",
+      "primaryMuscle": "lats",
+      "secondaryMuscles": [
+        "biceps"
+      ],
+      "equipment": "bodyweight",
+      "trackingType": "bodyweightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "88ef9153-d330-50e3-97b6-9d89dc36b7a5",
+      "externalId": "straight-arm-pulldown",
+      "name": "Straight-Arm Pulldown",
+      "primaryMuscle": "lats",
+      "secondaryMuscles": [],
+      "equipment": "cable",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "df5ebdb6-b362-5d02-98de-976a6b1ef41f",
+      "externalId": "barbell-shrug",
+      "name": "Barbell Shrug",
+      "primaryMuscle": "traps",
+      "secondaryMuscles": [
+        "forearms"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "f70680c4-acdf-563e-a87b-c5cad3b9722b",
+      "externalId": "dumbbell-shrug",
+      "name": "Dumbbell Shrug",
+      "primaryMuscle": "traps",
+      "secondaryMuscles": [
+        "forearms"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "a86fad39-8472-5933-a038-d9b04f39e819",
+      "externalId": "back-extension",
+      "name": "Back Extension",
+      "primaryMuscle": "lowerBack",
+      "secondaryMuscles": [
+        "glutes",
+        "hamstrings"
+      ],
+      "equipment": "bodyweight",
+      "trackingType": "bodyweightReps",
+      "aliases": [
+        "hyperextension"
+      ]
+    },
+    {
+      "uuid": "8ae2128a-819f-5631-b35c-68d7f599c152",
+      "externalId": "rack-pull",
+      "name": "Rack Pull",
+      "primaryMuscle": "lowerBack",
+      "secondaryMuscles": [
+        "traps",
+        "lats",
+        "glutes"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "67d14675-6e1b-5a3d-aec9-669b2edc4927",
+      "externalId": "overhead-press",
+      "name": "Overhead Press",
+      "primaryMuscle": "frontDelts",
+      "secondaryMuscles": [
+        "triceps",
+        "sideDelts"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "ohp",
+        "military press",
+        "strict press"
+      ]
+    },
+    {
+      "uuid": "cb84c475-6419-55d5-a1af-5aca1882601b",
+      "externalId": "seated-dumbbell-press",
+      "name": "Seated Dumbbell Press",
+      "primaryMuscle": "frontDelts",
+      "secondaryMuscles": [
+        "triceps",
+        "sideDelts"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "ba27f92d-a389-5dd6-bcbc-5bf429c9c4ef",
+      "externalId": "machine-shoulder-press",
+      "name": "Machine Shoulder Press",
+      "primaryMuscle": "frontDelts",
+      "secondaryMuscles": [
+        "triceps",
+        "sideDelts"
+      ],
+      "equipment": "machine",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "ae330bf0-3165-5d0a-a67e-723ca97e3668",
+      "externalId": "lateral-raise",
+      "name": "Lateral Raise",
+      "primaryMuscle": "sideDelts",
+      "secondaryMuscles": [],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "side raise",
+        "lat raise"
+      ]
+    },
+    {
+      "uuid": "393f9cbf-8da9-5809-ab35-9136769c83af",
+      "externalId": "cable-lateral-raise",
+      "name": "Cable Lateral Raise",
+      "primaryMuscle": "sideDelts",
+      "secondaryMuscles": [],
+      "equipment": "cable",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "4b71803a-d7f7-5d80-b08f-0307497460a1",
+      "externalId": "rear-delt-fly",
+      "name": "Rear Delt Fly",
+      "primaryMuscle": "rearDelts",
+      "secondaryMuscles": [
+        "upperBack"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "reverse fly"
+      ]
+    },
+    {
+      "uuid": "86dd3e76-a391-5dcc-94d0-e7ebf8b431f0",
+      "externalId": "face-pull",
+      "name": "Face Pull",
+      "primaryMuscle": "rearDelts",
+      "secondaryMuscles": [
+        "upperBack",
+        "traps"
+      ],
+      "equipment": "cable",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "d9a83570-bbc3-531a-9dee-07c290aa795a",
+      "externalId": "front-raise",
+      "name": "Front Raise",
+      "primaryMuscle": "frontDelts",
+      "secondaryMuscles": [],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "eec91fee-dc4a-57b2-b549-4d658d9c75f1",
+      "externalId": "upright-row",
+      "name": "Upright Row",
+      "primaryMuscle": "sideDelts",
+      "secondaryMuscles": [
+        "traps",
+        "biceps"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "4e68d25f-7994-508d-a5c5-472b376a787f",
+      "externalId": "arnold-press",
+      "name": "Arnold Press",
+      "primaryMuscle": "frontDelts",
+      "secondaryMuscles": [
+        "sideDelts",
+        "triceps"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "bb64c379-f854-5947-948f-1684d08f43f8",
+      "externalId": "back-squat",
+      "name": "Back Squat",
+      "primaryMuscle": "quads",
+      "secondaryMuscles": [
+        "glutes",
+        "lowerBack",
+        "hamstrings"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "squat",
+        "high bar squat"
+      ]
+    },
+    {
+      "uuid": "12323f43-10e0-53d6-978a-e284cb85caa9",
+      "externalId": "front-squat",
+      "name": "Front Squat",
+      "primaryMuscle": "quads",
+      "secondaryMuscles": [
+        "glutes",
+        "upperBack"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "77183f02-3918-5d37-a7a9-41b76cfbcf9c",
+      "externalId": "low-bar-squat",
+      "name": "Low Bar Squat",
+      "primaryMuscle": "quads",
+      "secondaryMuscles": [
+        "glutes",
+        "lowerBack",
+        "hamstrings"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "4f7f41c8-b8dc-5d03-86f8-5f1c39276ea9",
+      "externalId": "hack-squat",
+      "name": "Hack Squat",
+      "primaryMuscle": "quads",
+      "secondaryMuscles": [
+        "glutes"
+      ],
+      "equipment": "machine",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "0521f981-70e4-518a-821e-d0c35ea05ba0",
+      "externalId": "leg-press",
+      "name": "Leg Press",
+      "primaryMuscle": "quads",
+      "secondaryMuscles": [
+        "glutes",
+        "hamstrings"
+      ],
+      "equipment": "machine",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "f770e59d-8618-50bb-a4e1-35012f7c5e8b",
+      "externalId": "bulgarian-split-squat",
+      "name": "Bulgarian Split Squat",
+      "primaryMuscle": "quads",
+      "secondaryMuscles": [
+        "glutes",
+        "hamstrings"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "bss",
+        "rear foot elevated split squat"
+      ]
+    },
+    {
+      "uuid": "7ba2dcf6-059c-5c47-b5c7-5b9db74c3f53",
+      "externalId": "walking-lunge",
+      "name": "Walking Lunge",
+      "primaryMuscle": "quads",
+      "secondaryMuscles": [
+        "glutes",
+        "hamstrings"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "lunge"
+      ]
+    },
+    {
+      "uuid": "030a2105-479b-5113-b07c-a7eb56827db2",
+      "externalId": "goblet-squat",
+      "name": "Goblet Squat",
+      "primaryMuscle": "quads",
+      "secondaryMuscles": [
+        "glutes"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "6a70db39-18c7-5a18-89ce-a415d10371e7",
+      "externalId": "step-up",
+      "name": "Step-Up",
+      "primaryMuscle": "quads",
+      "secondaryMuscles": [
+        "glutes"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "327668db-5af9-536b-af9f-840a3aecd032",
+      "externalId": "leg-extension",
+      "name": "Leg Extension",
+      "primaryMuscle": "quads",
+      "secondaryMuscles": [],
+      "equipment": "machine",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "afa940fb-821c-54ff-9bd7-6fe693d5b7d1",
+      "externalId": "romanian-deadlift",
+      "name": "Romanian Deadlift",
+      "primaryMuscle": "hamstrings",
+      "secondaryMuscles": [
+        "glutes",
+        "lowerBack"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "rdl"
+      ]
+    },
+    {
+      "uuid": "f560d920-fa83-51f9-aa10-76829013667b",
+      "externalId": "stiff-leg-deadlift",
+      "name": "Stiff-Leg Deadlift",
+      "primaryMuscle": "hamstrings",
+      "secondaryMuscles": [
+        "glutes",
+        "lowerBack"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "sldl"
+      ]
+    },
+    {
+      "uuid": "ac9951a7-4aaa-5d83-ab67-b8749bd5a20a",
+      "externalId": "lying-leg-curl",
+      "name": "Lying Leg Curl",
+      "primaryMuscle": "hamstrings",
+      "secondaryMuscles": [
+        "calves"
+      ],
+      "equipment": "machine",
+      "trackingType": "weightReps",
+      "aliases": [
+        "hamstring curl"
+      ]
+    },
+    {
+      "uuid": "aa753667-392c-5621-b40b-dab30068d7e2",
+      "externalId": "seated-leg-curl",
+      "name": "Seated Leg Curl",
+      "primaryMuscle": "hamstrings",
+      "secondaryMuscles": [
+        "calves"
+      ],
+      "equipment": "machine",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "1466ed6d-2b32-5bc0-83b5-a4b4fe88250f",
+      "externalId": "nordic-curl",
+      "name": "Nordic Curl",
+      "primaryMuscle": "hamstrings",
+      "secondaryMuscles": [
+        "glutes"
+      ],
+      "equipment": "bodyweight",
+      "trackingType": "bodyweightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "f07eab5a-ea2d-5229-ba3c-45669c1dd58a",
+      "externalId": "hip-thrust",
+      "name": "Hip Thrust",
+      "primaryMuscle": "glutes",
+      "secondaryMuscles": [
+        "hamstrings"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "3d2a729c-5998-5dba-8b97-de3b55e7832f",
+      "externalId": "glute-bridge",
+      "name": "Glute Bridge",
+      "primaryMuscle": "glutes",
+      "secondaryMuscles": [
+        "hamstrings"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "0686dc0f-0316-53d8-a68a-c73c7e4f51e9",
+      "externalId": "cable-pull-through",
+      "name": "Cable Pull-Through",
+      "primaryMuscle": "glutes",
+      "secondaryMuscles": [
+        "hamstrings"
+      ],
+      "equipment": "cable",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "68a93baa-db64-5d3b-9d46-3ded2172dce6",
+      "externalId": "standing-calf-raise",
+      "name": "Standing Calf Raise",
+      "primaryMuscle": "calves",
+      "secondaryMuscles": [],
+      "equipment": "machine",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "e3ba3ccc-4185-57ec-af59-4e1e21b37487",
+      "externalId": "seated-calf-raise",
+      "name": "Seated Calf Raise",
+      "primaryMuscle": "calves",
+      "secondaryMuscles": [],
+      "equipment": "machine",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "8b8a7ac0-3c33-5287-bf5b-690d02ce46e5",
+      "externalId": "hip-abduction",
+      "name": "Hip Abduction",
+      "primaryMuscle": "abductors",
+      "secondaryMuscles": [
+        "glutes"
+      ],
+      "equipment": "machine",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "55a02652-faae-5b41-b7f4-8a0395d0b5bb",
+      "externalId": "hip-adduction",
+      "name": "Hip Adduction",
+      "primaryMuscle": "adductors",
+      "secondaryMuscles": [],
+      "equipment": "machine",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "776cd065-b612-5c59-a4d7-ad9f002ea2f8",
+      "externalId": "barbell-curl",
+      "name": "Barbell Curl",
+      "primaryMuscle": "biceps",
+      "secondaryMuscles": [
+        "forearms"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "8403fa65-3705-5cbc-805f-48a2037dce15",
+      "externalId": "dumbbell-curl",
+      "name": "Dumbbell Curl",
+      "primaryMuscle": "biceps",
+      "secondaryMuscles": [
+        "forearms"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "3e70f3af-29c0-5742-860a-0d4de24c3207",
+      "externalId": "hammer-curl",
+      "name": "Hammer Curl",
+      "primaryMuscle": "biceps",
+      "secondaryMuscles": [
+        "forearms"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "6a3f46b4-725c-5d05-b594-71ef170171e3",
+      "externalId": "incline-dumbbell-curl",
+      "name": "Incline Dumbbell Curl",
+      "primaryMuscle": "biceps",
+      "secondaryMuscles": [
+        "forearms"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "611ae42f-e3ca-5298-b9bc-b253240dddab",
+      "externalId": "preacher-curl",
+      "name": "Preacher Curl",
+      "primaryMuscle": "biceps",
+      "secondaryMuscles": [
+        "forearms"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "29e8c10b-ad6b-5517-94fe-9ce94cee7b82",
+      "externalId": "cable-curl",
+      "name": "Cable Curl",
+      "primaryMuscle": "biceps",
+      "secondaryMuscles": [
+        "forearms"
+      ],
+      "equipment": "cable",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "0a8a0814-1caf-5c78-8d6a-4eefa23ad596",
+      "externalId": "concentration-curl",
+      "name": "Concentration Curl",
+      "primaryMuscle": "biceps",
+      "secondaryMuscles": [],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "9fc12be0-e5cd-522a-93c4-fc07ba624db4",
+      "externalId": "triceps-pushdown",
+      "name": "Triceps Pushdown",
+      "primaryMuscle": "triceps",
+      "secondaryMuscles": [],
+      "equipment": "cable",
+      "trackingType": "weightReps",
+      "aliases": [
+        "pushdown",
+        "cable pushdown"
+      ]
+    },
+    {
+      "uuid": "f9e9ae8a-5014-5745-8405-433a2c3a6128",
+      "externalId": "rope-pushdown",
+      "name": "Rope Pushdown",
+      "primaryMuscle": "triceps",
+      "secondaryMuscles": [],
+      "equipment": "cable",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "594e3111-da47-5349-bf0f-3f9ed48d79e2",
+      "externalId": "skull-crusher",
+      "name": "Skull Crusher",
+      "primaryMuscle": "triceps",
+      "secondaryMuscles": [],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "lying triceps extension"
+      ]
+    },
+    {
+      "uuid": "d981f0a8-5335-5c28-b82e-ced0c08c67a5",
+      "externalId": "overhead-triceps-extension",
+      "name": "Overhead Triceps Extension",
+      "primaryMuscle": "triceps",
+      "secondaryMuscles": [],
+      "equipment": "dumbbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "32b7ba93-404c-5bc9-96e2-dbf4e6b15142",
+      "externalId": "close-grip-bench-press",
+      "name": "Close-Grip Bench Press",
+      "primaryMuscle": "triceps",
+      "secondaryMuscles": [
+        "chest",
+        "frontDelts"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": [
+        "cgbp"
+      ]
+    },
+    {
+      "uuid": "5f219a74-50a6-5c48-95c9-39855564b80e",
+      "externalId": "triceps-dip",
+      "name": "Triceps Dip",
+      "primaryMuscle": "triceps",
+      "secondaryMuscles": [
+        "chest",
+        "frontDelts"
+      ],
+      "equipment": "bodyweight",
+      "trackingType": "bodyweightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "564a6a4f-8e9c-5277-9057-a401adbadc36",
+      "externalId": "wrist-curl",
+      "name": "Wrist Curl",
+      "primaryMuscle": "forearms",
+      "secondaryMuscles": [],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "45b3b041-c45a-5331-b3b5-6519228dd393",
+      "externalId": "farmers-walk",
+      "name": "Farmer's Walk",
+      "primaryMuscle": "forearms",
+      "secondaryMuscles": [
+        "traps",
+        "abs"
+      ],
+      "equipment": "dumbbell",
+      "trackingType": "weightTime",
+      "aliases": [
+        "farmers carry"
+      ]
+    },
+    {
+      "uuid": "e650e8d9-32b4-57ce-b48b-27b94fe4f5d2",
+      "externalId": "plank",
+      "name": "Plank",
+      "primaryMuscle": "abs",
+      "secondaryMuscles": [
+        "obliques"
+      ],
+      "equipment": "bodyweight",
+      "trackingType": "time",
+      "aliases": []
+    },
+    {
+      "uuid": "6464c9a0-31e4-5877-b4e0-2b4ba0572f40",
+      "externalId": "side-plank",
+      "name": "Side Plank",
+      "primaryMuscle": "obliques",
+      "secondaryMuscles": [
+        "abs"
+      ],
+      "equipment": "bodyweight",
+      "trackingType": "time",
+      "aliases": []
+    },
+    {
+      "uuid": "c91c3c64-0a1a-53d3-b54a-853b964c7ebd",
+      "externalId": "hanging-leg-raise",
+      "name": "Hanging Leg Raise",
+      "primaryMuscle": "abs",
+      "secondaryMuscles": [
+        "obliques",
+        "forearms"
+      ],
+      "equipment": "bodyweight",
+      "trackingType": "bodyweightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "6d8117d6-9b57-5ac9-ba49-483b50bade55",
+      "externalId": "cable-crunch",
+      "name": "Cable Crunch",
+      "primaryMuscle": "abs",
+      "secondaryMuscles": [],
+      "equipment": "cable",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "7556e26b-f475-579a-8d56-a17acc7d706c",
+      "externalId": "crunch",
+      "name": "Crunch",
+      "primaryMuscle": "abs",
+      "secondaryMuscles": [],
+      "equipment": "bodyweight",
+      "trackingType": "bodyweightReps",
+      "aliases": [
+        "sit-up"
+      ]
+    },
+    {
+      "uuid": "aa9a9b87-9003-5dcc-82a1-616318577755",
+      "externalId": "ab-wheel-rollout",
+      "name": "Ab Wheel Rollout",
+      "primaryMuscle": "abs",
+      "secondaryMuscles": [
+        "obliques",
+        "lats"
+      ],
+      "equipment": "bodyweight",
+      "trackingType": "bodyweightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "08cf3710-7fb1-53e8-bc16-a3583cfcbf6a",
+      "externalId": "russian-twist",
+      "name": "Russian Twist",
+      "primaryMuscle": "obliques",
+      "secondaryMuscles": [
+        "abs"
+      ],
+      "equipment": "bodyweight",
+      "trackingType": "bodyweightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "21bdc8f8-cd42-57a3-8189-7b553b0fe94e",
+      "externalId": "dead-bug",
+      "name": "Dead Bug",
+      "primaryMuscle": "abs",
+      "secondaryMuscles": [],
+      "equipment": "bodyweight",
+      "trackingType": "bodyweightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "f989a944-f389-5bcc-936b-223d49c8d8a1",
+      "externalId": "pallof-press",
+      "name": "Pallof Press",
+      "primaryMuscle": "obliques",
+      "secondaryMuscles": [
+        "abs"
+      ],
+      "equipment": "cable",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "98e42a52-c437-5937-99f6-80d12f2d34ea",
+      "externalId": "power-clean",
+      "name": "Power Clean",
+      "primaryMuscle": "fullBody",
+      "secondaryMuscles": [
+        "traps",
+        "quads",
+        "glutes"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "93da247f-b8e5-565d-a8a2-9c1a1704b4cf",
+      "externalId": "hang-clean",
+      "name": "Hang Clean",
+      "primaryMuscle": "fullBody",
+      "secondaryMuscles": [
+        "traps",
+        "quads"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "b08d2ce8-353d-5ded-b8ee-fc7737e134ac",
+      "externalId": "push-press",
+      "name": "Push Press",
+      "primaryMuscle": "frontDelts",
+      "secondaryMuscles": [
+        "triceps",
+        "quads"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "8f716154-4853-593b-a8ba-a3131cdaaa80",
+      "externalId": "snatch",
+      "name": "Snatch",
+      "primaryMuscle": "fullBody",
+      "secondaryMuscles": [
+        "traps",
+        "quads",
+        "glutes"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "b90ac59a-1acb-5782-834c-cf83c8b67ba2",
+      "externalId": "kettlebell-swing",
+      "name": "Kettlebell Swing",
+      "primaryMuscle": "glutes",
+      "secondaryMuscles": [
+        "hamstrings",
+        "lowerBack"
+      ],
+      "equipment": "kettlebell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "ba09619a-99c1-539f-997c-cea90dce934c",
+      "externalId": "thruster",
+      "name": "Thruster",
+      "primaryMuscle": "fullBody",
+      "secondaryMuscles": [
+        "quads",
+        "frontDelts"
+      ],
+      "equipment": "barbell",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "d9fb9538-c3f6-5815-81b8-e7cfe9b1975d",
+      "externalId": "burpee",
+      "name": "Burpee",
+      "primaryMuscle": "fullBody",
+      "secondaryMuscles": [
+        "chest",
+        "quads"
+      ],
+      "equipment": "bodyweight",
+      "trackingType": "bodyweightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "2195ea37-a1d6-52a4-8d68-b11b6811995d",
+      "externalId": "neck-curl",
+      "name": "Neck Curl",
+      "primaryMuscle": "neck",
+      "secondaryMuscles": [],
+      "equipment": "other",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "1921ada6-9b38-5488-b13d-43c428d27714",
+      "externalId": "neck-extension",
+      "name": "Neck Extension",
+      "primaryMuscle": "neck",
+      "secondaryMuscles": [],
+      "equipment": "other",
+      "trackingType": "weightReps",
+      "aliases": []
+    },
+    {
+      "uuid": "22fc9915-0458-5006-a6b6-821a3ae37b90",
+      "externalId": "treadmill-run",
+      "name": "Treadmill Run",
+      "primaryMuscle": "fullBody",
+      "secondaryMuscles": [
+        "quads",
+        "calves"
+      ],
+      "equipment": "machine",
+      "trackingType": "distanceTime",
+      "aliases": [
+        "run"
+      ]
+    },
+    {
+      "uuid": "976eabcb-c83d-5837-8c8b-033ac1e61c58",
+      "externalId": "outdoor-run",
+      "name": "Outdoor Run",
+      "primaryMuscle": "fullBody",
+      "secondaryMuscles": [
+        "quads",
+        "calves"
+      ],
+      "equipment": "bodyweight",
+      "trackingType": "distanceTime",
+      "aliases": []
+    },
+    {
+      "uuid": "4d668d95-af81-5e3e-9435-7f6701de76c4",
+      "externalId": "stationary-bike",
+      "name": "Stationary Bike",
+      "primaryMuscle": "quads",
+      "secondaryMuscles": [
+        "calves",
+        "glutes"
+      ],
+      "equipment": "machine",
+      "trackingType": "distanceTime",
+      "aliases": [
+        "cycling"
+      ]
+    },
+    {
+      "uuid": "226b48a7-0422-5e9b-850d-12be17c37248",
+      "externalId": "rowing-machine",
+      "name": "Rowing Machine",
+      "primaryMuscle": "fullBody",
+      "secondaryMuscles": [
+        "lats",
+        "quads"
+      ],
+      "equipment": "machine",
+      "trackingType": "distanceTime",
+      "aliases": [
+        "erg",
+        "rower"
+      ]
+    },
+    {
+      "uuid": "2a9e6c38-da2c-5760-a2fe-220f4e17ef4f",
+      "externalId": "elliptical",
+      "name": "Elliptical",
+      "primaryMuscle": "fullBody",
+      "secondaryMuscles": [
+        "quads"
+      ],
+      "equipment": "machine",
+      "trackingType": "distanceTime",
+      "aliases": []
+    },
+    {
+      "uuid": "438f25b8-6225-5da9-b647-4ef4f06c5082",
+      "externalId": "stair-climber",
+      "name": "Stair Climber",
+      "primaryMuscle": "quads",
+      "secondaryMuscles": [
+        "glutes",
+        "calves"
+      ],
+      "equipment": "machine",
+      "trackingType": "time",
+      "aliases": [
+        "stairmaster"
+      ]
+    },
+    {
+      "uuid": "2beab60a-5b54-585c-b286-499e71fea9e2",
+      "externalId": "jump-rope",
+      "name": "Jump Rope",
+      "primaryMuscle": "calves",
+      "secondaryMuscles": [
+        "fullBody"
+      ],
+      "equipment": "other",
+      "trackingType": "time",
+      "aliases": [
+        "skipping"
+      ]
+    },
+    {
+      "uuid": "964d6ba3-606d-53ed-bebd-8656216814ff",
+      "externalId": "incline-walk",
+      "name": "Incline Walk",
+      "primaryMuscle": "quads",
+      "secondaryMuscles": [
+        "glutes",
+        "calves"
+      ],
+      "equipment": "machine",
+      "trackingType": "distanceTime",
+      "aliases": []
+    }
+  ]
+}

@@ -46,7 +46,7 @@ class AppDatabase extends _$AppDatabase {
   /// asserts on the *data*, not merely that nothing threw
   /// (docs/60-ENGINEERING.md §schema changes).
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -55,8 +55,13 @@ class AppDatabase extends _$AppDatabase {
       await _createIndexes();
     },
     onUpgrade: (m, from, to) async {
-      // No migrations yet — v1 is the initial schema. Each future step is added
-      // here as an explicit `if (from <= n)` block and covered by its own test.
+      // Each step is an explicit block, never edited once shipped, and covered
+      // by its own test in test/data/db/migration_test.dart.
+      if (from < 2) {
+        // exercises.seed_updated_at — makes "the user edited this seeded row"
+        // decidable across repeated re-seeds (F-CAT-001).
+        await m.addColumn(exercises, exercises.seedUpdatedAt);
+      }
       await _createIndexes();
     },
     beforeOpen: (details) async {

@@ -10,17 +10,18 @@ take it with you at any time.
 
 ## Status
 
-Building **Phase 0** — the project skeleton. The design is documented in full
-under [`docs/`](docs/) and is built out phase by phase, in order.
+**Phase 0 complete.** Building **Phase 1** — a usable workout logger. The design
+is documented in full under [`docs/`](docs/) and is built out phase by phase, in
+order.
 
 | | |
 |---|---|
-| Version | `0.8.0` — canonical in [`VERSION`](VERSION); scheme in [versioning](docs/63-VERSIONING.md) |
+| Version | `0.9.0` — canonical in [`VERSION`](VERSION); scheme in [versioning](docs/63-VERSIONING.md) |
 | Stack | Flutter + Dart ([ADR-0001](docs/70-decisions/ADR-0001-flutter.md)) |
 | Platforms | Android first, distributed as an APK via GitHub Releases; iOS and app-store releases planned |
 | Data | Local SQLite (Drift), no backend ([ADR-0002](docs/70-decisions/ADR-0002-local-first.md)) |
 | Progress | 163 features planned, 140 scheduled — see [`docs/features.tsv`](docs/features.tsv) |
-| Next step | Phase 0 — the database schema, the last item before Phase 1 |
+| Next step | Phase 1, batch 1.2 — catalogue search and filter |
 | Licence | TBD |
 
 ## Documentation

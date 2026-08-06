@@ -148,18 +148,13 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.7.0**. **Phase 0 batches 0.1-0.4 done** — scaffold, CI, auto-tagging,
-units, theming, and the five-tab shell with routing and working settings screens.
+Version **0.9.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+theming, five-tab shell, and the Drift schema (now at v2).
 
-**Phase 0 is NOT finished.** Its exit criteria include "database created at v1
-with a passing migration test", and no batch covered it — the roadmap listed the
-Drift schema under Phase 0 but outside the batch breakdown. That is the
-remaining work before Phase 1.
+**Phase 1 in progress.** Batch 1.1 done: 100-exercise seeded catalogue,
+`ExerciseRepository`, custom exercises. Next is **batch 1.2** (`F-CAT-004`,
+`F-CAT-005` — catalogue search and filter), which is also where `F-CAT-003`
+closes, since the custom-exercise editor needs a screen to be reached from.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
-`flutter build apk` is CI-only. Flutter web is not a target platform; regenerate
-`web/` on demand if screenshots are wanted, and do not commit it.
-
-Local toolchain notes: Flutter lives at `/opt/flutter` in this sandbox (add to
-`PATH`). There is **no Android SDK**, so `flutter build apk` cannot be verified
-locally — CI is the check for anything Android-specific.
+`flutter build apk` is CI-only. Flutter web is not a target platform.

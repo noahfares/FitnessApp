@@ -770,6 +770,17 @@ class $ExercisesTable extends Exercises
         type: DriftSqlType.double,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _seedUpdatedAtMeta = const VerificationMeta(
+    'seedUpdatedAt',
+  );
+  @override
+  late final GeneratedColumn<int> seedUpdatedAt = GeneratedColumn<int>(
+    'seed_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -793,6 +804,7 @@ class $ExercisesTable extends Exercises
     weightEntryMode,
     incrementGrams,
     bodyweightCoefficient,
+    seedUpdatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -913,6 +925,15 @@ class $ExercisesTable extends Exercises
         ),
       );
     }
+    if (data.containsKey('seed_updated_at')) {
+      context.handle(
+        _seedUpdatedAtMeta,
+        seedUpdatedAt.isAcceptableOrUnknown(
+          data['seed_updated_at']!,
+          _seedUpdatedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1018,6 +1039,10 @@ class $ExercisesTable extends Exercises
         DriftSqlType.double,
         data['${effectivePrefix}bodyweight_coefficient'],
       ),
+      seedUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}seed_updated_at'],
+      ),
     );
   }
 
@@ -1105,6 +1130,17 @@ class Exercise extends DataClass implements Insertable<Exercise> {
 
   /// Fraction of bodyweight loaded, for `bodyweightReps` (`F-LOG-019`).
   final double? bodyweightCoefficient;
+
+  /// `updatedAt` as of the last time **seeding** wrote this row.
+  ///
+  /// Resolves the open question in `F-CAT-001`: a seeded row counts as
+  /// user-edited when `updatedAt != seedUpdatedAt`, so re-seeding never
+  /// clobbers an edit. Comparing `updatedAt` to `createdAt` instead would work
+  /// exactly once — the first re-seed makes them differ and every row then
+  /// looks edited forever.
+  ///
+  /// Null for custom exercises, which seeding never touches.
+  final int? seedUpdatedAt;
   const Exercise({
     required this.id,
     required this.userId,
@@ -1127,6 +1163,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     required this.weightEntryMode,
     this.incrementGrams,
     this.bodyweightCoefficient,
+    this.seedUpdatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1192,6 +1229,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     if (!nullToAbsent || bodyweightCoefficient != null) {
       map['bodyweight_coefficient'] = Variable<double>(bodyweightCoefficient);
     }
+    if (!nullToAbsent || seedUpdatedAt != null) {
+      map['seed_updated_at'] = Variable<int>(seedUpdatedAt);
+    }
     return map;
   }
 
@@ -1234,6 +1274,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       bodyweightCoefficient: bodyweightCoefficient == null && nullToAbsent
           ? const Value.absent()
           : Value(bodyweightCoefficient),
+      seedUpdatedAt: seedUpdatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seedUpdatedAt),
     );
   }
 
@@ -1278,6 +1321,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       bodyweightCoefficient: serializer.fromJson<double?>(
         json['bodyweightCoefficient'],
       ),
+      seedUpdatedAt: serializer.fromJson<int?>(json['seedUpdatedAt']),
     );
   }
   @override
@@ -1319,6 +1363,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       'bodyweightCoefficient': serializer.toJson<double?>(
         bodyweightCoefficient,
       ),
+      'seedUpdatedAt': serializer.toJson<int?>(seedUpdatedAt),
     };
   }
 
@@ -1344,6 +1389,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     WeightEntryMode? weightEntryMode,
     Value<int?> incrementGrams = const Value.absent(),
     Value<double?> bodyweightCoefficient = const Value.absent(),
+    Value<int?> seedUpdatedAt = const Value.absent(),
   }) => Exercise(
     id: id ?? this.id,
     userId: userId ?? this.userId,
@@ -1372,6 +1418,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     bodyweightCoefficient: bodyweightCoefficient.present
         ? bodyweightCoefficient.value
         : this.bodyweightCoefficient,
+    seedUpdatedAt: seedUpdatedAt.present
+        ? seedUpdatedAt.value
+        : this.seedUpdatedAt,
   );
   Exercise copyWithCompanion(ExercisesCompanion data) {
     return Exercise(
@@ -1418,6 +1467,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       bodyweightCoefficient: data.bodyweightCoefficient.present
           ? data.bodyweightCoefficient.value
           : this.bodyweightCoefficient,
+      seedUpdatedAt: data.seedUpdatedAt.present
+          ? data.seedUpdatedAt.value
+          : this.seedUpdatedAt,
     );
   }
 
@@ -1444,7 +1496,8 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           ..write('defaultBarId: $defaultBarId, ')
           ..write('weightEntryMode: $weightEntryMode, ')
           ..write('incrementGrams: $incrementGrams, ')
-          ..write('bodyweightCoefficient: $bodyweightCoefficient')
+          ..write('bodyweightCoefficient: $bodyweightCoefficient, ')
+          ..write('seedUpdatedAt: $seedUpdatedAt')
           ..write(')'))
         .toString();
   }
@@ -1472,6 +1525,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     weightEntryMode,
     incrementGrams,
     bodyweightCoefficient,
+    seedUpdatedAt,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -1497,7 +1551,8 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           other.defaultBarId == this.defaultBarId &&
           other.weightEntryMode == this.weightEntryMode &&
           other.incrementGrams == this.incrementGrams &&
-          other.bodyweightCoefficient == this.bodyweightCoefficient);
+          other.bodyweightCoefficient == this.bodyweightCoefficient &&
+          other.seedUpdatedAt == this.seedUpdatedAt);
 }
 
 class ExercisesCompanion extends UpdateCompanion<Exercise> {
@@ -1522,6 +1577,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
   final Value<WeightEntryMode> weightEntryMode;
   final Value<int?> incrementGrams;
   final Value<double?> bodyweightCoefficient;
+  final Value<int?> seedUpdatedAt;
   final Value<int> rowid;
   const ExercisesCompanion({
     this.id = const Value.absent(),
@@ -1545,6 +1601,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     this.weightEntryMode = const Value.absent(),
     this.incrementGrams = const Value.absent(),
     this.bodyweightCoefficient = const Value.absent(),
+    this.seedUpdatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ExercisesCompanion.insert({
@@ -1569,6 +1626,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     this.weightEntryMode = const Value.absent(),
     this.incrementGrams = const Value.absent(),
     this.bodyweightCoefficient = const Value.absent(),
+    this.seedUpdatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -1599,6 +1657,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     Expression<String>? weightEntryMode,
     Expression<int>? incrementGrams,
     Expression<double>? bodyweightCoefficient,
+    Expression<int>? seedUpdatedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1625,6 +1684,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       if (incrementGrams != null) 'increment_grams': incrementGrams,
       if (bodyweightCoefficient != null)
         'bodyweight_coefficient': bodyweightCoefficient,
+      if (seedUpdatedAt != null) 'seed_updated_at': seedUpdatedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1651,6 +1711,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     Value<WeightEntryMode>? weightEntryMode,
     Value<int?>? incrementGrams,
     Value<double?>? bodyweightCoefficient,
+    Value<int?>? seedUpdatedAt,
     Value<int>? rowid,
   }) {
     return ExercisesCompanion(
@@ -1676,6 +1737,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       incrementGrams: incrementGrams ?? this.incrementGrams,
       bodyweightCoefficient:
           bodyweightCoefficient ?? this.bodyweightCoefficient,
+      seedUpdatedAt: seedUpdatedAt ?? this.seedUpdatedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1762,6 +1824,9 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
         bodyweightCoefficient.value,
       );
     }
+    if (seedUpdatedAt.present) {
+      map['seed_updated_at'] = Variable<int>(seedUpdatedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1792,6 +1857,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
           ..write('weightEntryMode: $weightEntryMode, ')
           ..write('incrementGrams: $incrementGrams, ')
           ..write('bodyweightCoefficient: $bodyweightCoefficient, ')
+          ..write('seedUpdatedAt: $seedUpdatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -10022,6 +10088,7 @@ typedef $$ExercisesTableCreateCompanionBuilder =
       Value<WeightEntryMode> weightEntryMode,
       Value<int?> incrementGrams,
       Value<double?> bodyweightCoefficient,
+      Value<int?> seedUpdatedAt,
       Value<int> rowid,
     });
 typedef $$ExercisesTableUpdateCompanionBuilder =
@@ -10047,6 +10114,7 @@ typedef $$ExercisesTableUpdateCompanionBuilder =
       Value<WeightEntryMode> weightEntryMode,
       Value<int?> incrementGrams,
       Value<double?> bodyweightCoefficient,
+      Value<int?> seedUpdatedAt,
       Value<int> rowid,
     });
 
@@ -10244,6 +10312,11 @@ class $$ExercisesTableFilterComposer
 
   ColumnFilters<double> get bodyweightCoefficient => $composableBuilder(
     column: $table.bodyweightCoefficient,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get seedUpdatedAt => $composableBuilder(
+    column: $table.seedUpdatedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10455,6 +10528,11 @@ class $$ExercisesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get seedUpdatedAt => $composableBuilder(
+    column: $table.seedUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$BarsTableOrderingComposer get defaultBarId {
     final $$BarsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -10569,6 +10647,11 @@ class $$ExercisesTableAnnotationComposer
 
   GeneratedColumn<double> get bodyweightCoefficient => $composableBuilder(
     column: $table.bodyweightCoefficient,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get seedUpdatedAt => $composableBuilder(
+    column: $table.seedUpdatedAt,
     builder: (column) => column,
   );
 
@@ -10725,6 +10808,7 @@ class $$ExercisesTableTableManager
                 Value<WeightEntryMode> weightEntryMode = const Value.absent(),
                 Value<int?> incrementGrams = const Value.absent(),
                 Value<double?> bodyweightCoefficient = const Value.absent(),
+                Value<int?> seedUpdatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExercisesCompanion(
                 id: id,
@@ -10748,6 +10832,7 @@ class $$ExercisesTableTableManager
                 weightEntryMode: weightEntryMode,
                 incrementGrams: incrementGrams,
                 bodyweightCoefficient: bodyweightCoefficient,
+                seedUpdatedAt: seedUpdatedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -10773,6 +10858,7 @@ class $$ExercisesTableTableManager
                 Value<WeightEntryMode> weightEntryMode = const Value.absent(),
                 Value<int?> incrementGrams = const Value.absent(),
                 Value<double?> bodyweightCoefficient = const Value.absent(),
+                Value<int?> seedUpdatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExercisesCompanion.insert(
                 id: id,
@@ -10796,6 +10882,7 @@ class $$ExercisesTableTableManager
                 weightEntryMode: weightEntryMode,
                 incrementGrams: incrementGrams,
                 bodyweightCoefficient: bodyweightCoefficient,
+                seedUpdatedAt: seedUpdatedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
