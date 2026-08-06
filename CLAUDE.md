@@ -171,10 +171,10 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.13.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.14.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
-**Phase 1 in progress.** Batches 1.1–1.5 done:
+**Phase 1 in progress.** Batches 1.1–1.6 done:
 
 - **1.1–1.2** — 100-exercise seeded catalogue, `ExerciseRepository`, custom
   exercises, catalogue screen with search and filtering (`F-CAT-001`–`F-CAT-005`).
@@ -195,8 +195,18 @@ still `in-progress`: the `RestTimerService` seam and an in-app implementation
 have landed, but `flutter_local_notifications`, the manifest work and the deep
 link have not. Its acceptance criteria are on-device.
 
-Next is **batch 1.6**, history (`F-LOG-008`, `F-LOG-009`, `F-LOG-011`,
-`F-LOG-012`, `F-LOG-018`), reading `21-DATA-MODEL` and `23-NAVIGATION`.
+- **1.6** — history: `WorkoutRepository.watchHistory`/`summaryStats`, the
+  History screen (search, month grouping with sticky headers, lazy loading),
+  workout detail, full past-workout editing (sets, values, types, exercises,
+  date, both kinds of note), retroactive logging, and the finish summary
+  (`F-LOG-008`, `F-LOG-009`, `F-LOG-011`, `F-LOG-012`, `F-LOG-018`). No schema
+  change — `workouts.notes`, `workout_exercises.notes` and `personal_records`
+  have held this since v1–v3. PR badges, repeat-as-workout, and save-as-routine
+  are left for their owning Phase 2 features (`F-LOG-013`, `F-LOG-016`,
+  `F-ROU-001`) rather than built early.
+
+Next is **batch 1.7**, shell and empty states (`F-NAV-003`–`F-NAV-006`,
+`F-A11Y-004`), reading `23-NAVIGATION` and `24-DESIGN-SYSTEM`.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform.

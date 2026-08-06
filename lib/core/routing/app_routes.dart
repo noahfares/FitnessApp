@@ -19,6 +19,19 @@ abstract final class AppRoutes {
   /// with a null `ended_at`, in navigation and in the database (`F-LOG-001`).
   static const String activeWorkout = '/workout/active';
 
+  /// The finish summary (`F-LOG-018`). The workout id travels as `extra`
+  /// rather than a path segment: by the time this route is reached the
+  /// session has just ended, so it is no longer "the" active workout, but it
+  /// is also not a deep-linkable destination on its own.
+  static const String activeWorkoutSummary = '/workout/active/summary';
+
+  /// `/history/:workoutId`.
+  static String historyWorkout(String workoutId) => '$history/$workoutId';
+
+  /// `/history/:workoutId/edit`.
+  static String historyWorkoutEdit(String workoutId) =>
+      '$history/$workoutId/edit';
+
   // Catalogue. Pushed over the shell rather than owning a tab: it is reached
   // from Home now and from the exercise picker once F-LOG-002 lands.
   static const String exercises = '/exercises';

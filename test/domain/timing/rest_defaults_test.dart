@@ -23,7 +23,9 @@ void main() {
     test('equipment outranks muscle — a machine press is not a squat', () {
       expect(
         builtInRestSeconds(equipment: 'machine', primaryMuscle: 'chest'),
-        lessThan(builtInRestSeconds(equipment: 'barbell', primaryMuscle: 'chest')),
+        lessThan(
+          builtInRestSeconds(equipment: 'barbell', primaryMuscle: 'chest'),
+        ),
       );
     });
 

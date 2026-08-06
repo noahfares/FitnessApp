@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 
 import '../../core/ids/uuid.dart';
+import '../../domain/history/workout_history.dart';
+import '../../domain/history/workout_volume.dart';
 import '../db/app_database.dart';
 import '../db/tables/enums.dart';
 
@@ -35,6 +37,7 @@ class SessionExercise {
     required this.position,
     required this.setCount,
     required this.completedSetCount,
+    this.notes,
   });
 
   final String workoutExerciseId;
@@ -42,6 +45,10 @@ class SessionExercise {
   final String name;
   final Muscle primaryMuscle;
   final Equipment equipment;
+
+  /// Session-specific, distinct from the exercise's persistent sticky note
+  /// (`F-LOG-008`).
+  final String? notes;
 
   /// Decides which inputs the set rows render (`F-CAT-002`, `F-LOG-003` §1).
   final TrackingType trackingType;
@@ -69,6 +76,43 @@ class WorkoutTally {
   /// Nothing was logged, so finishing would leave a junk history entry
   /// (`F-LOG-001` §6).
   bool get isEmpty => completedSets == 0;
+}
+
+/// What the finish summary shows (`F-LOG-018`).
+class WorkoutSummaryStats {
+  const WorkoutSummaryStats({
+    required this.duration,
+    required this.totalVolumeGrams,
+    required this.completedSetCount,
+    required this.exerciseCount,
+    required this.muscles,
+    this.previous,
+  });
+
+  final Duration duration;
+  final int totalVolumeGrams;
+  final int completedSetCount;
+  final int exerciseCount;
+
+  /// Primary muscles of exercises with at least one counted set.
+  final Set<Muscle> muscles;
+
+  /// The last time a workout of this same name was done, or null on a first
+  /// time (`F-LOG-018` §1). Matched by name only — routines, which would give
+  /// a sturdier match, do not exist until `F-ROU-001`.
+  final PreviousSessionStats? previous;
+}
+
+class PreviousSessionStats {
+  const PreviousSessionStats({
+    required this.startedAt,
+    required this.totalVolumeGrams,
+    required this.duration,
+  });
+
+  final int startedAt;
+  final int totalVolumeGrams;
+  final Duration duration;
 }
 
 /// Sessions, and everything hanging off them (`F-LOG-001`, `F-LOG-002`,
@@ -170,20 +214,38 @@ class WorkoutRepository {
   Future<void> discard(String id) async {
     final timestamp = _now;
     await _db.transaction(() async {
-      await _db.customStatement(
+      // `customUpdate`, not `customStatement`: only the former tells drift
+      // which tables changed, which is what makes a live watcher of the
+      // exercises or sets this touches refresh instead of going stale.
+      await _db.customUpdate(
         'UPDATE sets SET deleted_at = ?, updated_at = ? '
         'WHERE deleted_at IS NULL AND workout_exercise_id IN '
         '(SELECT id FROM workout_exercises WHERE workout_id = ?)',
-        [timestamp, timestamp, id],
+        variables: [
+          Variable<int>(timestamp),
+          Variable<int>(timestamp),
+          Variable<String>(id),
+        ],
+        updates: {_db.sets},
       );
-      await _db.customStatement(
+      await _db.customUpdate(
         'UPDATE workout_exercises SET deleted_at = ?, updated_at = ? '
         'WHERE deleted_at IS NULL AND workout_id = ?',
-        [timestamp, timestamp, id],
+        variables: [
+          Variable<int>(timestamp),
+          Variable<int>(timestamp),
+          Variable<String>(id),
+        ],
+        updates: {_db.workoutExercises},
       );
-      await _db.customStatement(
+      await _db.customUpdate(
         'UPDATE workouts SET deleted_at = ?, updated_at = ? WHERE id = ?',
-        [timestamp, timestamp, id],
+        variables: [
+          Variable<int>(timestamp),
+          Variable<int>(timestamp),
+          Variable<String>(id),
+        ],
+        updates: {_db.workouts},
       );
     });
   }
@@ -251,6 +313,7 @@ class WorkoutRepository {
           '''
           SELECT we.id            AS we_id,
                  we.position      AS position,
+                 we.notes         AS we_notes,
                  e.id             AS exercise_id,
                  e.name           AS name,
                  e.primary_muscle AS primary_muscle,
@@ -301,6 +364,7 @@ class WorkoutRepository {
                 position: row.read<int>('position'),
                 setCount: row.read<int>('set_count'),
                 completedSetCount: row.read<int>('done_count'),
+                notes: row.read<String?>('we_notes'),
               ),
           ],
         );
@@ -332,6 +396,313 @@ class WorkoutRepository {
     );
   }
 
+  /// Any workout by id, active or finished. Unlike [watchActive], not limited
+  /// to the in-progress session — the history detail and edit screens need to
+  /// watch a session that has already ended.
+  Stream<Workout?> watchById(String id) =>
+      (_db.select(_db.workouts)
+            ..where((w) => w.id.equals(id))
+            ..where((w) => w.deletedAt.isNull()))
+          .watchSingleOrNull();
+
+  /// Finished sessions, newest first, optionally filtered by workout or
+  /// exercise name (`F-LOG-011`).
+  ///
+  /// [limit] bounds how many rows come back; the screen raises it as the list
+  /// is scrolled rather than this repository paging internally, so growing the
+  /// limit is just a new query on an already-indexed table.
+  Stream<List<WorkoutHistoryEntry>> watchHistory({
+    String query = '',
+    int limit = 50,
+  }) {
+    final trimmed = query.trim();
+    final pattern = '%${trimmed.replaceAll('%', r'\%')}%';
+    return _db
+        .customSelect(
+          r'''
+          SELECT w.id                            AS id,
+                 w.name                           AS name,
+                 w.started_at                     AS started_at,
+                 w.started_at_tz_offset_minutes    AS tz_offset,
+                 w.ended_at                        AS ended_at,
+                 w.notes                           AS notes,
+                 (SELECT COUNT(*) FROM workout_exercises we
+                   WHERE we.workout_id = w.id AND we.deleted_at IS NULL)
+                   AS exercise_count,
+                 (SELECT COUNT(*) FROM sets s
+                    JOIN workout_exercises we ON we.id = s.workout_exercise_id
+                   WHERE we.workout_id = w.id AND we.deleted_at IS NULL
+                     AND s.deleted_at IS NULL AND s.is_completed = 1
+                     AND s.set_type != 'warmup') AS completed_set_count,
+                 (SELECT COALESCE(SUM(s.weight_grams * s.reps), 0) FROM sets s
+                    JOIN workout_exercises we ON we.id = s.workout_exercise_id
+                    JOIN exercises e ON e.id = we.exercise_id
+                   WHERE we.workout_id = w.id AND we.deleted_at IS NULL
+                     AND s.deleted_at IS NULL AND s.is_completed = 1
+                     AND s.set_type != 'warmup'
+                     AND e.tracking_type IN ('weightReps', 'weightTime')
+                     AND s.weight_grams IS NOT NULL AND s.reps IS NOT NULL)
+                   AS total_volume_grams
+            FROM workouts w
+           WHERE w.deleted_at IS NULL AND w.ended_at IS NOT NULL
+             AND (
+                   ? = ''
+                   OR w.name LIKE ? ESCAPE '\'
+                   OR EXISTS (
+                        SELECT 1 FROM workout_exercises we2
+                        JOIN exercises e2 ON e2.id = we2.exercise_id
+                       WHERE we2.workout_id = w.id AND we2.deleted_at IS NULL
+                         AND e2.name LIKE ? ESCAPE '\'
+                      )
+                 )
+           ORDER BY w.started_at DESC
+           LIMIT ?
+          ''',
+          variables: [
+            Variable<String>(trimmed),
+            Variable<String>(pattern),
+            Variable<String>(pattern),
+            Variable<int>(limit),
+          ],
+          readsFrom: {
+            _db.workouts,
+            _db.workoutExercises,
+            _db.exercises,
+            _db.sets,
+          },
+        )
+        .watch()
+        .map(
+          (rows) => [
+            for (final row in rows)
+              WorkoutHistoryEntry(
+                id: row.read<String>('id'),
+                name: row.read<String>('name'),
+                startedAt: row.read<int>('started_at'),
+                startedAtTzOffsetMinutes: row.read<int>('tz_offset'),
+                endedAt: row.read<int?>('ended_at'),
+                exerciseCount: row.read<int>('exercise_count'),
+                completedSetCount: row.read<int>('completed_set_count'),
+                totalVolumeGrams: row.read<int>('total_volume_grams'),
+                hasNotes: row.read<String?>('notes') != null,
+              ),
+          ],
+        );
+  }
+
+  /// The workout's own free-text note, distinct from each exercise's
+  /// (`F-LOG-008`).
+  Future<void> setWorkoutNotes(String id, String? notes) async {
+    final trimmed = notes?.trim();
+    await (_db.update(_db.workouts)..where((w) => w.id.equals(id))).write(
+      WorkoutsCompanion(
+        notes: Value(trimmed == null || trimmed.isEmpty ? null : trimmed),
+        updatedAt: Value(_now),
+      ),
+    );
+  }
+
+  /// One exercise's session-specific note, distinct from the exercise's
+  /// persistent sticky note (`F-LOG-008`).
+  Future<void> setExerciseNotes(String workoutExerciseId, String? notes) async {
+    final trimmed = notes?.trim();
+    await (_db.update(
+      _db.workoutExercises,
+    )..where((we) => we.id.equals(workoutExerciseId))).write(
+      WorkoutExercisesCompanion(
+        notes: Value(trimmed == null || trimmed.isEmpty ? null : trimmed),
+        updatedAt: Value(_now),
+      ),
+    );
+  }
+
+  /// Moves a past workout to a different date and time (`F-LOG-009` §1, §4).
+  ///
+  /// [startedAt] is local wall-clock; the offset stored beside it is the one
+  /// in effect right now, same as at creation (ADR-0008) — editing history
+  /// does not attempt to reconstruct what the offset actually was on the
+  /// original date.
+  Future<void> reschedule(String id, DateTime startedAt) async {
+    await (_db.update(_db.workouts)..where((w) => w.id.equals(id))).write(
+      WorkoutsCompanion(
+        startedAt: Value(startedAt.millisecondsSinceEpoch),
+        startedAtTzOffsetMinutes: Value(startedAt.timeZoneOffset.inMinutes),
+        updatedAt: Value(_now),
+      ),
+    );
+  }
+
+  /// Logs an already-finished session at a chosen date and time
+  /// (`F-LOG-009` §4) — for a session remembered after the fact rather than
+  /// timed live.
+  Future<Workout> createRetroactive({
+    required String name,
+    required DateTime startedAt,
+    required DateTime endedAt,
+  }) async {
+    final id = newUuidV4();
+    final timestamp = _now;
+    await _db
+        .into(_db.workouts)
+        .insert(
+          WorkoutsCompanion.insert(
+            id: id,
+            name: name.trim().isNotEmpty
+                ? name.trim()
+                : defaultNameFor(startedAt),
+            startedAt: startedAt.millisecondsSinceEpoch,
+            startedAtTzOffsetMinutes: startedAt.timeZoneOffset.inMinutes,
+            endedAt: Value(endedAt.millisecondsSinceEpoch),
+            createdAt: timestamp,
+            updatedAt: timestamp,
+          ),
+        );
+    return (await findById(id))!;
+  }
+
+  /// Deletes a past workout, cascading the tombstone to its exercises and
+  /// sets (`F-LOG-009` §2, docs/21-DATA-MODEL.md §deletion-policy). Same
+  /// tombstone cascade as [discard]; kept as a separate name because the two
+  /// happen from very different places for very different reasons.
+  Future<void> deleteWorkout(String id) => discard(id);
+
+  /// Removes one exercise from a workout, cascading to its sets — exercises
+  /// are as editable as the sets within them (`F-LOG-009` §1).
+  Future<void> removeExerciseFromWorkout(String workoutExerciseId) async {
+    final timestamp = _now;
+    await _db.transaction(() async {
+      await _db.customUpdate(
+        'UPDATE sets SET deleted_at = ?, updated_at = ? '
+        'WHERE deleted_at IS NULL AND workout_exercise_id = ?',
+        variables: [
+          Variable<int>(timestamp),
+          Variable<int>(timestamp),
+          Variable<String>(workoutExerciseId),
+        ],
+        updates: {_db.sets},
+      );
+      await _db.customUpdate(
+        'UPDATE workout_exercises SET deleted_at = ?, updated_at = ? '
+        'WHERE id = ?',
+        variables: [
+          Variable<int>(timestamp),
+          Variable<int>(timestamp),
+          Variable<String>(workoutExerciseId),
+        ],
+        updates: {_db.workoutExercises},
+      );
+    });
+  }
+
+  /// Totals for the finish summary (`F-LOG-018`), plus a comparison against
+  /// the last workout of the same name, if there is one.
+  Future<WorkoutSummaryStats> summaryStats(String workoutId) async {
+    final workout = await findById(workoutId);
+    if (workout == null) {
+      throw ArgumentError('No workout with id $workoutId');
+    }
+
+    final own = await _countedSetsFor(workoutId);
+    final tally = await this.tally(workoutId);
+
+    PreviousSessionStats? previous;
+    final previousRow =
+        await (_db.select(_db.workouts)
+              ..where((w) => w.id.equals(workoutId).not())
+              ..where((w) => w.deletedAt.isNull())
+              ..where((w) => w.endedAt.isNotNull())
+              ..where((w) => w.name.equals(workout.name))
+              ..orderBy([
+                (w) => OrderingTerm(
+                  expression: w.startedAt,
+                  mode: OrderingMode.desc,
+                ),
+              ])
+              ..limit(1))
+            .getSingleOrNull();
+
+    if (previousRow != null) {
+      final previousSets = await _countedSetsFor(previousRow.id);
+      previous = PreviousSessionStats(
+        startedAt: previousRow.startedAt,
+        totalVolumeGrams: totalVolumeGrams(previousSets.sets),
+        duration: previousRow.endedAt == null
+            ? Duration.zero
+            : Duration(
+                milliseconds: previousRow.endedAt! - previousRow.startedAt,
+              ),
+      );
+    }
+
+    return WorkoutSummaryStats(
+      duration: workout.endedAt == null
+          ? Duration.zero
+          : Duration(milliseconds: workout.endedAt! - workout.startedAt),
+      totalVolumeGrams: totalVolumeGrams(own.sets),
+      completedSetCount: own.completedSetCount,
+      exerciseCount: tally.exercises,
+      muscles: own.muscles,
+      previous: previous,
+    );
+  }
+
+  /// Raw counted-set data for [workoutId], for [summaryStats]. A single query
+  /// shared by both the current session and its comparison target, so the two
+  /// figures are computed by the exact same rule.
+  Future<_CountedSetStats> _countedSetsFor(String workoutId) async {
+    final rows = await _db
+        .customSelect(
+          '''
+          SELECT s.set_type      AS set_type,
+                 s.is_completed  AS is_completed,
+                 s.weight_grams  AS weight_grams,
+                 s.reps          AS reps,
+                 e.tracking_type AS tracking_type,
+                 e.primary_muscle AS primary_muscle
+            FROM sets s
+            JOIN workout_exercises we ON we.id = s.workout_exercise_id
+            JOIN exercises e ON e.id = we.exercise_id
+           WHERE we.workout_id = ? AND we.deleted_at IS NULL
+             AND s.deleted_at IS NULL
+          ''',
+          variables: [Variable<String>(workoutId)],
+          readsFrom: {_db.sets, _db.workoutExercises, _db.exercises},
+        )
+        .get();
+
+    final sets = <CountedSet>[];
+    final muscles = <Muscle>{};
+    var completedSetCount = 0;
+    for (final row in rows) {
+      final isCompleted = row.read<int>('is_completed') == 1;
+      final setType = row.read<String>('set_type');
+      if (isCompleted && setType != 'warmup') {
+        completedSetCount++;
+        muscles.add(
+          _enumByName(
+            Muscle.values,
+            row.read<String>('primary_muscle'),
+            Muscle.fullBody,
+          ),
+        );
+      }
+      sets.add(
+        CountedSet(
+          setType: setType,
+          trackingType: row.read<String>('tracking_type'),
+          isCompleted: isCompleted,
+          weightGrams: row.read<int?>('weight_grams'),
+          reps: row.read<int?>('reps'),
+        ),
+      );
+    }
+    return _CountedSetStats(
+      sets: sets,
+      muscles: muscles,
+      completedSetCount: completedSetCount,
+    );
+  }
+
   /// An unknown stored value means a downgrade or a corrupt write. Falling back
   /// beats throwing: a session is never worth failing to render over one
   /// mislabelled muscle.
@@ -345,4 +716,17 @@ class WorkoutRepository {
     }
     return fallback;
   }
+}
+
+/// Intermediate result of [WorkoutRepository._countedSetsFor].
+class _CountedSetStats {
+  const _CountedSetStats({
+    required this.sets,
+    required this.muscles,
+    required this.completedSetCount,
+  });
+
+  final List<CountedSet> sets;
+  final Set<Muscle> muscles;
+  final int completedSetCount;
 }

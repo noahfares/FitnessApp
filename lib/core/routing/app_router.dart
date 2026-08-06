@@ -4,8 +4,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/catalog/presentation/exercise_catalog_screen.dart';
 import '../../features/catalog/presentation/exercise_editor_screen.dart';
+import '../../features/history/presentation/edit_past_workout_screen.dart';
+import '../../features/history/presentation/history_screen.dart';
+import '../../features/history/presentation/workout_detail_screen.dart';
 import '../../features/logging/application/active_workout_providers.dart';
 import '../../features/logging/presentation/active_workout_screen.dart';
+import '../../features/logging/presentation/session_summary_screen.dart';
 import '../../features/logging/presentation/start_workout_screen.dart';
 import '../../features/settings/presentation/about_screen.dart';
 import '../../features/settings/presentation/appearance_screen.dart';
@@ -73,13 +77,28 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.history,
-                builder: (context, state) => const PlaceholderScreen(
-                  title: 'History',
-                  arrivesIn: 'Phase 1',
-                  description:
-                      'Past sessions, newest first, with a calendar heatmap '
-                      'once F-ANA-006 lands.',
-                ),
+                builder: (context, state) => const HistoryScreen(),
+                routes: [
+                  // Pushed over the root navigator, not the History branch's
+                  // own — a detail view belongs in the app-wide stack, the
+                  // same way exercise detail does (docs/23-NAVIGATION.md).
+                  GoRoute(
+                    path: ':workoutId',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => WorkoutDetailScreen(
+                      workoutId: state.pathParameters['workoutId']!,
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) => EditPastWorkoutScreen(
+                          workoutId: state.pathParameters['workoutId']!,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
@@ -106,6 +125,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.activeWorkout,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const ActiveWorkoutScreen(),
+      ),
+
+      GoRoute(
+        path: AppRoutes.activeWorkoutSummary,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) =>
+            SessionSummaryScreen(workoutId: state.extra! as String),
       ),
 
       GoRoute(

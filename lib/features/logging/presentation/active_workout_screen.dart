@@ -240,8 +240,8 @@ class _ActiveWorkout extends ConsumerWidget {
     await repo.finish(workout.id);
     if (!context.mounted) return;
     // Replaces the stack rather than popping, so back does not walk into a
-    // finished session. Lands on the summary once `F-LOG-018` exists.
-    context.go(AppRoutes.home);
+    // finished session (docs/23-NAVIGATION.md §navigation-invariants).
+    context.go(AppRoutes.activeWorkoutSummary, extra: workout.id);
   }
 
   Future<void> _discard(BuildContext context, WidgetRef ref) async {
