@@ -92,8 +92,46 @@ class CatalogFilterNotifier extends Notifier<ExerciseFilter> {
   void clearAll() => state = const ExerciseFilter();
 }
 
+/// The picker's own filter (`F-LOG-002` §4).
+///
+/// Separate state from [catalogFilterProvider] deliberately: leaving a filter
+/// on while browsing the catalogue must not silently narrow what the picker
+/// offers mid-session, which is the kind of thing that reads as "the app lost
+/// an exercise".
+final pickerFilterProvider =
+    NotifierProvider<CatalogFilterNotifier, ExerciseFilter>(
+      CatalogFilterNotifier.new,
+    );
+
+/// Exercises ticked in the picker, in the order they were ticked — that is the
+/// order they are appended to the session in (`F-LOG-002` §3).
+final pickerSelectionProvider =
+    NotifierProvider<PickerSelectionNotifier, List<String>>(
+      PickerSelectionNotifier.new,
+    );
+
+class PickerSelectionNotifier extends Notifier<List<String>> {
+  @override
+  List<String> build() => const [];
+
+  void toggle(String exerciseId) {
+    final next = List<String>.of(state);
+    if (!next.remove(exerciseId)) next.add(exerciseId);
+    state = next;
+  }
+
+  void clear() => state = const [];
+}
+
+AsyncValue<List<Exercise>> _resultsFor(Ref ref, ExerciseFilter filter) =>
+    ref.watch(catalogIndexProvider).whenData((index) => index.apply(filter));
+
 /// What the catalogue list renders.
-final filteredExercisesProvider = Provider<AsyncValue<List<Exercise>>>((ref) {
-  final filter = ref.watch(catalogFilterProvider);
-  return ref.watch(catalogIndexProvider).whenData((index) => index.apply(filter));
-});
+final filteredExercisesProvider = Provider<AsyncValue<List<Exercise>>>(
+  (ref) => _resultsFor(ref, ref.watch(catalogFilterProvider)),
+);
+
+/// What the picker sheet renders.
+final pickerResultsProvider = Provider<AsyncValue<List<Exercise>>>(
+  (ref) => _resultsFor(ref, ref.watch(pickerFilterProvider)),
+);

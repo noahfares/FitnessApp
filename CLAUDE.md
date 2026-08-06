@@ -148,18 +148,22 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.10.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
-theming, five-tab shell, and the Drift schema (now at v2).
+Version **0.11.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+theming, five-tab shell, and the Drift schema (now at **v3**).
 
-**Phase 1 in progress.** Batches 1.1 and 1.2 done: 100-exercise seeded
-catalogue, `ExerciseRepository`, custom exercises, and the catalogue screen with
-search and filtering. `F-CAT-003`, `F-CAT-004` and `F-CAT-005` are all closed;
-the catalogue is reached from Home until the exercise picker (`F-LOG-002`)
-gives it a second entry point.
+**Phase 1 in progress.** Batches 1.1–1.3 done:
 
-Next is **batch 1.3** (`F-LOG-001`, `F-LOG-002`, `F-LOG-007` — session
-lifecycle), reading `21-DATA-MODEL#workouts` and
-`21-DATA-MODEL#persistence-behaviour`.
+- **1.1–1.2** — 100-exercise seeded catalogue, `ExerciseRepository`, custom
+  exercises, catalogue screen with search and filtering (`F-CAT-001`–`F-CAT-005`).
+- **1.3** — session lifecycle: start/finish/discard, the exercise picker, and
+  kill recovery (`F-LOG-001`, `F-LOG-002`, `F-LOG-007`). Schema v3 adds the
+  partial unique index enforcing one in-progress workout.
+
+A session can be started, exercises added, and the app killed without loss —
+but sets cannot be **logged** yet. That is **batch 1.4** (`F-LOG-003`–`F-LOG-006`,
+`F-LOG-023` — the set row), the heart of the app and the one to take most care
+over. It reads `21-DATA-MODEL#sets`, `24-DESIGN-SYSTEM#component-inventory`
+and `22-UNITS`.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform.

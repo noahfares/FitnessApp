@@ -58,13 +58,13 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-LOG-001](LOG/F-LOG-001.md) | Start, finish, and discard a workout | 1 | P0 | planned |
-| [F-LOG-002](LOG/F-LOG-002.md) | Add exercises to a session | 1 | P0 | planned |
+| [F-LOG-001](LOG/F-LOG-001.md) | Start, finish, and discard a workout | 1 | P0 | done |
+| [F-LOG-002](LOG/F-LOG-002.md) | Add exercises to a session | 1 | P0 | done |
 | [F-LOG-003](LOG/F-LOG-003.md) | Set row entry | 1 | P0 | planned |
 | [F-LOG-004](LOG/F-LOG-004.md) | "Last time" ghost values | 1 | P0 | planned |
 | [F-LOG-005](LOG/F-LOG-005.md) | Set types | 1 | P0 | planned |
 | [F-LOG-006](LOG/F-LOG-006.md) | Numeric keypad and steppers | 1 | P0 | planned |
-| [F-LOG-007](LOG/F-LOG-007.md) | Crash and kill recovery | 1 | P0 | planned |
+| [F-LOG-007](LOG/F-LOG-007.md) | Crash and kill recovery | 1 | P0 | done |
 | [F-LOG-008](LOG/F-LOG-008.md) | Session and exercise notes | 1 | P1 | planned |
 | [F-LOG-009](LOG/F-LOG-009.md) | Edit and delete past workouts | 1 | P0 | planned |
 | [F-LOG-010](LOG/F-LOG-010.md) | Modify a session in progress | 2 | P1 | planned |

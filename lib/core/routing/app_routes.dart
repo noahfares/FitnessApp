@@ -15,6 +15,10 @@ abstract final class AppRoutes {
   static const String history = '/history';
   static const String insights = '/insights';
 
+  /// The session in progress. A **singleton** — at most one workout may exist
+  /// with a null `ended_at`, in navigation and in the database (`F-LOG-001`).
+  static const String activeWorkout = '/workout/active';
+
   // Catalogue. Pushed over the shell rather than owning a tab: it is reached
   // from Home now and from the exercise picker once F-LOG-002 lands.
   static const String exercises = '/exercises';

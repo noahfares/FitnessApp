@@ -46,7 +46,7 @@ class AppDatabase extends _$AppDatabase {
   /// asserts on the *data*, not merely that nothing threw
   /// (docs/60-ENGINEERING.md §schema changes).
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -61,6 +61,26 @@ class AppDatabase extends _$AppDatabase {
         // exercises.seed_updated_at — makes "the user edited this seeded row"
         // decidable across repeated re-seeds (F-CAT-001).
         await m.addColumn(exercises, exercises.seedUpdatedAt);
+      }
+      if (from < 3) {
+        // At most one workout may be in progress (`F-LOG-001` §3). The new
+        // partial unique index in _createIndexes() enforces it, but it cannot
+        // be created while duplicates exist — and a database written before
+        // the constraint could hold several. Close out all but the most
+        // recently started first, rather than failing to open.
+        await customStatement('''
+          UPDATE workouts
+             SET ended_at = started_at,
+                 updated_at = CAST(strftime('%s', 'now') AS INTEGER) * 1000
+           WHERE ended_at IS NULL
+             AND deleted_at IS NULL
+             AND id NOT IN (
+                   SELECT id FROM workouts
+                    WHERE ended_at IS NULL AND deleted_at IS NULL
+                    ORDER BY started_at DESC
+                    LIMIT 1
+                 )
+        ''');
       }
       await _createIndexes();
     },
@@ -98,6 +118,14 @@ class AppDatabase extends _$AppDatabase {
     await customStatement(
       'CREATE INDEX IF NOT EXISTS idx_workouts_in_progress '
       'ON workouts (ended_at) WHERE ended_at IS NULL AND deleted_at IS NULL',
+    );
+    // **The** single-in-progress constraint (`F-LOG-001` §3). In the database
+    // rather than only in the repository, because a second in-progress workout
+    // does not fail loudly — it makes crash recovery pick one of two sessions
+    // at random, which surfaces as "the app lost my workout".
+    await customStatement(
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_workouts_single_in_progress '
+      'ON workouts (user_id) WHERE ended_at IS NULL AND deleted_at IS NULL',
     );
     await customStatement(
       'CREATE INDEX IF NOT EXISTS idx_exercises_name '

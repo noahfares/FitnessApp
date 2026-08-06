@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/catalog/presentation/exercise_catalog_screen.dart';
 import '../../features/catalog/presentation/exercise_editor_screen.dart';
+import '../../features/logging/application/active_workout_providers.dart';
+import '../../features/logging/presentation/active_workout_screen.dart';
+import '../../features/logging/presentation/start_workout_screen.dart';
 import '../../features/settings/presentation/about_screen.dart';
 import '../../features/settings/presentation/appearance_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
@@ -23,7 +26,10 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: AppRoutes.home,
+    // Resolved before the first frame from whether a session is in progress
+    // (`F-LOG-007` §2). Reopening after a kill lands *in* the workout, with no
+    // "restore session?" prompt and no flash of the dashboard first.
+    initialLocation: ref.watch(startupLocationProvider),
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -55,15 +61,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.start,
-                // Becomes a modal sheet in Phase 1, once there is something to
-                // start (F-LOG-001). A tab destination until then.
-                builder: (context, state) => const PlaceholderScreen(
-                  title: 'Start',
-                  arrivesIn: 'Phase 1',
-                  description:
-                      'Start an empty workout, or from a routine day. The '
-                      'primary action in the app.',
-                ),
+                // Tapping the centre tab opens this as a modal sheet
+                // (docs/23-NAVIGATION.md); the route itself stays so a deep
+                // link or app shortcut lands on a real screen.
+                builder: (context, state) => const StartWorkoutScreen(),
               ),
             ],
           ),
@@ -96,6 +97,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+
+      // Over the shell, not inside a branch: a session is not a tab, and
+      // leaving it must never mean losing it.
+      GoRoute(
+        path: AppRoutes.activeWorkout,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ActiveWorkoutScreen(),
       ),
 
       GoRoute(

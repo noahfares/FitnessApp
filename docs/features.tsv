@@ -28,13 +28,13 @@ F-ROU-012	3	planned	P2	Scheduling			21-DATA-MODEL#routine_days, 70-decisions/ADR
 F-ROU-013	—	idea	P2	Cycles, blocks and deload weeks			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-014	—	idea	P2	Share and import routines	F-DAT-001		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-015	3	planned	P2	Built-in starter programs			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
-F-LOG-001	1	planned	P0	Start, finish, and discard a workout		F-LOG-002, F-LOG-003, F-LOG-007	21-DATA-MODEL#workouts, 23-NAVIGATION
-F-LOG-002	1	planned	P0	Add exercises to a session	F-LOG-001, F-CAT-001		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-001	1	done	P0	Start, finish, and discard a workout		F-LOG-002, F-LOG-003, F-LOG-007	21-DATA-MODEL#workouts, 23-NAVIGATION
+F-LOG-002	1	done	P0	Add exercises to a session	F-LOG-001, F-CAT-001		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-003	1	planned	P0	Set row entry	F-LOG-002, F-CAT-002	F-LOG-004, F-LOG-005, F-LOG-006	21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory, 22-UNITS
 F-LOG-004	1	planned	P0	"Last time" ghost values	F-LOG-003	F-PRG-001	21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#colour, 22-UNITS, 60-ENGINEERING#performance-budgets
 F-LOG-005	1	planned	P0	Set types	F-LOG-003		21-DATA-MODEL#sets, 40-ANALYTICS-SPEC#universal-preconditions
 F-LOG-006	1	planned	P0	Numeric keypad and steppers	F-LOG-003	F-PLT-001	22-UNITS, 24-DESIGN-SYSTEM#component-inventory
-F-LOG-007	1	planned	P0	Crash and kill recovery	F-LOG-001		21-DATA-MODEL#persistence-behaviour
+F-LOG-007	1	done	P0	Crash and kill recovery	F-LOG-001		21-DATA-MODEL#persistence-behaviour
 F-LOG-008	1	planned	P1	Session and exercise notes			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-009	1	planned	P0	Edit and delete past workouts			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-010	2	planned	P1	Modify a session in progress	F-LOG-002		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
