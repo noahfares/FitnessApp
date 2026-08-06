@@ -21,9 +21,9 @@
 |---|---|---|---|---|
 | [F-CAT-001](CAT/F-CAT-001.md) | Seeded exercise catalogue | 1 | P0 | done |
 | [F-CAT-002](CAT/F-CAT-002.md) | Exercise model & tracking types | 1 | P0 | done |
-| [F-CAT-003](CAT/F-CAT-003.md) | Custom exercises | 1 | P0 | in-progress |
-| [F-CAT-004](CAT/F-CAT-004.md) | Search | 1 | P0 | planned |
-| [F-CAT-005](CAT/F-CAT-005.md) | Filter by muscle and equipment | 1 | P1 | planned |
+| [F-CAT-003](CAT/F-CAT-003.md) | Custom exercises | 1 | P0 | done |
+| [F-CAT-004](CAT/F-CAT-004.md) | Search | 1 | P0 | done |
+| [F-CAT-005](CAT/F-CAT-005.md) | Filter by muscle and equipment | 1 | P1 | done |
 | [F-CAT-006](CAT/F-CAT-006.md) | Favourites and recency ordering | 2 | P1 | planned |
 | [F-CAT-007](CAT/F-CAT-007.md) | Per-exercise sticky notes | 2 | P1 | planned |
 | [F-CAT-008](CAT/F-CAT-008.md) | Aliases and synonyms | 2 | P2 | planned |

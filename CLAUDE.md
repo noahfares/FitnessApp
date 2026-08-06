@@ -148,13 +148,18 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.9.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.10.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at v2).
 
-**Phase 1 in progress.** Batch 1.1 done: 100-exercise seeded catalogue,
-`ExerciseRepository`, custom exercises. Next is **batch 1.2** (`F-CAT-004`,
-`F-CAT-005` — catalogue search and filter), which is also where `F-CAT-003`
-closes, since the custom-exercise editor needs a screen to be reached from.
+**Phase 1 in progress.** Batches 1.1 and 1.2 done: 100-exercise seeded
+catalogue, `ExerciseRepository`, custom exercises, and the catalogue screen with
+search and filtering. `F-CAT-003`, `F-CAT-004` and `F-CAT-005` are all closed;
+the catalogue is reached from Home until the exercise picker (`F-LOG-002`)
+gives it a second entry point.
+
+Next is **batch 1.3** (`F-LOG-001`, `F-LOG-002`, `F-LOG-007` — session
+lifecycle), reading `21-DATA-MODEL#workouts` and
+`21-DATA-MODEL#persistence-behaviour`.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform.

@@ -89,6 +89,14 @@ class HomeScreen extends StatelessWidget {
                 style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: AppSpacing.xl),
+              // The catalogue's only entry point until the exercise picker
+              // arrives with F-LOG-002.
+              FilledButton.icon(
+                onPressed: () => context.push(AppRoutes.exercises),
+                icon: const Icon(Icons.fitness_center),
+                label: const Text('Exercises'),
+              ),
+              const SizedBox(height: AppSpacing.sm),
               FilledButton.tonalIcon(
                 onPressed: () => context.push(AppRoutes.settings),
                 icon: const Icon(Icons.tune),

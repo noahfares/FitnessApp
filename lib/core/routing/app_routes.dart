@@ -15,6 +15,15 @@ abstract final class AppRoutes {
   static const String history = '/history';
   static const String insights = '/insights';
 
+  // Catalogue. Pushed over the shell rather than owning a tab: it is reached
+  // from Home now and from the exercise picker once F-LOG-002 lands.
+  static const String exercises = '/exercises';
+  static const String exerciseNew = '/exercises/new';
+
+  /// `/exercises/:exerciseId/edit`.
+  static String exerciseEdit(String exerciseId) =>
+      '$exercises/$exerciseId/edit';
+
   // Pushed over the shell — low-frequency, so they do not dilute the five tabs.
   static const String settings = '/settings';
   static const String settingsUnits = '/settings/units';
