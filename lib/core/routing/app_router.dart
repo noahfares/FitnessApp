@@ -12,6 +12,9 @@ import '../../features/logging/application/active_workout_providers.dart';
 import '../../features/logging/presentation/active_workout_screen.dart';
 import '../../features/logging/presentation/session_summary_screen.dart';
 import '../../features/logging/presentation/start_workout_screen.dart';
+import '../../features/routines/presentation/routine_day_editor_screen.dart';
+import '../../features/routines/presentation/routine_editor_screen.dart';
+import '../../features/routines/presentation/routine_list_screen.dart';
 import '../../features/settings/presentation/about_screen.dart';
 import '../../features/settings/presentation/appearance_screen.dart';
 import '../../features/settings/presentation/data_screen.dart';
@@ -55,13 +58,26 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.routines,
-                builder: (context, state) => const PlaceholderScreen(
-                  title: 'Routines',
-                  arrivesIn: 'Phase 2',
-                  description:
-                      'Programs and templates. A routine holds days; a day is '
-                      'what you start a workout from.',
-                ),
+                builder: (context, state) => const RoutineListScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':routineId',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => RoutineEditorScreen(
+                      routineId: state.pathParameters['routineId']!,
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'days/:dayId',
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) => RoutineDayEditorScreen(
+                          routineId: state.pathParameters['routineId']!,
+                          dayId: state.pathParameters['dayId']!,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),

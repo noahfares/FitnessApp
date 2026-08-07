@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/tables/enums.dart';
+import 'package:fitness_app/data/repositories/routine_repository.dart';
 import 'package:fitness_app/data/repositories/workout_repository.dart';
 
 /// `F-LOG-001`, `F-LOG-002`, `F-LOG-007`.
@@ -517,6 +518,122 @@ void main() {
       await repo.finish(workout.id);
 
       expect((await repo.summaryStats(workout.id)).previous, isNull);
+    });
+  });
+
+  group('starting from a routine day (F-ROU-010)', () {
+    late RoutineRepository routines;
+
+    setUp(() {
+      routines = RoutineRepository(db, clock: () => clock);
+    });
+
+    Future<String> makeDayWithTarget() async {
+      await makeExercise('squat', 'Back Squat');
+      final routine = await routines.create(name: 'Leg day');
+      final day = await routines.addDay(routine.id, name: 'Legs');
+      await routines.addExercises(day.id, ['squat']);
+      final [detail] = await routines.watchExercises(day.id).first;
+      await routines.setTargets(
+        detail.routineExerciseId,
+        targetSets: const Value(3),
+        targetRepsMin: const Value(6),
+        targetRepsMax: const Value(10),
+        targetWeightGrams: const Value(100000),
+      );
+      return day.id;
+    }
+
+    test(
+      'creates the right number of set rows, named and provenanced from '
+      'the day',
+      () async {
+        final dayId = await makeDayWithTarget();
+
+        final workout = await repo.startFromRoutineDay(dayId);
+
+        expect(workout.name, 'Legs');
+        expect(workout.sourceRoutineDayId, dayId);
+        final [exercise] = await repo.watchExercises(workout.id).first;
+        expect(exercise.setCount, 3);
+        expect(exercise.target!.repsMin, 6);
+        expect(exercise.target!.repsMax, 10);
+        expect(exercise.target!.weightGrams, 100000);
+        // The copy is complete, not a live reference: rows are unfinished
+        // targets, not already-logged values (`F-ROU-010` §1, §5).
+        final sets = await db.select(db.sets).get();
+        expect(sets, hasLength(3));
+        expect(
+          sets.every((s) => !s.isCompleted && s.weightGrams == null),
+          isTrue,
+        );
+      },
+    );
+
+    test(
+      'editing the routine afterwards does not alter the workout',
+      () async {
+        final dayId = await makeDayWithTarget();
+        final workout = await repo.startFromRoutineDay(dayId);
+        final [before] = await repo.watchExercises(workout.id).first;
+
+        final [detail] = await routines.watchExercises(dayId).first;
+        await routines.setTargets(
+          detail.routineExerciseId,
+          targetSets: const Value(10),
+          targetWeightGrams: const Value(1),
+        );
+
+        final [after] = await repo.watchExercises(workout.id).first;
+        expect(after.setCount, before.setCount);
+        expect(after.target!.weightGrams, before.target!.weightGrams);
+      },
+    );
+
+    test(
+      'deleting the routine mid-workout does not break the session',
+      () async {
+        final dayId = await makeDayWithTarget();
+        final workout = await repo.startFromRoutineDay(dayId);
+        final day = (await routines.findDayById(dayId))!;
+
+        await routines.delete(day.routineId);
+
+        // The snapshot copy lives entirely in `workout_exercises`/`sets`, so
+        // deleting the routine it came from removes nothing from the session
+        // (`ADR-0004`).
+        final reloaded = await repo.findById(workout.id);
+        expect(reloaded, isNotNull);
+        final exercises = await repo.watchExercises(workout.id).first;
+        expect(exercises, hasLength(1));
+      },
+    );
+
+    test(
+      'a day with no targets behaves like an empty workout with the '
+      'right exercises',
+      () async {
+        await makeExercise('row', 'Cable Row');
+        final routine = await routines.create(name: 'Pull day');
+        final day = await routines.addDay(routine.id, name: 'Pull');
+        await routines.addExercises(day.id, ['row']);
+
+        final workout = await repo.startFromRoutineDay(day.id);
+
+        final [exercise] = await repo.watchExercises(workout.id).first;
+        expect(exercise.setCount, 1);
+        expect(exercise.target!.isEmpty, isTrue);
+      },
+    );
+
+    test('refuses a second in-progress workout', () async {
+      final dayId = await makeDayWithTarget();
+      await repo.start();
+
+      await expectLater(
+        repo.startFromRoutineDay(dayId),
+        throwsA(isA<ActiveWorkoutExistsException>()),
+      );
     });
   });
 }

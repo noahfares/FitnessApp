@@ -110,6 +110,7 @@ rather than something anyone has to remember.
 | `0.2.0` | Schema requirements integrated from external handoff; versioning protocol; roadmap made binding |
 | `0.3.0` | Docs restructured: one file per feature, `Reads:` lines, batches, tooling, plain-English guide, `F-REL-012` auto-tagging |
 | `0.3.1` | Workflow moved to trunk-based: direct commits to `main`, no pull requests |
+| `0.18.0` | **Phase 1 complete** — catalogue, session logging, rest timer, history, dashboard, bodyweight capture, JSON dump, signed-APK release automation. Verified on-device from the release APK; "two weeks of real training" exit criterion waived by the project owner. |
 
 Maintained on every minor bump. Patch releases are not listed individually.
 

@@ -17,6 +17,11 @@ checks by commit SHA regardless of which event triggered it, so push-only
 loses nothing here. Reconsider if the project ever takes fork contributions
 (`F-REL-010`), since a fork's push doesn't reach this repo — only its PR does.
 
+Also carries `workflow_dispatch`, so a push that GitHub never turns into a run
+(seen in practice when the account's Actions spending limit is exhausted —
+the run object is never created at all, not even queued) can be fired
+manually for the current head of any branch without an empty commit.
+
 **Steps**
 
 1. Checkout.

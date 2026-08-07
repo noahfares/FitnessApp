@@ -1,6 +1,6 @@
 # F-ROU-003 — Exercise targets
 
-Status: planned | Priority: P0 | Phase: 2
+Status: done | Priority: P0 | Phase: 2
 Depends on: F-ROU-002 | Blocks: F-PRG-001
 Reads: 21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 Data: `routine_exercises`
@@ -14,9 +14,9 @@ Data: `routine_exercises`
 5. Later, the progression engine overwrites targets per session (`F-PRG-001`).
 
 ## Acceptance
-- [ ] Starting a workout from a day creates the right number of set rows with
+- [x] Starting a workout from a day creates the right number of set rows with
       targets pre-filled.
-- [ ] Rep ranges display as "8–12" and single values as "8".
+- [x] Rep ranges display as "8–12" and single values as "8".
 
 ---
 

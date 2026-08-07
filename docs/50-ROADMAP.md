@@ -159,19 +159,30 @@ The point of this phase is a real training session logged on a real phone.
 Batch **1.4** is the heart of the app and the one to take most care over —
 everything else in Phase 1 exists to support it.
 
-**Exit criteria**
-- [ ] A complete training session can be logged start to finish without touching
+**Exit criteria — verified on-device from the v0.17.3 release APK. Phase 1
+complete, with one criterion explicitly waived by the project owner (see
+below).**
+- [x] A complete training session can be logged start to finish without touching
       any other app or a notebook.
-- [ ] Ghost values (`F-LOG-004`) appear correctly on the second session of an
+- [x] Ghost values (`F-LOG-004`) appear correctly on the second session of an
       exercise.
-- [ ] Force-killing the app mid-session loses nothing.
-- [ ] The rest timer fires reliably with the phone in a pocket, screen off, on a
-      device with aggressive battery management.
-- [ ] Bodyweight can be logged in under three taps from the dashboard.
-- [ ] `F-DAT-011` dumps every table to JSON, verified against a database with
+- [x] Force-killing the app mid-session loses nothing.
+- [x] The rest timer fires reliably with the phone in a pocket, screen off, on a
+      device with aggressive battery management. Verified on-device by the
+      project owner; note that `F-TIM-003`'s notification/foreground-service
+      layer is still not built (only the in-app timer), so this is worth
+      re-checking if a longer rest period or a different device ever fires
+      late or not at all.
+- [x] Bodyweight can be logged in under three taps from the dashboard.
+- [x] `F-DAT-011` dumps every table to JSON, verified against a database with
       real sessions in it.
-- [ ] A signed APK is installed on your own phone from a GitHub Release.
-- [ ] **Two weeks of real training logged before Phase 2 begins.**
+- [x] A signed APK is installed on your own phone from a GitHub Release.
+- [ ] ~~Two weeks of real training logged before Phase 2 begins.~~ **Waived.**
+      The app isn't yet in a state the project owner would use over their
+      current tracker, so there's no real-use data to accumulate before moving
+      on — accumulating it would just delay Phase 2 without changing what it
+      finds. Revisit daily-driver adoption once Phase 2/3 make the app worth
+      switching to.
 
 ---
 
@@ -190,6 +201,33 @@ Turns the logger into something you run a program on.
 **Timers** `F-TIM-004` `F-TIM-007`
 
 **Settings & theme** `F-SET-007` `F-SET-008` `F-THM-003`
+
+| Batch | Features | Shared reads |
+|---|---|---|
+| **2.1** Routine core | `F-ROU-001` `F-ROU-002` `F-ROU-003` `F-ROU-010` | `21-DATA-MODEL#routine_days` `70-decisions/ADR-0004-template-snapshot` |
+| **2.2** Routine polish | `F-ROU-004` `F-ROU-007` `F-ROU-008` `F-ROU-009` | `21-DATA-MODEL#routine_days` `70-decisions/ADR-0004-template-snapshot` |
+| **2.3** Supersets | `F-ROU-005` `F-LOG-015` | `21-DATA-MODEL#routine_days` `21-DATA-MODEL#sets` `70-decisions/ADR-0004-template-snapshot` `24-DESIGN-SYSTEM#component-inventory` |
+| **2.4** Session editing & safety | `F-LOG-010` `F-LOG-016` `F-LOG-022` | `21-DATA-MODEL#sets` `24-DESIGN-SYSTEM#component-inventory` |
+| **2.5** Set richness | `F-LOG-014` `F-LOG-017` | `21-DATA-MODEL#sets` `22-UNITS` `24-DESIGN-SYSTEM#component-inventory` |
+| **2.6** PR detection | `F-LOG-013` | `40-ANALYTICS-SPEC#4-personal-records` `21-DATA-MODEL#personal_records` |
+| **2.7** Catalogue polish | `F-CAT-006` `F-CAT-007` `F-CAT-008` `F-CAT-009` | `21-DATA-MODEL#exercises` |
+| **2.8** Timer & settings polish | `F-TIM-004` `F-TIM-007` `F-SET-007` `F-SET-008` `F-THM-003` | `20-ARCHITECTURE#cross-platform-discipline` `22-UNITS` `24-DESIGN-SYSTEM` |
+
+Batches 2.2–2.8 are ordered so each builds directly on what the previous one
+left in place: polish on the routine core before supersets touch both routine
+and logger, session-editing safety before the set-row fields that make more
+of a session worth protecting, PR detection last among the logging batches
+because it depends on `F-LOG-003`'s sets already existing in volume. Catalogue
+and timer/settings polish are independent of the rest and could run in
+either order — they're last because nothing else in the phase depends on
+them.
+
+Batch **2.1** started at the user's explicit request, before Phase 1's
+on-device exit criteria above had been independently verified and the
+two-week training criterion formally waived — done by overriding this
+document's standing instruction rather than by silently routing around it.
+Both have since been confirmed (see Phase 1's exit criteria above); recorded
+here so the deviation still has an audit trail.
 
 **Exit criteria**
 - [ ] A full training week runs from routine days, with targets pre-filled.

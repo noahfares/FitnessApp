@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 
 import '../../core/ids/uuid.dart';
@@ -38,6 +40,7 @@ class SessionExercise {
     required this.setCount,
     required this.completedSetCount,
     this.notes,
+    this.target,
   });
 
   final String workoutExerciseId;
@@ -64,6 +67,52 @@ class SessionExercise {
   final int position;
   final int setCount;
   final int completedSetCount;
+
+  /// What the routine day proposed at start, for display alongside the ghost
+  /// values (`F-ROU-010` §5). Null for an exercise added mid-session.
+  final SessionExerciseTarget? target;
+}
+
+/// Decoded `workout_exercises.target_snapshot` (`F-ROU-010` §4).
+class SessionExerciseTarget {
+  const SessionExerciseTarget({
+    this.sets,
+    this.repsMin,
+    this.repsMax,
+    this.weightGrams,
+    this.rpe,
+    this.restSeconds,
+  });
+
+  factory SessionExerciseTarget.fromJson(String json) {
+    final map = jsonDecode(json) as Map<String, dynamic>;
+    return SessionExerciseTarget(
+      sets: map['targetSets'] as int?,
+      repsMin: map['targetRepsMin'] as int?,
+      repsMax: map['targetRepsMax'] as int?,
+      weightGrams: map['targetWeightGrams'] as int?,
+      rpe: (map['targetRpe'] as num?)?.toDouble(),
+      restSeconds: map['restSeconds'] as int?,
+    );
+  }
+
+  final int? sets;
+  final int? repsMin;
+  final int? repsMax;
+  final int? weightGrams;
+  final double? rpe;
+
+  /// The routine exercise's own rest override — the first tier in
+  /// `resolveRestSeconds`'s resolution order (`F-ROU-006`).
+  final int? restSeconds;
+
+  bool get isEmpty =>
+      sets == null &&
+      repsMin == null &&
+      repsMax == null &&
+      weightGrams == null &&
+      rpe == null &&
+      restSeconds == null;
 }
 
 /// Exercise and completed-set counts for one workout.
@@ -196,6 +245,129 @@ class WorkoutRepository {
       updates: {_db.workouts},
     );
     return (await findById(id))!;
+  }
+
+  /// Starts a session from a routine day, copying its exercises, order,
+  /// superset groups and targets into fresh `workout_exercises` and `sets`
+  /// rows (`F-ROU-010`).
+  ///
+  /// The copy is complete and one-shot: nothing here is ever read back from
+  /// the routine (`ADR-0004`). Editing or deleting the routine afterwards —
+  /// even mid-session — cannot alter or break the workout this created,
+  /// because nothing about it depends on the routine still existing.
+  Future<Workout> startFromRoutineDay(String routineDayId) async {
+    final existing = await findActive();
+    if (existing != null) throw ActiveWorkoutExistsException(existing);
+
+    final dayRows = await _db
+        .customSelect(
+          'SELECT name FROM routine_days '
+          'WHERE id = ? AND deleted_at IS NULL',
+          variables: [Variable<String>(routineDayId)],
+          readsFrom: {_db.routineDays},
+        )
+        .get();
+    if (dayRows.isEmpty) {
+      throw ArgumentError('No routine day with id $routineDayId');
+    }
+    final dayName = dayRows.first.read<String>('name');
+
+    final exerciseRows = await _db
+        .customSelect(
+          '''
+          SELECT id, exercise_id, position, group_id, target_sets,
+                 target_reps_min, target_reps_max, target_weight_grams,
+                 target_rpe, rest_seconds
+            FROM routine_exercises
+           WHERE routine_day_id = ? AND deleted_at IS NULL
+           ORDER BY position
+          ''',
+          variables: [Variable<String>(routineDayId)],
+          readsFrom: {_db.routineExercises},
+        )
+        .get();
+
+    final now = _localNow;
+    final timestamp = now.millisecondsSinceEpoch;
+    final workoutId = newUuidV4();
+
+    await _db.transaction(() async {
+      await _db
+          .into(_db.workouts)
+          .insert(
+            WorkoutsCompanion.insert(
+              id: workoutId,
+              name: dayName,
+              sourceRoutineDayId: Value(routineDayId),
+              startedAt: timestamp,
+              startedAtTzOffsetMinutes: now.timeZoneOffset.inMinutes,
+              createdAt: timestamp,
+              updatedAt: timestamp,
+            ),
+          );
+
+      for (final row in exerciseRows) {
+        final targetSets = row.read<int?>('target_sets');
+        final targetSnapshot = jsonEncode({
+          'targetSets': targetSets,
+          'targetRepsMin': row.read<int?>('target_reps_min'),
+          'targetRepsMax': row.read<int?>('target_reps_max'),
+          'targetWeightGrams': row.read<int?>('target_weight_grams'),
+          'targetRpe': row.read<double?>('target_rpe'),
+          'restSeconds': row.read<int?>('rest_seconds'),
+        });
+
+        final workoutExerciseId = newUuidV4();
+        await _db
+            .into(_db.workoutExercises)
+            .insert(
+              WorkoutExercisesCompanion.insert(
+                id: workoutExerciseId,
+                workoutId: workoutId,
+                exerciseId: row.read<String>('exercise_id'),
+                position: row.read<int>('position'),
+                groupId: Value(row.read<String?>('group_id')),
+                targetSnapshot: Value(targetSnapshot),
+                createdAt: timestamp,
+                updatedAt: timestamp,
+              ),
+            );
+
+        // A target with no set count still gets one empty row, same as an
+        // exercise added mid-session (`F-ROU-010` §3) — an exercise with no
+        // targets behaves like an empty workout with the right exercises.
+        for (var i = 0; i < (targetSets ?? 1); i++) {
+          await _db
+              .into(_db.sets)
+              .insert(
+                SetsCompanion.insert(
+                  id: newUuidV4(),
+                  workoutExerciseId: workoutExerciseId,
+                  position: i,
+                  createdAt: timestamp,
+                  updatedAt: timestamp,
+                ),
+              );
+        }
+      }
+    });
+
+    await _db.customUpdate(
+      '''
+      UPDATE workouts
+         SET bodyweight_grams = (
+               SELECT m.value_canonical FROM body_measurements m
+                WHERE m.type = 'bodyweight' AND m.deleted_at IS NULL
+                  AND m.measured_at <= workouts.started_at
+                ORDER BY m.measured_at DESC LIMIT 1
+             )
+       WHERE id = ?
+      ''',
+      variables: [Variable<String>(workoutId)],
+      updates: {_db.workouts},
+    );
+
+    return (await findById(workoutId))!;
   }
 
   /// A session needs a name before it has any content to name it after. Time of
@@ -333,6 +505,7 @@ class WorkoutRepository {
           SELECT we.id            AS we_id,
                  we.position      AS position,
                  we.notes         AS we_notes,
+                 we.target_snapshot AS target_snapshot,
                  e.id             AS exercise_id,
                  e.name           AS name,
                  e.primary_muscle AS primary_muscle,
@@ -384,6 +557,10 @@ class WorkoutRepository {
                 setCount: row.read<int>('set_count'),
                 completedSetCount: row.read<int>('done_count'),
                 notes: row.read<String?>('we_notes'),
+                target: switch (row.read<String?>('target_snapshot')) {
+                  null => null,
+                  final json => SessionExerciseTarget.fromJson(json),
+                },
               ),
           ],
         );
