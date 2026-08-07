@@ -6,7 +6,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../data/repositories/workout_repository.dart';
+import '../../routines/application/routine_providers.dart';
+import '../../shell/widgets/empty_state.dart';
 import '../application/active_workout_providers.dart';
 
 /// Starts a session, or offers a way out of the one already running
@@ -45,7 +49,7 @@ class StartWorkoutBody extends ConsumerWidget {
     final theme = Theme.of(context);
     final active = ref.watch(activeWorkoutProvider).value;
 
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.screen),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -84,13 +88,10 @@ class StartWorkoutBody extends ConsumerWidget {
               icon: const Icon(Icons.add),
               label: const Text('Start empty workout'),
             ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(
-              'Starting from a routine day arrives in Phase 2.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
+            const SizedBox(height: AppSpacing.xl),
+            Text('Or start from a routine', style: theme.textTheme.titleMedium),
+            const SizedBox(height: AppSpacing.sm),
+            const _RoutineDayList(),
           ],
         ],
       ),
@@ -102,6 +103,87 @@ class StartWorkoutBody extends ConsumerWidget {
     if (!context.mounted) return;
     // Close the sheet first if we are in one, so the session is not left
     // underneath it.
+    await Navigator.of(context).maybePop();
+    if (!context.mounted) return;
+    context.go(AppRoutes.activeWorkout);
+  }
+}
+
+/// Every startable day, grouped under its routine (`F-ROU-010`).
+class _RoutineDayList extends ConsumerWidget {
+  const _RoutineDayList();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final routines = ref.watch(routinesProvider).value ?? const [];
+    if (routines.isEmpty) {
+      return const EmptyState(
+        icon: Icons.checklist_outlined,
+        title: 'No routines yet',
+        message: 'Build one from the Routines tab.',
+      );
+    }
+    return Column(
+      children: [
+        for (final routine in routines) _RoutineDaysSection(routine: routine),
+      ],
+    );
+  }
+}
+
+class _RoutineDaysSection extends ConsumerWidget {
+  const _RoutineDaysSection({required this.routine});
+
+  final Routine routine;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final days = ref.watch(routineDaysProvider(routine.id)).value ?? const [];
+    if (days.isEmpty) return const SizedBox.shrink();
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.sm,
+                AppSpacing.md,
+                0,
+              ),
+              child: Text(
+                routine.name,
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+            ),
+            for (final day in days)
+              ListTile(
+                title: Text(day.name),
+                trailing: const Icon(Icons.play_arrow),
+                onTap: () => unawaited(_start(context, ref, day.id)),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _start(
+    BuildContext context,
+    WidgetRef ref,
+    String dayId,
+  ) async {
+    final repo = ref.read(workoutRepositoryProvider);
+    try {
+      await repo.startFromRoutineDay(dayId);
+    } on ActiveWorkoutExistsException {
+      // A race with another entry point — the workout that won is still the
+      // right place to land.
+    }
+    if (!context.mounted) return;
     await Navigator.of(context).maybePop();
     if (!context.mounted) return;
     context.go(AppRoutes.activeWorkout);

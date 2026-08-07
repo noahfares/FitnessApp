@@ -6,12 +6,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/units/mass.dart';
 import '../../../core/units/unit_preferences.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/repositories/workout_repository.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/set_numbering.dart';
+import '../../../domain/routines/rep_range.dart';
 import '../../../domain/timing/rest_defaults.dart';
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../settings/application/rest_timer_settings_provider.dart';
@@ -327,6 +329,7 @@ class _SessionExerciseTile extends ConsumerWidget {
     final restSeconds = resolveRestSeconds(
       equipment: exercise.equipment.name,
       primaryMuscle: exercise.primaryMuscle.name,
+      routineSeconds: exercise.target?.restSeconds,
       exerciseSeconds: exercise.defaultRestSeconds,
       globalSeconds: ref.watch(restTimerSettingsProvider).defaultSeconds,
     );
@@ -352,6 +355,13 @@ class _SessionExerciseTile extends ConsumerWidget {
                 '${exercise.setCount == 1 ? 'set' : 'sets'} done',
                 style: theme.textTheme.bodySmall,
               ),
+              if (_targetSummary(exercise.target, ref) case final summary?)
+                Text(
+                  'Target: $summary',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
             ],
           ),
           isThreeLine: true,
@@ -374,6 +384,23 @@ class _SessionExerciseTile extends ConsumerWidget {
         const Divider(height: 1),
       ],
     );
+  }
+
+  /// What the routine day proposed, rendered beside the ghost values it sits
+  /// above rather than folded into the set rows themselves — the target and
+  /// what was actually done are two different things (`F-ROU-010` §5).
+  String? _targetSummary(SessionExerciseTarget? target, WidgetRef ref) {
+    if (target == null || target.isEmpty) return null;
+    final formatter = ref.watch(quantityFormatterProvider);
+    final repRange = formatRepRange(target.repsMin, target.repsMax);
+    final displayRange = repRange.isEmpty ? '?' : repRange;
+    final parts = <String>[
+      if (target.sets != null) '${target.sets}×$displayRange',
+      if (target.weightGrams != null)
+        formatter.setWeight(Mass.grams(target.weightGrams!), showUnit: true),
+      if (target.rpe != null) '@RPE ${target.rpe}',
+    ];
+    return parts.isEmpty ? null : parts.join(' · ');
   }
 }
 

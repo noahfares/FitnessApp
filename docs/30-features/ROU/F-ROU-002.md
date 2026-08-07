@@ -1,6 +1,6 @@
 # F-ROU-002 — Routine days
 
-Status: planned | Priority: P0 | Phase: 2
+Status: done | Priority: P0 | Phase: 2
 Depends on: F-ROU-001
 Reads: 21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 Data: `routine_days`
@@ -13,8 +13,8 @@ Data: `routine_days`
    collapses the day layer when there's only one.
 
 ## Acceptance
-- [ ] A three-day PPL routine is creatable and each day independently startable.
-- [ ] Single-day routines don't force the user through an extra navigation level.
+- [x] A three-day PPL routine is creatable and each day independently startable.
+- [x] Single-day routines don't force the user through an extra navigation level.
 
 ---
 

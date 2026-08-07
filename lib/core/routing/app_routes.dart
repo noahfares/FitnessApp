@@ -11,6 +11,14 @@ abstract final class AppRoutes {
   // Shell branches.
   static const String home = '/';
   static const String routines = '/routines';
+
+  /// `/routines/:routineId`.
+  static String routine(String routineId) => '$routines/$routineId';
+
+  /// `/routines/:routineId/days/:dayId`.
+  static String routineDay(String routineId, String dayId) =>
+      '${routine(routineId)}/days/$dayId';
+
   static const String start = '/start';
   static const String history = '/history';
   static const String insights = '/insights';
