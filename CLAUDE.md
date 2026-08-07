@@ -171,7 +171,7 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.26.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.26.1**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
 **Phase 1 complete.** Batches 1.1–1.9 done:
@@ -445,6 +445,29 @@ wallpaper" requirement holds by construction, pinned by a test rather than
 trusted from the comment. Off by default on Settings › Appearance, and a
 no-op (null schemes, falls through to the fixed seed) on any platform the
 package doesn't support.
+
+**Phase 2 exit-criteria audit (v0.26.1).** All four of Phase 2's exit
+criteria (`docs/50-ROADMAP.md` §Phase 2) are now backed by an automated test
+that proves the criterion's own wording, not just its component features'
+specs — added: a multi-day "full training week" repository test (three
+routine days started, logged and finished in sequence, targets pre-filled
+each time); a stronger routine-edit test that finishes the workout and then
+deletes the exercise/day/routine entirely, not just re-targets it, before
+re-reading the historical record; a widget test that completes a
+record-setting set through the real `ActiveWorkoutScreen` and asserts
+`PrBadge` actually appears, not just that the cache updates; and
+`restSecondsForGroupMember`, a one-line rule (non-last group member rests
+zero) that was previously inline in `active_workout_screen.dart` and
+untested, now extracted to `domain/timing/rest_defaults.dart` and
+unit-tested, with a widget test confirming the full rest doesn't start for
+a non-last member. Two pre-existing gaps surfaced along the way, both
+already noted in their own features' status notes rather than fixed here:
+`F-ROU-005`/`F-LOG-015`'s within-group-rest and focus-advance items remain
+`in-progress`, and `F-LOG-013`'s `PrBadge` doesn't suppress itself for a
+first-ever set the way the spec's "record it silently" edge case asks —
+the cache write is silent, but the badge isn't. Declaring Phase 2 itself
+complete is the project owner's call; the roadmap's exit-criteria section
+has the full picture, checked but not phase-closed.
 
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,

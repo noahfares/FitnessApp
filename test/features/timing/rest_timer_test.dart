@@ -152,6 +152,31 @@ void main() {
     });
   });
 
+  group('within a superset (F-ROU-005 §3, F-LOG-015 §3)', () {
+    testWidgets('the full rest does not start for a non-last group member', (
+      tester,
+    ) async {
+      await makeExercise('bench');
+      await makeExercise('fly');
+      final workout = await workouts.start();
+      await workouts.addExercises(workout.id, ['bench', 'fly']);
+      final rows = await workouts.watchExercises(workout.id).first;
+      await workouts.toggleGroupWithNext(
+        rows[0].workoutExerciseId,
+        rows[1].workoutExerciseId,
+      );
+      await pumpSession(tester);
+
+      // Completing the first (non-last) member's only set must not start
+      // the exercise's own 3-minute rest — there is no dedicated
+      // within-group rest column, so it is fixed at zero
+      // (`restSecondsForGroupMember`, unit-tested in
+      // `test/domain/timing/rest_defaults_test.dart`).
+      await tapComplete(tester);
+      expect(find.text('3:00'), findsNothing);
+    });
+  });
+
   group('duration resolution (F-TIM-005, F-SET-003)', () {
     testWidgets('an isolation lift gets a shorter built-in rest', (
       tester,

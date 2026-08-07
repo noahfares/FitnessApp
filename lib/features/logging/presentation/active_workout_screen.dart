@@ -441,17 +441,18 @@ class _SessionExerciseTile extends ConsumerWidget {
     // Same reasoning: the rest duration is a property of the exercise, and
     // resolving it once per tile keeps the rule out of the completion handler
     // (`F-TIM-005`). Within a superset the timer runs after the *last*
-    // member, not between them — there is no configured within-group rest,
-    // so non-last members rest zero (`F-LOG-015` §3, `F-ROU-005` §3).
-    final restSeconds = exercise.groupId != null && !isLastInGroup
-        ? 0
-        : resolveRestSeconds(
-            equipment: exercise.equipment.name,
-            primaryMuscle: exercise.primaryMuscle.name,
-            routineSeconds: exercise.target?.restSeconds,
-            exerciseSeconds: exercise.defaultRestSeconds,
-            globalSeconds: ref.watch(restTimerSettingsProvider).defaultSeconds,
-          );
+    // member, not between them (`F-LOG-015` §3, `F-ROU-005` §3).
+    final restSeconds = restSecondsForGroupMember(
+      isGrouped: exercise.groupId != null,
+      isLastInGroup: isLastInGroup,
+      resolvedSeconds: resolveRestSeconds(
+        equipment: exercise.equipment.name,
+        primaryMuscle: exercise.primaryMuscle.name,
+        routineSeconds: exercise.target?.restSeconds,
+        exerciseSeconds: exercise.defaultRestSeconds,
+        globalSeconds: ref.watch(restTimerSettingsProvider).defaultSeconds,
+      ),
+    );
     final labels = labelSets([
       for (final set in sets ?? const <WorkoutSet>[]) set.setType.name,
     ]);

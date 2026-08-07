@@ -586,6 +586,32 @@ void main() {
     });
 
     test(
+      'editing the routine after the workout is finished leaves the '
+      'historical record unchanged too (Phase 2 exit criterion, ADR-0004)',
+      () async {
+        final dayId = await makeDayWithTarget();
+        final workout = await repo.startFromRoutineDay(dayId);
+        final [beforeFinish] = await repo.watchExercises(workout.id).first;
+        await repo.finish(workout.id);
+
+        // Not just re-targeted — the routine day is torn down entirely, the
+        // most destructive edit a routine can receive.
+        final [detail] = await routines.watchExercises(dayId).first;
+        await routines.removeExercise(detail.routineExerciseId);
+        final day = (await routines.findDayById(dayId))!;
+        await routines.delete(day.routineId);
+
+        final history = await repo.watchHistory().first;
+        expect(history, hasLength(1));
+        final [afterEdit] = await repo.watchExercises(workout.id).first;
+        expect(afterEdit.exerciseId, beforeFinish.exerciseId);
+        expect(afterEdit.setCount, beforeFinish.setCount);
+        expect(afterEdit.target!.weightGrams, beforeFinish.target!.weightGrams);
+        expect(afterEdit.target!.repsMin, beforeFinish.target!.repsMin);
+      },
+    );
+
+    test(
       'deleting the routine mid-workout does not break the session',
       () async {
         final dayId = await makeDayWithTarget();
@@ -646,6 +672,69 @@ void main() {
         final exercises = await repo.watchExercises(workout.id).first;
         expect(exercises[0].groupId, isNotNull);
         expect(exercises[0].groupId, exercises[1].groupId);
+      },
+    );
+  });
+
+  group('a full training week from routine days (Phase 2 exit criterion)', () {
+    test(
+      'each day starts clean, pre-filled, and finishing frees the next',
+      () async {
+        final routines = RoutineRepository(db, clock: () => clock);
+        final sets = SetRepository(db, clock: () => clock);
+        await makeExercise('bench', 'Bench Press');
+        await makeExercise('row', 'Barbell Row');
+        await makeExercise('squat', 'Back Squat');
+        final routine = await routines.create(name: 'Push Pull Legs');
+
+        Future<String> makeDay(String name, String exerciseId) async {
+          final day = await routines.addDay(routine.id, name: name);
+          await routines.addExercises(day.id, [exerciseId]);
+          final [detail] = await routines.watchExercises(day.id).first;
+          await routines.setTargets(
+            detail.routineExerciseId,
+            targetSets: const Value(3),
+            targetRepsMin: const Value(6),
+            targetRepsMax: const Value(10),
+            targetWeightGrams: const Value(80000),
+          );
+          return day.id;
+        }
+
+        final pushDay = await makeDay('Push', 'bench');
+        final pullDay = await makeDay('Pull', 'row');
+        final legsDay = await makeDay('Legs', 'squat');
+
+        for (final (dayId, exerciseId) in [
+          (pushDay, 'bench'),
+          (pullDay, 'row'),
+          (legsDay, 'squat'),
+        ]) {
+          // Refused while yesterday's session is still open would mean the
+          // week cannot actually run end to end.
+          final workout = await repo.startFromRoutineDay(dayId);
+
+          final [exercise] = await repo.watchExercises(workout.id).first;
+          expect(exercise.exerciseId, exerciseId);
+          expect(exercise.target!.repsMin, 6);
+          expect(exercise.target!.repsMax, 10);
+          expect(exercise.target!.weightGrams, 80000);
+          expect(exercise.setCount, 3);
+
+          for (final set in await sets.getSets(exercise.workoutExerciseId)) {
+            await sets.complete(
+              set.id,
+              weightGrams: const Value(80000),
+              reps: const Value(8),
+            );
+          }
+          await repo.finish(workout.id);
+
+          clock = clock.add(const Duration(days: 2));
+        }
+
+        final history = await repo.watchHistory().first;
+        expect(history.map((w) => w.name), ['Legs', 'Pull', 'Push']);
       },
     );
   });

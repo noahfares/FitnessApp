@@ -56,6 +56,19 @@ closing if it turns out to matter in practice; not done here because the
 keypad sheet has several independent write sites and threading invalidation
 through all of them cleanly wants its own pass rather than a bolt-on.
 
+Found during the Phase 2 exit-criteria audit: the "suppress the celebration"
+half of the first-ever-set edge case is only partly honoured. The cache
+write itself is silent as specified (`evaluateSet` returns no hits for a
+`hadNoPriorSet` completion), but `PrBadge` doesn't know *why* a set is a
+record — it shows whenever the set holds one, which for a first-ever set is
+true immediately after that first completion. So the record is recorded
+silently, but the inline badge still appears right away rather than only on
+a later, genuine PR. Distinguishing "just silently recorded" from "actually
+being celebrated" in the badge would need a short-lived per-set signal
+threaded from the completion event through to the widget; not attempted
+here, since it is a soft UX nuance (the badge is true information, not a
+toast) rather than a correctness bug.
+
 ---
 
 ## Why

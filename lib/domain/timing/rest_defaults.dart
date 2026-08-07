@@ -66,6 +66,19 @@ int resolveRestSeconds({
     globalSeconds ??
     builtInRestSeconds(equipment: equipment, primaryMuscle: primaryMuscle);
 
+/// The rest to use for a set that may sit inside a superset (`F-ROU-005` §3,
+/// `F-LOG-015` §3).
+///
+/// Only the group's last member rests [resolvedSeconds] — every other member
+/// rests zero. There is no dedicated within-group-rest column in the schema,
+/// so it is fixed rather than independently configurable; after-group rest is
+/// [resolvedSeconds] unchanged, exactly as if the exercise were standalone.
+int restSecondsForGroupMember({
+  required bool isGrouped,
+  required bool isLastInGroup,
+  required int resolvedSeconds,
+}) => isGrouped && !isLastInGroup ? 0 : resolvedSeconds;
+
 /// The durations offered in pickers, in seconds.
 ///
 /// Coarse on purpose: 30-second granularity below three minutes and a minute
