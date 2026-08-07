@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/tables/enums.dart';
 import 'package:fitness_app/data/repositories/routine_repository.dart';
+import 'package:fitness_app/data/repositories/set_repository.dart';
 import 'package:fitness_app/data/repositories/workout_repository.dart';
 
 /// `F-LOG-001`, `F-LOG-002`, `F-LOG-007`.
@@ -709,5 +710,203 @@ void main() {
         expect(exercises.single.groupId, isNull);
       },
     );
+  });
+
+  group('reordering exercises mid-session (F-LOG-010 §1)', () {
+    test('persists the new order', () async {
+      await makeExercise('bench', 'Bench Press');
+      await makeExercise('fly', 'Cable Fly');
+      final workout = await repo.start();
+      await repo.addExercises(workout.id, ['bench', 'fly']);
+      final [a, b] = await repo.watchExercises(workout.id).first;
+
+      await repo.reorderExercises([b.workoutExerciseId, a.workoutExerciseId]);
+
+      final reordered = await repo.watchExercises(workout.id).first;
+      expect(reordered[0].workoutExerciseId, b.workoutExerciseId);
+      expect(reordered[1].workoutExerciseId, a.workoutExerciseId);
+    });
+
+    test('dissolves a group a drag pulls apart', () async {
+      await makeExercise('bench', 'Bench Press');
+      await makeExercise('fly', 'Cable Fly');
+      await makeExercise('row', 'Barbell Row');
+      final workout = await repo.start();
+      await repo.addExercises(workout.id, ['bench', 'fly', 'row']);
+      final [a, b, c] = await repo.watchExercises(workout.id).first;
+      await repo.groupExercises([a.workoutExerciseId, b.workoutExerciseId]);
+
+      // Pulling the row between bench and fly breaks their adjacency.
+      await repo.reorderExercises([
+        a.workoutExerciseId,
+        c.workoutExerciseId,
+        b.workoutExerciseId,
+      ]);
+
+      final exercises = await repo.watchExercises(workout.id).first;
+      expect(exercises.every((e) => e.groupId == null), isTrue);
+    });
+  });
+
+  group('swapping an exercise mid-session (F-LOG-010 §2)', () {
+    test('with nothing logged yet, retires the old row outright', () async {
+      await makeExercise('bench', 'Bench Press');
+      await makeExercise('incline', 'Incline Bench Press');
+      final workout = await repo.start();
+      await repo.addExercises(workout.id, ['bench']);
+      final original = (await repo.watchExercises(workout.id).first).single;
+
+      await repo.swapExercise(original.workoutExerciseId, 'incline');
+
+      final exercises = await repo.watchExercises(workout.id).first;
+      expect(exercises.single.exerciseId, 'incline');
+      expect(
+        exercises.single.workoutExerciseId,
+        isNot(original.workoutExerciseId),
+      );
+    });
+
+    test('with a completed set, leaves the original standing', () async {
+      await makeExercise('bench', 'Bench Press');
+      await makeExercise('incline', 'Incline Bench Press');
+      final workout = await repo.start();
+      await repo.addExercises(workout.id, ['bench']);
+      final original = (await repo.watchExercises(workout.id).first).single;
+      await completeSet(
+        original.workoutExerciseId,
+        weightGrams: 90000,
+        reps: 5,
+      );
+
+      await repo.swapExercise(original.workoutExerciseId, 'incline');
+
+      final exercises = await repo.watchExercises(workout.id).first;
+      expect(exercises, hasLength(2));
+      expect(exercises[0].exerciseId, 'bench');
+      expect(exercises[0].completedSetCount, 1);
+      expect(exercises[1].exerciseId, 'incline');
+      expect(exercises[1].completedSetCount, 0);
+    });
+
+    test('never rewrites the original row\'s exercise_id', () async {
+      await makeExercise('bench', 'Bench Press');
+      await makeExercise('incline', 'Incline Bench Press');
+      final workout = await repo.start();
+      await repo.addExercises(workout.id, ['bench']);
+      final original = (await repo.watchExercises(workout.id).first).single;
+      await completeSet(
+        original.workoutExerciseId,
+        weightGrams: 90000,
+        reps: 5,
+      );
+
+      await repo.swapExercise(original.workoutExerciseId, 'incline');
+
+      final originalRow = await (db.select(
+        db.workoutExercises,
+      )..where((we) => we.id.equals(original.workoutExerciseId))).getSingle();
+      expect(originalRow.exerciseId, 'bench');
+    });
+  });
+
+  group('undoing an exercise removal (F-LOG-022 §3)', () {
+    test('restores the exercise and the sets it cascaded', () async {
+      await makeExercise('bench', 'Bench Press');
+      final workout = await repo.start();
+      await repo.addExercises(workout.id, ['bench']);
+      final we = (await repo.watchExercises(workout.id).first).single;
+
+      final tombstonedAt = await repo.removeExerciseFromWorkout(
+        we.workoutExerciseId,
+      );
+      await repo.restoreExercise(we.workoutExerciseId, tombstonedAt);
+
+      final exercises = await repo.watchExercises(workout.id).first;
+      expect(exercises.single.workoutExerciseId, we.workoutExerciseId);
+      final rawSets = await db.select(db.sets).get();
+      expect(rawSets.single.deletedAt, isNull);
+    });
+
+    test('does not resurrect a set deleted before the removal', () async {
+      await makeExercise('bench', 'Bench Press');
+      final workout = await repo.start();
+      await repo.addExercises(workout.id, ['bench']);
+      final we = (await repo.watchExercises(workout.id).first).single;
+      final firstSetId =
+          (await (db.select(db.sets)..where(
+                    (s) => s.workoutExerciseId.equals(we.workoutExerciseId),
+                  ))
+                  .get())
+              .single
+              .id;
+      await (db.update(db.sets)..where((s) => s.id.equals(firstSetId))).write(
+        const SetsCompanion(deletedAt: Value(1)),
+      );
+      final newSetId = await SetRepository(
+        db,
+        clock: () => clock,
+      ).addSet(we.workoutExerciseId);
+
+      final tombstonedAt = await repo.removeExerciseFromWorkout(
+        we.workoutExerciseId,
+      );
+      await repo.restoreExercise(we.workoutExerciseId, tombstonedAt);
+
+      final firstSet = await (db.select(
+        db.sets,
+      )..where((s) => s.id.equals(firstSetId))).getSingle();
+      final newSet = await (db.select(
+        db.sets,
+      )..where((s) => s.id.equals(newSetId))).getSingle();
+      expect(firstSet.deletedAt, 1);
+      expect(newSet.deletedAt, isNull);
+    });
+  });
+
+  group('repeating a past session (F-LOG-016)', () {
+    test(
+      'carries exercises, order and derived targets, sets left empty',
+      () async {
+        await makeExercise('bench', 'Bench Press');
+        final first = await repo.start(name: 'Push A');
+        await repo.addExercises(first.id, ['bench']);
+        await completeSet(
+          (await repo.watchExercises(first.id).first).single.workoutExerciseId,
+          weightGrams: 90000,
+          reps: 5,
+        );
+        await repo.finish(first.id);
+
+        clock = DateTime(2026, 8, 13);
+        final second = await repo.startFromWorkout(first.id);
+
+        expect(second.name, 'Push A');
+        expect(second.id, isNot(first.id));
+        final exercises = await repo.watchExercises(second.id).first;
+        expect(exercises.single.exerciseId, 'bench');
+        expect(exercises.single.target?.sets, 1);
+        expect(exercises.single.target?.weightGrams, 90000);
+        final sets = await repo
+            .watchExercises(second.id)
+            .first
+            .then((e) => e.single);
+        expect(sets.setCount, 1);
+        expect(sets.completedSetCount, 0);
+      },
+    );
+
+    test('refuses when a session is already in progress', () async {
+      await repo.start();
+      final finished = await repo.createRetroactive(
+        name: 'Old one',
+        startedAt: DateTime(2026, 1, 1),
+        endedAt: DateTime(2026, 1, 1, 1),
+      );
+
+      expect(
+        () => repo.startFromWorkout(finished.id),
+        throwsA(isA<ActiveWorkoutExistsException>()),
+      );
+    });
   });
 }

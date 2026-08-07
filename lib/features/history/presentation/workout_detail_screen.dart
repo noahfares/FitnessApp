@@ -28,9 +28,9 @@ import '../application/history_providers.dart';
 
 /// A finished session, in full (`F-LOG-012`).
 ///
-/// Repeating a session (`F-LOG-016`) is still Phase 2 out of scope here.
-/// Saving one as a routine (`F-ROU-001` §3) is offered — the logged working
-/// sets become that routine's starting targets.
+/// Repeating a session (`F-LOG-016`) and saving one as a routine
+/// (`F-ROU-001` §3) are both offered — the logged working sets become the
+/// new session's targets or the routine's starting targets, respectively.
 class WorkoutDetailScreen extends ConsumerWidget {
   const WorkoutDetailScreen({required this.workoutId, super.key});
 
@@ -52,6 +52,11 @@ class WorkoutDetailScreen extends ConsumerWidget {
                 context.push(AppRoutes.historyWorkoutEdit(workoutId)),
           ),
           IconButton(
+            icon: const Icon(Icons.replay_outlined),
+            tooltip: 'Repeat this workout',
+            onPressed: () => unawaited(_repeat(context, ref)),
+          ),
+          IconButton(
             icon: const Icon(Icons.playlist_add_outlined),
             tooltip: 'Save as routine',
             onPressed: () => unawaited(_saveAsRoutine(context, ref)),
@@ -67,6 +72,32 @@ class WorkoutDetailScreen extends ConsumerWidget {
           ? const LoadingView()
           : _Detail(workout: workout, exercises: exercises),
     );
+  }
+
+  /// Starts a new session pre-populated from this one (`F-LOG-016`) — for
+  /// people who train without formal routines, the fastest path to a second
+  /// session of the same thing.
+  Future<void> _repeat(BuildContext context, WidgetRef ref) async {
+    final repo = ref.read(workoutRepositoryProvider);
+    try {
+      await repo.startFromWorkout(workoutId);
+    } on ActiveWorkoutExistsException {
+      if (!context.mounted) return;
+      final resume = await showConfirmSheet(
+        context,
+        title: 'Already training',
+        message:
+            'A workout is already in progress. Finish or discard it '
+            'before starting another.',
+        confirmLabel: 'Resume it',
+        cancelLabel: 'Cancel',
+        isDestructive: false,
+      );
+      if (resume && context.mounted) context.go(AppRoutes.activeWorkout);
+      return;
+    }
+    if (!context.mounted) return;
+    context.go(AppRoutes.activeWorkout);
   }
 
   Future<void> _saveAsRoutine(BuildContext context, WidgetRef ref) async {

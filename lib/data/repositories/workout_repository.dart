@@ -230,26 +230,156 @@ class WorkoutRepository {
             updatedAt: now.millisecondsSinceEpoch,
           ),
         );
-    // Bodyweight-loaded exercises need an effective-load basis (`F-LOG-019`),
-    // supplied by the most recent bodyweight entry at or before this moment
-    // (`F-BOD-001` §3). A single-row correlated subquery rather than a
-    // dependency on `BodyMeasurementRepository` — this table is the only
-    // other one `start()` needs to know about.
-    await _db.customUpdate(
-      '''
-      UPDATE workouts
-         SET bodyweight_grams = (
-               SELECT m.value_canonical FROM body_measurements m
-                WHERE m.type = 'bodyweight' AND m.deleted_at IS NULL
-                  AND m.measured_at <= workouts.started_at
-                ORDER BY m.measured_at DESC LIMIT 1
-             )
-       WHERE id = ?
-      ''',
-      variables: [Variable<String>(id)],
-      updates: {_db.workouts},
-    );
+    await _backfillBodyweight(id);
     return (await findById(id))!;
+  }
+
+  /// Bodyweight-loaded exercises need an effective-load basis (`F-LOG-019`),
+  /// supplied by the most recent bodyweight entry at or before the session's
+  /// start (`F-BOD-001` §3). A single-row correlated subquery rather than a
+  /// dependency on `BodyMeasurementRepository` — this table is the only other
+  /// one starting a session needs to know about.
+  Future<void> _backfillBodyweight(String workoutId) => _db.customUpdate(
+    '''
+    UPDATE workouts
+       SET bodyweight_grams = (
+             SELECT m.value_canonical FROM body_measurements m
+              WHERE m.type = 'bodyweight' AND m.deleted_at IS NULL
+                AND m.measured_at <= workouts.started_at
+              ORDER BY m.measured_at DESC LIMIT 1
+           )
+     WHERE id = ?
+    ''',
+    variables: [Variable<String>(workoutId)],
+    updates: {_db.workouts},
+  );
+
+  /// Starts a session pre-populated from a past one: exercises, order and
+  /// superset groups carried across, targets derived from what was actually
+  /// logged (not warm-ups), sets left empty (`F-LOG-016`). Covers training
+  /// without formal routines — the fastest path to a second session of the
+  /// same thing.
+  ///
+  /// A one-shot copy, same as [startFromRoutineDay] and
+  /// `RoutineRepository.createFromWorkout`: nothing here stays linked back to
+  /// the source workout (`ADR-0004`).
+  Future<Workout> startFromWorkout(String workoutId) async {
+    final existing = await findActive();
+    if (existing != null) throw ActiveWorkoutExistsException(existing);
+
+    final sourceRows = await _db
+        .customSelect(
+          'SELECT name FROM workouts WHERE id = ? AND deleted_at IS NULL',
+          variables: [Variable<String>(workoutId)],
+          readsFrom: {_db.workouts},
+        )
+        .get();
+    if (sourceRows.isEmpty) {
+      throw ArgumentError('No workout with id $workoutId');
+    }
+    final sourceName = sourceRows.first.read<String>('name');
+
+    final exerciseRows = await _db
+        .customSelect(
+          '''
+          SELECT we.id AS we_id, we.exercise_id AS exercise_id,
+                 we.position AS position,
+                 we.group_id AS group_id,
+                 (SELECT COUNT(*) FROM sets s
+                   WHERE s.workout_exercise_id = we.id AND s.deleted_at IS NULL
+                     AND s.is_completed = 1 AND s.set_type != 'warmup')
+                   AS set_count,
+                 (SELECT MIN(s.reps) FROM sets s
+                   WHERE s.workout_exercise_id = we.id AND s.deleted_at IS NULL
+                     AND s.is_completed = 1 AND s.set_type != 'warmup')
+                   AS reps_min,
+                 (SELECT MAX(s.reps) FROM sets s
+                   WHERE s.workout_exercise_id = we.id AND s.deleted_at IS NULL
+                     AND s.is_completed = 1 AND s.set_type != 'warmup')
+                   AS reps_max,
+                 (SELECT MAX(s.weight_grams) FROM sets s
+                   WHERE s.workout_exercise_id = we.id AND s.deleted_at IS NULL
+                     AND s.is_completed = 1 AND s.set_type != 'warmup')
+                   AS weight_grams
+            FROM workout_exercises we
+           WHERE we.workout_id = ? AND we.deleted_at IS NULL
+           ORDER BY we.position
+          ''',
+          variables: [Variable<String>(workoutId)],
+          readsFrom: {_db.workoutExercises, _db.sets},
+        )
+        .get();
+
+    final now = _localNow;
+    final timestamp = now.millisecondsSinceEpoch;
+    final newWorkoutId = newUuidV4();
+
+    await _db.transaction(() async {
+      await _db
+          .into(_db.workouts)
+          .insert(
+            WorkoutsCompanion.insert(
+              id: newWorkoutId,
+              name: sourceName,
+              startedAt: timestamp,
+              startedAtTzOffsetMinutes: now.timeZoneOffset.inMinutes,
+              createdAt: timestamp,
+              updatedAt: timestamp,
+            ),
+          );
+
+      // Superset grouping carries over, same reasoning as
+      // `RoutineRepository.createFromWorkout` (`F-ROU-005` §1).
+      final groupIdMap = <String, String>{};
+      for (final row in exerciseRows) {
+        final setCount = row.read<int>('set_count');
+        final newGroupId = switch (row.read<String?>('group_id')) {
+          null => null,
+          final oldGroupId => groupIdMap.putIfAbsent(oldGroupId, newUuidV4),
+        };
+        final targetSnapshot = jsonEncode({
+          'targetSets': setCount == 0 ? null : setCount,
+          'targetRepsMin': row.read<int?>('reps_min'),
+          'targetRepsMax': row.read<int?>('reps_max'),
+          'targetWeightGrams': row.read<int?>('weight_grams'),
+          'targetRpe': null,
+          'restSeconds': null,
+        });
+
+        final workoutExerciseId = newUuidV4();
+        await _db
+            .into(_db.workoutExercises)
+            .insert(
+              WorkoutExercisesCompanion.insert(
+                id: workoutExerciseId,
+                workoutId: newWorkoutId,
+                exerciseId: row.read<String>('exercise_id'),
+                position: row.read<int>('position'),
+                groupId: Value(newGroupId),
+                targetSnapshot: Value(targetSnapshot),
+                createdAt: timestamp,
+                updatedAt: timestamp,
+              ),
+            );
+
+        for (var i = 0; i < (setCount == 0 ? 1 : setCount); i++) {
+          await _db
+              .into(_db.sets)
+              .insert(
+                SetsCompanion.insert(
+                  id: newUuidV4(),
+                  workoutExerciseId: workoutExerciseId,
+                  position: i,
+                  createdAt: timestamp,
+                  updatedAt: timestamp,
+                ),
+              );
+        }
+      }
+    });
+
+    await _backfillBodyweight(newWorkoutId);
+    return (await findById(newWorkoutId))!;
   }
 
   /// Starts a session from a routine day, copying its exercises, order,
@@ -357,20 +487,7 @@ class WorkoutRepository {
       }
     });
 
-    await _db.customUpdate(
-      '''
-      UPDATE workouts
-         SET bodyweight_grams = (
-               SELECT m.value_canonical FROM body_measurements m
-                WHERE m.type = 'bodyweight' AND m.deleted_at IS NULL
-                  AND m.measured_at <= workouts.started_at
-                ORDER BY m.measured_at DESC LIMIT 1
-             )
-       WHERE id = ?
-      ''',
-      variables: [Variable<String>(workoutId)],
-      updates: {_db.workouts},
-    );
+    await _backfillBodyweight(workoutId);
 
     return (await findById(workoutId))!;
   }
@@ -495,6 +612,153 @@ class WorkoutRepository {
               ),
             );
       }
+    });
+  }
+
+  /// Persists the exercise order after a drag-to-reorder (`F-LOG-010` §1).
+  ///
+  /// [orderedWorkoutExerciseIds] must be the session's **complete** exercise
+  /// list in its new order — the superset-contiguity check below reads group
+  /// membership from positions *within this list*, so a partial list would
+  /// misjudge adjacency and could dissolve groups that are actually still
+  /// intact.
+  Future<void> reorderExercises(List<String> orderedWorkoutExerciseIds) async {
+    final timestamp = _now;
+    await _db.transaction(() async {
+      for (var i = 0; i < orderedWorkoutExerciseIds.length; i++) {
+        await (_db.update(
+          _db.workoutExercises,
+        )..where((we) => we.id.equals(orderedWorkoutExerciseIds[i]))).write(
+          WorkoutExercisesCompanion(
+            position: Value(i),
+            updatedAt: Value(timestamp),
+          ),
+        );
+      }
+
+      // A drag can pull a member out of its superset's block. A group only
+      // means anything while its members stay adjacent (`F-ROU-005` §1) — if
+      // reordering breaks that, dissolve it rather than render two
+      // "Superset" blocks sharing one `group_id`.
+      final rows =
+          await (_db.select(_db.workoutExercises)..where(
+                (we) =>
+                    we.id.isIn(orderedWorkoutExerciseIds) &
+                    we.deletedAt.isNull(),
+              ))
+              .get();
+      final groupIdById = {for (final r in rows) r.id: r.groupId};
+      final positionsByGroup = <String, List<int>>{};
+      for (var i = 0; i < orderedWorkoutExerciseIds.length; i++) {
+        final groupId = groupIdById[orderedWorkoutExerciseIds[i]];
+        if (groupId != null) {
+          (positionsByGroup[groupId] ??= []).add(i);
+        }
+      }
+      for (final MapEntry(key: groupId, value: positions)
+          in positionsByGroup.entries) {
+        final isContiguous =
+            positions.last - positions.first == positions.length - 1;
+        if (!isContiguous) {
+          await ungroupExercises(groupId);
+        }
+      }
+    });
+  }
+
+  /// Swaps a session exercise for a different one, e.g. the squat rack is
+  /// taken (`F-LOG-010` §2).
+  ///
+  /// **Never mutates `exercise_id` in place** — every set ever attached to
+  /// [workoutExerciseId], completed or not, is joined back to whatever
+  /// `exercise_id` its `workout_exercises` row carries, so rewriting it would
+  /// silently reattribute logged history to a different exercise (`ADR-0004`).
+  /// Instead: if nothing has been completed yet, the row is retired outright;
+  /// if it has, it is left standing so its completed sets keep the exercise
+  /// that was actually done. Either way a fresh row for [newExerciseId] is
+  /// inserted immediately after, in the same superset group if there was one,
+  /// with one empty set ready to log against.
+  Future<void> swapExercise(
+    String workoutExerciseId,
+    String newExerciseId,
+  ) async {
+    final original = await (_db.select(
+      _db.workoutExercises,
+    )..where((we) => we.id.equals(workoutExerciseId))).getSingle();
+    final completedCount = await _db
+        .customSelect(
+          'SELECT COUNT(*) AS n FROM sets '
+          'WHERE workout_exercise_id = ? AND deleted_at IS NULL '
+          'AND is_completed = 1',
+          variables: [Variable<String>(workoutExerciseId)],
+          readsFrom: {_db.sets},
+        )
+        .getSingle()
+        .then((row) => row.read<int>('n'));
+
+    final timestamp = _now;
+    final newWorkoutExerciseId = newUuidV4();
+
+    await _db.transaction(() async {
+      if (completedCount == 0) {
+        await _db.customUpdate(
+          'UPDATE sets SET deleted_at = ?, updated_at = ? '
+          'WHERE deleted_at IS NULL AND workout_exercise_id = ?',
+          variables: [
+            Variable<int>(timestamp),
+            Variable<int>(timestamp),
+            Variable<String>(workoutExerciseId),
+          ],
+          updates: {_db.sets},
+        );
+        await (_db.update(
+          _db.workoutExercises,
+        )..where((we) => we.id.equals(workoutExerciseId))).write(
+          WorkoutExercisesCompanion(
+            deletedAt: Value(timestamp),
+            updatedAt: Value(timestamp),
+          ),
+        );
+      }
+
+      // Everything from the swapped-out position onward shifts by one to
+      // make room, same as inserting into a list.
+      await _db.customUpdate(
+        'UPDATE workout_exercises SET position = position + 1, '
+        'updated_at = ? '
+        'WHERE workout_id = ? AND deleted_at IS NULL AND position > ?',
+        variables: [
+          Variable<int>(timestamp),
+          Variable<String>(original.workoutId),
+          Variable<int>(original.position),
+        ],
+        updates: {_db.workoutExercises},
+      );
+
+      await _db
+          .into(_db.workoutExercises)
+          .insert(
+            WorkoutExercisesCompanion.insert(
+              id: newWorkoutExerciseId,
+              workoutId: original.workoutId,
+              exerciseId: newExerciseId,
+              position: original.position + 1,
+              groupId: Value(original.groupId),
+              createdAt: timestamp,
+              updatedAt: timestamp,
+            ),
+          );
+      await _db
+          .into(_db.sets)
+          .insert(
+            SetsCompanion.insert(
+              id: newUuidV4(),
+              workoutExerciseId: newWorkoutExerciseId,
+              position: 0,
+              createdAt: timestamp,
+              updatedAt: timestamp,
+            ),
+          );
     });
   }
 
@@ -844,8 +1108,12 @@ class WorkoutRepository {
   Future<void> deleteWorkout(String id) => discard(id);
 
   /// Removes one exercise from a workout, cascading to its sets — exercises
-  /// are as editable as the sets within them (`F-LOG-009` §1).
-  Future<void> removeExerciseFromWorkout(String workoutExerciseId) async {
+  /// are as editable as the sets within them (`F-LOG-009` §1, `F-LOG-010` §1).
+  ///
+  /// Returns the tombstone timestamp it wrote, so a caller can offer undo
+  /// (`F-LOG-022` §3) via [restoreExercise] without guessing which rows this
+  /// particular removal touched.
+  Future<int> removeExerciseFromWorkout(String workoutExerciseId) async {
     final removed = await (_db.select(
       _db.workoutExercises,
     )..where((we) => we.id.equals(workoutExerciseId))).getSingleOrNull();
@@ -892,6 +1160,42 @@ class WorkoutRepository {
           );
         }
       }
+    });
+    return timestamp;
+  }
+
+  /// Undo for [removeExerciseFromWorkout] (`F-LOG-022` §3). [tombstonedAt]
+  /// is the exact timestamp that call returned — restoring only rows stamped
+  /// with it avoids resurrecting sets that were already deleted (by a swipe,
+  /// say) before the exercise itself was removed.
+  ///
+  /// A group the removal dissolved is not re-formed: that dissolution was a
+  /// side effect of membership dropping below two, not something this
+  /// specific tombstone recorded, so there is nothing here to read it back
+  /// from.
+  Future<void> restoreExercise(
+    String workoutExerciseId,
+    int tombstonedAt,
+  ) async {
+    await _db.transaction(() async {
+      await (_db.update(
+        _db.workoutExercises,
+      )..where((we) => we.id.equals(workoutExerciseId))).write(
+        WorkoutExercisesCompanion(
+          deletedAt: const Value(null),
+          updatedAt: Value(_now),
+        ),
+      );
+      await _db.customUpdate(
+        'UPDATE sets SET deleted_at = NULL, updated_at = ? '
+        'WHERE workout_exercise_id = ? AND deleted_at = ?',
+        variables: [
+          Variable<int>(_now),
+          Variable<String>(workoutExerciseId),
+          Variable<int>(tombstonedAt),
+        ],
+        updates: {_db.sets},
+      );
     });
   }
 

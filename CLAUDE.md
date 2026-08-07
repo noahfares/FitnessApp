@@ -307,6 +307,32 @@ group") — the logger shows every exercise's full set list at once rather
 than one exercise at a time, so there is no single focus to advance without
 first reshaping the screen into something this batch didn't intend to build.
 
+**Batch 2.4 — session editing & safety.** `F-LOG-010`, `F-LOG-016` and
+`F-LOG-022` all done. No schema change. Mid-session editing
+(`F-LOG-010`): `WorkoutRepository.reorderExercises` (a direct port of
+`RoutineRepository.reorderExercises`'s drag-to-reorder-plus-contiguity-dissolve,
+`F-ROU-004`) and `.swapExercise`, wired into `ActiveWorkoutScreen` via a
+`ReorderableListView` and a per-exercise "Swap"/"Remove" menu. `swapExercise`
+never mutates `exercise_id` in place — every set attached to a
+`workout_exercises` row is joined back through it, so rewriting it would
+silently reattribute logged history (`ADR-0004`) — instead the row is
+retired-and-replaced if nothing on it is completed, or left standing (with a
+fresh row inserted after it) if it has completed sets, so those sets keep the
+exercise actually done. Repeating a session (`F-LOG-016`):
+`WorkoutRepository.startFromWorkout`, deriving targets from what was actually
+logged the same way `RoutineRepository.createFromWorkout` does for "save as
+routine", reached from a "Repeat this workout" action on the workout detail
+screen. Undo and mis-tap protection (`F-LOG-022`): removing an exercise now
+offers undo via the same snackbar pattern set deletion already used
+(`WorkoutRepository.restoreExercise`, discriminated by the exact tombstone
+timestamp so it cannot resurrect a set deleted before the exercise was), and
+discarding an in-progress workout now requires a held press
+(`HoldToConfirmButton`) rather than a single tap — gating only that one
+confirm, not the empty-session discard prompt or history's already-shipped
+past-workout delete. Also extracted `WorkoutRepository._backfillBodyweight`,
+which `start()` and `startFromRoutineDay()` had each been duplicating
+verbatim and `startFromWorkout()` needed a third copy of.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

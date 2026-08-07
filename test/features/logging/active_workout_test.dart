@@ -153,8 +153,9 @@ void main() {
         findsOneWidget,
       );
 
-      await tester.tap(find.widgetWithText(FilledButton, 'Discard'));
-      await tester.pumpAndSettle();
+      // A single tap must not be able to discard (`F-LOG-022` §2) — the
+      // confirm is a held press, not a tap.
+      await holdToConfirm(tester, find.text('Hold to discard'));
 
       expect(await repo.findActive(), isNull);
       // Tombstoned, not destroyed (ADR-0008).
@@ -171,7 +172,28 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Discard workout'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Keep it'));
+      await tester.tap(find.text('Keep training'));
+      await tester.pumpAndSettle();
+
+      expect((await repo.findActive())!.id, workout.id);
+    });
+
+    testWidgets('releasing early cancels the hold and discards nothing', (
+      tester,
+    ) async {
+      final workout = await repo.start();
+      await pump(tester, startAt: AppRoutes.activeWorkout);
+
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Discard workout'));
+      await tester.pumpAndSettle();
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('Hold to discard')),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      await gesture.up();
       await tester.pumpAndSettle();
 
       expect((await repo.findActive())!.id, workout.id);

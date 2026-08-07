@@ -17,6 +17,7 @@ import '../../../domain/routines/rep_range.dart';
 import '../../../domain/timing/rest_defaults.dart';
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../settings/application/rest_timer_settings_provider.dart';
+import '../../shell/widgets/hold_to_confirm_button.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
@@ -152,7 +153,14 @@ class _ActiveWorkout extends ConsumerWidget {
                     title: 'No exercises yet',
                     message: 'Add the first one to start logging.',
                   )
-                : ListView.builder(
+                : ReorderableListView.builder(
+                    // Handles rather than long-press-anywhere: every tile is
+                    // full of its own interactive targets — set rows, the
+                    // note button, the completion toggle — and long-pressing
+                    // a set row's number cell already opens the set-type
+                    // sheet (`set_row.dart`). A default drag handle would
+                    // fight both (`F-LOG-010` §1).
+                    buildDefaultDragHandles: false,
                     itemCount: exercises.length,
                     itemBuilder: (context, i) {
                       final exercise = exercises[i];
@@ -165,6 +173,8 @@ class _ActiveWorkout extends ConsumerWidget {
                           groupId != null &&
                           (i == 0 || exercises[i - 1].groupId != groupId);
                       return _SessionExerciseTile(
+                        key: ValueKey(exercise.workoutExerciseId),
+                        index: i,
                         exercise: exercise,
                         isFirstInGroup: isFirstInGroup,
                         isLastInGroup: isLastInGroup,
@@ -173,6 +183,8 @@ class _ActiveWorkout extends ConsumerWidget {
                             : null,
                       );
                     },
+                    onReorderItem: (oldIndex, newIndex) =>
+                        unawaited(_reorder(ref, exercises, oldIndex, newIndex)),
                   ),
           ),
         ],
@@ -212,6 +224,19 @@ class _ActiveWorkout extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _reorder(
+    WidgetRef ref,
+    List<SessionExercise> exercises,
+    int oldIndex,
+    int newIndex,
+  ) {
+    // onReorderItem, unlike the deprecated onReorder, already adjusts
+    // newIndex for the removed item — no manual off-by-one correction here.
+    final ids = [for (final e in exercises) e.workoutExerciseId];
+    ids.insert(newIndex, ids.removeAt(oldIndex));
+    return ref.read(workoutRepositoryProvider).reorderExercises(ids);
   }
 
   Future<void> _addExercises(BuildContext context, WidgetRef ref) async {
@@ -268,25 +293,68 @@ class _ActiveWorkout extends ConsumerWidget {
     context.go(AppRoutes.activeWorkoutSummary, extra: workout.id);
   }
 
+  /// A held press rather than a tap-to-confirm sheet (`F-LOG-022` §2):
+  /// discarding destroys a whole in-progress session, and a mis-tap on a
+  /// single-tap confirm button is exactly the failure mode a confirm sheet
+  /// only half-guards against.
   Future<void> _discard(BuildContext context, WidgetRef ref) async {
     final repo = ref.read(workoutRepositoryProvider);
     final tally = await repo.tally(workout.id);
     if (!context.mounted) return;
 
-    // Names what is being lost, per the navigation invariants.
-    final confirmed = await showConfirmSheet(
-      context,
-      title: 'Discard this workout?',
-      message: tally.exercises == 0
-          ? 'Nothing has been added to it yet.'
-          : '${tally.exercises} '
-                '${tally.exercises == 1 ? 'exercise' : 'exercises'} and '
-                '${tally.completedSets} completed '
-                '${tally.completedSets == 1 ? 'set' : 'sets'} will be '
-                'removed from this session.',
-      confirmLabel: 'Discard',
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.screen,
+            AppSpacing.lg,
+            AppSpacing.screen,
+            AppSpacing.screen,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Discard this workout?',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                tally.exercises == 0
+                    ? 'Nothing has been added to it yet.'
+                    : '${tally.exercises} '
+                          '${tally.exercises == 1 ? 'exercise' : 'exercises'} '
+                          'and ${tally.completedSets} completed '
+                          '${tally.completedSets == 1 ? 'set' : 'sets'} will '
+                          'be removed from this session.',
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Keep training'),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: HoldToConfirmButton(
+                      label: 'Discard',
+                      onConfirmed: () => Navigator.of(context).pop(true),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
-    if (!confirmed) return;
+    if (confirmed != true) return;
+    if (!context.mounted) return;
 
     await repo.discard(workout.id);
     if (!context.mounted) return;
@@ -320,12 +388,18 @@ class _StaleSessionNotice extends StatelessWidget {
 class _SessionExerciseTile extends ConsumerWidget {
   const _SessionExerciseTile({
     required this.exercise,
+    required this.index,
     required this.isFirstInGroup,
     required this.isLastInGroup,
     required this.nextExercise,
+    super.key,
   });
 
   final SessionExercise exercise;
+
+  /// This tile's position in the list, for the drag handle
+  /// (`ReorderableDragStartListener`, `F-LOG-010` §1).
+  final int index;
 
   /// Grouping is visually explicit in the logger too (`F-LOG-015` §1).
   final bool isFirstInGroup;
@@ -375,7 +449,10 @@ class _SessionExerciseTile extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ListTile(
-          leading: CircleAvatar(child: Text('${exercise.position + 1}')),
+          leading: ReorderableDragStartListener(
+            index: index,
+            child: CircleAvatar(child: Text('${exercise.position + 1}')),
+          ),
           title: Text(exercise.name),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,6 +476,23 @@ class _SessionExerciseTile extends ConsumerWidget {
             ],
           ),
           isThreeLine: true,
+          // Swap and remove — the session rarely matches the plan exactly
+          // (`F-LOG-010` §1–§2).
+          trailing: PopupMenuButton<String>(
+            icon: const Icon(Icons.more_horiz),
+            onSelected: (value) {
+              switch (value) {
+                case 'swap':
+                  unawaited(_swap(context, ref));
+                case 'remove':
+                  unawaited(_remove(context, ref));
+              }
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: 'swap', child: Text('Swap exercise')),
+              PopupMenuItem(value: 'remove', child: Text('Remove')),
+            ],
+          ),
         ),
         // The unit lives in the column header so the values themselves do not
         // have to carry it (docs/22-UNITS.md §display-rules).
@@ -474,6 +568,58 @@ class _SessionExerciseTile extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// Replaces this exercise with a different one, e.g. the squat rack is
+  /// taken (`F-LOG-010` §2). Completed sets stay attributed to the exercise
+  /// that was actually done; only the swapped-in exercise starts empty
+  /// (`WorkoutRepository.swapExercise`).
+  Future<void> _swap(BuildContext context, WidgetRef ref) async {
+    final chosen = await showExercisePicker(context, ref);
+    if (chosen == null || chosen.isEmpty) return;
+    await ref
+        .read(workoutRepositoryProvider)
+        .swapExercise(exercise.workoutExerciseId, chosen.first);
+  }
+
+  /// Removing an exercise with logged sets asks first; one with nothing
+  /// logged does not, since there is nothing yet to lose (`F-LOG-010` §3).
+  /// Either way, undo is one tap on the snackbar that follows
+  /// (`F-LOG-022` §3).
+  Future<void> _remove(BuildContext context, WidgetRef ref) async {
+    if (exercise.completedSetCount > 0) {
+      final confirmed = await showConfirmSheet(
+        context,
+        title: 'Remove ${exercise.name}?',
+        message:
+            '${exercise.completedSetCount} completed '
+            '${exercise.completedSetCount == 1 ? 'set' : 'sets'} will be '
+            'removed from this session too.',
+        confirmLabel: 'Remove',
+      );
+      if (!confirmed) return;
+    }
+    if (!context.mounted) return;
+
+    final repo = ref.read(workoutRepositoryProvider);
+    final tombstonedAt = await repo.removeExerciseFromWorkout(
+      exercise.workoutExerciseId,
+    );
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('${exercise.name} removed'),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () => unawaited(
+              repo.restoreExercise(exercise.workoutExerciseId, tombstonedAt),
+            ),
+          ),
+        ),
+      );
   }
 
   Future<void> _toggleGroupWithNext(WidgetRef ref) {

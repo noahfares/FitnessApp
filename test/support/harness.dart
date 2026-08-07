@@ -185,6 +185,21 @@ Future<ProviderContainer> pumpScreen(
   return container;
 }
 
+/// Presses and holds [finder] long enough to trigger a `HoldToConfirmButton`
+/// (`F-LOG-022` §2) — a plain `tester.tap` releases immediately, which is
+/// exactly the single-tap mis-fire the widget exists to refuse.
+Future<void> holdToConfirm(WidgetTester tester, Finder finder) async {
+  final gesture = await tester.startGesture(tester.getCenter(finder));
+  // Several small pumps, not one big jump: a single multi-second `pump` does
+  // not reliably drive `HoldToConfirmButton`'s `AnimationController` to
+  // completion, even though its value is purely elapsed-time-based.
+  for (var i = 0; i < 15; i++) {
+    await tester.pump(const Duration(milliseconds: 150));
+  }
+  await gesture.up();
+  await tester.pumpAndSettle();
+}
+
 /// Pumps the real app, router and all — for anything that navigates.
 ///
 /// [startAt] overrides where it opens, which is how kill recovery is tested
