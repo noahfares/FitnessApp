@@ -63,6 +63,7 @@ class ExerciseRepository {
     String? notes,
     int? defaultRestSeconds,
     WeightEntryMode? weightEntryMode,
+    int? incrementGrams,
   }) async {
     final timestamp = _now;
     await _db
@@ -81,6 +82,9 @@ class ExerciseRepository {
             weightEntryMode: Value(
               weightEntryMode ?? defaultWeightEntryModeFor(equipment),
             ),
+            // Null falls through to the equipment default (`F-SET-007`,
+            // `domain/logging/weight_steps.dart`), never zero.
+            incrementGrams: Value(incrementGrams),
             isCustom: const Value(true),
             createdAt: timestamp,
             updatedAt: timestamp,

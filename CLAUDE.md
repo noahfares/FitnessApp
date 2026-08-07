@@ -171,7 +171,7 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.25.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.26.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
 **Phase 1 complete.** Batches 1.1–1.9 done:
@@ -417,6 +417,34 @@ exactly: a "show archived" toggle on the catalogue screen's app bar, a flat
 `ExerciseRepository.bulkArchiveByEquipment` (only ever widens the archived
 set, never touches an already-archived row) reached from an app-bar action
 that confirms via the shared `ConfirmSheet`.
+
+**Batch 2.8 — timer & settings polish.** `F-TIM-007`, `F-SET-007` and
+`F-THM-003` done; `F-TIM-004` and `F-SET-008` blocked, not attempted — both
+depend on `F-TIM-003` (the real OS notification), which is still only the
+in-app timer, and this session had no Android SDK or physical device to
+build or verify notification work against regardless. No schema change —
+`sets.rest_taken_seconds` and `exercises.increment_grams` have existed since
+schema v3. `SetRepository.complete()` now records actual elapsed rest,
+looked up as the gap since the most recent *other* completed set anywhere
+in the session (not scoped to one exercise — the rest timer itself already
+works that way, so a superset partner's set correctly counts), null for a
+session's first completion rather than zero (`F-TIM-007`); nothing displays
+it yet; it feeds `F-ANA-012`, Phase 4. The increment stepper's per-equipment
+default and full per-exercise-override read path
+(`domain/logging/weight_steps.dart`, threaded through `SetRow` since
+`F-LOG-006`) already existed — the exercise editor just gained the one
+missing piece, a "Stepper increment" field showing the computed default as
+its own helper text (`F-SET-007`). Dynamic colour (`F-THM-003`) is the first
+new dependency since `F-DAT-011`'s `share_plus`: `dynamic_color` supplies a
+wallpaper-derived `ColorScheme` via `DynamicColorBuilder`, harmonized
+against it with the package's own `ColorScheme.harmonized()`;
+`AppColors` — `pr`/`danger`/`success`/`warning` — was already a fixed
+`ThemeExtension` never derived from `ColorScheme` (its doc comment
+anticipated this feature by name), so the "semantic roles survive any
+wallpaper" requirement holds by construction, pinned by a test rather than
+trusted from the comment. Off by default on Settings › Appearance, and a
+no-op (null schemes, falls through to the fixed seed) on any platform the
+package doesn't support.
 
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,

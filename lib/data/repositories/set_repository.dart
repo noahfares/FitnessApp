@@ -176,6 +176,10 @@ class SetRepository {
     Value<int?> durationSeconds = const Value.absent(),
   }) async {
     final now = _clock();
+    final previousCompletedAt = await _previousCompletionAt(id);
+    final restTaken = previousCompletedAt == null
+        ? null
+        : ((now.millisecondsSinceEpoch - previousCompletedAt) / 1000).round();
     await (_db.update(_db.sets)..where((s) => s.id.equals(id))).write(
       SetsCompanion(
         isCompleted: const Value(true),
@@ -183,6 +187,11 @@ class SetRepository {
         // Rest intervals are derived from these afterwards (`F-TIM-007`), and
         // an offset that was not stored at write time cannot be reconstructed.
         completedAtTzOffsetMinutes: Value(now.timeZoneOffset.inMinutes),
+        // Actual elapsed rest before this set (`F-TIM-007`), not the target the
+        // timer counted down from — the whole point is to see where the two
+        // disagree. Null for a session's first completion: there is nothing to
+        // have rested from.
+        restTakenSeconds: Value(restTaken),
         weightGrams: weightGrams,
         reps: reps,
         distanceMetres: distanceMetres,
@@ -192,17 +201,48 @@ class SetRepository {
     );
   }
 
+  /// The most recent other completed set's `completed_at` in the same
+  /// session as [id] — rest is a property of the session, not of one
+  /// exercise, the same scope the rest timer itself already uses
+  /// (`F-TIM-002`).
+  Future<int?> _previousCompletionAt(String id) async {
+    final row = await _db
+        .customSelect(
+          '''
+          SELECT MAX(s2.completed_at) AS previous
+            FROM sets s2
+            JOIN workout_exercises we2 ON we2.id = s2.workout_exercise_id
+           WHERE we2.workout_id = (
+                   SELECT we1.workout_id
+                     FROM workout_exercises we1
+                     JOIN sets s1 ON s1.workout_exercise_id = we1.id
+                    WHERE s1.id = ?
+                 )
+             AND s2.id != ?
+             AND s2.deleted_at IS NULL
+             AND s2.is_completed = 1
+          ''',
+          variables: [Variable<String>(id), Variable<String>(id)],
+          readsFrom: {_db.sets, _db.workoutExercises},
+        )
+        .getSingle();
+    return row.read<int?>('previous');
+  }
+
   /// Un-ticks a set. The values stay; only the completion does.
   ///
   /// `completed_at` is cleared with it, because a set that is not completed has
   /// no completion time, and leaving a stale one would corrupt the rest
-  /// intervals derived from consecutive completions.
+  /// intervals derived from consecutive completions. `rest_taken_seconds` goes
+  /// with it for the same reason: a rest duration with no completion to anchor
+  /// it to is orphaned data (`F-TIM-007`).
   Future<void> uncomplete(String id) async {
     await (_db.update(_db.sets)..where((s) => s.id.equals(id))).write(
       SetsCompanion(
         isCompleted: const Value(false),
         completedAt: const Value(null),
         completedAtTzOffsetMinutes: const Value(null),
+        restTakenSeconds: const Value(null),
         updatedAt: Value(_now),
       ),
     );

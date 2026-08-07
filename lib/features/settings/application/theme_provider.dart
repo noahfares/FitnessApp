@@ -33,6 +33,27 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
   }
 }
 
+/// Android 12+ wallpaper-derived colour (`F-THM-003`) — **off by default**, so
+/// the app has a consistent identity out of the box regardless of wallpaper.
+/// A no-op on any platform `dynamic_color` doesn't support: the builder just
+/// never has a scheme to offer, and `AppTheme` falls back to its fixed seed.
+final dynamicColorEnabledProvider =
+    NotifierProvider<DynamicColorEnabledNotifier, bool>(
+      DynamicColorEnabledNotifier.new,
+    );
+
+class DynamicColorEnabledNotifier extends Notifier<bool> {
+  static const _key = 'appearance.dynamicColor';
+
+  @override
+  bool build() => ref.watch(sharedPreferencesProvider).getBool(_key) ?? false;
+
+  Future<void> set(bool enabled) async {
+    state = enabled;
+    await ref.read(sharedPreferencesProvider).setBool(_key, enabled);
+  }
+}
+
 /// Labels for the appearance screen (batch 0.4).
 extension ThemeModeLabel on ThemeMode {
   String get label => switch (this) {

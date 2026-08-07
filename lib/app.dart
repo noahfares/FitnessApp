@@ -1,3 +1,4 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,14 +12,28 @@ class FitnessApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp.router(
-      title: 'FitnessApp',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
-      // Applies instantly, no restart (F-SET-002).
-      themeMode: ref.watch(themeModeProvider),
-      routerConfig: ref.watch(routerProvider),
+    final dynamicColorEnabled = ref.watch(dynamicColorEnabledProvider);
+
+    // `DynamicColorBuilder` queries the platform once and rebuilds when the
+    // wallpaper changes; both schemes come back null on any platform or OS
+    // version `dynamic_color` doesn't support, which is exactly the "off"
+    // state the toggle already defaults to (`F-THM-003`).
+    return DynamicColorBuilder(
+      builder: (lightDynamic, darkDynamic) {
+        return MaterialApp.router(
+          title: 'FitnessApp',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(
+            dynamicScheme: dynamicColorEnabled ? lightDynamic : null,
+          ),
+          darkTheme: AppTheme.dark(
+            dynamicScheme: dynamicColorEnabled ? darkDynamic : null,
+          ),
+          // Applies instantly, no restart (F-SET-002).
+          themeMode: ref.watch(themeModeProvider),
+          routerConfig: ref.watch(routerProvider),
+        );
+      },
     );
   }
 }

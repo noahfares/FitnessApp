@@ -33,6 +33,53 @@ void main() {
       expect(AppTheme.seed, const Color(0xFF3E63DD));
     });
 
+    test('a dynamic scheme overrides the seed when given (F-THM-003)', () {
+      const dynamicScheme = ColorScheme(
+        brightness: Brightness.light,
+        primary: Color(0xFF00FF00),
+        onPrimary: Color(0xFF000000),
+        secondary: Color(0xFF00AA00),
+        onSecondary: Color(0xFF000000),
+        error: Color(0xFFB00020),
+        onError: Color(0xFFFFFFFF),
+        surface: Color(0xFFFFFFFF),
+        onSurface: Color(0xFF000000),
+      );
+
+      final themed = AppTheme.light(dynamicScheme: dynamicScheme);
+
+      expect(themed.colorScheme.primary, dynamicScheme.primary);
+      expect(themed.colorScheme.primary, isNot(light.colorScheme.primary));
+    });
+
+    test('AppColors semantic roles are unaffected by a dynamic scheme', () {
+      // "pr and danger keep their meaning regardless of the wallpaper"
+      // (F-THM-003 spec) — AppColors is a fixed ThemeExtension, never derived
+      // from ColorScheme, so this holds by construction; the test pins it.
+      const dynamicScheme = ColorScheme(
+        brightness: Brightness.light,
+        primary: Color(0xFFFF00FF),
+        onPrimary: Color(0xFF000000),
+        secondary: Color(0xFFAA00AA),
+        onSecondary: Color(0xFF000000),
+        error: Color(0xFFB00020),
+        onError: Color(0xFFFFFFFF),
+        surface: Color(0xFFFFFFFF),
+        onSurface: Color(0xFF000000),
+      );
+
+      final themed = AppTheme.light(dynamicScheme: dynamicScheme);
+
+      expect(
+        themed.extension<AppColors>()!.pr,
+        light.extension<AppColors>()!.pr,
+      );
+      expect(
+        themed.extension<AppColors>()!.danger,
+        light.extension<AppColors>()!.danger,
+      );
+    });
+
     test('dark mode avoids pure black', () {
       // OLED smearing during scroll hurts readability, and a set list is
       // scrolled constantly.

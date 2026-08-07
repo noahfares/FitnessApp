@@ -57,7 +57,7 @@ F-TIM-003	1	in-progress	P0	Background execution and notification	F-TIM-001		20-A
 F-TIM-004	2	planned	P2	Notification and lock-screen controls	F-TIM-003		20-ARCHITECTURE#cross-platform-discipline
 F-TIM-005	1	done	P1	Default rest durations			20-ARCHITECTURE#cross-platform-discipline
 F-TIM-006	1	done	P1	Alert style			20-ARCHITECTURE#cross-platform-discipline
-F-TIM-007	2	planned	P2	Rest-taken recording			20-ARCHITECTURE#cross-platform-discipline
+F-TIM-007	2	done	P2	Rest-taken recording			20-ARCHITECTURE#cross-platform-discipline
 F-TIM-008	—	idea	P3	Interval / EMOM timer			20-ARCHITECTURE#cross-platform-discipline
 F-TIM-009	4	planned	P2	Stopwatch for timed exercises	F-CAT-002		20-ARCHITECTURE#cross-platform-discipline
 F-ANA-001	3	planned	P0	Analytics engine		F-ANA-002 … F-ANA-014	40-ANALYTICS-SPEC, 20-ARCHITECTURE#the-one-hard-rule
@@ -113,7 +113,7 @@ F-SET-003	1	done	P1	Rest-timer defaults	F-TIM-005		22-UNITS
 F-SET-004	4	planned	P1	Bar and plate inventory	F-PLT-002		22-UNITS
 F-SET-005	3	planned	P1	Week start		F-ANA-004, F-ANA-006	22-UNITS
 F-SET-006	3	planned	P2	e1RM formula	F-ANA-003		22-UNITS
-F-SET-007	2	planned	P1	Increment steps	F-SET-001		22-UNITS
+F-SET-007	2	done	P1	Increment steps	F-SET-001		22-UNITS
 F-SET-008	2	planned	P2	Notification preferences	F-TIM-003		22-UNITS
 F-SET-009	1	done	P1	About			22-UNITS
 F-SET-010	5	planned	P3	App lock	F-BOD-004		22-UNITS
@@ -133,7 +133,7 @@ F-NAV-007	—	idea	P3	Home-screen widget			23-NAVIGATION
 F-NAV-008	—	idea	P3	App shortcuts			23-NAVIGATION
 F-THM-001	0	done	P0	Material 3 foundation		F-THM-002, F-THM-003, F-THM-004	24-DESIGN-SYSTEM
 F-THM-002	0	done	P0	Light and dark schemes	F-THM-001		24-DESIGN-SYSTEM, 30-features/LOG/F-LOG-004
-F-THM-003	2	planned	P2	Dynamic colour			24-DESIGN-SYSTEM
+F-THM-003	2	done	P2	Dynamic colour			24-DESIGN-SYSTEM
 F-THM-004	3	planned	P1	Chart theming	F-THM-001, F-ANA-001		24-DESIGN-SYSTEM
 F-THM-005	0	done	P1	Typography	F-THM-001		24-DESIGN-SYSTEM
 F-THM-006	6	planned	P2	App icon and branding			24-DESIGN-SYSTEM

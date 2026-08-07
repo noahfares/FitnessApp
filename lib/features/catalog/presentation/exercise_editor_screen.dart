@@ -6,11 +6,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/ids/uuid.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/units/mass.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/db/tables/enums.dart';
 import '../../../domain/logging/set_fields.dart';
+import '../../../domain/logging/weight_steps.dart';
 import '../../../domain/timing/rest_defaults.dart';
+import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import 'exercise_labels.dart';
@@ -38,6 +41,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
   final TextEditingController _name = TextEditingController();
   final TextEditingController _notes = TextEditingController();
   final TextEditingController _aliasInput = TextEditingController();
+  final TextEditingController _increment = TextEditingController();
 
   List<String> _aliases = <String>[];
 
@@ -77,6 +81,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
     _name.dispose();
     _notes.dispose();
     _aliasInput.dispose();
+    _increment.dispose();
     super.dispose();
   }
 
@@ -105,6 +110,12 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         _weightEntryMode = row.weightEntryMode;
         _notes.text = row.notes ?? '';
         _aliases = List<String>.of(row.aliases);
+        if (row.incrementGrams case final grams?) {
+          final unit = ref.read(unitPreferencesProvider).load;
+          _increment.text = ref
+              .read(quantityFormatterProvider)
+              .massValueOnly(Mass.grams(grams), unit);
+        }
       }
     });
   }
@@ -140,6 +151,13 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
     final weightEntryMode =
         _weightEntryMode ?? defaultWeightEntryModeFor(_equipment);
     final notes = _notes.text.trim();
+    // A blank or unparseable field falls through to the equipment default
+    // rather than being treated as an error — this override is optional
+    // (`F-SET-007`).
+    final incrementGrams = ref
+        .read(quantityParserProvider)
+        .parseMass(_increment.text, ref.read(unitPreferencesProvider).load)
+        ?.grams;
 
     if (widget.isNew) {
       // The id is generated here rather than by the database so it exists
@@ -155,6 +173,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         notes: notes.isEmpty ? null : notes,
         defaultRestSeconds: _defaultRestSeconds,
         weightEntryMode: weightEntryMode,
+        incrementGrams: incrementGrams,
       );
     } else {
       await repo.update(
@@ -169,6 +188,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
           notes: Value(notes.isEmpty ? null : notes),
           defaultRestSeconds: Value(_defaultRestSeconds),
           weightEntryMode: Value(weightEntryMode),
+          incrementGrams: Value(incrementGrams),
         ),
       );
     }
@@ -402,6 +422,36 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
               () => _defaultRestSeconds = (seconds ?? 0) == 0 ? null : seconds,
             ),
           ),
+          if (setFieldsFor(_trackingType.name).contains(SetField.weight)) ...[
+            const SizedBox(height: AppSpacing.lg),
+            // Overrides `defaultStep`'s per-equipment default
+            // (`domain/logging/weight_steps.dart`) for this exercise only
+            // (`F-SET-007`). Left blank, the stepper falls through to that
+            // default — never to zero.
+            Builder(
+              builder: (context) {
+                final unit = ref.watch(unitPreferencesProvider).load;
+                final defaultLabel = ref
+                    .watch(quantityFormatterProvider)
+                    .setWeight(
+                      defaultStep(equipment: _equipment.name, unit: unit),
+                      showUnit: true,
+                    );
+                return TextField(
+                  controller: _increment,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Stepper increment',
+                    border: const OutlineInputBorder(),
+                    suffixText: unit.symbol,
+                    helperText: 'Blank uses the default, $defaultLabel.',
+                  ),
+                );
+              },
+            ),
+          ],
           const SizedBox(height: AppSpacing.lg),
           Text('Secondary muscles', style: theme.textTheme.titleSmall),
           const SizedBox(height: AppSpacing.sm),
