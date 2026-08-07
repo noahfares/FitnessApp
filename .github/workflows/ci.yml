@@ -14,6 +14,9 @@ name: ci
 on:
   push:
     branches: ['**']
+  # Lets a stuck or missed push-triggered run be fired manually for the
+  # current head of any branch, without an empty commit.
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}

@@ -171,10 +171,10 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.17.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.19.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
-**Phase 1 in progress.** Batches 1.1–1.9 done:
+**Phase 1 complete.** Batches 1.1–1.9 done:
 
 - **1.1–1.2** — 100-exercise seeded catalogue, `ExerciseRepository`, custom
   exercises, catalogue screen with search and filtering (`F-CAT-001`–`F-CAT-005`).
@@ -235,17 +235,20 @@ link have not. Its acceptance criteria are on-device.
   constant, and adds the open-source licences page and a repository link via
   `url_launcher` (`F-SET-009`, now done).
 
-  **This was the last batch of Phase 1, but Phase 1's exit criteria are still
-  not met.** Everything code-shaped is done; what's left is entirely manual
-  and on-device (see `docs/50-ROADMAP.md`): the upload keystore itself has to
-  be generated once, offline, by a human and added to GitHub Secrets, after
-  which a tag push needs to actually produce and be installed as a real APK,
-  the rest timer verified with the screen off, a force-kill verified on a real
-  device, and two weeks of real training logged. The roadmap's standing
-  instruction is to not start Phase 2 until that's done and confirmed — Phase
-  2 batch 2.1 below started anyway, at the user's explicit request to override
-  that instruction rather than by silently routing around it. The on-device
-  checks and the two-week window are still outstanding and still owed.
+**Phase 1's on-device exit criteria are verified**, from a real signed APK
+built by `release.yml` and installed via GitHub Release: a full session
+logged start to finish, ghost values on a second session, force-kill
+recovery, the rest timer surviving a pocketed screen-off phone, bodyweight
+logging, and the JSON dump against a real database all passed. One criterion
+was explicitly **waived** by the project owner rather than met: "two weeks of
+real training logged before Phase 2 begins" — the app isn't yet a daily-driver
+replacement for the tracker currently in use, so there's no real-use data to
+accumulate yet, and waiting on it would only delay Phase 2 without changing
+what it finds. See `docs/50-ROADMAP.md` Phase 1 exit criteria for the full
+record, including the one open caveat: `F-TIM-003`'s background
+notification/foreground-service layer still isn't built (only the in-app
+timer), so the rest-timer result is a real but possibly lucky pass — worth
+re-checking if a longer rest or a different device ever fires late.
 
 **Phase 2 started — batch 2.1 done.** Routine CRUD, days, per-exercise
 targets, and starting a workout from a routine day
@@ -261,7 +264,8 @@ No schema change — `routine_folders`, `routines`, `routine_days` and
 `routine_exercises` have existed since schema v3. Superset grouping
 (`F-ROU-005`), day/exercise reordering UI (`F-ROU-004`), and rest-default
 inheritance display (`F-ROU-006`) are not part of this batch and remain
-`planned`.
+`planned`. Batch 2.1 was drafted and built together, ahead of the rest of
+Phase 2's batch table.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform.

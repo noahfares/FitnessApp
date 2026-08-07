@@ -159,19 +159,30 @@ The point of this phase is a real training session logged on a real phone.
 Batch **1.4** is the heart of the app and the one to take most care over —
 everything else in Phase 1 exists to support it.
 
-**Exit criteria**
-- [ ] A complete training session can be logged start to finish without touching
+**Exit criteria — verified on-device from the v0.17.3 release APK. Phase 1
+complete, with one criterion explicitly waived by the project owner (see
+below).**
+- [x] A complete training session can be logged start to finish without touching
       any other app or a notebook.
-- [ ] Ghost values (`F-LOG-004`) appear correctly on the second session of an
+- [x] Ghost values (`F-LOG-004`) appear correctly on the second session of an
       exercise.
-- [ ] Force-killing the app mid-session loses nothing.
-- [ ] The rest timer fires reliably with the phone in a pocket, screen off, on a
-      device with aggressive battery management.
-- [ ] Bodyweight can be logged in under three taps from the dashboard.
-- [ ] `F-DAT-011` dumps every table to JSON, verified against a database with
+- [x] Force-killing the app mid-session loses nothing.
+- [x] The rest timer fires reliably with the phone in a pocket, screen off, on a
+      device with aggressive battery management. Verified on-device by the
+      project owner; note that `F-TIM-003`'s notification/foreground-service
+      layer is still not built (only the in-app timer), so this is worth
+      re-checking if a longer rest period or a different device ever fires
+      late or not at all.
+- [x] Bodyweight can be logged in under three taps from the dashboard.
+- [x] `F-DAT-011` dumps every table to JSON, verified against a database with
       real sessions in it.
-- [ ] A signed APK is installed on your own phone from a GitHub Release.
-- [ ] **Two weeks of real training logged before Phase 2 begins.**
+- [x] A signed APK is installed on your own phone from a GitHub Release.
+- [ ] ~~Two weeks of real training logged before Phase 2 begins.~~ **Waived.**
+      The app isn't yet in a state the project owner would use over their
+      current tracker, so there's no real-use data to accumulate before moving
+      on — accumulating it would just delay Phase 2 without changing what it
+      finds. Revisit daily-driver adoption once Phase 2/3 make the app worth
+      switching to.
 
 ---
 
@@ -195,11 +206,12 @@ Turns the logger into something you run a program on.
 |---|---|---|
 | **2.1** Routine core | `F-ROU-001` `F-ROU-002` `F-ROU-003` `F-ROU-010` | `21-DATA-MODEL#routine_days` `70-decisions/ADR-0004-template-snapshot` |
 
-Batch **2.1** started before Phase 1's exit criteria were fully confirmed —
-the on-device checks and two-week training window in Phase 1's exit criteria
-above were still outstanding. Done at the user's explicit request to override
-the standing instruction, not by silently routing around it; recorded here so
-the deviation has an audit trail.
+Batch **2.1** started at the user's explicit request, before Phase 1's
+on-device exit criteria above had been independently verified and the
+two-week training criterion formally waived — done by overriding this
+document's standing instruction rather than by silently routing around it.
+Both have since been confirmed (see Phase 1's exit criteria above); recorded
+here so the deviation still has an audit trail.
 
 **Exit criteria**
 - [ ] A full training week runs from routine days, with targets pre-filled.

@@ -1,14 +1,18 @@
-# F-REL-012 — create the tag for VERSION automatically on every push.
+# F-REL-012 — create the tag for VERSION automatically on every push to main.
 #
-# The versioning protocol (docs/63-VERSIONING.md) requires every commit to carry
-# a matching tag. Doing it here rather than locally makes that a guarantee
-# instead of a discipline, and works from environments whose credentials cannot
-# push tags directly.
+# The versioning protocol (docs/63-VERSIONING.md, CLAUDE.md) documents
+# `git push origin main` as what triggers tagging — this must be scoped to
+# `main` only, not every branch. Tagging a feature-branch commit and then the
+# PR's merge commit both tag the same VERSION under two different SHAs (a
+# merge commit is never bit-identical to the branch tip it merges), and the
+# second one always fails the immutable-tag check below. Doing it here rather
+# than locally makes tagging a guarantee instead of a discipline, and works
+# from environments whose credentials cannot push tags directly.
 name: tag
 
 on:
   push:
-    branches: ['**']
+    branches: [main]
 
 permissions:
   contents: write
