@@ -159,19 +159,30 @@ The point of this phase is a real training session logged on a real phone.
 Batch **1.4** is the heart of the app and the one to take most care over —
 everything else in Phase 1 exists to support it.
 
-**Exit criteria**
-- [ ] A complete training session can be logged start to finish without touching
+**Exit criteria — verified on-device from the v0.17.3 release APK. Phase 1
+complete, with one criterion explicitly waived by the project owner (see
+below).**
+- [x] A complete training session can be logged start to finish without touching
       any other app or a notebook.
-- [ ] Ghost values (`F-LOG-004`) appear correctly on the second session of an
+- [x] Ghost values (`F-LOG-004`) appear correctly on the second session of an
       exercise.
-- [ ] Force-killing the app mid-session loses nothing.
-- [ ] The rest timer fires reliably with the phone in a pocket, screen off, on a
-      device with aggressive battery management.
-- [ ] Bodyweight can be logged in under three taps from the dashboard.
-- [ ] `F-DAT-011` dumps every table to JSON, verified against a database with
+- [x] Force-killing the app mid-session loses nothing.
+- [x] The rest timer fires reliably with the phone in a pocket, screen off, on a
+      device with aggressive battery management. Verified on-device by the
+      project owner; note that `F-TIM-003`'s notification/foreground-service
+      layer is still not built (only the in-app timer), so this is worth
+      re-checking if a longer rest period or a different device ever fires
+      late or not at all.
+- [x] Bodyweight can be logged in under three taps from the dashboard.
+- [x] `F-DAT-011` dumps every table to JSON, verified against a database with
       real sessions in it.
-- [ ] A signed APK is installed on your own phone from a GitHub Release.
-- [ ] **Two weeks of real training logged before Phase 2 begins.**
+- [x] A signed APK is installed on your own phone from a GitHub Release.
+- [ ] ~~Two weeks of real training logged before Phase 2 begins.~~ **Waived.**
+      The app isn't yet in a state the project owner would use over their
+      current tracker, so there's no real-use data to accumulate before moving
+      on — accumulating it would just delay Phase 2 without changing what it
+      finds. Revisit daily-driver adoption once Phase 2/3 make the app worth
+      switching to.
 
 ---
 
