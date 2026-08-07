@@ -6,4 +6,4 @@
 /// runtime instead (`F-REL-005`, `lib/data/platform/app_info_service.dart`),
 /// since that is the one that can disagree with this constant if a build
 /// mislabels itself — this constant can't detect that on its own.
-const String appVersion = '0.17.3';
+const String appVersion = '0.18.0';
