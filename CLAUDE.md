@@ -171,7 +171,7 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.24.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.25.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
 **Phase 1 complete.** Batches 1.1–1.9 done:
@@ -390,6 +390,33 @@ so a stale record can survive an in-place correction until the next
 delete/toggle or maintenance rebuild touches that exercise (`F-LOG-013`'s
 own status note has the detail). `F-ANA-007` (the PR timeline this batch's
 cache is meant to eventually feed) remains `planned`, Phase 3.
+
+**Batch 2.7 — catalogue polish.** `F-CAT-006`, `F-CAT-007`, `F-CAT-008` and
+`F-CAT-009` all done. No schema change — `is_favorite`, `notes`, `aliases`
+and `archived_at` have existed on `exercises` since schema v1/v3; a fair
+amount of the repository- and domain-layer plumbing for this batch was
+already in place ahead of time (favourite/archive toggles on
+`ExerciseRepository`, and `domain/catalog/exercise_search.dart`'s
+favourite→recency→alphabetical ordering, built in `F-CAT-004` with
+`lastUsedAt` deliberately left always-null "for a one-line change later").
+This batch is what closes the remaining gaps: `SetRepository
+.watchLastUsedAtByExercise()` wires real recency into `CatalogIndex`, and
+the catalogue screen gets a favourite star per row (`F-CAT-006`); the
+exercise editor gains Notes and Aliases fields, `WorkoutRepository
+.watchExercises` now carries the exercise's own persistent note as
+`SessionExercise.exerciseNotes` (kept distinct from the session-specific
+`.notes`), and the active workout screen shows it collapsed-to-one-line via
+`_StickyNoteText` with an "Edit note" action on the overflow menu, opening
+`ExerciseNoteSheet` — which writes only through `ExerciseRepository`, so it
+can never disturb a logged set or the rest timer (`F-CAT-007`); the alias
+seed data (`rdl`, `ohp`, `bss`, 29 of 100 exercises) and alias-aware search
+already existed, so `F-CAT-008` only needed the editor's add/remove alias UI
+closing §3. `F-CAT-009` mirrors `F-ROU-009`'s routine-archive pattern
+exactly: a "show archived" toggle on the catalogue screen's app bar, a flat
+`_ArchivedExerciseList` with a "Restore" action per row, and
+`ExerciseRepository.bulkArchiveByEquipment` (only ever widens the archived
+set, never touches an already-archived row) reached from an app-bar action
+that confirms via the shared `ConfirmSheet`.
 
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,

@@ -1,6 +1,6 @@
 # F-CAT-007 — Per-exercise sticky notes
 
-Status: planned | Priority: P1 | Phase: 2
+Status: done | Priority: P1 | Phase: 2
 Reads: 21-DATA-MODEL#exercises
 Screens: Exercise Detail, Active Workout | Data: `exercises.notes`
 
@@ -12,8 +12,22 @@ Screens: Exercise Detail, Active Workout | Data: `exercises.notes`
 4. Persists across all sessions and routines.
 
 ## Acceptance
-- [ ] Note is visible on the active-workout screen without navigation.
-- [ ] Editing mid-session doesn't disturb logged sets or the rest timer.
+- [x] Note is visible on the active-workout screen without navigation.
+- [x] Editing mid-session doesn't disturb logged sets or the rest timer.
+
+## Status notes
+
+There is no standalone "Exercise Detail" screen in this app — the closest
+analog is the exercise editor (`F-CAT-003`), which now carries a Notes field
+alongside the existing name/muscle/equipment fields. `WorkoutRepository
+.watchExercises` now selects `exercises.notes` into a new
+`SessionExercise.exerciseNotes` field (kept distinct from `.notes`, which is
+the *session's* per-exercise note, `F-LOG-008`). The active workout screen
+shows it collapsed to one line via `_StickyNoteText`, tap to expand; "Edit
+note" on the exercise's overflow menu opens `ExerciseNoteSheet`, which
+writes only through `ExerciseRepository.setNotes` — it cannot touch a set or
+the rest timer by construction, since it never reads `SetRepository` or
+`RestTimerService` at all.
 
 ---
 

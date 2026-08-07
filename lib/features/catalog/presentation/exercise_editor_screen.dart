@@ -36,6 +36,10 @@ class ExerciseEditorScreen extends ConsumerStatefulWidget {
 
 class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
   final TextEditingController _name = TextEditingController();
+  final TextEditingController _notes = TextEditingController();
+  final TextEditingController _aliasInput = TextEditingController();
+
+  List<String> _aliases = <String>[];
 
   Muscle _primaryMuscle = Muscle.chest;
   Set<Muscle> _secondaryMuscles = <Muscle>{};
@@ -71,6 +75,8 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
   @override
   void dispose() {
     _name.dispose();
+    _notes.dispose();
+    _aliasInput.dispose();
     super.dispose();
   }
 
@@ -97,6 +103,8 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         _trackingType = row.trackingType;
         _defaultRestSeconds = row.defaultRestSeconds;
         _weightEntryMode = row.weightEntryMode;
+        _notes.text = row.notes ?? '';
+        _aliases = List<String>.of(row.aliases);
       }
     });
   }
@@ -131,6 +139,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
     final secondary = [for (final m in _secondaryMuscles) m.name];
     final weightEntryMode =
         _weightEntryMode ?? defaultWeightEntryModeFor(_equipment);
+    final notes = _notes.text.trim();
 
     if (widget.isNew) {
       // The id is generated here rather than by the database so it exists
@@ -142,6 +151,8 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         equipment: _equipment,
         trackingType: _trackingType,
         secondaryMuscles: _secondaryMuscles.toList(),
+        aliases: _aliases,
+        notes: notes.isEmpty ? null : notes,
         defaultRestSeconds: _defaultRestSeconds,
         weightEntryMode: weightEntryMode,
       );
@@ -154,6 +165,8 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
           secondaryMuscles: Value(secondary),
           equipment: Value(_equipment),
           trackingType: Value(_trackingType),
+          aliases: Value(_aliases),
+          notes: Value(notes.isEmpty ? null : notes),
           defaultRestSeconds: Value(_defaultRestSeconds),
           weightEntryMode: Value(weightEntryMode),
         ),
@@ -203,6 +216,21 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
     await repo.delete(id);
     if (!mounted) return;
     Navigator.of(context).pop();
+  }
+
+  /// Trimmed, de-duplicated case-insensitively, and cleared from the input
+  /// once accepted — the same "type and commit" shape as the alias search it
+  /// feeds (`F-CAT-008` §3).
+  void _addAlias(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return;
+    final exists = _aliases.any(
+      (a) => a.toLowerCase() == trimmed.toLowerCase(),
+    );
+    setState(() {
+      if (!exists) _aliases = [..._aliases, trimmed];
+      _aliasInput.clear();
+    });
   }
 
   Future<void> _setArchived(bool archived) async {
@@ -395,6 +423,56 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
                     }),
                   ),
             ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          TextField(
+            controller: _notes,
+            maxLines: 3,
+            textCapitalization: TextCapitalization.sentences,
+            decoration: const InputDecoration(
+              labelText: 'Notes',
+              helperText:
+                  'Seat height, pin position, grip width — visible '
+                  'inline during a session.',
+              helperMaxLines: 2,
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Text('Aliases', style: theme.textTheme.titleSmall),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Other names this is searchable by — "RDL" for Romanian Deadlift.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              for (final alias in _aliases)
+                InputChip(
+                  label: Text(alias),
+                  onDeleted: () => setState(() => _aliases.remove(alias)),
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          TextField(
+            controller: _aliasInput,
+            decoration: InputDecoration(
+              hintText: 'Add an alias',
+              border: const OutlineInputBorder(),
+              isDense: true,
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.add),
+                tooltip: 'Add alias',
+                onPressed: () => _addAlias(_aliasInput.text),
+              ),
+            ),
+            onSubmitted: _addAlias,
           ),
           if (!widget.isNew) ...[
             const Divider(height: AppSpacing.xxl),

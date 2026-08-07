@@ -124,6 +124,25 @@ class ExerciseRepository {
     ExercisesCompanion(archivedAt: Value(isArchived ? _now : null)),
   );
 
+  /// Archives (or restores) every non-archived exercise using [equipment] in
+  /// one action — for someone who has lost access to a cable machine, say
+  /// (`F-CAT-009` §4). Already-archived rows for other reasons are left
+  /// alone by [setArchived]'s own idempotence; this only ever widens the
+  /// archived set, it does not restore anything.
+  Future<int> bulkArchiveByEquipment(Equipment equipment) async {
+    final timestamp = _now;
+    return (_db.update(_db.exercises)
+          ..where((e) => e.equipment.equalsValue(equipment))
+          ..where((e) => e.deletedAt.isNull())
+          ..where((e) => e.archivedAt.isNull()))
+        .write(
+          ExercisesCompanion(
+            archivedAt: Value(timestamp),
+            updatedAt: Value(timestamp),
+          ),
+        );
+  }
+
   /// Tombstones the row. **Nothing is ever hard-deleted** (ADR-0008), so this
   /// is reversible by [restore] and never orphans a logged set.
   Future<void> delete(String id) =>

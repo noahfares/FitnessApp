@@ -24,10 +24,10 @@
 | [F-CAT-003](CAT/F-CAT-003.md) | Custom exercises | 1 | P0 | done |
 | [F-CAT-004](CAT/F-CAT-004.md) | Search | 1 | P0 | done |
 | [F-CAT-005](CAT/F-CAT-005.md) | Filter by muscle and equipment | 1 | P1 | done |
-| [F-CAT-006](CAT/F-CAT-006.md) | Favourites and recency ordering | 2 | P1 | planned |
-| [F-CAT-007](CAT/F-CAT-007.md) | Per-exercise sticky notes | 2 | P1 | planned |
-| [F-CAT-008](CAT/F-CAT-008.md) | Aliases and synonyms | 2 | P2 | planned |
-| [F-CAT-009](CAT/F-CAT-009.md) | Archive and hide | 2 | P1 | planned |
+| [F-CAT-006](CAT/F-CAT-006.md) | Favourites and recency ordering | 2 | P1 | done |
+| [F-CAT-007](CAT/F-CAT-007.md) | Per-exercise sticky notes | 2 | P1 | done |
+| [F-CAT-008](CAT/F-CAT-008.md) | Aliases and synonyms | 2 | P2 | done |
+| [F-CAT-009](CAT/F-CAT-009.md) | Archive and hide | 2 | P1 | done |
 | [F-CAT-010](CAT/F-CAT-010.md) | Merge duplicate exercises | — | P2 | idea |
 | [F-CAT-011](CAT/F-CAT-011.md) | Exercise media | — | P3 | idea |
 | [F-CAT-012](CAT/F-CAT-012.md) | Substitution suggestions | — | P2 | idea |

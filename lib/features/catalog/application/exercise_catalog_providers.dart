@@ -14,13 +14,18 @@ final exerciseCatalogProvider = StreamProvider<List<Exercise>>(
   (ref) => ref.watch(exerciseRepositoryProvider).watchAll(),
 );
 
+/// The most recent session each exercise was performed in (`F-CAT-006` §2).
+final lastUsedAtProvider = StreamProvider<Map<String, int>>(
+  (ref) => ref.watch(setRepositoryProvider).watchLastUsedAtByExercise(),
+);
+
 /// The catalogue paired with its search candidates.
 ///
 /// Folding names and aliases to their searchable form happens **here**, once per
 /// database change, rather than inside the filter — otherwise every keystroke
 /// re-folds 400 rows, which is exactly the cost `F-CAT-004` budgets against.
 class CatalogIndex {
-  CatalogIndex(this.rows)
+  CatalogIndex(this.rows, {Map<String, int> lastUsedAt = const {}})
     : _candidates = <ExerciseCandidate>[
         for (final row in rows)
           ExerciseCandidate(
@@ -30,7 +35,7 @@ class CatalogIndex {
             primaryMuscle: row.primaryMuscle.name,
             equipment: row.equipment.name,
             isFavorite: row.isFavorite,
-            // Recency needs logged sessions, which arrive with F-CAT-006.
+            lastUsedAt: lastUsedAt[row.id],
           ),
       ];
 
@@ -60,9 +65,36 @@ class CatalogIndex {
   }
 }
 
-final catalogIndexProvider = Provider<AsyncValue<CatalogIndex>>(
-  (ref) => ref.watch(exerciseCatalogProvider).whenData(CatalogIndex.new),
-);
+final catalogIndexProvider = Provider<AsyncValue<CatalogIndex>>((ref) {
+  final lastUsedAt = ref.watch(lastUsedAtProvider).value ?? const {};
+  return ref
+      .watch(exerciseCatalogProvider)
+      .whenData((rows) => CatalogIndex(rows, lastUsedAt: lastUsedAt));
+});
+
+/// Archived exercises, alphabetical — the "show archived" list
+/// (`F-CAT-009` §3), where archiving is undone from.
+final archivedExercisesProvider = StreamProvider<List<Exercise>>((ref) {
+  return ref
+      .watch(exerciseRepositoryProvider)
+      .watchAll(includeArchived: true)
+      .map((rows) => rows.where((e) => e.archivedAt != null).toList());
+});
+
+/// Whether the catalogue screen is showing the archived list instead of the
+/// live one (`F-CAT-009` §3). Ephemeral — resets to the live list on leaving
+/// the screen, the same reasoning as `RoutineListShowArchivedNotifier`.
+final exerciseListShowArchivedProvider =
+    NotifierProvider<ExerciseListShowArchivedNotifier, bool>(
+      ExerciseListShowArchivedNotifier.new,
+    );
+
+class ExerciseListShowArchivedNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void toggle() => state = !state;
+}
 
 /// Search text and facet selections (`F-CAT-004`, `F-CAT-005`).
 ///

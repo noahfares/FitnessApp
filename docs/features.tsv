@@ -4,10 +4,10 @@ F-CAT-002	1	done	P0	Exercise model & tracking types	F-CAT-001	F-LOG-003	21-DATA-
 F-CAT-003	1	done	P0	Custom exercises	F-CAT-002		21-DATA-MODEL#exercises
 F-CAT-004	1	done	P0	Search	F-CAT-001		21-DATA-MODEL#exercises
 F-CAT-005	1	done	P1	Filter by muscle and equipment	F-CAT-001		21-DATA-MODEL#exercises
-F-CAT-006	2	planned	P1	Favourites and recency ordering	F-CAT-004		21-DATA-MODEL#exercises
-F-CAT-007	2	planned	P1	Per-exercise sticky notes			21-DATA-MODEL#exercises
-F-CAT-008	2	planned	P2	Aliases and synonyms	F-CAT-004		21-DATA-MODEL#exercises
-F-CAT-009	2	planned	P1	Archive and hide			21-DATA-MODEL#exercises
+F-CAT-006	2	done	P1	Favourites and recency ordering	F-CAT-004		21-DATA-MODEL#exercises
+F-CAT-007	2	done	P1	Per-exercise sticky notes			21-DATA-MODEL#exercises
+F-CAT-008	2	done	P2	Aliases and synonyms	F-CAT-004		21-DATA-MODEL#exercises
+F-CAT-009	2	done	P1	Archive and hide			21-DATA-MODEL#exercises
 F-CAT-010	—	idea	P2	Merge duplicate exercises			21-DATA-MODEL#exercises
 F-CAT-011	—	idea	P3	Exercise media			21-DATA-MODEL#exercises
 F-CAT-012	—	idea	P2	Substitution suggestions	F-CAT-013		21-DATA-MODEL#exercises

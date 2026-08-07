@@ -180,6 +180,46 @@ void main() {
     });
   });
 
+  group('watchLastUsedAtByExercise (F-CAT-006 §2)', () {
+    test('reports the most recent session containing each exercise', () async {
+      await makeExercise('bench');
+      await makeExercise('squat');
+
+      clock = DateTime(2026, 8, 1);
+      final firstWe = await startWith('bench');
+      await sets.complete(
+        (await sets.getSets(firstWe)).single.id,
+        weightGrams: const Value(100000),
+        reps: const Value(5),
+      );
+      await workouts.finish((await workouts.findActive())!.id);
+
+      clock = DateTime(2026, 8, 5);
+      final secondWe = await startWith('bench');
+      await sets.complete(
+        (await sets.getSets(secondWe)).single.id,
+        weightGrams: const Value(105000),
+        reps: const Value(5),
+      );
+      await workouts.finish((await workouts.findActive())!.id);
+
+      final lastUsed = await sets.watchLastUsedAtByExercise().first;
+
+      expect(lastUsed['bench'], DateTime(2026, 8, 5).millisecondsSinceEpoch);
+      // Never touched, so it never appears — not zero, absent.
+      expect(lastUsed.containsKey('squat'), isFalse);
+    });
+
+    test('an incomplete set does not count as used', () async {
+      await makeExercise('bench');
+      await startWith('bench'); // Added, but never completed.
+
+      final lastUsed = await sets.watchLastUsedAtByExercise().first;
+
+      expect(lastUsed.containsKey('bench'), isFalse);
+    });
+  });
+
   group('ghost values (F-LOG-004)', () {
     /// A finished session of [exerciseId] with the given completed sets.
     Future<void> logSession(

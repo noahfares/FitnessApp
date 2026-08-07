@@ -226,6 +226,37 @@ class SetRepository {
     );
   }
 
+  /// The most recent session each exercise was performed in, keyed by
+  /// exercise id — the recency tiebreak in catalogue and picker ordering
+  /// (`F-CAT-004` §3, `F-CAT-006` §2).
+  ///
+  /// Unlike the ghost query, this counts warm-ups too and does not require
+  /// the session to be finished: "have I touched this lately" is a browsing
+  /// convenience, not an analytics figure, so none of the exclusions in
+  /// `docs/40-ANALYTICS-SPEC.md` §universal-preconditions apply here.
+  Stream<Map<String, int>> watchLastUsedAtByExercise() => _db
+      .customSelect(
+        '''
+        SELECT we.exercise_id AS exercise_id, MAX(w.started_at) AS last_used_at
+          FROM sets s
+          JOIN workout_exercises we ON we.id = s.workout_exercise_id
+          JOIN workouts w           ON w.id  = we.workout_id
+         WHERE we.deleted_at IS NULL
+           AND w.deleted_at IS NULL
+           AND s.deleted_at IS NULL
+           AND s.is_completed = 1
+         GROUP BY we.exercise_id
+        ''',
+        readsFrom: {_db.sets, _db.workoutExercises, _db.workouts},
+      )
+      .watch()
+      .map(
+        (rows) => {
+          for (final row in rows)
+            row.read<String>('exercise_id'): row.read<int>('last_used_at'),
+        },
+      );
+
   /// The completed sets of the most recent **finished** session containing
   /// [exerciseId] — the ghost values (`F-LOG-004` §1).
   ///

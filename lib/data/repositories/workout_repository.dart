@@ -41,6 +41,7 @@ class SessionExercise {
     required this.setCount,
     required this.completedSetCount,
     this.notes,
+    this.exerciseNotes,
     this.target,
     this.groupId,
   });
@@ -58,6 +59,11 @@ class SessionExercise {
   /// Session-specific, distinct from the exercise's persistent sticky note
   /// (`F-LOG-008`).
   final String? notes;
+
+  /// The exercise's own persistent sticky note — seat height, pin position,
+  /// grip width (`F-CAT-007`). Distinct from [notes], which is this session
+  /// only.
+  final String? exerciseNotes;
 
   /// Decides which inputs the set rows render (`F-CAT-002`, `F-LOG-003` §1).
   final TrackingType trackingType;
@@ -857,6 +863,7 @@ class WorkoutRepository {
                  we.target_snapshot AS target_snapshot,
                  e.id             AS exercise_id,
                  e.name           AS name,
+                 e.notes          AS exercise_notes,
                  e.primary_muscle AS primary_muscle,
                  e.equipment      AS equipment,
                  e.tracking_type  AS tracking_type,
@@ -886,6 +893,7 @@ class WorkoutRepository {
                 workoutExerciseId: row.read<String>('we_id'),
                 exerciseId: row.read<String>('exercise_id'),
                 name: row.read<String>('name'),
+                exerciseNotes: row.read<String?>('exercise_notes'),
                 primaryMuscle: _enumByName(
                   Muscle.values,
                   row.read<String>('primary_muscle'),
