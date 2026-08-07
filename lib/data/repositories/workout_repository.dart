@@ -41,6 +41,7 @@ class SessionExercise {
     required this.completedSetCount,
     this.notes,
     this.target,
+    this.groupId,
   });
 
   final String workoutExerciseId;
@@ -48,6 +49,10 @@ class SessionExercise {
   final String name;
   final Muscle primaryMuscle;
   final Equipment equipment;
+
+  /// Snapshotted superset grouping — same value as sibling exercises means
+  /// same group, null means standalone (`F-LOG-015` §1, `ADR-0004`).
+  final String? groupId;
 
   /// Session-specific, distinct from the exercise's persistent sticky note
   /// (`F-LOG-008`).
@@ -493,6 +498,77 @@ class WorkoutRepository {
     });
   }
 
+  /// Groups adjacent session exercises into a superset (`F-LOG-015` §4).
+  /// Mid-session grouping is independent of the routine the session may have
+  /// snapshotted from — the workout owns its own list (`ADR-0004`).
+  Future<void> groupExercises(List<String> workoutExerciseIds) async {
+    if (workoutExerciseIds.length < 2) return;
+    final groupId = newUuidV4();
+    final timestamp = _now;
+    await _db.transaction(() async {
+      for (final id in workoutExerciseIds) {
+        await (_db.update(
+          _db.workoutExercises,
+        )..where((we) => we.id.equals(id))).write(
+          WorkoutExercisesCompanion(
+            groupId: Value(groupId),
+            updatedAt: Value(timestamp),
+          ),
+        );
+      }
+    });
+  }
+
+  /// Breaking a group mid-session never touches sets — grouping is purely
+  /// about ordering and rest behaviour, not the logged data (`F-LOG-015`
+  /// §4).
+  Future<void> ungroupExercises(String groupId) async {
+    await (_db.update(_db.workoutExercises)
+          ..where((we) => we.groupId.equals(groupId)))
+        .write(
+          WorkoutExercisesCompanion(
+            groupId: const Value(null),
+            updatedAt: Value(_now),
+          ),
+        );
+  }
+
+  /// Toggles the pairing between two adjacent session exercises
+  /// (`F-LOG-015` §4) — the logger's per-tile "Group with next" control.
+  /// Already-sharing-a-group breaks the whole group; otherwise the two
+  /// exercises' existing groups (if any) are merged into one.
+  Future<void> toggleGroupWithNext(
+    String workoutExerciseId,
+    String nextWorkoutExerciseId,
+  ) async {
+    final rows = await (_db.select(_db.workoutExercises)..where(
+      (we) =>
+          we.id.equals(workoutExerciseId) |
+          we.id.equals(nextWorkoutExerciseId),
+    )).get();
+    final a = rows.firstWhere((r) => r.id == workoutExerciseId);
+    final b = rows.firstWhere((r) => r.id == nextWorkoutExerciseId);
+
+    if (a.groupId != null && a.groupId == b.groupId) {
+      await ungroupExercises(a.groupId!);
+      return;
+    }
+
+    final memberIds = <String>{};
+    for (final (row, groupId) in [(a, a.groupId), (b, b.groupId)]) {
+      if (groupId == null) {
+        memberIds.add(row.id);
+      } else {
+        final members =
+            await (_db.select(_db.workoutExercises)..where(
+              (we) => we.groupId.equals(groupId) & we.deletedAt.isNull(),
+            )).get();
+        memberIds.addAll(members.map((m) => m.id));
+      }
+    }
+    await groupExercises(memberIds.toList());
+  }
+
   /// The session's exercises, with set counts, ordered for display.
   ///
   /// Deliberately does **not** filter `exercises.deleted_at`: a tombstoned
@@ -505,6 +581,7 @@ class WorkoutRepository {
           SELECT we.id            AS we_id,
                  we.position      AS position,
                  we.notes         AS we_notes,
+                 we.group_id      AS group_id,
                  we.target_snapshot AS target_snapshot,
                  e.id             AS exercise_id,
                  e.name           AS name,
@@ -557,6 +634,7 @@ class WorkoutRepository {
                 setCount: row.read<int>('set_count'),
                 completedSetCount: row.read<int>('done_count'),
                 notes: row.read<String?>('we_notes'),
+                groupId: row.read<String?>('group_id'),
                 target: switch (row.read<String?>('target_snapshot')) {
                   null => null,
                   final json => SessionExerciseTarget.fromJson(json),
@@ -765,6 +843,9 @@ class WorkoutRepository {
   /// Removes one exercise from a workout, cascading to its sets — exercises
   /// are as editable as the sets within them (`F-LOG-009` §1).
   Future<void> removeExerciseFromWorkout(String workoutExerciseId) async {
+    final removed = await (_db.select(
+      _db.workoutExercises,
+    )..where((we) => we.id.equals(workoutExerciseId))).getSingleOrNull();
     final timestamp = _now;
     await _db.transaction(() async {
       await _db.customUpdate(
@@ -787,6 +868,25 @@ class WorkoutRepository {
         ],
         updates: {_db.workoutExercises},
       );
+      final groupId = removed?.groupId;
+      if (groupId != null) {
+        final remaining = await (_db.select(_db.workoutExercises)..where(
+          (we) =>
+              we.groupId.equals(groupId) &
+              we.id.equals(workoutExerciseId).not() &
+              we.deletedAt.isNull(),
+        )).get();
+        if (remaining.length < 2) {
+          await (_db.update(_db.workoutExercises)
+                ..where((we) => we.groupId.equals(groupId)))
+              .write(
+                WorkoutExercisesCompanion(
+                  groupId: const Value(null),
+                  updatedAt: Value(timestamp),
+                ),
+              );
+        }
+      }
     });
   }
 

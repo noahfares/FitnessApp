@@ -154,8 +154,25 @@ class _ActiveWorkout extends ConsumerWidget {
                   )
                 : ListView.builder(
                     itemCount: exercises.length,
-                    itemBuilder: (context, i) =>
-                        _SessionExerciseTile(exercise: exercises[i]),
+                    itemBuilder: (context, i) {
+                      final exercise = exercises[i];
+                      final groupId = exercise.groupId;
+                      final isLastInGroup =
+                          groupId == null ||
+                          i == exercises.length - 1 ||
+                          exercises[i + 1].groupId != groupId;
+                      final isFirstInGroup =
+                          groupId != null &&
+                          (i == 0 || exercises[i - 1].groupId != groupId);
+                      return _SessionExerciseTile(
+                        exercise: exercise,
+                        isFirstInGroup: isFirstInGroup,
+                        isLastInGroup: isLastInGroup,
+                        nextExercise: i < exercises.length - 1
+                            ? exercises[i + 1]
+                            : null,
+                      );
+                    },
                   ),
           ),
         ],
@@ -301,9 +318,22 @@ class _StaleSessionNotice extends StatelessWidget {
 
 /// One exercise and its sets (`F-LOG-003`).
 class _SessionExerciseTile extends ConsumerWidget {
-  const _SessionExerciseTile({required this.exercise});
+  const _SessionExerciseTile({
+    required this.exercise,
+    required this.isFirstInGroup,
+    required this.isLastInGroup,
+    required this.nextExercise,
+  });
 
   final SessionExercise exercise;
+
+  /// Grouping is visually explicit in the logger too (`F-LOG-015` §1).
+  final bool isFirstInGroup;
+  final bool isLastInGroup;
+
+  /// The next exercise in list order, or null at the end — the pairing a tap
+  /// on the group/ungroup connector toggles (`F-LOG-015` §4).
+  final SessionExercise? nextExercise;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -325,19 +355,23 @@ class _SessionExerciseTile extends ConsumerWidget {
 
     // Same reasoning: the rest duration is a property of the exercise, and
     // resolving it once per tile keeps the rule out of the completion handler
-    // (`F-TIM-005`).
-    final restSeconds = resolveRestSeconds(
-      equipment: exercise.equipment.name,
-      primaryMuscle: exercise.primaryMuscle.name,
-      routineSeconds: exercise.target?.restSeconds,
-      exerciseSeconds: exercise.defaultRestSeconds,
-      globalSeconds: ref.watch(restTimerSettingsProvider).defaultSeconds,
-    );
+    // (`F-TIM-005`). Within a superset the timer runs after the *last*
+    // member, not between them — there is no configured within-group rest,
+    // so non-last members rest zero (`F-LOG-015` §3, `F-ROU-005` §3).
+    final restSeconds = exercise.groupId != null && !isLastInGroup
+        ? 0
+        : resolveRestSeconds(
+            equipment: exercise.equipment.name,
+            primaryMuscle: exercise.primaryMuscle.name,
+            routineSeconds: exercise.target?.restSeconds,
+            exerciseSeconds: exercise.defaultRestSeconds,
+            globalSeconds: ref.watch(restTimerSettingsProvider).defaultSeconds,
+          );
     final labels = labelSets([
       for (final set in sets ?? const <WorkoutSet>[]) set.setType.name,
     ]);
 
-    return Column(
+    final tile = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ListTile(
@@ -381,9 +415,78 @@ class _SessionExerciseTile extends ConsumerWidget {
               restSeconds: restSeconds,
             ),
         AddSetButton(workoutExerciseId: exercise.workoutExerciseId),
+        if (nextExercise != null)
+          Center(
+            child: TextButton.icon(
+              onPressed: () => unawaited(_toggleGroupWithNext(ref)),
+              icon: Icon(
+                exercise.groupId != null &&
+                        exercise.groupId == nextExercise!.groupId
+                    ? Icons.link_off
+                    : Icons.link,
+                size: 16,
+              ),
+              label: Text(
+                exercise.groupId != null &&
+                        exercise.groupId == nextExercise!.groupId
+                    ? 'Ungroup'
+                    : 'Group with next',
+              ),
+            ),
+          ),
         const Divider(height: 1),
       ],
     );
+
+    if (exercise.groupId == null) return tile;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(
+          left: BorderSide(color: theme.colorScheme.primary, width: 3),
+        ),
+        color: theme.colorScheme.primary.withValues(alpha: 0.04),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (isFirstInGroup)
+            Padding(
+              padding: const EdgeInsets.only(
+                left: AppSpacing.md,
+                top: AppSpacing.sm,
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.link,
+                    size: 16,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Superset',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          tile,
+        ],
+      ),
+    );
+  }
+
+  Future<void> _toggleGroupWithNext(WidgetRef ref) {
+    return ref
+        .read(workoutRepositoryProvider)
+        .toggleGroupWithNext(
+          exercise.workoutExerciseId,
+          nextExercise!.workoutExerciseId,
+        );
   }
 
   /// What the routine day proposed, rendered beside the ghost values it sits

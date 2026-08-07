@@ -206,7 +206,19 @@ class RoutineRepository {
                       re.routineDayId.equals(day.id) & re.deletedAt.isNull(),
                 ))
                 .get();
+        // A copied superset must not share its group_id with the source —
+        // that would tie two different days' exercises into the same group
+        // (`F-ROU-005` §1 assumes same value = same day). Fresh ids per
+        // source group, reused across its members.
+        final groupIdMap = <String, String>{};
         for (final exercise in exercises) {
+          final newGroupId = switch (exercise.groupId) {
+            null => null,
+            final oldGroupId => groupIdMap.putIfAbsent(
+              oldGroupId,
+              newUuidV4,
+            ),
+          };
           await _db
               .into(_db.routineExercises)
               .insert(
@@ -215,7 +227,7 @@ class RoutineRepository {
                   routineDayId: newDayId,
                   exerciseId: exercise.exerciseId,
                   position: exercise.position,
-                  groupId: Value(exercise.groupId),
+                  groupId: Value(newGroupId),
                   targetSets: Value(exercise.targetSets),
                   targetRepsMin: Value(exercise.targetRepsMin),
                   targetRepsMax: Value(exercise.targetRepsMax),
@@ -327,6 +339,7 @@ class RoutineRepository {
           '''
           SELECT we.id AS we_id, we.exercise_id AS exercise_id,
                  we.position AS position,
+                 we.group_id AS group_id,
                  (SELECT COUNT(*) FROM sets s
                    WHERE s.workout_exercise_id = we.id AND s.deleted_at IS NULL
                      AND s.is_completed = 1 AND s.set_type != 'warmup')
@@ -381,8 +394,16 @@ class RoutineRepository {
               updatedAt: timestamp,
             ),
           );
+      // Superset grouping carries over too — the routine that comes out of
+      // "save as routine" should reproduce what was actually done, not
+      // flatten it (`F-ROU-005` §1, `F-LOG-012` §3).
+      final groupIdMap = <String, String>{};
       for (final row in exerciseRows) {
         final setCount = row.read<int>('set_count');
+        final newGroupId = switch (row.read<String?>('group_id')) {
+          null => null,
+          final oldGroupId => groupIdMap.putIfAbsent(oldGroupId, newUuidV4),
+        };
         await _db
             .into(_db.routineExercises)
             .insert(
@@ -391,6 +412,7 @@ class RoutineRepository {
                 routineDayId: dayId,
                 exerciseId: row.read<String>('exercise_id'),
                 position: row.read<int>('position'),
+                groupId: Value(newGroupId),
                 targetSets: Value(setCount == 0 ? null : setCount),
                 targetRepsMin: Value(row.read<int?>('reps_min')),
                 targetRepsMax: Value(row.read<int?>('reps_max')),
@@ -567,13 +589,48 @@ class RoutineRepository {
   }
 
   Future<void> removeExercise(String routineExerciseId) async {
-    await (_db.update(
+    final removed = await (_db.select(
       _db.routineExercises,
-    )..where((re) => re.id.equals(routineExerciseId))).write(
-      RoutineExercisesCompanion(deletedAt: Value(_now), updatedAt: Value(_now)),
-    );
+    )..where((re) => re.id.equals(routineExerciseId))).getSingleOrNull();
+    final timestamp = _now;
+    await _db.transaction(() async {
+      await (_db.update(
+        _db.routineExercises,
+      )..where((re) => re.id.equals(routineExerciseId))).write(
+        RoutineExercisesCompanion(
+          deletedAt: Value(timestamp),
+          updatedAt: Value(timestamp),
+        ),
+      );
+      // A superset of one is not a superset — removing a member down to a
+      // single survivor dissolves the group rather than leaving it stranded.
+      final groupId = removed?.groupId;
+      if (groupId != null) {
+        final remaining = await (_db.select(_db.routineExercises)..where(
+          (re) =>
+              re.groupId.equals(groupId) &
+              re.id.equals(routineExerciseId).not() &
+              re.deletedAt.isNull(),
+        )).get();
+        if (remaining.length < 2) {
+          await (_db.update(_db.routineExercises)
+                ..where((re) => re.groupId.equals(groupId)))
+              .write(
+                RoutineExercisesCompanion(
+                  groupId: const Value(null),
+                  updatedAt: Value(timestamp),
+                ),
+              );
+        }
+      }
+    });
   }
 
+  /// [orderedRoutineExerciseIds] must be the day's **complete** exercise
+  /// list in its new order — the superset-contiguity check below reads
+  /// group membership from positions *within this list*, so a partial list
+  /// would misjudge adjacency and could dissolve groups that are actually
+  /// still intact.
   Future<void> reorderExercises(List<String> orderedRoutineExerciseIds) async {
     final timestamp = _now;
     await _db.transaction(() async {
@@ -586,6 +643,31 @@ class RoutineRepository {
                 updatedAt: Value(timestamp),
               ),
             );
+      }
+
+      // A drag can pull a member out of its superset's block. A group only
+      // means anything while its members stay adjacent (`F-ROU-005` §1) —
+      // if reordering breaks that, dissolve it rather than render two
+      // "Superset" blocks sharing one `group_id`.
+      final rows = await (_db.select(_db.routineExercises)..where(
+        (re) =>
+            re.id.isIn(orderedRoutineExerciseIds) & re.deletedAt.isNull(),
+      )).get();
+      final groupIdById = {for (final r in rows) r.id: r.groupId};
+      final positionsByGroup = <String, List<int>>{};
+      for (var i = 0; i < orderedRoutineExerciseIds.length; i++) {
+        final groupId = groupIdById[orderedRoutineExerciseIds[i]];
+        if (groupId != null) {
+          (positionsByGroup[groupId] ??= []).add(i);
+        }
+      }
+      for (final MapEntry(key: groupId, value: positions)
+          in positionsByGroup.entries) {
+        final isContiguous =
+            positions.last - positions.first == positions.length - 1;
+        if (!isContiguous) {
+          await ungroupExercises(groupId);
+        }
       }
     });
   }
@@ -615,6 +697,42 @@ class RoutineRepository {
         updatedAt: Value(_now),
       ),
     );
+  }
+
+  /// Groups adjacent exercises into a superset (`F-ROU-005` §1). Callers
+  /// must pass rows already contiguous by `position` — a superset is a
+  /// visually adjacent block, never a scattered selection.
+  Future<void> groupExercises(List<String> routineExerciseIds) async {
+    if (routineExerciseIds.length < 2) return;
+    final groupId = newUuidV4();
+    final timestamp = _now;
+    await _db.transaction(() async {
+      for (final id in routineExerciseIds) {
+        await (_db.update(
+          _db.routineExercises,
+        )..where((re) => re.id.equals(id))).write(
+          RoutineExercisesCompanion(
+            groupId: Value(groupId),
+            updatedAt: Value(timestamp),
+          ),
+        );
+      }
+    });
+  }
+
+  /// Ungrouping is a single action that clears every member's `group_id`
+  /// (`F-ROU-005` §4) — it never touches targets, sets, or any logged data,
+  /// which live entirely on the workout side once a session snapshots them
+  /// (`ADR-0004`).
+  Future<void> ungroupExercises(String groupId) async {
+    await (_db.update(_db.routineExercises)
+          ..where((re) => re.groupId.equals(groupId)))
+        .write(
+          RoutineExercisesCompanion(
+            groupId: const Value(null),
+            updatedAt: Value(_now),
+          ),
+        );
   }
 
   Future<void> setExerciseNotes(String routineExerciseId, String? notes) {

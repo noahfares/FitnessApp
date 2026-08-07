@@ -315,6 +315,33 @@ void main() {
     });
   });
 
+  group('supersets (F-LOG-015)', () {
+    testWidgets(
+      'grouping two exercises shows the superset label and lets them '
+      'ungroup',
+      (tester) async {
+        await seedExercises();
+        final workout = await repo.start();
+        await repo.addExercises(workout.id, ['bench', 'squat']);
+        await pump(tester, startAt: AppRoutes.activeWorkout);
+
+        expect(find.text('Superset'), findsNothing);
+        expect(find.text('Group with next'), findsOneWidget);
+
+        await tester.tap(find.text('Group with next'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Superset'), findsOneWidget);
+        expect(find.text('Ungroup'), findsOneWidget);
+
+        await tester.tap(find.text('Ungroup'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Superset'), findsNothing);
+      },
+    );
+  });
+
   group('formatElapsed', () {
     test('drops the hour until there is one', () {
       expect(formatElapsed(Duration.zero), '00:00');

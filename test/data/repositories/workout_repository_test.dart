@@ -635,5 +635,91 @@ void main() {
         throwsA(isA<ActiveWorkoutExistsException>()),
       );
     });
+
+    test(
+      "carries the routine day's superset grouping into the session",
+      () async {
+        await makeExercise('bench', 'Bench Press');
+        await makeExercise('fly', 'Cable Fly');
+        final routine = await routines.create(name: 'Push');
+        final day = await routines.addDay(routine.id, name: 'Day 1');
+        await routines.addExercises(day.id, ['bench', 'fly']);
+        final rows = await routines.watchExercises(day.id).first;
+        await routines.groupExercises([
+          for (final row in rows) row.routineExerciseId,
+        ]);
+
+        final workout = await repo.startFromRoutineDay(day.id);
+
+        final exercises = await repo.watchExercises(workout.id).first;
+        expect(exercises[0].groupId, isNotNull);
+        expect(exercises[0].groupId, exercises[1].groupId);
+      },
+    );
+  });
+
+  group('supersets in the logger (F-LOG-015)', () {
+    Future<(String, String)> makeTwoExerciseWorkout() async {
+      await makeExercise('bench', 'Bench Press');
+      await makeExercise('fly', 'Cable Fly');
+      final workout = await repo.start();
+      await repo.addExercises(workout.id, ['bench', 'fly']);
+      final [a, b] = await repo.watchExercises(workout.id).first;
+      return (a.workoutExerciseId, b.workoutExerciseId);
+    }
+
+    test(
+      'groupExercises assigns a shared group id to every member',
+      () async {
+        final (a, b) = await makeTwoExerciseWorkout();
+
+        await repo.groupExercises([a, b]);
+
+        final exercises = await repo
+            .watchExercises((await repo.findActive())!.id)
+            .first;
+        expect(exercises[0].groupId, isNotNull);
+        expect(exercises[0].groupId, exercises[1].groupId);
+      },
+    );
+
+    test('toggleGroupWithNext groups two ungrouped exercises', () async {
+      final (a, b) = await makeTwoExerciseWorkout();
+
+      await repo.toggleGroupWithNext(a, b);
+
+      final exercises = await repo
+          .watchExercises((await repo.findActive())!.id)
+          .first;
+      expect(exercises[0].groupId, isNotNull);
+      expect(exercises[0].groupId, exercises[1].groupId);
+    });
+
+    test('toggleGroupWithNext breaks an existing group', () async {
+      final (a, b) = await makeTwoExerciseWorkout();
+      await repo.groupExercises([a, b]);
+
+      await repo.toggleGroupWithNext(a, b);
+
+      final exercises = await repo
+          .watchExercises((await repo.findActive())!.id)
+          .first;
+      expect(exercises.every((e) => e.groupId == null), isTrue);
+    });
+
+    test(
+      'removing a member down to a single survivor dissolves the group',
+      () async {
+        final (a, b) = await makeTwoExerciseWorkout();
+        await repo.groupExercises([a, b]);
+
+        await repo.removeExerciseFromWorkout(a);
+
+        final exercises = await repo
+            .watchExercises((await repo.findActive())!.id)
+            .first;
+        expect(exercises.single.groupId, isNull);
+      },
+    );
   });
 }

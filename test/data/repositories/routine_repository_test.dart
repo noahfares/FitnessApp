@@ -341,4 +341,117 @@ void main() {
       },
     );
   });
+
+  group('supersets (F-ROU-005)', () {
+    test(
+      'groupExercises assigns a shared group id to every member',
+      () async {
+        final bench = await makeExercise('bench', 'Bench Press');
+        final fly = await makeExercise('fly', 'Cable Fly');
+        final routine = await repo.create(name: 'Push');
+        final day = await repo.addDay(routine.id, name: 'Day 1');
+        await repo.addExercises(day.id, [bench, fly]);
+        final rows = await repo.watchExercises(day.id).first;
+
+        await repo.groupExercises([
+          for (final row in rows) row.routineExerciseId,
+        ]);
+
+        final grouped = await repo.watchExercises(day.id).first;
+        expect(grouped[0].groupId, isNotNull);
+        expect(grouped[0].groupId, grouped[1].groupId);
+      },
+    );
+
+    test('ungroupExercises clears group id for every member', () async {
+      final bench = await makeExercise('bench', 'Bench Press');
+      final fly = await makeExercise('fly', 'Cable Fly');
+      final routine = await repo.create(name: 'Push');
+      final day = await repo.addDay(routine.id, name: 'Day 1');
+      await repo.addExercises(day.id, [bench, fly]);
+      final rows = await repo.watchExercises(day.id).first;
+      await repo.groupExercises([
+        for (final row in rows) row.routineExerciseId,
+      ]);
+      final groupId = (await repo.watchExercises(day.id).first).first.groupId;
+
+      await repo.ungroupExercises(groupId!);
+
+      final ungrouped = await repo.watchExercises(day.id).first;
+      expect(ungrouped.every((row) => row.groupId == null), isTrue);
+    });
+
+    test(
+      'removing a member down to a single survivor dissolves the group',
+      () async {
+        final bench = await makeExercise('bench', 'Bench Press');
+        final fly = await makeExercise('fly', 'Cable Fly');
+        final routine = await repo.create(name: 'Push');
+        final day = await repo.addDay(routine.id, name: 'Day 1');
+        await repo.addExercises(day.id, [bench, fly]);
+        final rows = await repo.watchExercises(day.id).first;
+        await repo.groupExercises([
+          for (final row in rows) row.routineExerciseId,
+        ]);
+
+        await repo.removeExercise(rows[0].routineExerciseId);
+
+        final remaining = await repo.watchExercises(day.id).first;
+        expect(remaining.single.groupId, isNull);
+      },
+    );
+
+    test('duplicating a day gives its superset a fresh group id', () async {
+      final bench = await makeExercise('bench', 'Bench Press');
+      final fly = await makeExercise('fly', 'Cable Fly');
+      final routine = await repo.create(name: 'Push');
+      final day = await repo.addDay(routine.id, name: 'Day 1');
+      await repo.addExercises(day.id, [bench, fly]);
+      final rows = await repo.watchExercises(day.id).first;
+      await repo.groupExercises([
+        for (final row in rows) row.routineExerciseId,
+      ]);
+      final originalGroupId =
+          (await repo.watchExercises(day.id).first).first.groupId;
+
+      final copy = await repo.duplicate(routine.id);
+      final copyDay = (await repo.watchDays(copy.id).first).first;
+      final copiedRows = await repo.watchExercises(copyDay.id).first;
+
+      expect(copiedRows[0].groupId, isNotNull);
+      expect(copiedRows[0].groupId, copiedRows[1].groupId);
+      expect(copiedRows[0].groupId, isNot(originalGroupId));
+    });
+
+    test(
+      'dragging a member out of a superset dissolves the group',
+      () async {
+        final bench = await makeExercise('bench', 'Bench Press');
+        final fly = await makeExercise('fly', 'Cable Fly');
+        final row = await makeExercise('row', 'Cable Row');
+        final routine = await repo.create(name: 'Push');
+        final day = await repo.addDay(routine.id, name: 'Day 1');
+        await repo.addExercises(day.id, [bench, fly, row]);
+        final rows = await repo.watchExercises(day.id).first;
+        // Group the first two (bench, fly); leave "row" standalone.
+        await repo.groupExercises([
+          rows[0].routineExerciseId,
+          rows[1].routineExerciseId,
+        ]);
+        final grouped = await repo.watchExercises(day.id).first;
+        expect(grouped.where((r) => r.groupId != null), hasLength(2));
+
+        // Drag "row" between the two grouped members — the group is no
+        // longer contiguous.
+        await repo.reorderExercises([
+          rows[0].routineExerciseId,
+          rows[2].routineExerciseId,
+          rows[1].routineExerciseId,
+        ]);
+
+        final after = await repo.watchExercises(day.id).first;
+        expect(after.every((r) => r.groupId == null), isTrue);
+      },
+    );
+  });
 }

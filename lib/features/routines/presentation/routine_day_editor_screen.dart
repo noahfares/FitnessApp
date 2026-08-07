@@ -101,7 +101,7 @@ class RoutineDayEditorScreen extends ConsumerWidget {
 
 /// The exercise list body, shared by the full day screen and the inline
 /// single-day routine scaffold.
-class DayExerciseList extends ConsumerWidget {
+class DayExerciseList extends ConsumerStatefulWidget {
   const DayExerciseList({
     required this.routineId,
     required this.day,
@@ -114,36 +114,114 @@ class DayExerciseList extends ConsumerWidget {
   final List<RoutineExerciseDetail> rows;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DayExerciseList> createState() => _DayExerciseListState();
+}
+
+class _DayExerciseListState extends ConsumerState<DayExerciseList> {
+  // Multi-select for grouping into a superset (`F-ROU-005` §1). Empty means
+  // "not selecting" — there is no separate mode flag to fall out of sync
+  // with.
+  final Set<String> _selected = {};
+
+  @override
+  Widget build(BuildContext context) {
+    final rows = widget.rows;
     if (rows.isEmpty) {
       return EmptyState(
         icon: Icons.fitness_center,
         title: 'No exercises yet',
         message: 'Add exercises, then set targets for each.',
         actionLabel: 'Add exercises',
-        onAction: () => unawaited(_addExercises(context, ref)),
+        onAction: () => unawaited(_addExercises(context)),
       );
     }
+
+    final selectedIndices =
+        [
+          for (var i = 0; i < rows.length; i++)
+            if (_selected.contains(rows[i].routineExerciseId)) i,
+        ]..sort();
+    final canGroup =
+        selectedIndices.length >= 2 &&
+        selectedIndices.last - selectedIndices.first ==
+            selectedIndices.length - 1;
+
     return Column(
       children: [
+        if (_selected.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.screen,
+              vertical: AppSpacing.sm,
+            ),
+            child: Row(
+              children: [
+                Text('${_selected.length} selected'),
+                const Spacer(),
+                if (!canGroup && selectedIndices.length >= 2)
+                  Padding(
+                    padding: const EdgeInsets.only(right: AppSpacing.sm),
+                    child: Text(
+                      'Must be adjacent',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                TextButton.icon(
+                  onPressed: canGroup
+                      ? () => unawaited(_group(selectedIndices))
+                      : null,
+                  icon: const Icon(Icons.link),
+                  label: const Text('Group'),
+                ),
+                TextButton(
+                  onPressed: () => setState(_selected.clear),
+                  child: const Text('Cancel'),
+                ),
+              ],
+            ),
+          ),
         // Drag to reorder — order is explicit `position`, never implied by
         // the list itself (`F-ROU-004`).
         Expanded(
           child: ReorderableListView.builder(
             padding: const EdgeInsets.all(AppSpacing.screen),
             itemCount: rows.length,
-            itemBuilder: (context, i) => _ExerciseTargetTile(
-              key: ValueKey(rows[i].routineExerciseId),
-              row: rows[i],
-            ),
+            itemBuilder: (context, i) {
+              final row = rows[i];
+              final groupId = row.groupId;
+              final isFirstInGroup =
+                  groupId != null &&
+                  (i == 0 || rows[i - 1].groupId != groupId);
+              final isLastInGroup =
+                  groupId != null &&
+                  (i == rows.length - 1 || rows[i + 1].groupId != groupId);
+              return _ExerciseTargetTile(
+                key: ValueKey(row.routineExerciseId),
+                row: row,
+                isFirstInGroup: isFirstInGroup,
+                isLastInGroup: isLastInGroup,
+                selected: _selected.contains(row.routineExerciseId),
+                selecting: _selected.isNotEmpty,
+                onSelectToggle: () => setState(() {
+                  if (!_selected.remove(row.routineExerciseId)) {
+                    _selected.add(row.routineExerciseId);
+                  }
+                }),
+                onLongPress: () =>
+                    setState(() => _selected.add(row.routineExerciseId)),
+                onUngroup: groupId == null
+                    ? null
+                    : () => unawaited(_ungroup(groupId)),
+              );
+            },
             onReorder: (oldIndex, newIndex) =>
-                unawaited(_reorder(ref, oldIndex, newIndex)),
+                unawaited(_reorder(oldIndex, newIndex)),
           ),
         ),
         Padding(
           padding: const EdgeInsets.all(AppSpacing.screen),
           child: OutlinedButton.icon(
-            onPressed: () => unawaited(_addExercises(context, ref)),
+            onPressed: () => unawaited(_addExercises(context)),
             icon: const Icon(Icons.add),
             label: const Text('Add exercises'),
           ),
@@ -152,29 +230,62 @@ class DayExerciseList extends ConsumerWidget {
     );
   }
 
-  Future<void> _addExercises(BuildContext context, WidgetRef ref) async {
+  Future<void> _addExercises(BuildContext context) async {
     final chosen = await showExercisePicker(context, ref);
     if (chosen == null || chosen.isEmpty) return;
-    await ref.read(routineRepositoryProvider).addExercises(day.id, chosen);
+    await ref
+        .read(routineRepositoryProvider)
+        .addExercises(widget.day.id, chosen);
   }
 
-  Future<void> _reorder(WidgetRef ref, int oldIndex, int newIndex) {
+  Future<void> _reorder(int oldIndex, int newIndex) {
     if (newIndex > oldIndex) newIndex -= 1;
-    final ids = [for (final row in rows) row.routineExerciseId];
+    final ids = [for (final row in widget.rows) row.routineExerciseId];
     ids.insert(newIndex, ids.removeAt(oldIndex));
     return ref.read(routineRepositoryProvider).reorderExercises(ids);
   }
+
+  Future<void> _group(List<int> selectedIndices) async {
+    final ids = [
+      for (final i in selectedIndices) widget.rows[i].routineExerciseId,
+    ];
+    setState(_selected.clear);
+    await ref.read(routineRepositoryProvider).groupExercises(ids);
+  }
+
+  Future<void> _ungroup(String groupId) =>
+      ref.read(routineRepositoryProvider).ungroupExercises(groupId);
 }
 
 class _ExerciseTargetTile extends ConsumerWidget {
-  const _ExerciseTargetTile({required this.row, super.key});
+  const _ExerciseTargetTile({
+    required this.row,
+    required this.isFirstInGroup,
+    required this.isLastInGroup,
+    required this.selected,
+    required this.selecting,
+    required this.onSelectToggle,
+    required this.onLongPress,
+    required this.onUngroup,
+    super.key,
+  });
 
   final RoutineExerciseDetail row;
+  final bool isFirstInGroup;
+  final bool isLastInGroup;
+  final bool selected;
+  final bool selecting;
+  final VoidCallback onSelectToggle;
+  final VoidCallback onLongPress;
+  final VoidCallback? onUngroup;
+
+  bool get _isGrouped => row.groupId != null;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final formatter = ref.watch(quantityFormatterProvider);
     final repRange = formatRepRange(row.targetRepsMin, row.targetRepsMax);
+    final theme = Theme.of(context);
 
     final displayRange = repRange.isEmpty ? '?' : repRange;
     final summary = <String>[
@@ -188,22 +299,96 @@ class _ExerciseTargetTile extends ConsumerWidget {
       if (row.restSeconds != null) formatRestDuration(row.restSeconds!),
     ];
 
-    return Card(
+    final tile = Card(
+      margin: _isGrouped
+          ? EdgeInsets.only(
+              left: AppSpacing.sm,
+              right: AppSpacing.sm,
+              top: isFirstInGroup ? AppSpacing.sm : 0,
+              bottom: isLastInGroup ? AppSpacing.sm : 0,
+            )
+          : null,
       child: ListTile(
+        leading: selecting
+            ? Checkbox(value: selected, onChanged: (_) => onSelectToggle())
+            : null,
         title: Text(row.exerciseName),
         subtitle: Text(
           summary.isEmpty ? 'No targets set' : summary.join(' · '),
         ),
-        trailing: IconButton(
-          icon: const Icon(Icons.close),
-          tooltip: 'Remove',
-          onPressed: () => unawaited(
-            ref
-                .read(routineRepositoryProvider)
-                .removeExercise(row.routineExerciseId),
-          ),
+        trailing: selecting
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.close),
+                tooltip: 'Remove',
+                onPressed: () => unawaited(
+                  ref
+                      .read(routineRepositoryProvider)
+                      .removeExercise(row.routineExerciseId),
+                ),
+              ),
+        onTap: selecting
+            ? onSelectToggle
+            : () => unawaited(_editTargets(context, ref)),
+        onLongPress: selecting ? null : onLongPress,
+      ),
+    );
+
+    // Grouping is visually explicit, not just a data flag (`F-ROU-005` §2):
+    // a coloured border wraps the whole contiguous block of members, and
+    // only the first member carries the "Superset" label and ungroup action.
+    if (!_isGrouped) return tile;
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          left: BorderSide(color: theme.colorScheme.primary, width: 3),
+          top: isFirstInGroup
+              ? BorderSide(color: theme.colorScheme.primary, width: 2)
+              : BorderSide.none,
+          bottom: isLastInGroup
+              ? BorderSide(color: theme.colorScheme.primary, width: 2)
+              : BorderSide.none,
         ),
-        onTap: () => unawaited(_editTargets(context, ref)),
+        borderRadius: BorderRadius.vertical(
+          top: isFirstInGroup ? const Radius.circular(8) : Radius.zero,
+          bottom: isLastInGroup ? const Radius.circular(8) : Radius.zero,
+        ),
+      ),
+      child: Column(
+        children: [
+          if (isFirstInGroup)
+            Padding(
+              padding: const EdgeInsets.only(
+                left: AppSpacing.sm + AppSpacing.sm,
+                top: AppSpacing.sm,
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.link,
+                    size: 16,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Superset',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  if (onUngroup != null)
+                    TextButton(
+                      onPressed: onUngroup,
+                      child: const Text('Ungroup'),
+                    ),
+                ],
+              ),
+            ),
+          tile,
+        ],
       ),
     );
   }

@@ -42,7 +42,7 @@
 | [F-ROU-002](ROU/F-ROU-002.md) | Routine days | 2 | P0 | done |
 | [F-ROU-003](ROU/F-ROU-003.md) | Exercise targets | 2 | P0 | done |
 | [F-ROU-004](ROU/F-ROU-004.md) | Reordering | 2 | P1 | done |
-| [F-ROU-005](ROU/F-ROU-005.md) | Supersets and circuits | 2 | P1 | planned |
+| [F-ROU-005](ROU/F-ROU-005.md) | Supersets and circuits | 2 | P1 | in-progress |
 | [F-ROU-006](ROU/F-ROU-006.md) | Rest defaults | 2 | P1 | planned |
 | [F-ROU-007](ROU/F-ROU-007.md) | Folders | 2 | P2 | done |
 | [F-ROU-008](ROU/F-ROU-008.md) | Duplicate and version | 2 | P1 | done |
@@ -72,7 +72,7 @@
 | [F-LOG-012](LOG/F-LOG-012.md) | Workout detail | 1 | P0 | done |
 | [F-LOG-013](LOG/F-LOG-013.md) | PR detection and celebration | 2 | P1 | planned |
 | [F-LOG-014](LOG/F-LOG-014.md) | RPE and RIR | 2 | P1 | planned |
-| [F-LOG-015](LOG/F-LOG-015.md) | Supersets in the logger | 2 | P1 | planned |
+| [F-LOG-015](LOG/F-LOG-015.md) | Supersets in the logger | 2 | P1 | in-progress |
 | [F-LOG-016](LOG/F-LOG-016.md) | Repeat a previous session | 2 | P1 | planned |
 | [F-LOG-017](LOG/F-LOG-017.md) | Per-side versus total weight | 2 | P1 | planned |
 | [F-LOG-018](LOG/F-LOG-018.md) | Session summary | 1 | P1 | done |

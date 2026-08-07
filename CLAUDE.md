@@ -282,5 +282,36 @@ its own spec's reasoning that snapshot-on-start already makes history safe.
 `F-ROU-005` (supersets), `F-ROU-006` (rest-default inheritance display) and
 the rest of Phase 2 remain `planned`.
 
+**Batch 2.3 — supersets.** `F-ROU-005` and `F-LOG-015` both in-progress
+(their own files' §Status notes have the detail — the gap in each is
+within-group configurable rest and set-completion focus-advance,
+respectively). No schema
+change — `routine_exercises.group_id`/`workout_exercises.group_id` have
+existed since schema v3; this batch is the first to write and read them.
+Same value = same group, with no distinct circuit/round concept. The day
+editor gets a multi-select "Group" action (adjacent rows only) and a
+bordered, labelled block per group with a per-group "Ungroup" button; the
+active workout screen gets the same visual treatment plus a per-tile
+"Group with next"/"Ungroup" control for creating and breaking groups
+mid-session (`WorkoutRepository.toggleGroupWithNext`). The rest timer skips
+non-last group members (there is no dedicated within-group-rest column, so
+it is fixed at zero) and fires normally after the last member, using that
+exercise's existing resolved rest. `startFromRoutineDay` was already
+snapshotting `group_id` from batch 2.1 — this batch is what actually
+populates it. Fixed a latent bug found along the way: `duplicate()` and
+`createFromWorkout` previously copied `group_id` verbatim, which would have
+tied a duplicated day's or a "save as routine" day's exercises to the
+*source*'s group; both now mint a fresh id per copied group. Not built:
+§2 of `F-LOG-015` ("completing a set advances to the next exercise in the
+group") — the logger shows every exercise's full set list at once rather
+than one exercise at a time, so there is no single focus to advance without
+first reshaping the screen into something this batch didn't intend to build.
+
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform.
+
+This session had no local Flutter/Dart toolchain available (a different
+machine than the `/opt/flutter` one above) — `tools/verify.sh` and
+`tools/test.sh` could not be run. Formatting and analysis are unverified;
+CI is authoritative for this commit. Run `tools/verify.sh --fix` locally on
+a machine with Flutter before trusting this batch is actually green.
