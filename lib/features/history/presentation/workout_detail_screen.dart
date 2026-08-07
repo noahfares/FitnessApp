@@ -9,6 +9,7 @@ import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../data/db/tables/enums.dart' show WeightEntryMode;
 import '../../../data/repositories/workout_repository.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/set_numbering.dart';
@@ -242,7 +243,15 @@ class _ExerciseSection extends ConsumerWidget {
                         child: Text(
                           [
                             for (final field in fields)
-                              formatSetField(sets[i], field, formatter, prefs),
+                              formatSetField(
+                                sets[i],
+                                field,
+                                formatter,
+                                prefs,
+                                perSide:
+                                    exercise.weightEntryMode ==
+                                    WeightEntryMode.perSide,
+                              ),
                           ].whereType<String>().join(' × '),
                         ),
                       ),

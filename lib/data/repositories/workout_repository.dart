@@ -34,6 +34,7 @@ class SessionExercise {
     required this.primaryMuscle,
     required this.equipment,
     required this.trackingType,
+    required this.weightEntryMode,
     required this.incrementGrams,
     required this.defaultRestSeconds,
     required this.position,
@@ -60,6 +61,10 @@ class SessionExercise {
 
   /// Decides which inputs the set rows render (`F-CAT-002`, `F-LOG-003` §1).
   final TrackingType trackingType;
+
+  /// Total or per-side weight entry (`F-LOG-017` §2). `sets.weight_grams` is
+  /// always total regardless — this decides only how it is typed and shown.
+  final WeightEntryMode weightEntryMode;
 
   /// Per-exercise stepper increment in canonical grams, or null to fall back to
   /// the equipment default (`F-SET-007`, `F-LOG-006` §2).
@@ -855,6 +860,7 @@ class WorkoutRepository {
                  e.primary_muscle AS primary_muscle,
                  e.equipment      AS equipment,
                  e.tracking_type  AS tracking_type,
+                 e.weight_entry_mode AS weight_entry_mode,
                  e.increment_grams AS increment_grams,
                  e.default_rest_seconds AS default_rest_seconds,
                  (SELECT COUNT(*) FROM sets s
@@ -894,6 +900,11 @@ class WorkoutRepository {
                   TrackingType.values,
                   row.read<String>('tracking_type'),
                   TrackingType.weightReps,
+                ),
+                weightEntryMode: _enumByName(
+                  WeightEntryMode.values,
+                  row.read<String>('weight_entry_mode'),
+                  WeightEntryMode.total,
                 ),
                 incrementGrams: row.read<int?>('increment_grams'),
                 defaultRestSeconds: row.read<int?>('default_rest_seconds'),

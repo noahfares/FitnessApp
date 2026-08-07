@@ -199,6 +199,12 @@ class SeedExercise {
     aliases: [for (final a in json['aliases'] as List<dynamic>) a as String],
   );
 
+  /// Only runs on first insert — [toUpdateCompanion] deliberately never
+  /// touches `weight_entry_mode`, the same "user edits always win" reasoning
+  /// that keeps it off every other user-owned field. This does mean an
+  /// **existing** catalogue keeps whatever it already has (`total`, the
+  /// column default) even after a re-seed; only a fresh install or a newly
+  /// seeded row gets the per-equipment default (`F-LOG-017` §2).
   ExercisesCompanion toCompanion(int timestamp) => ExercisesCompanion.insert(
     id: uuid,
     externalId: Value(externalId),
@@ -208,6 +214,7 @@ class SeedExercise {
     equipment: equipment,
     trackingType: trackingType,
     aliases: Value(aliases),
+    weightEntryMode: Value(defaultWeightEntryModeFor(equipment)),
     createdAt: timestamp,
     updatedAt: timestamp,
     seedUpdatedAt: Value(timestamp),

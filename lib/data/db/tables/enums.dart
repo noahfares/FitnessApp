@@ -72,6 +72,15 @@ enum SetType { warmup, working, drop, failure, amrap, backoff }
 /// every derived figure.
 enum WeightEntryMode { total, perSide }
 
+/// The sensible default entry mode for a newly created exercise of
+/// [equipment] (`F-LOG-017` §2). Dumbbells are held one per hand, so
+/// "30 kg" means per hand to whoever racks them; everything else defaults to
+/// the number already on the plate or the stack, which is total.
+WeightEntryMode defaultWeightEntryModeFor(Equipment equipment) =>
+    equipment == Equipment.dumbbell
+    ? WeightEntryMode.perSide
+    : WeightEntryMode.total;
+
 /// Body measurement kinds. `valueCanonical` means grams for masses,
 /// millimetres for lengths, basis points for percentages — fixed per kind.
 enum MeasurementType {

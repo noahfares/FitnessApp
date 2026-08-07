@@ -151,6 +151,20 @@ void main() {
     });
   });
 
+  group('RPE (F-LOG-014 §1)', () {
+    test('is written through and cleared the same way', () async {
+      await makeExercise('bench');
+      final we = await startWith('bench');
+      final set = (await sets.getSets(we)).single;
+
+      await sets.setRpe(set.id, 8.5);
+      expect((await sets.findById(set.id))!.rpe, 8.5);
+
+      await sets.setRpe(set.id, null);
+      expect((await sets.findById(set.id))!.rpe, isNull);
+    });
+  });
+
   group('notes (F-LOG-023)', () {
     test('an empty note is stored as no note at all', () async {
       await makeExercise('bench');

@@ -26,4 +26,9 @@ abstract final class AppSpacing {
   /// because a set happens to carry a note (`F-LOG-023`).
   static const double setNumberColumn = 44;
   static const double setNoteColumn = 32;
+
+  /// The RPE badge, shown only when the setting is on (`F-LOG-014` §3) — it
+  /// is not one of the two fixed columns above because most rows never render
+  /// it at all.
+  static const double setRpeColumn = 36;
 }

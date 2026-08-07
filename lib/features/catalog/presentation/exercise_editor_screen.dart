@@ -9,6 +9,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/db/tables/enums.dart';
+import '../../../domain/logging/set_fields.dart';
 import '../../../domain/timing/rest_defaults.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
@@ -40,6 +41,12 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
   Set<Muscle> _secondaryMuscles = <Muscle>{};
   Equipment _equipment = Equipment.barbell;
   TrackingType _trackingType = TrackingType.weightReps;
+
+  /// Null for a new exercise until the equipment picks a sensible default
+  /// (`F-LOG-017` §2) — resolved in [_save], not here, so changing equipment
+  /// before saving keeps proposing the right default rather than freezing
+  /// whatever [_equipment] happened to be on first build.
+  WeightEntryMode? _weightEntryMode;
 
   /// Null means "use the global setting, then the built-in for this kind of
   /// exercise" (`F-TIM-005`).
@@ -89,6 +96,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         _equipment = row.equipment;
         _trackingType = row.trackingType;
         _defaultRestSeconds = row.defaultRestSeconds;
+        _weightEntryMode = row.weightEntryMode;
       }
     });
   }
@@ -121,6 +129,8 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
     setState(() => _saving = true);
     final repo = ref.read(exerciseRepositoryProvider);
     final secondary = [for (final m in _secondaryMuscles) m.name];
+    final weightEntryMode =
+        _weightEntryMode ?? defaultWeightEntryModeFor(_equipment);
 
     if (widget.isNew) {
       // The id is generated here rather than by the database so it exists
@@ -133,6 +143,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         trackingType: _trackingType,
         secondaryMuscles: _secondaryMuscles.toList(),
         defaultRestSeconds: _defaultRestSeconds,
+        weightEntryMode: weightEntryMode,
       );
     } else {
       await repo.update(
@@ -144,6 +155,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
           equipment: Value(_equipment),
           trackingType: Value(_trackingType),
           defaultRestSeconds: Value(_defaultRestSeconds),
+          weightEntryMode: Value(weightEntryMode),
         ),
       );
     }
@@ -312,6 +324,33 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
               if (type != null) setState(() => _trackingType = type);
             },
           ),
+          if (setFieldsFor(_trackingType.name).contains(SetField.weight)) ...[
+            const SizedBox(height: AppSpacing.lg),
+            // Storage is always total (`F-LOG-017` §1) — this only decides how
+            // the set row types and shows it.
+            DropdownButtonFormField<WeightEntryMode>(
+              initialValue:
+                  _weightEntryMode ?? defaultWeightEntryModeFor(_equipment),
+              decoration: const InputDecoration(
+                labelText: 'Weight entry',
+                border: OutlineInputBorder(),
+                helperText: 'Per side is doubled and stored as total load.',
+              ),
+              items: const [
+                DropdownMenuItem(
+                  value: WeightEntryMode.total,
+                  child: Text('Total load'),
+                ),
+                DropdownMenuItem(
+                  value: WeightEntryMode.perSide,
+                  child: Text('Per side'),
+                ),
+              ],
+              onChanged: (mode) {
+                if (mode != null) setState(() => _weightEntryMode = mode);
+              },
+            ),
+          ],
           const SizedBox(height: AppSpacing.lg),
           // The per-exercise override in the middle of `F-TIM-005`'s
           // resolution order. Left on "Default" it changes nothing, which is

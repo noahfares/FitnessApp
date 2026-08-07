@@ -10,6 +10,7 @@ import '../../../core/units/mass.dart';
 import '../../../core/units/unit_preferences.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../data/db/tables/enums.dart' show WeightEntryMode;
 import '../../../data/repositories/workout_repository.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/set_numbering.dart';
@@ -17,6 +18,7 @@ import '../../../domain/routines/rep_range.dart';
 import '../../../domain/timing/rest_defaults.dart';
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../settings/application/rest_timer_settings_provider.dart';
+import '../../settings/application/rpe_settings_provider.dart';
 import '../../shell/widgets/hold_to_confirm_button.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/async_view.dart';
@@ -426,6 +428,8 @@ class _SessionExerciseTile extends ConsumerWidget {
     // Which columns exist is a property of the exercise, not of each row
     // (`F-CAT-002`), so it is resolved once here.
     final fields = setFieldsFor(exercise.trackingType.name);
+    final perSide = exercise.weightEntryMode == WeightEntryMode.perSide;
+    final rpeSettings = ref.watch(rpeSettingsProvider);
 
     // Same reasoning: the rest duration is a property of the exercise, and
     // resolving it once per tile keeps the rule out of the completion handler
@@ -466,7 +470,8 @@ class _SessionExerciseTile extends ConsumerWidget {
                 '${exercise.setCount == 1 ? 'set' : 'sets'} done',
                 style: theme.textTheme.bodySmall,
               ),
-              if (_targetSummary(exercise.target, ref) case final summary?)
+              if (_targetSummary(exercise.target, perSide, ref)
+                  case final summary?)
                 Text(
                   'Target: $summary',
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -496,7 +501,12 @@ class _SessionExerciseTile extends ConsumerWidget {
         ),
         // The unit lives in the column header so the values themselves do not
         // have to carry it (docs/22-UNITS.md §display-rules).
-        _ColumnHeaders(fields: fields, prefs: prefs),
+        _ColumnHeaders(
+          fields: fields,
+          prefs: prefs,
+          perSide: perSide,
+          showRpe: rpeSettings.enabled,
+        ),
         if (sets != null)
           for (var i = 0; i < sets.length; i++)
             SetRow(
@@ -507,6 +517,7 @@ class _SessionExerciseTile extends ConsumerWidget {
               equipment: exercise.equipment.name,
               incrementGrams: exercise.incrementGrams,
               restSeconds: restSeconds,
+              perSide: perSide,
             ),
         AddSetButton(workoutExerciseId: exercise.workoutExerciseId),
         if (nextExercise != null)
@@ -634,15 +645,23 @@ class _SessionExerciseTile extends ConsumerWidget {
   /// What the routine day proposed, rendered beside the ghost values it sits
   /// above rather than folded into the set rows themselves — the target and
   /// what was actually done are two different things (`F-ROU-010` §5).
-  String? _targetSummary(SessionExerciseTarget? target, WidgetRef ref) {
+  String? _targetSummary(
+    SessionExerciseTarget? target,
+    bool perSide,
+    WidgetRef ref,
+  ) {
     if (target == null || target.isEmpty) return null;
     final formatter = ref.watch(quantityFormatterProvider);
     final repRange = formatRepRange(target.repsMin, target.repsMax);
     final displayRange = repRange.isEmpty ? '?' : repRange;
     final parts = <String>[
       if (target.sets != null) '${target.sets}×$displayRange',
+      // `target.weightGrams` is total, same as `sets.weight_grams`
+      // (`F-LOG-017` §1) — shown alongside the set rows below it, so it must
+      // match their entry mode or the two numbers on screen would disagree
+      // about what "the target" means (`F-ROU-010` §5).
       if (target.weightGrams != null)
-        formatter.setWeight(Mass.grams(target.weightGrams!), showUnit: true),
+        '${formatter.setWeight(perSide ? Mass.grams(target.weightGrams!) * 0.5 : Mass.grams(target.weightGrams!), showUnit: true)}${perSide ? '/side' : ''}',
       if (target.rpe != null) '@RPE ${target.rpe}',
     ];
     return parts.isEmpty ? null : parts.join(' · ');
@@ -650,10 +669,17 @@ class _SessionExerciseTile extends ConsumerWidget {
 }
 
 class _ColumnHeaders extends StatelessWidget {
-  const _ColumnHeaders({required this.fields, required this.prefs});
+  const _ColumnHeaders({
+    required this.fields,
+    required this.prefs,
+    this.perSide = false,
+    this.showRpe = false,
+  });
 
   final List<SetField> fields;
   final UnitPreferences prefs;
+  final bool perSide;
+  final bool showRpe;
 
   @override
   Widget build(BuildContext context) {
@@ -671,12 +697,24 @@ class _ColumnHeaders extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const SizedBox(
-            width: AppSpacing.setNumberColumn + AppSpacing.setNoteColumn,
+          SizedBox(
+            width:
+                AppSpacing.setNumberColumn +
+                AppSpacing.setNoteColumn +
+                (showRpe ? AppSpacing.setRpeColumn : 0),
           ),
           Expanded(flex: 3, child: cell('Last time')),
           for (final field in fields)
-            Expanded(flex: 2, child: cell(fieldHeader(field, prefs))),
+            Expanded(
+              flex: 2,
+              child: cell(
+                fieldHeader(
+                  field,
+                  prefs,
+                  perSide: field == SetField.weight && perSide,
+                ),
+              ),
+            ),
           const SizedBox(width: AppSpacing.setRowTouchTarget),
         ],
       ),

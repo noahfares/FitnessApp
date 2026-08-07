@@ -28,6 +28,7 @@ Future<void> showSetKeypad(
   required SetField initialField,
   required String equipment,
   int? incrementGrams,
+  bool perSide = false,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -41,6 +42,7 @@ Future<void> showSetKeypad(
       initialField: initialField,
       equipment: equipment,
       incrementGrams: incrementGrams,
+      perSide: perSide,
     ),
   );
 }
@@ -61,6 +63,7 @@ class NumericKeypadSheet extends ConsumerStatefulWidget {
     required this.fields,
     required this.initialField,
     required this.equipment,
+    this.perSide = false,
     this.incrementGrams,
   });
 
@@ -73,6 +76,11 @@ class NumericKeypadSheet extends ConsumerStatefulWidget {
 
   /// Per-exercise override in canonical grams (`F-SET-007`).
   final int? incrementGrams;
+
+  /// The exercise's weight entry mode (`F-LOG-017` §2). Every weight number
+  /// this sheet shows, steps or parses is in the per-side domain when true —
+  /// only [_write] converts back to the total that is actually stored.
+  final bool perSide;
 
   @override
   ConsumerState<NumericKeypadSheet> createState() => _NumericKeypadSheetState();
@@ -100,7 +108,15 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
           widget.set.durationSeconds == null
               ? ''
               : digitsFromSeconds(widget.set.durationSeconds!),
-        _ => formatSetField(widget.set, field, formatter, prefs) ?? '',
+        _ =>
+          formatSetField(
+                widget.set,
+                field,
+                formatter,
+                prefs,
+                perSide: widget.perSide,
+              ) ??
+              '',
       };
     }
   }
@@ -139,7 +155,11 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
                   // Switching field never closes the sheet (`F-LOG-006` §4).
                   Expanded(
                     child: _FieldTab(
-                      label: fieldHeader(field, prefs),
+                      label: fieldHeader(
+                        field,
+                        prefs,
+                        perSide: field == SetField.weight && widget.perSide,
+                      ),
                       value: _display(field),
                       selected: field == _field,
                       onTap: () => setState(() => _field = field),
@@ -323,8 +343,13 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
         }
         final grams = _parseGrams();
         if (grams != null) {
+          // The buffer is always in the display domain — per-side when
+          // `perSide`, exactly the total otherwise — and only this write
+          // converts back to what `sets.weight_grams` actually stores
+          // (`F-LOG-017` §1, §3).
+          final total = widget.perSide ? (Mass.grams(grams) * 2).grams : grams;
           unawaited(
-            repo.updateValues(widget.set.id, weightGrams: Value(grams)),
+            repo.updateValues(widget.set.id, weightGrams: Value(total)),
           );
         }
       case SetField.reps:

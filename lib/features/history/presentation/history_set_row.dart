@@ -29,6 +29,7 @@ class HistorySetRow extends ConsumerWidget {
     required this.fields,
     required this.equipment,
     this.incrementGrams,
+    this.perSide = false,
   });
 
   final WorkoutSet set;
@@ -36,6 +37,11 @@ class HistorySetRow extends ConsumerWidget {
   final List<SetField> fields;
   final String equipment;
   final int? incrementGrams;
+
+  /// The exercise's weight entry mode (`F-LOG-017` §2) — history reads the
+  /// same total-grams column the live logger writes, so it must show it in
+  /// the same domain or the two screens would disagree about what a set was.
+  final bool perSide;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -107,6 +113,7 @@ class HistorySetRow extends ConsumerWidget {
                         initialField: field,
                         equipment: equipment,
                         incrementGrams: incrementGrams,
+                        perSide: perSide,
                       ),
                     ),
                     borderRadius: BorderRadius.circular(8),
@@ -120,7 +127,14 @@ class HistorySetRow extends ConsumerWidget {
                         ).colorScheme.surfaceContainerHighest,
                       ),
                       child: Text(
-                        formatSetField(set, field, formatter, prefs) ?? '',
+                        formatSetField(
+                              set,
+                              field,
+                              formatter,
+                              prefs,
+                              perSide: perSide,
+                            ) ??
+                            '',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontFeatures: const [FontFeature.tabularFigures()],
                         ),

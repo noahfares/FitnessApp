@@ -52,6 +52,41 @@ void main() {
     });
   });
 
+  group('weight entry mode (F-LOG-017 §2)', () {
+    test('defaults per equipment when not given', () async {
+      final dumbbell = await repo.createCustom(
+        id: 'db',
+        name: 'DB Curl',
+        primaryMuscle: Muscle.biceps,
+        equipment: Equipment.dumbbell,
+        trackingType: TrackingType.weightReps,
+      );
+      final barbell = await repo.createCustom(
+        id: 'bb',
+        name: 'BB Curl',
+        primaryMuscle: Muscle.biceps,
+        equipment: Equipment.barbell,
+        trackingType: TrackingType.weightReps,
+      );
+
+      expect(dumbbell.weightEntryMode, WeightEntryMode.perSide);
+      expect(barbell.weightEntryMode, WeightEntryMode.total);
+    });
+
+    test('an explicit mode overrides the equipment default', () async {
+      final created = await repo.createCustom(
+        id: 'db',
+        name: 'DB Curl',
+        primaryMuscle: Muscle.biceps,
+        equipment: Equipment.dumbbell,
+        trackingType: TrackingType.weightReps,
+        weightEntryMode: WeightEntryMode.total,
+      );
+
+      expect(created.weightEntryMode, WeightEntryMode.total);
+    });
+  });
+
   group('soft delete is enforced by the repository', () {
     test('deleted rows vanish from reads but survive in the table', () async {
       await makeCustom();

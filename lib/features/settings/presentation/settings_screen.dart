@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/app_routes.dart';
+import '../../../domain/logging/rpe.dart';
 import '../../../domain/timing/rest_defaults.dart';
 import '../application/rest_timer_settings_provider.dart';
+import '../application/rpe_settings_provider.dart';
 import '../application/theme_provider.dart';
 import '../application/unit_preferences_provider.dart';
 
@@ -20,11 +24,51 @@ class SettingsScreen extends ConsumerWidget {
     final units = ref.watch(unitPreferencesProvider);
     final themeMode = ref.watch(themeModeProvider);
     final restTimer = ref.watch(restTimerSettingsProvider);
+    final rpe = ref.watch(rpeSettingsProvider);
+    final rpeNotifier = ref.read(rpeSettingsProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
+          // Two settings, a bool and a two-value scale, so this lives inline
+          // rather than behind its own route (`F-LOG-014` §3).
+          SwitchListTile(
+            secondary: const Icon(Icons.speed_outlined),
+            title: const Text('RPE'),
+            subtitle: const Text(
+              'Rate of perceived exertion per set, 6.0–10.0.',
+            ),
+            value: rpe.enabled,
+            onChanged: (value) =>
+                unawaited(rpeNotifier.setEnabled(enabled: value)),
+          ),
+          if (rpe.enabled)
+            Padding(
+              padding: const EdgeInsets.only(left: 56, right: 16, bottom: 8),
+              child: RadioGroup<RpeDisplayMode>(
+                groupValue: rpe.displayMode,
+                onChanged: (mode) {
+                  if (mode != null) unawaited(rpeNotifier.setDisplayMode(mode));
+                },
+                child: Row(
+                  children: [
+                    for (final mode in RpeDisplayMode.values)
+                      Expanded(
+                        child: RadioListTile<RpeDisplayMode>(
+                          value: mode,
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            mode == RpeDisplayMode.rpe ? 'RPE' : 'RIR',
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          const Divider(),
           ListTile(
             leading: const Icon(Icons.straighten),
             title: const Text('Units'),

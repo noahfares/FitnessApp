@@ -34,6 +34,7 @@ void main() {
     String? name,
     TrackingType tracking = TrackingType.weightReps,
     Equipment equipment = Equipment.barbell,
+    WeightEntryMode weightEntryMode = WeightEntryMode.total,
   }) async {
     await db
         .into(db.exercises)
@@ -44,6 +45,7 @@ void main() {
             primaryMuscle: Muscle.chest,
             equipment: equipment,
             trackingType: tracking,
+            weightEntryMode: Value(weightEntryMode),
             createdAt: 1,
             updatedAt: 1,
           ),
@@ -449,6 +451,123 @@ void main() {
       expect((await sets.getSets(we)).single.notes, 'Left shoulder twinged');
       // Findable later without opening it (`F-LOG-023` §3).
       expect(find.byIcon(Icons.sticky_note_2), findsOneWidget);
+    });
+  });
+
+  group('per-side weight entry (F-LOG-017)', () {
+    Future<void> makeDumbbellCurl() => makeExercise(
+      'curl',
+      name: 'Dumbbell Curl',
+      equipment: Equipment.dumbbell,
+      weightEntryMode: WeightEntryMode.perSide,
+    );
+
+    testWidgets('the header marks the entry mode', (tester) async {
+      await makeDumbbellCurl();
+      await startWith('curl');
+      await pumpSession(tester);
+
+      expect(find.text('kg/side'), findsOneWidget);
+    });
+
+    testWidgets('typed digits store doubled total, and read back halved', (
+      tester,
+    ) async {
+      await makeDumbbellCurl();
+      final we = await startWith('curl');
+      await pumpSession(tester);
+
+      await tester.tap(find.byKey(const ValueKey('value-cell-weight')));
+      await tester.pumpAndSettle();
+      for (final digit in ['2', '0']) {
+        await tester.tap(find.widgetWithText(FilledButton, digit).last);
+        await tester.pump();
+      }
+
+      // Typed "20" per side stores 40 kg total (`F-LOG-017` §1, §3).
+      expect((await sets.getSets(we)).single.weightGrams, Mass.kg(40).grams);
+
+      await tester.tap(find.byTooltip('Done'));
+      await tester.pumpAndSettle();
+
+      // ...and the row reads it straight back as "20", not "40"
+      // (`F-LOG-017` §3).
+      expect(find.text('20'), findsOneWidget);
+    });
+
+    testWidgets('the stepper moves the per-side value, doubling the total', (
+      tester,
+    ) async {
+      await makeDumbbellCurl();
+      final we = await startWith('curl');
+      await sets.updateValues(
+        (await sets.getSets(we)).single.id,
+        weightGrams: const Value(40000), // 20 kg/side, 40 kg total
+      );
+      await pumpSession(tester);
+
+      await tester.tap(find.byKey(const ValueKey('value-cell-weight')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Increase'));
+      await tester.pumpAndSettle();
+
+      // Dumbbell's default step (2 kg) applies in the per-side domain the
+      // buffer is now in, so the total moves by twice that (`F-LOG-006` §2,
+      // `F-LOG-017` §3).
+      expect((await sets.getSets(we)).single.weightGrams, Mass.kg(44).grams);
+    });
+
+    testWidgets('the ghost halves the same way', (tester) async {
+      await makeDumbbellCurl();
+      await logPreviousSession('curl', [
+        (weight: 40000, reps: 10, type: SetType.working),
+      ]);
+      await startWith('curl');
+      await pumpSession(tester);
+
+      expect(find.textContaining('20 kg/side'), findsOneWidget);
+    });
+  });
+
+  group('RPE (F-LOG-014)', () {
+    testWidgets('hidden entirely when the setting is off', (tester) async {
+      await makeExercise('bench', name: 'Bench Press');
+      await startWith('bench');
+      await pumpSession(tester);
+
+      expect(find.byKey(const ValueKey('rpe-cell')), findsNothing);
+    });
+
+    testWidgets('logging a value writes through and shows on the row', (
+      tester,
+    ) async {
+      await makeExercise('bench', name: 'Bench Press');
+      final we = await startWith('bench');
+      await pumpSession(tester, prefs: {'rpe.enabled': true});
+
+      await tester.tap(find.byKey(const ValueKey('rpe-cell')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('8.5'));
+      await tester.pumpAndSettle();
+
+      expect((await sets.getSets(we)).single.rpe, 8.5);
+      expect(find.text('8.5'), findsOneWidget);
+    });
+
+    testWidgets('the RIR setting shows the converted value, not RPE', (
+      tester,
+    ) async {
+      await makeExercise('bench', name: 'Bench Press');
+      final we = await startWith('bench');
+      await sets.setRpe((await sets.getSets(we)).single.id, 8.0);
+      await pumpSession(
+        tester,
+        prefs: {'rpe.enabled': true, 'rpe.displayMode': 'rir'},
+      );
+
+      // 10 − 8 = 2 RIR (`F-LOG-014` §2), never re-stored as anything but RPE.
+      expect(find.text('2'), findsOneWidget);
+      expect((await sets.getSets(we)).single.rpe, 8.0);
     });
   });
 }

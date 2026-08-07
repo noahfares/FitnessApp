@@ -62,6 +62,7 @@ class ExerciseRepository {
     List<String> aliases = const [],
     String? notes,
     int? defaultRestSeconds,
+    WeightEntryMode? weightEntryMode,
   }) async {
     final timestamp = _now;
     await _db
@@ -77,6 +78,9 @@ class ExerciseRepository {
             aliases: Value(aliases),
             notes: Value(notes),
             defaultRestSeconds: Value(defaultRestSeconds),
+            weightEntryMode: Value(
+              weightEntryMode ?? defaultWeightEntryModeFor(equipment),
+            ),
             isCustom: const Value(true),
             createdAt: timestamp,
             updatedAt: timestamp,

@@ -11,11 +11,14 @@ import '../../../core/units/unit_preferences.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/repositories/set_repository.dart';
+import '../../../domain/logging/rpe.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/set_numbering.dart';
+import '../../settings/application/rpe_settings_provider.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../timing/application/rest_timer_providers.dart';
 import 'numeric_keypad_sheet.dart';
+import 'rpe_sheet.dart';
 import 'set_note_sheet.dart';
 import 'set_type_sheet.dart';
 import 'set_value_format.dart';
@@ -35,6 +38,7 @@ class SetRow extends ConsumerWidget {
     required this.fields,
     required this.equipment,
     required this.restSeconds,
+    this.perSide = false,
     this.incrementGrams,
   });
 
@@ -55,14 +59,24 @@ class SetRow extends ConsumerWidget {
   /// exercise, and resolving it here would do it once per row per rebuild.
   final int restSeconds;
 
+  /// The exercise's weight entry mode (`F-LOG-017` §2).
+  final bool perSide;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final prefs = ref.watch(unitPreferencesProvider);
     final formatter = ref.watch(quantityFormatterProvider);
+    final rpeSettings = ref.watch(rpeSettingsProvider);
 
     final ghostText = ghost == null
         ? null
-        : formatGhostSummary(ghost!, fields, formatter, prefs);
+        : formatGhostSummary(
+            ghost!,
+            fields,
+            formatter,
+            prefs,
+            perSide: perSide,
+          );
 
     // At large text scales the five columns cannot share a line and stay
     // legible, so the row becomes two (`F-LOG-003` acceptance, `F-A11Y-002`).
@@ -74,12 +88,19 @@ class SetRow extends ConsumerWidget {
       onLongPress: () => unawaited(showSetTypeSheet(context, set: set)),
     );
     final noteButton = _NoteButton(set: set);
+    final rpeCell = rpeSettings.enabled
+        ? _RpeCell(
+            key: const ValueKey('rpe-cell'),
+            set: set,
+            displayMode: rpeSettings.displayMode,
+          )
+        : null;
     final ghostCell = _GhostCell(text: ghostText);
     final valueCells = [
       for (final field in fields)
         _ValueCell(
           key: ValueKey('value-cell-${field.name}'),
-          text: formatSetField(set, field, formatter, prefs),
+          text: formatSetField(set, field, formatter, prefs, perSide: perSide),
           onTap: () => unawaited(
             showSetKeypad(
               context,
@@ -88,6 +109,7 @@ class SetRow extends ConsumerWidget {
               initialField: field,
               equipment: equipment,
               incrementGrams: incrementGrams,
+              perSide: perSide,
             ),
           ),
         ),
@@ -113,7 +135,7 @@ class SetRow extends ConsumerWidget {
       onDismissed: (_) => _delete(context, ref),
       child: Semantics(
         container: true,
-        label: _semanticLabel(formatter, prefs),
+        label: _semanticLabel(formatter, prefs, rpeSettings),
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.sm,
@@ -127,6 +149,7 @@ class SetRow extends ConsumerWidget {
                       children: [
                         numberCell,
                         noteButton,
+                        ?rpeCell,
                         Expanded(child: ghostCell),
                       ],
                     ),
@@ -142,6 +165,7 @@ class SetRow extends ConsumerWidget {
                   children: [
                     numberCell,
                     noteButton,
+                    ?rpeCell,
                     Expanded(flex: 3, child: ghostCell),
                     for (final cell in valueCells)
                       Expanded(flex: 2, child: cell),
@@ -171,14 +195,24 @@ class SetRow extends ConsumerWidget {
 
   /// What a screen reader announces (`F-A11Y-001`). The row is a grid of
   /// unlabelled numbers otherwise.
-  String _semanticLabel(QuantityFormatter formatter, UnitPreferences prefs) {
+  String _semanticLabel(
+    QuantityFormatter formatter,
+    UnitPreferences prefs,
+    RpeSettings rpeSettings,
+  ) {
     final parts = <String>[
       label.isWarmup
           ? 'Warm-up set ${label.text.substring(1)}'
           : 'Set ${label.text}',
       for (final field in fields)
-        '${fieldHeader(field, prefs)} '
-            '${formatSetField(set, field, formatter, prefs) ?? 'empty'}',
+        '${fieldHeader(field, prefs, perSide: field == SetField.weight && perSide)} '
+            '${formatSetField(set, field, formatter, prefs, perSide: perSide) ?? 'empty'}',
+      if (rpeSettings.enabled)
+        switch (displayRpe(set.rpe, rpeSettings.displayMode)) {
+          null => 'no ${rpeSettings.displayMode.name.toUpperCase()} logged',
+          final value =>
+            '${rpeSettings.displayMode.name.toUpperCase()} ${formatRpeValue(value)}',
+        },
       set.isCompleted ? 'completed' : 'not completed',
       if (set.notes != null) 'has a note',
     ];
@@ -249,6 +283,39 @@ class _NoteButton extends ConsumerWidget {
           hasNote ? Icons.sticky_note_2 : Icons.sticky_note_2_outlined,
         ),
         onPressed: () => unawaited(showSetNoteSheet(context, set: set)),
+      ),
+    );
+  }
+}
+
+/// Perceived effort, tucked beside the note button rather than in the value
+/// columns (`F-LOG-014` §3) — the row has no room to spare, and this is
+/// invisible until the setting turns it on.
+class _RpeCell extends StatelessWidget {
+  const _RpeCell({super.key, required this.set, required this.displayMode});
+
+  final WorkoutSet set;
+  final RpeDisplayMode displayMode;
+
+  @override
+  Widget build(BuildContext context) {
+    final value = displayRpe(set.rpe, displayMode);
+    return SizedBox(
+      width: AppSpacing.setRpeColumn,
+      height: AppSpacing.minTouchTarget,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => unawaited(showRpeSheet(context, set: set)),
+        child: Center(
+          child: Text(
+            value == null ? '—' : formatRpeValue(value),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: value == null
+                  ? Theme.of(context).colorScheme.onSurfaceVariant
+                  : Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ),
       ),
     );
   }

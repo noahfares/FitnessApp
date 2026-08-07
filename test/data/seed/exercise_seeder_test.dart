@@ -255,6 +255,59 @@ void main() {
     });
   });
 
+  group('weight entry mode defaults (F-LOG-017 §2)', () {
+    test('a new dumbbell row defaults to per side', () async {
+      mockAsset({
+        'seedVersion': 1,
+        'exercises': [record(equipment: 'dumbbell')],
+      });
+      await ExerciseSeeder(db, assetPath: 'test-seed').seedIfNeeded(now: now);
+
+      final row = await (db.select(
+        db.exercises,
+      )..where((e) => e.id.equals('uuid-bench'))).getSingle();
+      expect(row.weightEntryMode, WeightEntryMode.perSide);
+    });
+
+    test('a new barbell row defaults to total', () async {
+      mockAsset({
+        'seedVersion': 1,
+        'exercises': [record()],
+      });
+      await ExerciseSeeder(db, assetPath: 'test-seed').seedIfNeeded(now: now);
+
+      final row = await (db.select(
+        db.exercises,
+      )..where((e) => e.id.equals('uuid-bench'))).getSingle();
+      expect(row.weightEntryMode, WeightEntryMode.total);
+    });
+
+    test('re-seeding never overwrites an existing row\'s entry mode', () async {
+      mockAsset({
+        'seedVersion': 1,
+        'exercises': [record(equipment: 'dumbbell')],
+      });
+      await ExerciseSeeder(db, assetPath: 'test-seed').seedIfNeeded(now: now);
+      // A user could have switched a dumbbell exercise back to total.
+      await (db.update(
+        db.exercises,
+      )..where((e) => e.id.equals('uuid-bench'))).write(
+        const ExercisesCompanion(weightEntryMode: Value(WeightEntryMode.total)),
+      );
+
+      mockAsset({
+        'seedVersion': 2,
+        'exercises': [record(equipment: 'dumbbell', name: 'Dumbbell Press')],
+      });
+      await ExerciseSeeder(db, assetPath: 'test-seed').seedIfNeeded(now: now);
+
+      final row = await (db.select(
+        db.exercises,
+      )..where((e) => e.id.equals('uuid-bench'))).getSingle();
+      expect(row.weightEntryMode, WeightEntryMode.total);
+    });
+  });
+
   group('custom exercises', () {
     test('are never touched by seeding', () async {
       await db

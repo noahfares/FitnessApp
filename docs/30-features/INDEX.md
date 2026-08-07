@@ -71,10 +71,10 @@
 | [F-LOG-011](LOG/F-LOG-011.md) | Workout history list | 1 | P0 | done |
 | [F-LOG-012](LOG/F-LOG-012.md) | Workout detail | 1 | P0 | done |
 | [F-LOG-013](LOG/F-LOG-013.md) | PR detection and celebration | 2 | P1 | planned |
-| [F-LOG-014](LOG/F-LOG-014.md) | RPE and RIR | 2 | P1 | planned |
+| [F-LOG-014](LOG/F-LOG-014.md) | RPE and RIR | 2 | P1 | done |
 | [F-LOG-015](LOG/F-LOG-015.md) | Supersets in the logger | 2 | P1 | in-progress |
 | [F-LOG-016](LOG/F-LOG-016.md) | Repeat a previous session | 2 | P1 | done |
-| [F-LOG-017](LOG/F-LOG-017.md) | Per-side versus total weight | 2 | P1 | planned |
+| [F-LOG-017](LOG/F-LOG-017.md) | Per-side versus total weight | 2 | P1 | done |
 | [F-LOG-018](LOG/F-LOG-018.md) | Session summary | 1 | P1 | done |
 | [F-LOG-019](LOG/F-LOG-019.md) | Bodyweight-loaded exercises | 4 | P2 | planned |
 | [F-LOG-020](LOG/F-LOG-020.md) | Warm-up set generator | 4 | P2 | planned |

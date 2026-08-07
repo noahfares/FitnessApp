@@ -17,24 +17,39 @@ import '../../../domain/logging/set_fields.dart';
 /// Column header text. Weight and distance carry the unit here so the values
 /// themselves do not: screen space in the set row is the scarcest resource in
 /// the app (docs/22-UNITS.md §display-rules).
-String fieldHeader(SetField field, UnitPreferences prefs) => switch (field) {
-  SetField.weight => prefs.load.symbol,
+///
+/// [perSide] marks the weight header so the entry mode is never ambiguous
+/// (`F-LOG-017` §4) — it is the one place in the row a per-side exercise says
+/// so.
+String fieldHeader(
+  SetField field,
+  UnitPreferences prefs, {
+  bool perSide = false,
+}) => switch (field) {
+  SetField.weight => perSide ? '${prefs.load.symbol}/side' : prefs.load.symbol,
   SetField.reps => 'Reps',
   SetField.distance => prefs.distance.symbol,
   SetField.duration => 'Time',
 };
+
+/// Halves stored total grams for per-side display, rounding rather than
+/// truncating (docs/22-UNITS.md §rounding) — the stored value is untouched
+/// either way, since display rounding never writes back.
+Mass _displayWeight(int totalGrams, bool perSide) =>
+    perSide ? Mass.grams(totalGrams) * 0.5 : Mass.grams(totalGrams);
 
 /// The stored value of [field], or null when the set has none yet.
 String? formatSetField(
   WorkoutSet set,
   SetField field,
   QuantityFormatter formatter,
-  UnitPreferences prefs,
-) => switch (field) {
+  UnitPreferences prefs, {
+  bool perSide = false,
+}) => switch (field) {
   SetField.weight =>
     set.weightGrams == null
         ? null
-        : formatter.setWeight(Mass.grams(set.weightGrams!)),
+        : formatter.setWeight(_displayWeight(set.weightGrams!, perSide)),
   SetField.reps => set.reps?.toString(),
   SetField.distance =>
     set.distanceMetres == null
@@ -54,12 +69,13 @@ String? formatGhostField(
   GhostSet ghost,
   SetField field,
   QuantityFormatter formatter,
-  UnitPreferences prefs,
-) => switch (field) {
+  UnitPreferences prefs, {
+  bool perSide = false,
+}) => switch (field) {
   SetField.weight =>
     ghost.weightGrams == null
         ? null
-        : formatter.setWeight(Mass.grams(ghost.weightGrams!)),
+        : formatter.setWeight(_displayWeight(ghost.weightGrams!, perSide)),
   SetField.reps => ghost.reps?.toString(),
   SetField.distance =>
     ghost.distanceMetres == null
@@ -82,14 +98,21 @@ String? formatGhostSummary(
   GhostSet ghost,
   List<SetField> fields,
   QuantityFormatter formatter,
-  UnitPreferences prefs,
-) {
+  UnitPreferences prefs, {
+  bool perSide = false,
+}) {
   final parts = <String>[];
   for (final field in fields) {
-    final text = formatGhostField(ghost, field, formatter, prefs);
+    final text = formatGhostField(
+      ghost,
+      field,
+      formatter,
+      prefs,
+      perSide: perSide,
+    );
     if (text == null) continue;
     parts.add(switch (field) {
-      SetField.weight => '$text ${prefs.load.symbol}',
+      SetField.weight => '$text ${prefs.load.symbol}${perSide ? '/side' : ''}',
       SetField.distance => '$text ${prefs.distance.symbol}',
       _ => text,
     });

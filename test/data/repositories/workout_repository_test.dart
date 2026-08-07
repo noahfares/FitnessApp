@@ -909,4 +909,64 @@ void main() {
       );
     });
   });
+
+  group('per-side weight entry (F-LOG-017)', () {
+    test('watchExercises carries the exercise\'s entry mode', () async {
+      await db
+          .into(db.exercises)
+          .insert(
+            ExercisesCompanion.insert(
+              id: 'curl',
+              name: 'Dumbbell Curl',
+              primaryMuscle: Muscle.biceps,
+              equipment: Equipment.dumbbell,
+              trackingType: TrackingType.weightReps,
+              weightEntryMode: const Value(WeightEntryMode.perSide),
+              createdAt: 1,
+              updatedAt: 1,
+            ),
+          );
+      final workout = await repo.start();
+      await repo.addExercises(workout.id, ['curl']);
+
+      final exercise = (await repo.watchExercises(workout.id).first).single;
+      expect(exercise.weightEntryMode, WeightEntryMode.perSide);
+    });
+
+    test(
+      'volume counts total load regardless of entry mode (acceptance)',
+      () async {
+        await db
+            .into(db.exercises)
+            .insert(
+              ExercisesCompanion.insert(
+                id: 'curl',
+                name: 'Dumbbell Curl',
+                primaryMuscle: Muscle.biceps,
+                equipment: Equipment.dumbbell,
+                trackingType: TrackingType.weightReps,
+                weightEntryMode: const Value(WeightEntryMode.perSide),
+                createdAt: 1,
+                updatedAt: 1,
+              ),
+            );
+        final workout = await repo.start();
+        await repo.addExercises(workout.id, ['curl']);
+        // 20 kg per side is stored as 40 kg total — the UI layer's job, not
+        // this one's — and volume must use exactly that stored total, never
+        // a re-halved figure.
+        await completeSet(
+          (await repo.watchExercises(workout.id).first)
+              .single
+              .workoutExerciseId,
+          weightGrams: 40000,
+          reps: 10,
+        );
+        await repo.finish(workout.id);
+
+        final stats = await repo.summaryStats(workout.id);
+        expect(stats.totalVolumeGrams, 400000);
+      },
+    );
+  });
 }

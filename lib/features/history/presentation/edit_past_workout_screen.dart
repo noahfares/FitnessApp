@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../data/db/tables/enums.dart' show WeightEntryMode;
 import '../../../data/repositories/workout_repository.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/set_numbering.dart';
@@ -293,6 +294,7 @@ class _ExerciseEditorState extends ConsumerState<_ExerciseEditor> {
                 fields: fields,
                 equipment: exercise.equipment.name,
                 incrementGrams: exercise.incrementGrams,
+                perSide: exercise.weightEntryMode == WeightEntryMode.perSide,
               ),
           AddSetButton(workoutExerciseId: exercise.workoutExerciseId),
           const Divider(height: 1),

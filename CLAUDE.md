@@ -333,6 +333,36 @@ past-workout delete. Also extracted `WorkoutRepository._backfillBodyweight`,
 which `start()` and `startFromRoutineDay()` had each been duplicating
 verbatim and `startFromWorkout()` needed a third copy of.
 
+**Batch 2.5 — set richness.** `F-LOG-014` (RPE/RIR) and `F-LOG-017`
+(per-side weight) both done. No schema change — `sets.rpe` and
+`exercises.weight_entry_mode` have existed since schema v1/v3 respectively;
+this batch is the first to read or write either. RPE: `domain/logging/rpe.dart`
+holds the pure RPE↔RIR conversion and the nine fixed 6.0–10.0 steps;
+`RpeSettingsNotifier` persists on/off and display mode (off by default,
+`F-LOG-014` §3), inline on the settings root rather than its own screen —
+two settings didn't earn a route. The set row's RPE cell sits beside the note
+button, shown only when enabled, opening `RpeSheet` (a `SetTypeSheet`-style
+grid). Per-side weight: `defaultWeightEntryModeFor` (dumbbell → per side,
+else total) is applied by `ExerciseSeeder` on **insert only** and by
+`ExerciseRepository.createCustom` — re-seeding never touches an existing
+row's mode, so an existing catalogue's dumbbells keep `total` until edited by
+hand, the same "user edits always win" rule as every other user-owned field.
+`sets.weight_grams` stays total always (`F-LOG-017` §1); every read/write
+site — `SetRow`, `_ColumnHeaders`, `NumericKeypadSheet`, the ghost, the
+routine-target summary, and both read-only history screens — now takes a
+`perSide` bool and converts for display only, via `Mass * 0.5`/`* 2` (round,
+not truncate, per docs/22-UNITS.md §rounding). One real behaviour change
+flagged in `F-LOG-017`'s own status note: a dumbbell's stepper default
+(unchanged at `Mass.kg(2)`) now applies in the per-side domain once an
+exercise is `perSide`, so its total steps by 4 kg per tap rather than 2 kg —
+the more sensible reading, but a change in effect for every existing dumbbell
+exercise the moment its mode flips. `F-LOG-017`'s "Open questions" section
+(switching mode risking a history migration) is resolved rather than
+deferred: because storage is always total, switching mode is display-only,
+so neither migrating nor refusing was ever needed. Not built: RPE does not
+appear on the history or edit-past-workout screens, and neither feature yet
+feeds `F-PRG-005` or `F-ANA-011`, both still `planned`.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

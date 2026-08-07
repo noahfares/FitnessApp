@@ -135,6 +135,14 @@ class SetRepository {
     );
   }
 
+  /// Perceived effort, 6.0–10.0 in 0.5 steps, always stored as RPE regardless
+  /// of the display setting (`F-LOG-014` §1–§2).
+  Future<void> setRpe(String id, double? rpe) async {
+    await (_db.update(_db.sets)..where((s) => s.id.equals(id))).write(
+      SetsCompanion(rpe: Value(rpe), updatedAt: Value(_now)),
+    );
+  }
+
   Future<void> setType(String id, SetType type) async {
     await (_db.update(_db.sets)..where((s) => s.id.equals(id))).write(
       SetsCompanion(setType: Value(type), updatedAt: Value(_now)),
