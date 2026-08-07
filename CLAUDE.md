@@ -263,9 +263,24 @@ indistinguishable from something actually logged. "Save as routine"
 No schema change — `routine_folders`, `routines`, `routine_days` and
 `routine_exercises` have existed since schema v3. Superset grouping
 (`F-ROU-005`), day/exercise reordering UI (`F-ROU-004`), and rest-default
-inheritance display (`F-ROU-006`) are not part of this batch and remain
-`planned`. Batch 2.1 was drafted and built together, ahead of the rest of
-Phase 2's batch table.
+inheritance display (`F-ROU-006`) were not part of this batch. Batch 2.1 was
+drafted and built together, ahead of the rest of Phase 2's batch table
+(`docs/50-ROADMAP.md` §Phase 2, batches 2.1–2.8).
+
+**Batch 2.2 done.** Reordering, folders, and archive/restore
+(`F-ROU-004`, `F-ROU-007`, `F-ROU-008`, `F-ROU-009`): drag-to-reorder on both
+the day list and the exercise list via `ReorderableListView`, writing back
+through `RoutineRepository.reorderDays`/`reorderExercises`; `routine_folders`
+CRUD and a "move to folder" sheet, with the list grouped by folder (flat when
+none are in use, and skipping empty folder sections); a "show archived"
+toggle on the Routines tab with a restore action, closing the gap where an
+archived routine had no way back once hidden. `F-ROU-008`'s "duplicate and
+version" turned out to already be satisfied by `F-ROU-001`'s `duplicate()`
+(distinguishing "X copy" name) plus the new archived view (archived routines
+stay reachable and startable) — no extra versioning concept was needed, per
+its own spec's reasoning that snapshot-on-start already makes history safe.
+`F-ROU-005` (supersets), `F-ROU-006` (rest-default inheritance display) and
+the rest of Phase 2 remain `planned`.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform.

@@ -115,26 +115,39 @@ class DayExerciseList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.screen),
+    if (rows.isEmpty) {
+      return EmptyState(
+        icon: Icons.fitness_center,
+        title: 'No exercises yet',
+        message: 'Add exercises, then set targets for each.',
+        actionLabel: 'Add exercises',
+        onAction: () => unawaited(_addExercises(context, ref)),
+      );
+    }
+    return Column(
       children: [
-        if (rows.isEmpty)
-          EmptyState(
-            icon: Icons.fitness_center,
-            title: 'No exercises yet',
-            message: 'Add exercises, then set targets for each.',
-            actionLabel: 'Add exercises',
-            onAction: () => unawaited(_addExercises(context, ref)),
-          )
-        else ...[
-          for (final row in rows) _ExerciseTargetTile(row: row),
-          const SizedBox(height: AppSpacing.sm),
-          OutlinedButton.icon(
+        // Drag to reorder — order is explicit `position`, never implied by
+        // the list itself (`F-ROU-004`).
+        Expanded(
+          child: ReorderableListView.builder(
+            padding: const EdgeInsets.all(AppSpacing.screen),
+            itemCount: rows.length,
+            itemBuilder: (context, i) => _ExerciseTargetTile(
+              key: ValueKey(rows[i].routineExerciseId),
+              row: rows[i],
+            ),
+            onReorder: (oldIndex, newIndex) =>
+                unawaited(_reorder(ref, oldIndex, newIndex)),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(AppSpacing.screen),
+          child: OutlinedButton.icon(
             onPressed: () => unawaited(_addExercises(context, ref)),
             icon: const Icon(Icons.add),
             label: const Text('Add exercises'),
           ),
-        ],
+        ),
       ],
     );
   }
@@ -144,10 +157,17 @@ class DayExerciseList extends ConsumerWidget {
     if (chosen == null || chosen.isEmpty) return;
     await ref.read(routineRepositoryProvider).addExercises(day.id, chosen);
   }
+
+  Future<void> _reorder(WidgetRef ref, int oldIndex, int newIndex) {
+    if (newIndex > oldIndex) newIndex -= 1;
+    final ids = [for (final row in rows) row.routineExerciseId];
+    ids.insert(newIndex, ids.removeAt(oldIndex));
+    return ref.read(routineRepositoryProvider).reorderExercises(ids);
+  }
 }
 
 class _ExerciseTargetTile extends ConsumerWidget {
-  const _ExerciseTargetTile({required this.row});
+  const _ExerciseTargetTile({required this.row, super.key});
 
   final RoutineExerciseDetail row;
 

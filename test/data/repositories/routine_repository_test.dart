@@ -7,7 +7,8 @@ import 'package:fitness_app/data/db/tables/enums.dart';
 import 'package:fitness_app/data/repositories/routine_repository.dart';
 import 'package:fitness_app/data/repositories/workout_repository.dart';
 
-/// `F-ROU-001`, `F-ROU-002`, `F-ROU-003`.
+/// `F-ROU-001`, `F-ROU-002`, `F-ROU-003`, `F-ROU-004`, `F-ROU-007`,
+/// `F-ROU-008`, `F-ROU-009`.
 void main() {
   late AppDatabase db;
   late RoutineRepository repo;
@@ -272,5 +273,72 @@ void main() {
       expect(after, hasLength(1));
       expect(after.single.exerciseName, 'B');
     });
+  });
+
+  group('folders (F-ROU-007)', () {
+    test('a routine can be moved into and out of a folder', () async {
+      final folder = await repo.createFolder('Current block');
+      final routine = await repo.create(name: 'PPL');
+
+      await repo.setFolder(routine.id, folder.id);
+      expect((await repo.findById(routine.id))!.folderId, folder.id);
+
+      await repo.setFolder(routine.id, null);
+      expect((await repo.findById(routine.id))!.folderId, isNull);
+    });
+
+    test(
+      'deleting a folder moves its routines to no folder, not orphaned',
+      () async {
+        final folder = await repo.createFolder('Old block');
+        final routine = await repo.create(name: 'PPL');
+        await repo.setFolder(routine.id, folder.id);
+
+        await repo.deleteFolder(folder.id);
+
+        expect(await repo.watchFolders().first, isEmpty);
+        expect((await repo.findById(routine.id))!.folderId, isNull);
+      },
+    );
+
+    test('folders order by position', () async {
+      await repo.createFolder('First');
+      await repo.createFolder('Second');
+
+      final folders = await repo.watchFolders().first;
+      expect(folders.map((f) => f.name), ['First', 'Second']);
+    });
+  });
+
+  group('archiving (F-ROU-008, F-ROU-009)', () {
+    test('duplicating names the copy distinguishably', () async {
+      final routine = await repo.create(name: 'PPL');
+      final copy = await repo.duplicate(routine.id);
+      expect(copy.name, isNot(routine.name));
+      expect(copy.name, contains(routine.name));
+    });
+
+    test(
+      'an archived routine stays fully startable, just hidden from the '
+      'main list',
+      () async {
+        final exerciseId = await makeExercise('sq', 'Squat');
+        final routine = await repo.create(name: 'Legs');
+        final day = await repo.addDay(routine.id, name: 'Day 1');
+        await repo.addExercises(day.id, [exerciseId]);
+
+        await repo.setArchived(routine.id, isArchived: true);
+
+        expect(await repo.watchAll().first, isEmpty);
+        final withArchived = await repo.watchAll(includeArchived: true).first;
+        expect(withArchived.single.id, routine.id);
+        // Everything needed to start from this day is still there.
+        expect(await repo.watchDays(routine.id).first, hasLength(1));
+        expect(await repo.watchExercises(day.id).first, hasLength(1));
+
+        await repo.setArchived(routine.id, isArchived: false);
+        expect(await repo.watchAll().first, hasLength(1));
+      },
+    );
   });
 }

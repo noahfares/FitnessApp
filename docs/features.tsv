@@ -16,12 +16,12 @@ F-CAT-014	—	idea	P3	Exercise variants and modifiers			21-DATA-MODEL#exercises
 F-ROU-001	2	done	P0	Routine CRUD		F-ROU-002, F-ROU-010	21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-002	2	done	P0	Routine days	F-ROU-001		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-003	2	done	P0	Exercise targets	F-ROU-002	F-PRG-001	21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
-F-ROU-004	2	planned	P1	Reordering			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-004	2	done	P1	Reordering			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-005	2	planned	P1	Supersets and circuits		F-LOG-015	21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-006	2	planned	P1	Rest defaults	F-TIM-005		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
-F-ROU-007	2	planned	P2	Folders			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
-F-ROU-008	2	planned	P1	Duplicate and version	F-ROU-001		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
-F-ROU-009	2	planned	P2	Archive routines			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-007	2	done	P2	Folders			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-008	2	done	P1	Duplicate and version	F-ROU-001		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-009	2	done	P2	Archive routines			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-010	2	done	P0	Start a workout from a routine day	F-ROU-003, F-LOG-001	F-PRG-001	70-decisions/ADR-0004-template-snapshot, 21-DATA-MODEL#workout_exercises
 F-ROU-011	3	planned	P2	Routine preview	F-ANA-005		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-012	3	planned	P2	Scheduling			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot

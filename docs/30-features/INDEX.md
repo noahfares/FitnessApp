@@ -41,12 +41,12 @@
 | [F-ROU-001](ROU/F-ROU-001.md) | Routine CRUD | 2 | P0 | done |
 | [F-ROU-002](ROU/F-ROU-002.md) | Routine days | 2 | P0 | done |
 | [F-ROU-003](ROU/F-ROU-003.md) | Exercise targets | 2 | P0 | done |
-| [F-ROU-004](ROU/F-ROU-004.md) | Reordering | 2 | P1 | planned |
+| [F-ROU-004](ROU/F-ROU-004.md) | Reordering | 2 | P1 | done |
 | [F-ROU-005](ROU/F-ROU-005.md) | Supersets and circuits | 2 | P1 | planned |
 | [F-ROU-006](ROU/F-ROU-006.md) | Rest defaults | 2 | P1 | planned |
-| [F-ROU-007](ROU/F-ROU-007.md) | Folders | 2 | P2 | planned |
-| [F-ROU-008](ROU/F-ROU-008.md) | Duplicate and version | 2 | P1 | planned |
-| [F-ROU-009](ROU/F-ROU-009.md) | Archive routines | 2 | P2 | planned |
+| [F-ROU-007](ROU/F-ROU-007.md) | Folders | 2 | P2 | done |
+| [F-ROU-008](ROU/F-ROU-008.md) | Duplicate and version | 2 | P1 | done |
+| [F-ROU-009](ROU/F-ROU-009.md) | Archive routines | 2 | P2 | done |
 | [F-ROU-010](ROU/F-ROU-010.md) | Start a workout from a routine day | 2 | P0 | done |
 | [F-ROU-011](ROU/F-ROU-011.md) | Routine preview | 3 | P2 | planned |
 | [F-ROU-012](ROU/F-ROU-012.md) | Scheduling | 3 | P2 | planned |

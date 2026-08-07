@@ -1,6 +1,6 @@
 # F-ROU-008 — Duplicate and version
 
-Status: planned | Priority: P1 | Phase: 2
+Status: done | Priority: P1 | Phase: 2
 Depends on: F-ROU-001
 Reads: 21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 
@@ -9,6 +9,11 @@ Reads: 21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 2. Because workouts snapshot their day, editing a routine in place is already
    safe for history — versioning is for the user's own clarity, not data safety.
 3. Archived routines stay startable but are hidden from the main list.
+
+## Acceptance
+- [x] Duplicating "PPL" produces "PPL copy", independently editable.
+- [x] An archived routine is reachable (from the archived list, `F-ROU-009`)
+      and its days remain fully startable.
 
 ---
 

@@ -234,6 +234,74 @@ class RoutineRepository {
     return (await findById(newRoutineId))!;
   }
 
+  // ------------------------------------------------------------- Folders
+
+  /// Flat, one level deep — nested folders are complexity without payoff at
+  /// this scale (`F-ROU-007`).
+  Stream<List<RoutineFolder>> watchFolders() =>
+      (_db.select(_db.routineFolders)
+            ..where((f) => f.deletedAt.isNull())
+            ..orderBy([(f) => OrderingTerm(expression: f.position)]))
+          .watch();
+
+  Future<RoutineFolder> createFolder(String name) async {
+    final id = newUuidV4();
+    final timestamp = _now;
+    final position = await _nextPositionIn('routine_folders');
+    await _db
+        .into(_db.routineFolders)
+        .insert(
+          RoutineFoldersCompanion.insert(
+            id: id,
+            name: name.trim(),
+            position: position,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+          ),
+        );
+    return (_db.select(
+      _db.routineFolders,
+    )..where((f) => f.id.equals(id))).getSingle();
+  }
+
+  Future<void> renameFolder(String id, String name) async {
+    await (_db.update(
+      _db.routineFolders,
+    )..where((f) => f.id.equals(id))).write(
+      RoutineFoldersCompanion(name: Value(name.trim()), updatedAt: Value(_now)),
+    );
+  }
+
+  /// Tombstones the folder. Routines inside it move to "no folder" rather
+  /// than pointing at a deleted row — a folder is purely organisational, so
+  /// losing it must never look like losing the routines in it.
+  Future<void> deleteFolder(String id) async {
+    final timestamp = _now;
+    await _db.transaction(() async {
+      await _db.customUpdate(
+        'UPDATE routines SET folder_id = NULL, updated_at = ? '
+        'WHERE folder_id = ? AND deleted_at IS NULL',
+        variables: [Variable<int>(timestamp), Variable<String>(id)],
+        updates: {_db.routines},
+      );
+      await _db.customUpdate(
+        'UPDATE routine_folders SET deleted_at = ?, updated_at = ? '
+        'WHERE id = ?',
+        variables: [
+          Variable<int>(timestamp),
+          Variable<int>(timestamp),
+          Variable<String>(id),
+        ],
+        updates: {_db.routineFolders},
+      );
+    });
+  }
+
+  /// Moves a routine into [folderId], or out of any folder when null
+  /// (`F-ROU-007`).
+  Future<void> setFolder(String routineId, String? folderId) =>
+      _updateRoutine(routineId, RoutinesCompanion(folderId: Value(folderId)));
+
   /// Saves a logged session as a reusable routine (`F-ROU-001` §3,
   /// `F-LOG-012` §3) — a single day carrying each exercise's logged (not
   /// warm-up) set count, rep range, and heaviest completed weight as its
@@ -582,6 +650,7 @@ class RoutineRepository {
               'routines' => _db.routines,
               'routine_days' => _db.routineDays,
               'routine_exercises' => _db.routineExercises,
+              'routine_folders' => _db.routineFolders,
               _ => throw ArgumentError('Unknown table $table'),
             },
           },

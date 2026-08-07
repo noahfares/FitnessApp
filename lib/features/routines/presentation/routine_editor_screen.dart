@@ -79,28 +79,35 @@ class _MultiDayRoutineScaffold extends ConsumerWidget {
         title: Text(routine.name),
         actions: [_RoutineMenu(routine: routine)],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.screen),
-        children: [
-          if (days.isEmpty)
-            EmptyState(
+      body: days.isEmpty
+          ? const EmptyState(
               icon: Icons.calendar_view_week_outlined,
               title: 'No days yet',
               message: '"Push", "Pull", "Legs" — a day is what you start '
                   'a workout from.',
-              actionLabel: 'Add a day',
-              onAction: () => unawaited(_addDay(context, ref)),
             )
-          else ...[
-            for (final day in days) _DayTile(routineId: routine.id, day: day),
-            const SizedBox(height: AppSpacing.sm),
-            OutlinedButton.icon(
-              onPressed: () => unawaited(_addDay(context, ref)),
-              icon: const Icon(Icons.add),
-              label: const Text('Add a day'),
+          // Drag to reorder — order is explicit `position`, never implied
+          // by the list itself (`F-ROU-004`).
+          : ReorderableListView.builder(
+              padding: const EdgeInsets.all(AppSpacing.screen),
+              itemCount: days.length,
+              itemBuilder: (context, i) => _DayTile(
+                key: ValueKey(days[i].id),
+                routineId: routine.id,
+                day: days[i],
+              ),
+              onReorder: (oldIndex, newIndex) =>
+                  unawaited(_reorder(ref, oldIndex, newIndex)),
             ),
-          ],
-        ],
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.screen),
+          child: OutlinedButton.icon(
+            onPressed: () => unawaited(_addDay(context, ref)),
+            icon: const Icon(Icons.add),
+            label: const Text('Add a day'),
+          ),
+        ),
       ),
     );
   }
@@ -113,6 +120,13 @@ class _MultiDayRoutineScaffold extends ConsumerWidget {
         .addDay(routine.id, name: name);
     if (!context.mounted) return;
     context.push(AppRoutes.routineDay(routine.id, day.id));
+  }
+
+  Future<void> _reorder(WidgetRef ref, int oldIndex, int newIndex) {
+    if (newIndex > oldIndex) newIndex -= 1;
+    final ids = [for (final day in days) day.id];
+    ids.insert(newIndex, ids.removeAt(oldIndex));
+    return ref.read(routineRepositoryProvider).reorderDays(ids);
   }
 }
 
@@ -148,7 +162,7 @@ class _SingleDayRoutineScaffold extends ConsumerWidget {
 }
 
 class _DayTile extends ConsumerWidget {
-  const _DayTile({required this.routineId, required this.day});
+  const _DayTile({required this.routineId, required this.day, super.key});
 
   final String routineId;
   final RoutineDay day;

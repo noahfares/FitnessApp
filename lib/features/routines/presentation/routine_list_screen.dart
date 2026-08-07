@@ -14,44 +14,44 @@ import '../../shell/widgets/empty_state.dart';
 import '../application/routine_providers.dart';
 
 /// The routine list (`F-ROU-001`) — every program, and where they're created,
-/// duplicated, archived and deleted from.
+/// duplicated, archived, folder-organised and deleted from. Toggles to the
+/// archived list, where routines are restored from (`F-ROU-009`).
 class RoutineListScreen extends ConsumerWidget {
   const RoutineListScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final routines = ref.watch(routinesProvider);
+    final showArchived = ref.watch(routineListShowArchivedProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Routines'),
+        title: Text(showArchived ? 'Archived routines' : 'Routines'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'New routine',
-            onPressed: () => unawaited(_createRoutine(context, ref)),
+            icon: Icon(
+              showArchived
+                  ? Icons.checklist_outlined
+                  : Icons.inventory_2_outlined,
+            ),
+            tooltip: showArchived ? 'Active routines' : 'Archived routines',
+            onPressed: () =>
+                ref.read(routineListShowArchivedProvider.notifier).toggle(),
           ),
+          if (!showArchived) ...[
+            IconButton(
+              icon: const Icon(Icons.create_new_folder_outlined),
+              tooltip: 'New folder',
+              onPressed: () => unawaited(_createFolder(context, ref)),
+            ),
+            IconButton(
+              icon: const Icon(Icons.add),
+              tooltip: 'New routine',
+              onPressed: () => unawaited(_createRoutine(context, ref)),
+            ),
+          ],
         ],
       ),
-      body: routines.view(
-        errorTitle: 'Routines could not be read',
-        (rows) => rows.isEmpty
-            ? EmptyState(
-                icon: Icons.checklist_outlined,
-                title: 'No routines yet',
-                message:
-                    'A routine holds days; a day is what you start a '
-                    'workout from.',
-                actionLabel: 'New routine',
-                onAction: () => unawaited(_createRoutine(context, ref)),
-              )
-            : ListView.builder(
-                padding: const EdgeInsets.all(AppSpacing.screen),
-                itemCount: rows.length,
-                itemBuilder: (context, i) =>
-                    _RoutineTile(routine: rows[i]),
-              ),
-      ),
+      body: showArchived ? const _ArchivedRoutineList() : const _RoutineList(),
     );
   }
 
@@ -64,12 +64,144 @@ class RoutineListScreen extends ConsumerWidget {
     if (!context.mounted) return;
     context.push(AppRoutes.routine(routine.id));
   }
+
+  Future<void> _createFolder(BuildContext context, WidgetRef ref) async {
+    final name = await promptRoutineName(context, title: 'New folder');
+    if (name == null || name.trim().isEmpty) return;
+    await ref.read(routineRepositoryProvider).createFolder(name);
+  }
+}
+
+class _RoutineList extends ConsumerWidget {
+  const _RoutineList();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final routines = ref.watch(routinesProvider);
+    final folders = ref.watch(routineFoldersProvider);
+
+    return routines.view(
+      errorTitle: 'Routines could not be read',
+      (rows) {
+        if (rows.isEmpty) {
+          return EmptyState(
+            icon: Icons.checklist_outlined,
+            title: 'No routines yet',
+            message:
+                'A routine holds days; a day is what you start a '
+                'workout from.',
+          );
+        }
+        return folders.when(
+          data: (folderRows) => _GroupedRoutineList(
+            routines: rows,
+            folders: folderRows,
+          ),
+          loading: () => _GroupedRoutineList(routines: rows, folders: const []),
+          error: (_, __) =>
+              _GroupedRoutineList(routines: rows, folders: const []),
+        );
+      },
+    );
+  }
+}
+
+/// Routines grouped under their folder, folders in position order, then
+/// everything with no folder last. Skips section headers entirely when
+/// nothing has been foldered yet — a flat list is the common case
+/// (`F-ROU-007`).
+class _GroupedRoutineList extends StatelessWidget {
+  const _GroupedRoutineList({required this.routines, required this.folders});
+
+  final List<Routine> routines;
+  final List<RoutineFolder> folders;
+
+  @override
+  Widget build(BuildContext context) {
+    if (folders.isEmpty) {
+      return ListView.builder(
+        padding: const EdgeInsets.all(AppSpacing.screen),
+        itemCount: routines.length,
+        itemBuilder: (context, i) => _RoutineTile(routine: routines[i]),
+      );
+    }
+
+    final byFolder = <String?, List<Routine>>{};
+    for (final routine in routines) {
+      (byFolder[routine.folderId] ??= []).add(routine);
+    }
+
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.screen),
+      children: [
+        for (final folder in folders)
+          if (byFolder[folder.id] case final inFolder?)
+            _FolderSection(folder: folder, routines: inFolder),
+        if (byFolder[null] case final unfoldered?)
+          _FolderSection(folder: null, routines: unfoldered),
+      ],
+    );
+  }
+}
+
+class _FolderSection extends StatelessWidget {
+  const _FolderSection({required this.folder, required this.routines});
+
+  final RoutineFolder? folder;
+  final List<Routine> routines;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+            child: Text(
+              folder?.name ?? 'No folder',
+              style: theme.textTheme.titleSmall,
+            ),
+          ),
+          for (final routine in routines) _RoutineTile(routine: routine),
+        ],
+      ),
+    );
+  }
+}
+
+class _ArchivedRoutineList extends ConsumerWidget {
+  const _ArchivedRoutineList();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final archived = ref.watch(archivedRoutinesProvider);
+    return archived.view(
+      errorTitle: 'Archived routines could not be read',
+      (rows) => rows.isEmpty
+          ? const EmptyState(
+              icon: Icons.inventory_2_outlined,
+              title: 'Nothing archived',
+              message: 'Archived routines stay startable and can be '
+                  'restored from here.',
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(AppSpacing.screen),
+              itemCount: rows.length,
+              itemBuilder: (context, i) =>
+                  _RoutineTile(routine: rows[i], isArchived: true),
+            ),
+    );
+  }
 }
 
 class _RoutineTile extends ConsumerWidget {
-  const _RoutineTile({required this.routine});
+  const _RoutineTile({required this.routine, this.isArchived = false});
 
   final Routine routine;
+  final bool isArchived;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -86,24 +218,38 @@ class _RoutineTile extends ConsumerWidget {
           loading: () => const SizedBox.shrink(),
           error: (_, __) => const SizedBox.shrink(),
         ),
-        trailing: PopupMenuButton<_RoutineAction>(
-          onSelected: (action) =>
-              unawaited(_handle(context, ref, action)),
-          itemBuilder: (context) => const [
-            PopupMenuItem(
-              value: _RoutineAction.duplicate,
-              child: Text('Duplicate'),
-            ),
-            PopupMenuItem(
-              value: _RoutineAction.archive,
-              child: Text('Archive'),
-            ),
-            PopupMenuItem(
-              value: _RoutineAction.delete,
-              child: Text('Delete'),
-            ),
-          ],
-        ),
+        trailing: isArchived
+            ? IconButton(
+                icon: const Icon(Icons.unarchive_outlined),
+                tooltip: 'Restore',
+                onPressed: () => unawaited(
+                  ref
+                      .read(routineRepositoryProvider)
+                      .setArchived(routine.id, isArchived: false),
+                ),
+              )
+            : PopupMenuButton<_RoutineAction>(
+                onSelected: (action) =>
+                    unawaited(_handle(context, ref, action)),
+                itemBuilder: (context) => const [
+                  PopupMenuItem(
+                    value: _RoutineAction.moveToFolder,
+                    child: Text('Move to folder'),
+                  ),
+                  PopupMenuItem(
+                    value: _RoutineAction.duplicate,
+                    child: Text('Duplicate'),
+                  ),
+                  PopupMenuItem(
+                    value: _RoutineAction.archive,
+                    child: Text('Archive'),
+                  ),
+                  PopupMenuItem(
+                    value: _RoutineAction.delete,
+                    child: Text('Delete'),
+                  ),
+                ],
+              ),
         onTap: () => context.push(AppRoutes.routine(routine.id)),
       ),
     );
@@ -116,6 +262,8 @@ class _RoutineTile extends ConsumerWidget {
   ) async {
     final repo = ref.read(routineRepositoryProvider);
     switch (action) {
+      case _RoutineAction.moveToFolder:
+        await _showMoveToFolderSheet(context, ref);
       case _RoutineAction.duplicate:
         await repo.duplicate(routine.id);
       case _RoutineAction.archive:
@@ -131,9 +279,60 @@ class _RoutineTile extends ConsumerWidget {
         if (confirmed) await repo.delete(routine.id);
     }
   }
+
+  Future<void> _showMoveToFolderSheet(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final folders = await ref.read(routineFoldersProvider.future);
+    if (!context.mounted) return;
+    final repo = ref.read(routineRepositoryProvider);
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('No folder'),
+              onTap: () {
+                unawaited(repo.setFolder(routine.id, null));
+                Navigator.of(sheetContext).pop();
+              },
+            ),
+            for (final folder in folders)
+              ListTile(
+                title: Text(folder.name),
+                onTap: () {
+                  unawaited(repo.setFolder(routine.id, folder.id));
+                  Navigator.of(sheetContext).pop();
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.add),
+              title: const Text('New folder'),
+              onTap: () async {
+                Navigator.of(sheetContext).pop();
+                if (!context.mounted) return;
+                final name = await promptRoutineName(
+                  context,
+                  title: 'New folder',
+                );
+                if (name == null || name.trim().isEmpty) return;
+                final created = await repo.createFolder(name);
+                await repo.setFolder(routine.id, created.id);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-enum _RoutineAction { duplicate, archive, delete }
+enum _RoutineAction { moveToFolder, duplicate, archive, delete }
 
 /// Shared by every rename/create prompt across routines, days and this list —
 /// one dialog, so they read and behave identically.
