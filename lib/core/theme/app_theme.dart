@@ -1,3 +1,4 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
@@ -16,16 +17,23 @@ abstract final class AppTheme {
   /// decorating. Changing this one value re-tints the entire app.
   static const Color seed = Color(0xFF3E63DD);
 
-  static ThemeData light() => _build(Brightness.light);
+  /// [dynamicScheme] is the wallpaper-derived scheme from `dynamic_color`
+  /// (`F-THM-003`), or null to use the fixed [seed] — off by default, and the
+  /// only value on any platform the package doesn't support. Harmonized
+  /// against [seed] so a wallpaper extreme cannot produce a scheme with
+  /// insufficient contrast, matching Material's own guidance for adopting a
+  /// dynamic scheme without losing brand identity entirely.
+  static ThemeData light({ColorScheme? dynamicScheme}) =>
+      _build(Brightness.light, dynamicScheme);
 
-  static ThemeData dark() => _build(Brightness.dark);
+  static ThemeData dark({ColorScheme? dynamicScheme}) =>
+      _build(Brightness.dark, dynamicScheme);
 
-  static ThemeData _build(Brightness brightness) {
+  static ThemeData _build(Brightness brightness, [ColorScheme? dynamicScheme]) {
     final isDark = brightness == Brightness.dark;
-    final scheme = ColorScheme.fromSeed(
-      seedColor: seed,
-      brightness: brightness,
-    );
+    final scheme =
+        dynamicScheme?.harmonized() ??
+        ColorScheme.fromSeed(seedColor: seed, brightness: brightness);
     final base = ThemeData(colorScheme: scheme, useMaterial3: true);
 
     return base.copyWith(

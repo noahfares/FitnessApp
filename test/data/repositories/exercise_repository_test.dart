@@ -168,6 +168,57 @@ void main() {
     });
   });
 
+  group('bulkArchiveByEquipment (F-CAT-009 §4)', () {
+    test(
+      'archives every non-archived exercise of that equipment only',
+      () async {
+        await repo.createCustom(
+          id: 'cable-1',
+          name: 'Cable Fly',
+          primaryMuscle: Muscle.chest,
+          equipment: Equipment.cable,
+          trackingType: TrackingType.weightReps,
+        );
+        await repo.createCustom(
+          id: 'cable-2',
+          name: 'Cable Row',
+          primaryMuscle: Muscle.upperBack,
+          equipment: Equipment.cable,
+          trackingType: TrackingType.weightReps,
+        );
+        await repo.createCustom(
+          id: 'bb-1',
+          name: 'Bench Press',
+          primaryMuscle: Muscle.chest,
+          equipment: Equipment.barbell,
+          trackingType: TrackingType.weightReps,
+        );
+        // Already archived — must not be double-counted.
+        await repo.createCustom(
+          id: 'cable-3',
+          name: 'Already Archived',
+          primaryMuscle: Muscle.chest,
+          equipment: Equipment.cable,
+          trackingType: TrackingType.weightReps,
+        );
+        await repo.setArchived('cable-3', isArchived: true);
+
+        final count = await repo.bulkArchiveByEquipment(Equipment.cable);
+
+        expect(count, 2);
+        expect((await repo.findById('cable-1'))!.archivedAt, isNotNull);
+        expect((await repo.findById('cable-2'))!.archivedAt, isNotNull);
+        // The barbell exercise is untouched.
+        expect((await repo.findById('bb-1'))!.archivedAt, isNull);
+      },
+    );
+
+    test('archiving nothing returns zero', () async {
+      final count = await repo.bulkArchiveByEquipment(Equipment.kettlebell);
+      expect(count, 0);
+    });
+  });
+
   group('hasHistory', () {
     test('is false for an unused exercise', () async {
       await makeCustom();

@@ -134,6 +134,90 @@ void main() {
     });
   });
 
+  group('rest-taken recording (F-TIM-007)', () {
+    test('the first completion of a session has no rest to report', () async {
+      await makeExercise('bench');
+      final we = await startWith('bench');
+      final set = (await sets.getSets(we)).single;
+
+      await sets.complete(set.id, weightGrams: const Value(60000));
+
+      expect((await sets.findById(set.id))!.restTakenSeconds, isNull);
+    });
+
+    test(
+      'records the gap since the previous completion in the session',
+      () async {
+        await makeExercise('bench');
+        final we = await startWith('bench');
+        final first = (await sets.getSets(we)).single;
+        await sets.complete(first.id, weightGrams: const Value(60000));
+
+        await sets.addSet(we);
+        final second = (await sets.getSets(we)).last;
+        clock = clock.add(const Duration(seconds: 90));
+        await sets.complete(second.id, weightGrams: const Value(60000));
+
+        expect((await sets.findById(second.id))!.restTakenSeconds, 90);
+      },
+    );
+
+    test('is scoped to the session, not to one exercise — a superset '
+        'partner set counts', () async {
+      await makeExercise('bench');
+      await makeExercise('row');
+      final workout = await workouts.start();
+      await workouts.addExercises(workout.id, ['bench', 'row']);
+      final rows = await workouts.watchExercises(workout.id).first;
+      final benchWe = rows.firstWhere((e) => e.exerciseId == 'bench');
+      final rowWe = rows.firstWhere((e) => e.exerciseId == 'row');
+
+      final benchSet = (await sets.getSets(benchWe.workoutExerciseId)).single;
+      await sets.complete(benchSet.id, weightGrams: const Value(60000));
+
+      clock = clock.add(const Duration(seconds: 30));
+      final rowSet = (await sets.getSets(rowWe.workoutExerciseId)).single;
+      await sets.complete(rowSet.id, weightGrams: const Value(40000));
+
+      expect((await sets.findById(rowSet.id))!.restTakenSeconds, 30);
+    });
+
+    test('un-ticking clears it along with the completion time', () async {
+      await makeExercise('bench');
+      final we = await startWith('bench');
+      final first = (await sets.getSets(we)).single;
+      await sets.complete(first.id, weightGrams: const Value(60000));
+      await sets.addSet(we);
+      final second = (await sets.getSets(we)).last;
+      clock = clock.add(const Duration(seconds: 60));
+      await sets.complete(second.id, weightGrams: const Value(60000));
+
+      await sets.uncomplete(second.id);
+
+      expect((await sets.findById(second.id))!.restTakenSeconds, isNull);
+    });
+
+    test(
+      'a deleted prior set is not counted as the previous completion',
+      () async {
+        await makeExercise('bench');
+        final we = await startWith('bench');
+        final first = (await sets.getSets(we)).single;
+        await sets.complete(first.id, weightGrams: const Value(60000));
+        await sets.deleteSet(first.id);
+
+        await sets.addSet(we);
+        final second = (await sets.getSets(we)).last;
+        clock = clock.add(const Duration(seconds: 45));
+        await sets.complete(second.id, weightGrams: const Value(60000));
+
+        // The only completion left standing is this one, so there is nothing
+        // prior to have rested from.
+        expect((await sets.findById(second.id))!.restTakenSeconds, isNull);
+      },
+    );
+  });
+
   group('deleting (F-LOG-003 §6)', () {
     test('a deleted set is tombstoned and undo restores it', () async {
       await makeExercise('bench');
@@ -177,6 +261,46 @@ void main() {
       await sets.setNote(set.id, '   ');
       // "Has a note" stays a single null check everywhere it is asked.
       expect((await sets.findById(set.id))!.notes, isNull);
+    });
+  });
+
+  group('watchLastUsedAtByExercise (F-CAT-006 §2)', () {
+    test('reports the most recent session containing each exercise', () async {
+      await makeExercise('bench');
+      await makeExercise('squat');
+
+      clock = DateTime(2026, 8, 1);
+      final firstWe = await startWith('bench');
+      await sets.complete(
+        (await sets.getSets(firstWe)).single.id,
+        weightGrams: const Value(100000),
+        reps: const Value(5),
+      );
+      await workouts.finish((await workouts.findActive())!.id);
+
+      clock = DateTime(2026, 8, 5);
+      final secondWe = await startWith('bench');
+      await sets.complete(
+        (await sets.getSets(secondWe)).single.id,
+        weightGrams: const Value(105000),
+        reps: const Value(5),
+      );
+      await workouts.finish((await workouts.findActive())!.id);
+
+      final lastUsed = await sets.watchLastUsedAtByExercise().first;
+
+      expect(lastUsed['bench'], DateTime(2026, 8, 5).millisecondsSinceEpoch);
+      // Never touched, so it never appears — not zero, absent.
+      expect(lastUsed.containsKey('squat'), isFalse);
+    });
+
+    test('an incomplete set does not count as used', () async {
+      await makeExercise('bench');
+      await startWith('bench'); // Added, but never completed.
+
+      final lastUsed = await sets.watchLastUsedAtByExercise().first;
+
+      expect(lastUsed.containsKey('bench'), isFalse);
     });
   });
 

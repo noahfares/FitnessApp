@@ -7,7 +7,7 @@ publish_to: none
 # Canonical source is the VERSION file at the repo root; CI fails if they
 # disagree. See docs/63-VERSIONING.md. The +N build number is set by the
 # release workflow (F-REL-005), not by hand.
-version: 0.23.0
+version: 0.26.1
 
 environment:
   sdk: ^3.11.0
@@ -46,6 +46,11 @@ dependencies:
   # The repository link on About (F-SET-009). Opens the user's own browser;
   # not a network call made by the app itself (ADR-0002).
   url_launcher: ^6.3.2
+
+  # Android 12+ wallpaper-derived colour scheme (F-THM-003). Reads a platform
+  # channel only — no network call — and returns null schemes on any
+  # unsupported platform, which is exactly the "off" state already needed.
+  dynamic_color: ^1.9.0
 
 dev_dependencies:
   flutter_test:

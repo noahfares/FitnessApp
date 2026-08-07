@@ -158,14 +158,30 @@ class HistorySetRow extends ConsumerWidget {
     );
   }
 
-  Future<void> _toggle(WidgetRef ref, bool completed) {
+  /// Editing a past, already-completed set can change what it holds a record
+  /// for just as much as a live completion can — the cache does not know
+  /// this happened somewhere other than the active session
+  /// (`docs/40-ANALYTICS-SPEC.md` §4). There is no ghost or rest timer here
+  /// to make a "just now" moment out of it, so this stays silent: no badge,
+  /// no celebration, only the cache staying correct.
+  Future<void> _toggle(WidgetRef ref, bool completed) async {
     final repo = ref.read(setRepositoryProvider);
-    return completed ? repo.complete(set.id) : repo.uncomplete(set.id);
+    final records = ref.read(personalRecordRepositoryProvider);
+    if (completed) {
+      await repo.complete(set.id);
+      await records.evaluateSet(set.id);
+      return;
+    }
+    await repo.uncomplete(set.id);
+    return records.rebuildForSet(set.id);
   }
 
   void _delete(BuildContext context, WidgetRef ref) {
     final repo = ref.read(setRepositoryProvider);
-    unawaited(repo.deleteSet(set.id));
+    final records = ref.read(personalRecordRepositoryProvider);
+    unawaited(
+      repo.deleteSet(set.id).then((_) => records.rebuildForSet(set.id)),
+    );
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -173,7 +189,11 @@ class HistorySetRow extends ConsumerWidget {
           content: Text('Set ${label.text} deleted'),
           action: SnackBarAction(
             label: 'Undo',
-            onPressed: () => unawaited(repo.restoreSet(set.id)),
+            onPressed: () => unawaited(
+              repo
+                  .restoreSet(set.id)
+                  .then((_) => records.rebuildForSet(set.id)),
+            ),
           ),
         ),
       );

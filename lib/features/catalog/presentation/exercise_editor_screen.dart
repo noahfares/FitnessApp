@@ -6,11 +6,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/ids/uuid.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/units/mass.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/db/tables/enums.dart';
 import '../../../domain/logging/set_fields.dart';
+import '../../../domain/logging/weight_steps.dart';
 import '../../../domain/timing/rest_defaults.dart';
+import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import 'exercise_labels.dart';
@@ -36,6 +39,11 @@ class ExerciseEditorScreen extends ConsumerStatefulWidget {
 
 class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
   final TextEditingController _name = TextEditingController();
+  final TextEditingController _notes = TextEditingController();
+  final TextEditingController _aliasInput = TextEditingController();
+  final TextEditingController _increment = TextEditingController();
+
+  List<String> _aliases = <String>[];
 
   Muscle _primaryMuscle = Muscle.chest;
   Set<Muscle> _secondaryMuscles = <Muscle>{};
@@ -71,6 +79,9 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
   @override
   void dispose() {
     _name.dispose();
+    _notes.dispose();
+    _aliasInput.dispose();
+    _increment.dispose();
     super.dispose();
   }
 
@@ -97,6 +108,14 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         _trackingType = row.trackingType;
         _defaultRestSeconds = row.defaultRestSeconds;
         _weightEntryMode = row.weightEntryMode;
+        _notes.text = row.notes ?? '';
+        _aliases = List<String>.of(row.aliases);
+        if (row.incrementGrams case final grams?) {
+          final unit = ref.read(unitPreferencesProvider).load;
+          _increment.text = ref
+              .read(quantityFormatterProvider)
+              .massValueOnly(Mass.grams(grams), unit);
+        }
       }
     });
   }
@@ -131,6 +150,14 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
     final secondary = [for (final m in _secondaryMuscles) m.name];
     final weightEntryMode =
         _weightEntryMode ?? defaultWeightEntryModeFor(_equipment);
+    final notes = _notes.text.trim();
+    // A blank or unparseable field falls through to the equipment default
+    // rather than being treated as an error — this override is optional
+    // (`F-SET-007`).
+    final incrementGrams = ref
+        .read(quantityParserProvider)
+        .parseMass(_increment.text, ref.read(unitPreferencesProvider).load)
+        ?.grams;
 
     if (widget.isNew) {
       // The id is generated here rather than by the database so it exists
@@ -142,8 +169,11 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         equipment: _equipment,
         trackingType: _trackingType,
         secondaryMuscles: _secondaryMuscles.toList(),
+        aliases: _aliases,
+        notes: notes.isEmpty ? null : notes,
         defaultRestSeconds: _defaultRestSeconds,
         weightEntryMode: weightEntryMode,
+        incrementGrams: incrementGrams,
       );
     } else {
       await repo.update(
@@ -154,8 +184,11 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
           secondaryMuscles: Value(secondary),
           equipment: Value(_equipment),
           trackingType: Value(_trackingType),
+          aliases: Value(_aliases),
+          notes: Value(notes.isEmpty ? null : notes),
           defaultRestSeconds: Value(_defaultRestSeconds),
           weightEntryMode: Value(weightEntryMode),
+          incrementGrams: Value(incrementGrams),
         ),
       );
     }
@@ -203,6 +236,21 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
     await repo.delete(id);
     if (!mounted) return;
     Navigator.of(context).pop();
+  }
+
+  /// Trimmed, de-duplicated case-insensitively, and cleared from the input
+  /// once accepted — the same "type and commit" shape as the alias search it
+  /// feeds (`F-CAT-008` §3).
+  void _addAlias(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return;
+    final exists = _aliases.any(
+      (a) => a.toLowerCase() == trimmed.toLowerCase(),
+    );
+    setState(() {
+      if (!exists) _aliases = [..._aliases, trimmed];
+      _aliasInput.clear();
+    });
   }
 
   Future<void> _setArchived(bool archived) async {
@@ -374,6 +422,36 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
               () => _defaultRestSeconds = (seconds ?? 0) == 0 ? null : seconds,
             ),
           ),
+          if (setFieldsFor(_trackingType.name).contains(SetField.weight)) ...[
+            const SizedBox(height: AppSpacing.lg),
+            // Overrides `defaultStep`'s per-equipment default
+            // (`domain/logging/weight_steps.dart`) for this exercise only
+            // (`F-SET-007`). Left blank, the stepper falls through to that
+            // default — never to zero.
+            Builder(
+              builder: (context) {
+                final unit = ref.watch(unitPreferencesProvider).load;
+                final defaultLabel = ref
+                    .watch(quantityFormatterProvider)
+                    .setWeight(
+                      defaultStep(equipment: _equipment.name, unit: unit),
+                      showUnit: true,
+                    );
+                return TextField(
+                  controller: _increment,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Stepper increment',
+                    border: const OutlineInputBorder(),
+                    suffixText: unit.symbol,
+                    helperText: 'Blank uses the default, $defaultLabel.',
+                  ),
+                );
+              },
+            ),
+          ],
           const SizedBox(height: AppSpacing.lg),
           Text('Secondary muscles', style: theme.textTheme.titleSmall),
           const SizedBox(height: AppSpacing.sm),
@@ -395,6 +473,56 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
                     }),
                   ),
             ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          TextField(
+            controller: _notes,
+            maxLines: 3,
+            textCapitalization: TextCapitalization.sentences,
+            decoration: const InputDecoration(
+              labelText: 'Notes',
+              helperText:
+                  'Seat height, pin position, grip width — visible '
+                  'inline during a session.',
+              helperMaxLines: 2,
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Text('Aliases', style: theme.textTheme.titleSmall),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Other names this is searchable by — "RDL" for Romanian Deadlift.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              for (final alias in _aliases)
+                InputChip(
+                  label: Text(alias),
+                  onDeleted: () => setState(() => _aliases.remove(alias)),
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          TextField(
+            controller: _aliasInput,
+            decoration: InputDecoration(
+              hintText: 'Add an alias',
+              border: const OutlineInputBorder(),
+              isDense: true,
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.add),
+                tooltip: 'Add alias',
+                onPressed: () => _addAlias(_aliasInput.text),
+              ),
+            ),
+            onSubmitted: _addAlias,
           ),
           if (!widget.isNew) ...[
             const Divider(height: AppSpacing.xxl),

@@ -14,6 +14,7 @@ class AppearanceScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mode = ref.watch(themeModeProvider);
+    final dynamicColorEnabled = ref.watch(dynamicColorEnabledProvider);
     final colors = context.appColors;
 
     return Scaffold(
@@ -38,6 +39,17 @@ class AppearanceScreen extends ConsumerWidget {
                         : null,
                   ),
               ],
+            ),
+          ),
+          const Divider(),
+          SwitchListTile(
+            value: dynamicColorEnabled,
+            onChanged: (enabled) =>
+                ref.read(dynamicColorEnabledProvider.notifier).set(enabled),
+            title: const Text('Dynamic colour'),
+            subtitle: const Text(
+              'Tint the app from your wallpaper. Android 12+ only — off does '
+              "nothing on a phone that doesn't support it.",
             ),
           ),
           const Divider(),

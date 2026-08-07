@@ -16,7 +16,9 @@ import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/set_numbering.dart';
 import '../../settings/application/rpe_settings_provider.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import '../../shell/widgets/pr_badge.dart';
 import '../../timing/application/rest_timer_providers.dart';
+import '../application/personal_record_providers.dart';
 import 'numeric_keypad_sheet.dart';
 import 'rpe_sheet.dart';
 import 'set_note_sheet.dart';
@@ -38,12 +40,16 @@ class SetRow extends ConsumerWidget {
     required this.fields,
     required this.equipment,
     required this.restSeconds,
+    required this.exerciseId,
     this.perSide = false,
     this.incrementGrams,
   });
 
   final WorkoutSet set;
   final SetLabel label;
+
+  /// Which cached PR records to check this row against (`F-LOG-013` §2).
+  final String exerciseId;
 
   /// The matching set from last time, or null (`F-LOG-004`).
   final GhostSet? ghost;
@@ -67,6 +73,8 @@ class SetRow extends ConsumerWidget {
     final prefs = ref.watch(unitPreferencesProvider);
     final formatter = ref.watch(quantityFormatterProvider);
     final rpeSettings = ref.watch(rpeSettingsProvider);
+    final recordSetIds = ref.watch(recordSetIdsProvider(exerciseId)).value;
+    final isRecord = recordSetIds?.contains(set.id) ?? false;
 
     final ghostText = ghost == null
         ? null
@@ -95,6 +103,7 @@ class SetRow extends ConsumerWidget {
             displayMode: rpeSettings.displayMode,
           )
         : null;
+    final prBadge = isRecord ? const PrBadge() : null;
     final ghostCell = _GhostCell(text: ghostText);
     final valueCells = [
       for (final field in fields)
@@ -135,7 +144,7 @@ class SetRow extends ConsumerWidget {
       onDismissed: (_) => _delete(context, ref),
       child: Semantics(
         container: true,
-        label: _semanticLabel(formatter, prefs, rpeSettings),
+        label: _semanticLabel(formatter, prefs, rpeSettings, isRecord),
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.sm,
@@ -150,6 +159,7 @@ class SetRow extends ConsumerWidget {
                         numberCell,
                         noteButton,
                         ?rpeCell,
+                        ?prBadge,
                         Expanded(child: ghostCell),
                       ],
                     ),
@@ -166,6 +176,7 @@ class SetRow extends ConsumerWidget {
                     numberCell,
                     noteButton,
                     ?rpeCell,
+                    ?prBadge,
                     Expanded(flex: 3, child: ghostCell),
                     for (final cell in valueCells)
                       Expanded(flex: 2, child: cell),
@@ -177,9 +188,16 @@ class SetRow extends ConsumerWidget {
     );
   }
 
+  /// A deleted or restored set can only ever demote or reinstate a cached
+  /// record, never patch it (`docs/40-ANALYTICS-SPEC.md` §4 rule 4) — so
+  /// either direction gets a full rebuild for the exercise, not an attempt to
+  /// reason about what the delete/undo did to the cache in place.
   void _delete(BuildContext context, WidgetRef ref) {
     final repo = ref.read(setRepositoryProvider);
-    unawaited(repo.deleteSet(set.id));
+    final records = ref.read(personalRecordRepositoryProvider);
+    unawaited(
+      repo.deleteSet(set.id).then((_) => records.rebuildForSet(set.id)),
+    );
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -187,7 +205,11 @@ class SetRow extends ConsumerWidget {
           content: Text('Set ${label.text} deleted'),
           action: SnackBarAction(
             label: 'Undo',
-            onPressed: () => unawaited(repo.restoreSet(set.id)),
+            onPressed: () => unawaited(
+              repo
+                  .restoreSet(set.id)
+                  .then((_) => records.rebuildForSet(set.id)),
+            ),
           ),
         ),
       );
@@ -199,6 +221,7 @@ class SetRow extends ConsumerWidget {
     QuantityFormatter formatter,
     UnitPreferences prefs,
     RpeSettings rpeSettings,
+    bool isRecord,
   ) {
     final parts = <String>[
       label.isWarmup
@@ -215,6 +238,10 @@ class SetRow extends ConsumerWidget {
         },
       set.isCompleted ? 'completed' : 'not completed',
       if (set.notes != null) 'has a note',
+      // Colour and an icon alone are not indicators (`F-A11Y-003`) — the
+      // badge's tooltip says the same thing visually, this says it to a
+      // screen reader.
+      if (isRecord) 'personal record',
     ];
     return parts.join(', ');
   }
@@ -420,16 +447,20 @@ class _CompletionToggle extends ConsumerWidget {
   Future<void> _toggle(WidgetRef ref, bool completed) async {
     final repo = ref.read(setRepositoryProvider);
     final timer = ref.read(restTimerProvider.notifier);
+    final records = ref.read(personalRecordRepositoryProvider);
 
     if (!completed) {
       timer.cancelForSet(set.id);
-      return repo.uncomplete(set.id);
+      await repo.uncomplete(set.id);
+      // Un-ticking a set that held a record demotes it the same way deleting
+      // one does (§4 rule 4) — only a rebuild knows the next-best value.
+      return records.rebuildForSet(set.id);
     }
 
     timer.startForSet(setId: set.id, seconds: restSeconds);
 
     final previous = ghost;
-    return repo.complete(
+    await repo.complete(
       set.id,
       weightGrams: _adopt(
         fields.contains(SetField.weight),
@@ -448,6 +479,10 @@ class _CompletionToggle extends ConsumerWidget {
         previous?.durationSeconds,
       ),
     );
+    // The badge is the celebration (`PrBadge`'s own entrance animation) — no
+    // separate handling of the result is needed here; the cache write alone
+    // is what makes it appear.
+    await records.evaluateSet(set.id);
   }
 
   static Value<int?> _adopt(bool applies, int? current, int? ghost) {

@@ -88,6 +88,42 @@ void main() {
     });
   });
 
+  group('restSecondsForGroupMember (F-ROU-005 §3, F-LOG-015 §3)', () {
+    test('a non-last group member rests zero regardless of the resolved '
+        'duration', () {
+      expect(
+        restSecondsForGroupMember(
+          isGrouped: true,
+          isLastInGroup: false,
+          resolvedSeconds: 180,
+        ),
+        0,
+      );
+    });
+
+    test('the last group member rests the resolved duration', () {
+      expect(
+        restSecondsForGroupMember(
+          isGrouped: true,
+          isLastInGroup: true,
+          resolvedSeconds: 180,
+        ),
+        180,
+      );
+    });
+
+    test('a standalone exercise is unaffected by isLastInGroup', () {
+      expect(
+        restSecondsForGroupMember(
+          isGrouped: false,
+          isLastInGroup: false,
+          resolvedSeconds: 180,
+        ),
+        180,
+      );
+    });
+  });
+
   group('formatRestDuration', () {
     test('reads as short as the value allows', () {
       expect(formatRestDuration(45), '45 s');

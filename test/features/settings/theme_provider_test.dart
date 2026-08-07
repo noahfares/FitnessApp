@@ -52,6 +52,27 @@ void main() {
     );
   });
 
+  group('dynamic colour (F-THM-003)', () {
+    test('defaults off', () async {
+      final container = await containerWith({});
+      expect(container.read(dynamicColorEnabledProvider), isFalse);
+    });
+
+    test('restores a stored choice', () async {
+      final container = await containerWith({'appearance.dynamicColor': true});
+      expect(container.read(dynamicColorEnabledProvider), isTrue);
+    });
+
+    test('setting persists', () async {
+      final container = await containerWith({});
+      await container.read(dynamicColorEnabledProvider.notifier).set(true);
+
+      expect(container.read(dynamicColorEnabledProvider), isTrue);
+      final raw = await SharedPreferences.getInstance();
+      expect(raw.getBool('appearance.dynamicColor'), isTrue);
+    });
+  });
+
   group('applied to the app', () {
     testWidgets('changing the mode re-themes without a restart', (
       tester,

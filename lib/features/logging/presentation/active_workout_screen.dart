@@ -17,6 +17,7 @@ import '../../../domain/logging/set_numbering.dart';
 import '../../../domain/routines/rep_range.dart';
 import '../../../domain/timing/rest_defaults.dart';
 import '../../catalog/presentation/exercise_labels.dart';
+import '../../catalog/presentation/exercise_note_sheet.dart';
 import '../../settings/application/rest_timer_settings_provider.dart';
 import '../../settings/application/rpe_settings_provider.dart';
 import '../../shell/widgets/hold_to_confirm_button.dart';
@@ -289,6 +290,12 @@ class _ActiveWorkout extends ConsumerWidget {
     }
 
     await repo.finish(workout.id);
+    // maxSessionVolume only means something once the session's total is
+    // final (`F-LOG-013`, `docs/40-ANALYTICS-SPEC.md` §4) — unlike the other
+    // three kinds, it is never evaluated mid-session.
+    await ref
+        .read(personalRecordRepositoryProvider)
+        .evaluateSessionVolume(workout.id);
     if (!context.mounted) return;
     // Replaces the stack rather than popping, so back does not walk into a
     // finished session (docs/23-NAVIGATION.md §navigation-invariants).
@@ -434,17 +441,18 @@ class _SessionExerciseTile extends ConsumerWidget {
     // Same reasoning: the rest duration is a property of the exercise, and
     // resolving it once per tile keeps the rule out of the completion handler
     // (`F-TIM-005`). Within a superset the timer runs after the *last*
-    // member, not between them — there is no configured within-group rest,
-    // so non-last members rest zero (`F-LOG-015` §3, `F-ROU-005` §3).
-    final restSeconds = exercise.groupId != null && !isLastInGroup
-        ? 0
-        : resolveRestSeconds(
-            equipment: exercise.equipment.name,
-            primaryMuscle: exercise.primaryMuscle.name,
-            routineSeconds: exercise.target?.restSeconds,
-            exerciseSeconds: exercise.defaultRestSeconds,
-            globalSeconds: ref.watch(restTimerSettingsProvider).defaultSeconds,
-          );
+    // member, not between them (`F-LOG-015` §3, `F-ROU-005` §3).
+    final restSeconds = restSecondsForGroupMember(
+      isGrouped: exercise.groupId != null,
+      isLastInGroup: isLastInGroup,
+      resolvedSeconds: resolveRestSeconds(
+        equipment: exercise.equipment.name,
+        primaryMuscle: exercise.primaryMuscle.name,
+        routineSeconds: exercise.target?.restSeconds,
+        exerciseSeconds: exercise.defaultRestSeconds,
+        globalSeconds: ref.watch(restTimerSettingsProvider).defaultSeconds,
+      ),
+    );
     final labels = labelSets([
       for (final set in sets ?? const <WorkoutSet>[]) set.setType.name,
     ]);
@@ -478,11 +486,17 @@ class _SessionExerciseTile extends ConsumerWidget {
                     color: theme.colorScheme.primary,
                   ),
                 ),
+              // The exercise's own persistent note, distinct from anything
+              // logged this session (`F-CAT-007` §2).
+              if (exercise.exerciseNotes case final note? when note.isNotEmpty)
+                _StickyNoteText(note: note),
             ],
           ),
           isThreeLine: true,
-          // Swap and remove — the session rarely matches the plan exactly
-          // (`F-LOG-010` §1–§2).
+          // Swap, remove, and the sticky note — the session rarely matches
+          // the plan exactly (`F-LOG-010` §1–§2), and the note is reachable
+          // from here so it never requires leaving the workout (`F-CAT-007`
+          // §3).
           trailing: PopupMenuButton<String>(
             icon: const Icon(Icons.more_horiz),
             onSelected: (value) {
@@ -491,11 +505,19 @@ class _SessionExerciseTile extends ConsumerWidget {
                   unawaited(_swap(context, ref));
                 case 'remove':
                   unawaited(_remove(context, ref));
+                case 'note':
+                  unawaited(_editNote(context, ref));
               }
             },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'swap', child: Text('Swap exercise')),
-              PopupMenuItem(value: 'remove', child: Text('Remove')),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'note',
+                child: Text(
+                  exercise.exerciseNotes == null ? 'Add note' : 'Edit note',
+                ),
+              ),
+              const PopupMenuItem(value: 'swap', child: Text('Swap exercise')),
+              const PopupMenuItem(value: 'remove', child: Text('Remove')),
             ],
           ),
         ),
@@ -518,6 +540,7 @@ class _SessionExerciseTile extends ConsumerWidget {
               incrementGrams: exercise.incrementGrams,
               restSeconds: restSeconds,
               perSide: perSide,
+              exerciseId: exercise.exerciseId,
             ),
         AddSetButton(workoutExerciseId: exercise.workoutExerciseId),
         if (nextExercise != null)
@@ -633,6 +656,17 @@ class _SessionExerciseTile extends ConsumerWidget {
       );
   }
 
+  /// Opens the exercise's persistent sticky note without leaving the session
+  /// (`F-CAT-007` §3). Writes only through `ExerciseRepository`, so it can
+  /// never touch a logged set or the rest timer (`F-CAT-007` acceptance).
+  Future<void> _editNote(BuildContext context, WidgetRef ref) {
+    return showExerciseNoteSheet(
+      context,
+      exerciseId: exercise.exerciseId,
+      currentNote: exercise.exerciseNotes,
+    );
+  }
+
   Future<void> _toggleGroupWithNext(WidgetRef ref) {
     return ref
         .read(workoutRepositoryProvider)
@@ -665,6 +699,51 @@ class _SessionExerciseTile extends ConsumerWidget {
       if (target.rpe != null) '@RPE ${target.rpe}',
     ];
     return parts.isEmpty ? null : parts.join(' · ');
+  }
+}
+
+/// The exercise's sticky note, collapsed to one line until tapped
+/// (`F-CAT-007` §2).
+class _StickyNoteText extends StatefulWidget {
+  const _StickyNoteText({required this.note});
+
+  final String note;
+
+  @override
+  State<_StickyNoteText> createState() => _StickyNoteTextState();
+}
+
+class _StickyNoteTextState extends State<_StickyNoteText> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return GestureDetector(
+      onTap: () => setState(() => _expanded = !_expanded),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.sticky_note_2_outlined,
+            size: 14,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              widget.note,
+              maxLines: _expanded ? null : 1,
+              overflow: _expanded ? null : TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

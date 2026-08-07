@@ -171,7 +171,7 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.19.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.26.1**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
 **Phase 1 complete.** Batches 1.1–1.9 done:
@@ -362,6 +362,112 @@ deferred: because storage is always total, switching mode is display-only,
 so neither migrating nor refusing was ever needed. Not built: RPE does not
 appear on the history or edit-past-workout screens, and neither feature yet
 feeds `F-PRG-005` or `F-ANA-011`, both still `planned`.
+
+**Batch 2.6 — PR detection.** `F-LOG-013` done. No schema change —
+`personal_records` and its `PrKind` enum have existed since schema v3; this
+batch is the first to read or write either. `domain/analytics/e1rm.dart`
+(Epley only — formula selection is `F-SET-006`, Phase 3) and
+`domain/analytics/personal_records.dart` hold the pure detection logic
+(`detectPrs`), each with fixture-backed tests against
+`docs/40-ANALYTICS-SPEC.md` §1/§4. `PersonalRecordRepository.evaluateSet`
+runs live on every set completion for `maxWeight`, `maxRepsAtWeight` and
+`bestE1rm`; `maxSessionVolume` is deliberately evaluated separately, once,
+in `evaluateSessionVolume` when the workout finishes — a per-set running
+total would keep beating its own more-recent self as a session progresses,
+celebrating arithmetic rather than a real record. `rebuildForExercise`/
+`rebuildAll` are the full recompute rule 4 requires (a cache can be demoted
+but never knows the next-best value without rescanning raw sets); wired to
+every delete, undo, and un-complete on both the live and history set rows,
+and exposed as "Rebuild personal records" on Settings › Data as the rule-5
+maintenance action. `PrBadge` (`features/shell/widgets/`) is the inline
+badge on the live set row; its own mount-time entrance animation stands in
+for the "brief, non-blocking animation" the spec asks for, so no separate
+celebratory overlay exists. The finish summary lists each session's records
+by exercise name. Not built: editing a completed set's **value** (weight or
+reps) through the numeric keypad, without un-ticking and re-ticking it, does
+not yet trigger a cache rebuild — only completion-toggling and deletion do,
+so a stale record can survive an in-place correction until the next
+delete/toggle or maintenance rebuild touches that exercise (`F-LOG-013`'s
+own status note has the detail). `F-ANA-007` (the PR timeline this batch's
+cache is meant to eventually feed) remains `planned`, Phase 3.
+
+**Batch 2.7 — catalogue polish.** `F-CAT-006`, `F-CAT-007`, `F-CAT-008` and
+`F-CAT-009` all done. No schema change — `is_favorite`, `notes`, `aliases`
+and `archived_at` have existed on `exercises` since schema v1/v3; a fair
+amount of the repository- and domain-layer plumbing for this batch was
+already in place ahead of time (favourite/archive toggles on
+`ExerciseRepository`, and `domain/catalog/exercise_search.dart`'s
+favourite→recency→alphabetical ordering, built in `F-CAT-004` with
+`lastUsedAt` deliberately left always-null "for a one-line change later").
+This batch is what closes the remaining gaps: `SetRepository
+.watchLastUsedAtByExercise()` wires real recency into `CatalogIndex`, and
+the catalogue screen gets a favourite star per row (`F-CAT-006`); the
+exercise editor gains Notes and Aliases fields, `WorkoutRepository
+.watchExercises` now carries the exercise's own persistent note as
+`SessionExercise.exerciseNotes` (kept distinct from the session-specific
+`.notes`), and the active workout screen shows it collapsed-to-one-line via
+`_StickyNoteText` with an "Edit note" action on the overflow menu, opening
+`ExerciseNoteSheet` — which writes only through `ExerciseRepository`, so it
+can never disturb a logged set or the rest timer (`F-CAT-007`); the alias
+seed data (`rdl`, `ohp`, `bss`, 29 of 100 exercises) and alias-aware search
+already existed, so `F-CAT-008` only needed the editor's add/remove alias UI
+closing §3. `F-CAT-009` mirrors `F-ROU-009`'s routine-archive pattern
+exactly: a "show archived" toggle on the catalogue screen's app bar, a flat
+`_ArchivedExerciseList` with a "Restore" action per row, and
+`ExerciseRepository.bulkArchiveByEquipment` (only ever widens the archived
+set, never touches an already-archived row) reached from an app-bar action
+that confirms via the shared `ConfirmSheet`.
+
+**Batch 2.8 — timer & settings polish.** `F-TIM-007`, `F-SET-007` and
+`F-THM-003` done; `F-TIM-004` and `F-SET-008` blocked, not attempted — both
+depend on `F-TIM-003` (the real OS notification), which is still only the
+in-app timer, and this session had no Android SDK or physical device to
+build or verify notification work against regardless. No schema change —
+`sets.rest_taken_seconds` and `exercises.increment_grams` have existed since
+schema v3. `SetRepository.complete()` now records actual elapsed rest,
+looked up as the gap since the most recent *other* completed set anywhere
+in the session (not scoped to one exercise — the rest timer itself already
+works that way, so a superset partner's set correctly counts), null for a
+session's first completion rather than zero (`F-TIM-007`); nothing displays
+it yet; it feeds `F-ANA-012`, Phase 4. The increment stepper's per-equipment
+default and full per-exercise-override read path
+(`domain/logging/weight_steps.dart`, threaded through `SetRow` since
+`F-LOG-006`) already existed — the exercise editor just gained the one
+missing piece, a "Stepper increment" field showing the computed default as
+its own helper text (`F-SET-007`). Dynamic colour (`F-THM-003`) is the first
+new dependency since `F-DAT-011`'s `share_plus`: `dynamic_color` supplies a
+wallpaper-derived `ColorScheme` via `DynamicColorBuilder`, harmonized
+against it with the package's own `ColorScheme.harmonized()`;
+`AppColors` — `pr`/`danger`/`success`/`warning` — was already a fixed
+`ThemeExtension` never derived from `ColorScheme` (its doc comment
+anticipated this feature by name), so the "semantic roles survive any
+wallpaper" requirement holds by construction, pinned by a test rather than
+trusted from the comment. Off by default on Settings › Appearance, and a
+no-op (null schemes, falls through to the fixed seed) on any platform the
+package doesn't support.
+
+**Phase 2 exit-criteria audit (v0.26.1).** All four of Phase 2's exit
+criteria (`docs/50-ROADMAP.md` §Phase 2) are now backed by an automated test
+that proves the criterion's own wording, not just its component features'
+specs — added: a multi-day "full training week" repository test (three
+routine days started, logged and finished in sequence, targets pre-filled
+each time); a stronger routine-edit test that finishes the workout and then
+deletes the exercise/day/routine entirely, not just re-targets it, before
+re-reading the historical record; a widget test that completes a
+record-setting set through the real `ActiveWorkoutScreen` and asserts
+`PrBadge` actually appears, not just that the cache updates; and
+`restSecondsForGroupMember`, a one-line rule (non-last group member rests
+zero) that was previously inline in `active_workout_screen.dart` and
+untested, now extracted to `domain/timing/rest_defaults.dart` and
+unit-tested, with a widget test confirming the full rest doesn't start for
+a non-last member. Two pre-existing gaps surfaced along the way, both
+already noted in their own features' status notes rather than fixed here:
+`F-ROU-005`/`F-LOG-015`'s within-group-rest and focus-advance items remain
+`in-progress`, and `F-LOG-013`'s `PrBadge` doesn't suppress itself for a
+first-ever set the way the spec's "record it silently" edge case asks —
+the cache write is silent, but the badge isn't. Declaring Phase 2 itself
+complete is the project owner's call; the roadmap's exit-criteria section
+has the full picture, checked but not phase-closed.
 
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,

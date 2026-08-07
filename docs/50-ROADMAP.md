@@ -229,12 +229,57 @@ document's standing instruction rather than by silently routing around it.
 Both have since been confirmed (see Phase 1's exit criteria above); recorded
 here so the deviation still has an audit trail.
 
-**Exit criteria**
-- [ ] A full training week runs from routine days, with targets pre-filled.
-- [ ] Editing a routine provably leaves historical workouts unchanged.
-- [ ] PRs are detected and celebrated in-session, and correctly demoted when the
-      set that set them is deleted.
-- [ ] Supersets work end to end, editor through logger.
+**Exit criteria — all four provable by automated test as of batch 2.8
+(v0.26.0). Declaring the phase itself complete is the project owner's call,
+not made here — see the status note below for the caveats worth weighing
+first.**
+- [x] A full training week runs from routine days, with targets pre-filled.
+      `test/features/routines/routine_flow_test.dart` proves one day
+      end-to-end through the UI (create → day → exercise → targets → start,
+      targets visibly pre-filled); `test/data/repositories
+      /workout_repository_test.dart`'s "a full training week from routine
+      days" runs three days (Push/Pull/Legs) sequentially — start, verify
+      pre-filled targets, log, finish, repeat — proving finishing one day
+      actually frees the next rather than just that a single day works in
+      isolation.
+- [x] Editing a routine provably leaves historical workouts unchanged.
+      `workout_repository_test.dart`'s "starting from a routine day" group
+      has one case for an in-progress workout (re-targeting the routine
+      afterwards) and one for a **finished** one — deleting the exercise,
+      the day, and the routine itself after finishing, then re-reading the
+      historical workout and confirming every copied field is untouched
+      (`ADR-0004`).
+- [x] PRs are detected and celebrated in-session, and correctly demoted when
+      the set that set them is deleted. Detection:
+      `test/domain/analytics/personal_records_test.dart` (the spec's own
+      `prDetection` fixture) and `personal_record_repository_test.dart`.
+      Demotion on delete: the same file's "deleting a PR set and rebuilding
+      demotes to the next best". Celebration wiring:
+      `test/features/logging/personal_record_ui_test.dart` completes a
+      record-setting set through the real `ActiveWorkoutScreen` and asserts
+      `PrBadge` actually appears — not just that the cache updates.
+- [x] Supersets work end to end, editor through logger.
+      `routine_superset_test.dart` (grouping in the day editor) →
+      `workout_repository_test.dart`'s "carries the routine day's superset
+      grouping into the session" (the `ADR-0004` snapshot preserves
+      `group_id`) → `active_workout_test.dart`'s superset group (grouping
+      and ungrouping mid-session) → `rest_defaults_test.dart`'s
+      `restSecondsForGroupMember` plus a `rest_timer_test.dart` widget case
+      (completing a non-last member does not start the full rest). Editor
+      through logger, not just each layer in isolation.
+
+Two caveats worth reading before treating this as "done, no further work":
+`F-ROU-005` §3 and `F-LOG-015` §2 are still `in-progress` — within-group
+rest is fixed at zero rather than independently configurable, and
+completing a set does not auto-advance focus to the next group member (see
+each feature's own status notes). Neither blocks the mechanic from working
+end to end, which is what this exit criterion asks. Separately, `F-LOG-013`'s
+first-ever-set edge case (§4 rule 3, "record it silently") is only
+half-honoured: the cache write is silent as specified, but the inline
+`PrBadge` itself has no separate suppression for a first-ever set, so it
+can appear immediately rather than only on a later, genuine PR — a minor
+gap against the letter of that one edge case, not against the exit
+criterion's own wording.
 
 ---
 

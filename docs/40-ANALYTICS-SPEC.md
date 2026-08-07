@@ -193,7 +193,7 @@ rebuildable from `sets`.
 
 ### Fixture — `prDetection`
 
-History: `100×5` (e1RM 116.667), `105×3` (e1RM 116.550).
+History: `100×5` (e1RM 116.667), `105×3` (e1RM 115.500).
 New set `102.5×5` → e1RM 119.583.
 
 ```
