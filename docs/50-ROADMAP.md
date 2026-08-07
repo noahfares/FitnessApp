@@ -292,6 +292,36 @@ Where the app stops being a notebook.
 **Supporting** `F-CAT-013` `F-ROU-011` `F-ROU-012` `F-ROU-015` `F-SET-005`
 `F-SET-006` `F-THM-004`
 
+| Batch | Features | Shared reads |
+|---|---|---|
+| **3.1** Engine & per-exercise history | `F-ANA-001` `F-ANA-002` | `40-ANALYTICS-SPEC` `20-ARCHITECTURE#the-one-hard-rule` `21-DATA-MODEL#sets` |
+| **3.2** e1RM trend & date range | `F-ANA-003` `F-SET-006` `F-ANA-015` `F-THM-004` | `40-ANALYTICS-SPEC#1-estimated-one-rep-max-e1rm` `21-DATA-MODEL#sets` `22-UNITS` `24-DESIGN-SYSTEM#charts` |
+| **3.3** Volume & muscle taxonomy | `F-CAT-013` `F-SET-005` `F-ANA-004` `F-ANA-005` | `40-ANALYTICS-SPEC#2-volume-load` `40-ANALYTICS-SPEC#3-hard-sets-per-muscle-group-per-week` `21-DATA-MODEL#exercises` `21-DATA-MODEL#sets` |
+| **3.4** Consistency, PR timeline & balance | `F-ANA-006` `F-ANA-007` `F-ANA-008` | `40-ANALYTICS-SPEC#5-consistency` `40-ANALYTICS-SPEC#9-muscle-balance-ratios` `21-DATA-MODEL#sets` `21-DATA-MODEL#personal_records` |
+| **3.5** Routine programming view | `F-ROU-011` `F-ROU-012` | `40-ANALYTICS-SPEC#11-estimated-session-duration` `21-DATA-MODEL#routine_days` `70-decisions/ADR-0004-template-snapshot` |
+| **3.6** Chart interaction & starter programs | `F-ANA-016` `F-ROU-015` | `24-DESIGN-SYSTEM#charts` `21-DATA-MODEL#routine_days` `70-decisions/ADR-0004-template-snapshot` |
+
+Ordering rationale: `F-ANA-001` is the shared engine and boundary-filtering
+seam every other `F-ANA-*` needs, so it lands first, paired with `F-ANA-002`
+(the plain reverse-chronological list, no chart) rather than alone — a
+foundation batch that ships nothing visible would break the pattern every
+other phase has followed. `fl_chart` is added in **3.2**, the first batch
+that actually renders one (pre-declared in `pubspec.yaml`'s deferred-deps
+comment). `F-ANA-003`/`F-SET-006` resolve their mutual reference by building
+the trend chart on the existing Epley default first, then adding the
+formula picker in the same batch. `F-CAT-013` (muscle taxonomy) must precede
+both `F-ANA-005` and `F-ANA-008` since they read its enum; **3.3** bundles
+it with the one consumer (`F-ANA-005`) that also needs `F-SET-005` (week
+start), leaving muscle balance (`F-ANA-008`, no `F-SET-005` dependency) for
+**3.4** alongside the two other metrics needing no new shared reading.
+`F-ROU-011` depends on `F-ANA-005`, so routine programming view comes after
+**3.3**; `F-ROU-012` (scheduling) has no hard dependency but shares its
+`Reads:` set and only *optionally* enriches `F-ANA-006`, so it rides along
+rather than forcing a batch of its own. `F-ANA-016` (tap/pinch interaction)
+and `F-ROU-015` (starter programs) are last because the former is polish
+across every chart already built and the latter is independent content,
+same reasoning Phase 2 gave for its own trailing polish batches.
+
 **Exit criteria**
 - [ ] Every metric in [`40-ANALYTICS-SPEC.md`](40-ANALYTICS-SPEC.md) scheduled
       for this phase has a passing fixture test.
