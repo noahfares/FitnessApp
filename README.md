@@ -10,18 +10,18 @@ take it with you at any time.
 
 ## Status
 
-**Phase 0 complete.** Building **Phase 1** — a usable workout logger. The design
-is documented in full under [`docs/`](docs/) and is built out phase by phase, in
-order.
+**Phases 0–2 complete.** Starting **Phase 3** — analytics: charts, e1RM trends,
+and the rest of the insights engine. The design is documented in full under
+[`docs/`](docs/) and is built out phase by phase, in order.
 
 | | |
 |---|---|
-| Version | `0.26.1` — canonical in [`VERSION`](VERSION); scheme in [versioning](docs/63-VERSIONING.md) |
+| Version | `0.26.2` — canonical in [`VERSION`](VERSION); scheme in [versioning](docs/63-VERSIONING.md) |
 | Stack | Flutter + Dart ([ADR-0001](docs/70-decisions/ADR-0001-flutter.md)) |
 | Platforms | Android first, distributed as an APK via GitHub Releases; iOS and app-store releases planned |
 | Data | Local SQLite (Drift), no backend ([ADR-0002](docs/70-decisions/ADR-0002-local-first.md)) |
 | Progress | 163 features planned, 140 scheduled — see [`docs/features.tsv`](docs/features.tsv) |
-| Next step | Phase 1, batch 1.2 — catalogue search and filter |
+| Next step | Phase 3 — insights |
 | Licence | TBD |
 
 ## Documentation

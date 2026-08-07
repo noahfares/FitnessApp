@@ -230,9 +230,8 @@ Both have since been confirmed (see Phase 1's exit criteria above); recorded
 here so the deviation still has an audit trail.
 
 **Exit criteria — all four provable by automated test as of batch 2.8
-(v0.26.0). Declaring the phase itself complete is the project owner's call,
-not made here — see the status note below for the caveats worth weighing
-first.**
+(v0.26.1). Phase 2 complete, declared by the project owner with the two
+caveats below explicitly accepted rather than silently carried forward.**
 - [x] A full training week runs from routine days, with targets pre-filled.
       `test/features/routines/routine_flow_test.dart` proves one day
       end-to-end through the UI (create → day → exercise → targets → start,
@@ -391,7 +390,7 @@ wearable companions (`F-HLT-004`, `F-HLT-005`).
 |---|---|---|---|
 | 0 | 10 | 4 | Foundation |
 | 1 | 35 | 9 | MVP — a usable logger |
-| 2 | 26 | TBD | Programs and templates |
+| 2 | 26 | 8 | Programs and templates |
 | 3 | 17 | TBD | Analytics |
 | 4 | 29 | TBD | Progression and automation |
 | 5 | 11 | TBD | Data portability |

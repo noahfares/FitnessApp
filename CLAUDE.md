@@ -465,9 +465,15 @@ already noted in their own features' status notes rather than fixed here:
 `F-ROU-005`/`F-LOG-015`'s within-group-rest and focus-advance items remain
 `in-progress`, and `F-LOG-013`'s `PrBadge` doesn't suppress itself for a
 first-ever set the way the spec's "record it silently" edge case asks —
-the cache write is silent, but the badge isn't. Declaring Phase 2 itself
-complete is the project owner's call; the roadmap's exit-criteria section
-has the full picture, checked but not phase-closed.
+the cache write is silent, but the badge isn't.
+
+**Phase 2 declared complete by the project owner (v0.26.1)**, accepting
+those two caveats explicitly rather than silently carrying them forward:
+`F-ROU-005`/`F-LOG-015` stay `in-progress` (within-group rest fixed at
+zero, no focus-advance on completion), and `F-TIM-004`/`F-SET-008` stay
+`planned`, blocked on `F-TIM-003`'s real OS notification. The precedent is
+the same one Phase 1 set — a phase closes on its exit criteria being met,
+not on every one of its features reaching `done`.
 
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
