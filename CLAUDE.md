@@ -171,10 +171,10 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.13.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.17.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
-**Phase 1 in progress.** Batches 1.1–1.5 done:
+**Phase 1 in progress.** Batches 1.1–1.9 done:
 
 - **1.1–1.2** — 100-exercise seeded catalogue, `ExerciseRepository`, custom
   exercises, catalogue screen with search and filtering (`F-CAT-001`–`F-CAT-005`).
@@ -195,8 +195,55 @@ still `in-progress`: the `RestTimerService` seam and an in-app implementation
 have landed, but `flutter_local_notifications`, the manifest work and the deep
 link have not. Its acceptance criteria are on-device.
 
-Next is **batch 1.6**, history (`F-LOG-008`, `F-LOG-009`, `F-LOG-011`,
-`F-LOG-012`, `F-LOG-018`), reading `21-DATA-MODEL` and `23-NAVIGATION`.
+- **1.6** — history: `WorkoutRepository.watchHistory`/`summaryStats`, the
+  History screen (search, month grouping with sticky headers, lazy loading),
+  workout detail, full past-workout editing (sets, values, types, exercises,
+  date, both kinds of note), retroactive logging, and the finish summary
+  (`F-LOG-008`, `F-LOG-009`, `F-LOG-011`, `F-LOG-012`, `F-LOG-018`). No schema
+  change — `workouts.notes`, `workout_exercises.notes` and `personal_records`
+  have held this since v1–v3. PR badges, repeat-as-workout, and save-as-routine
+  are left for their owning Phase 2 features (`F-LOG-013`, `F-LOG-016`,
+  `F-ROU-001`) rather than built early.
+- **1.7** — shell and empty states: the real Dashboard (resume/start a
+  workout, recent workouts), the active-workout banner above the bottom nav
+  on every shell screen, shared `EmptyState`, `ErrorView`/`LoadingView` and
+  `ConfirmSheet` components retrofitted across the catalogue, history, active
+  workout and exercise editor screens, and 48 dp touch targets on all of them
+  (`F-NAV-003`–`F-NAV-006`, `F-A11Y-004`). No schema change. Dashboard cards
+  for today's scheduled day, streaks, recent PRs and insight cards wait on
+  their own Phase 2/3 features, same reasoning as batch 1.6's deferrals.
+- **1.8** — unrecoverable capture: `BodyMeasurementRepository` (bodyweight
+  log, dashboard quick-entry card, the `/body` screen), a workout's
+  `bodyweight_grams` derived from it at start and recomputed on every
+  backfill or edit, and `JsonDumpService` — every table to one JSON file via
+  the system share sheet, one table at a time so memory stays bounded
+  (`F-BOD-001`, `F-DAT-011`). No schema change — `body_measurements` and
+  `workouts.bodyweight_grams` have existed since v1. Adds `share_plus` (the
+  one `F-DAT-*` dependency Phase 1 actually needs) and a `core/app_version.dart`
+  constant, now the single source both the About screen and the dump read.
+
+- **1.9** — ship it: `.github/workflows/release.yml` on tag `v*` — decodes
+  the upload keystore from GitHub Secrets, fails the job outright if any
+  signing secret is missing rather than falling back to a debug-signed APK
+  (`android/app/build.gradle.kts` throws when `REQUIRE_RELEASE_SIGNING=true`
+  and the keystore isn't configured), builds a `--split-per-abi` release APK
+  with `--build-name`/`--build-number` derived from `VERSION` and commit
+  count, computes SHA-256 checksums, and creates a GitHub Release with
+  generated notes (`F-REL-002`, `F-REL-003`, `F-REL-005`). `AboutScreen` now
+  reads version and build number from the installed package via
+  `package_info_plus` (`AppInfoService`, faked in tests) instead of a
+  constant, and adds the open-source licences page and a repository link via
+  `url_launcher` (`F-SET-009`, now done).
+
+  **This is the last batch of Phase 1, but Phase 1's exit criteria are not
+  met.** Everything code-shaped is done; what's left is entirely manual and
+  on-device (see `docs/50-ROADMAP.md`): the upload keystore itself has to be
+  generated once, offline, by a human and added to GitHub Secrets — this
+  session cannot and must not do that — after which a tag push needs to
+  actually produce and be installed as a real APK, the rest timer verified
+  with the screen off, a force-kill verified on a real device, and two weeks
+  of real training logged before Phase 2 begins. Don't start Phase 2 until
+  that's done and confirmed.
 
 Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
 `flutter build apk` is CI-only. Flutter web is not a target platform.

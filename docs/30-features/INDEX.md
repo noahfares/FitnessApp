@@ -65,17 +65,17 @@
 | [F-LOG-005](LOG/F-LOG-005.md) | Set types | 1 | P0 | done |
 | [F-LOG-006](LOG/F-LOG-006.md) | Numeric keypad and steppers | 1 | P0 | done |
 | [F-LOG-007](LOG/F-LOG-007.md) | Crash and kill recovery | 1 | P0 | done |
-| [F-LOG-008](LOG/F-LOG-008.md) | Session and exercise notes | 1 | P1 | planned |
-| [F-LOG-009](LOG/F-LOG-009.md) | Edit and delete past workouts | 1 | P0 | planned |
+| [F-LOG-008](LOG/F-LOG-008.md) | Session and exercise notes | 1 | P1 | done |
+| [F-LOG-009](LOG/F-LOG-009.md) | Edit and delete past workouts | 1 | P0 | done |
 | [F-LOG-010](LOG/F-LOG-010.md) | Modify a session in progress | 2 | P1 | planned |
-| [F-LOG-011](LOG/F-LOG-011.md) | Workout history list | 1 | P0 | planned |
-| [F-LOG-012](LOG/F-LOG-012.md) | Workout detail | 1 | P0 | planned |
+| [F-LOG-011](LOG/F-LOG-011.md) | Workout history list | 1 | P0 | done |
+| [F-LOG-012](LOG/F-LOG-012.md) | Workout detail | 1 | P0 | done |
 | [F-LOG-013](LOG/F-LOG-013.md) | PR detection and celebration | 2 | P1 | planned |
 | [F-LOG-014](LOG/F-LOG-014.md) | RPE and RIR | 2 | P1 | planned |
 | [F-LOG-015](LOG/F-LOG-015.md) | Supersets in the logger | 2 | P1 | planned |
 | [F-LOG-016](LOG/F-LOG-016.md) | Repeat a previous session | 2 | P1 | planned |
 | [F-LOG-017](LOG/F-LOG-017.md) | Per-side versus total weight | 2 | P1 | planned |
-| [F-LOG-018](LOG/F-LOG-018.md) | Session summary | 1 | P1 | planned |
+| [F-LOG-018](LOG/F-LOG-018.md) | Session summary | 1 | P1 | done |
 | [F-LOG-019](LOG/F-LOG-019.md) | Bodyweight-loaded exercises | 4 | P2 | planned |
 | [F-LOG-020](LOG/F-LOG-020.md) | Warm-up set generator | 4 | P2 | planned |
 | [F-LOG-021](LOG/F-LOG-021.md) | Live session metrics | — | P2 | idea |
@@ -140,7 +140,7 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-BOD-001](BOD/F-BOD-001.md) | Bodyweight log | 1 | P0 | planned |
+| [F-BOD-001](BOD/F-BOD-001.md) | Bodyweight log | 1 | P0 | done |
 | [F-BOD-002](BOD/F-BOD-002.md) | Circumference measurements | 4 | P2 | planned |
 | [F-BOD-003](BOD/F-BOD-003.md) | Trend charts with smoothing | 4 | P1 | planned |
 | [F-BOD-004](BOD/F-BOD-004.md) | Progress photos | 5 | P2 | planned |
@@ -161,7 +161,7 @@
 | [F-DAT-008](DAT/F-DAT-008.md) | Automatic local backups | 5 | P2 | planned |
 | [F-DAT-009](DAT/F-DAT-009.md) | File-based cloud sync | — | P2 | idea |
 | [F-DAT-010](DAT/F-DAT-010.md) | Wipe all data | 5 | P2 | planned |
-| [F-DAT-011](DAT/F-DAT-011.md) | Minimal JSON dump | 1 | P0 | planned |
+| [F-DAT-011](DAT/F-DAT-011.md) | Minimal JSON dump | 1 | P0 | done |
 
 ## `SET` — Settings
 
@@ -175,7 +175,7 @@
 | [F-SET-006](SET/F-SET-006.md) | e1RM formula | 3 | P2 | planned |
 | [F-SET-007](SET/F-SET-007.md) | Increment steps | 2 | P1 | planned |
 | [F-SET-008](SET/F-SET-008.md) | Notification preferences | 2 | P2 | planned |
-| [F-SET-009](SET/F-SET-009.md) | About | 1 | P1 | in-progress |
+| [F-SET-009](SET/F-SET-009.md) | About | 1 | P1 | done |
 | [F-SET-010](SET/F-SET-010.md) | App lock | 5 | P3 | planned |
 | [F-SET-011](SET/F-SET-011.md) | Onboarding | 6 | P2 | planned |
 
@@ -195,10 +195,10 @@
 |---|---|---|---|---|
 | [F-NAV-001](NAV/F-NAV-001.md) | App shell and bottom navigation | 0 | P0 | done |
 | [F-NAV-002](NAV/F-NAV-002.md) | Routing and deep links | 0 | P0 | done |
-| [F-NAV-003](NAV/F-NAV-003.md) | Active-workout banner | 1 | P0 | planned |
-| [F-NAV-004](NAV/F-NAV-004.md) | Dashboard | 1 | P1 | planned |
-| [F-NAV-005](NAV/F-NAV-005.md) | Empty states | 1 | P1 | planned |
-| [F-NAV-006](NAV/F-NAV-006.md) | Error and loading states | 1 | P1 | planned |
+| [F-NAV-003](NAV/F-NAV-003.md) | Active-workout banner | 1 | P0 | done |
+| [F-NAV-004](NAV/F-NAV-004.md) | Dashboard | 1 | P1 | done |
+| [F-NAV-005](NAV/F-NAV-005.md) | Empty states | 1 | P1 | done |
+| [F-NAV-006](NAV/F-NAV-006.md) | Error and loading states | 1 | P1 | done |
 | [F-NAV-007](NAV/F-NAV-007.md) | Home-screen widget | — | P3 | idea |
 | [F-NAV-008](NAV/F-NAV-008.md) | App shortcuts | — | P3 | idea |
 
@@ -220,7 +220,7 @@
 | [F-A11Y-001](A11Y/F-A11Y-001.md) | Screen reader support | 6 | P1 | planned |
 | [F-A11Y-002](A11Y/F-A11Y-002.md) | Dynamic type | 6 | P1 | planned |
 | [F-A11Y-003](A11Y/F-A11Y-003.md) | Contrast and colour independence | 6 | P1 | planned |
-| [F-A11Y-004](A11Y/F-A11Y-004.md) | Touch targets and reach | 1 | P1 | planned |
+| [F-A11Y-004](A11Y/F-A11Y-004.md) | Touch targets and reach | 1 | P1 | done |
 | [F-A11Y-005](A11Y/F-A11Y-005.md) | Reduce motion | 6 | P2 | planned |
 
 ## `I18N` — Localisation
@@ -246,10 +246,10 @@
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
 | [F-REL-001](REL/F-REL-001.md) | CI build and checks | 0 | P0 | done |
-| [F-REL-002](REL/F-REL-002.md) | Signed release APK | 1 | P0 | planned |
-| [F-REL-003](REL/F-REL-003.md) | GitHub Release automation | 1 | P1 | planned |
+| [F-REL-002](REL/F-REL-002.md) | Signed release APK | 1 | P0 | done |
+| [F-REL-003](REL/F-REL-003.md) | GitHub Release automation | 1 | P1 | done |
 | [F-REL-004](REL/F-REL-004.md) | App bundle for Play | 6 | P1 | planned |
-| [F-REL-005](REL/F-REL-005.md) | Versioning scheme | 1 | P1 | planned |
+| [F-REL-005](REL/F-REL-005.md) | Versioning scheme | 1 | P1 | done |
 | [F-REL-006](REL/F-REL-006.md) | Store listing assets | 6 | P2 | planned |
 | [F-REL-007](REL/F-REL-007.md) | Privacy policy and data safety | 6 | P0 | planned |
 | [F-REL-008](REL/F-REL-008.md) | Update check for sideloaded installs | — | P2 | idea |

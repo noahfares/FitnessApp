@@ -7,7 +7,7 @@ publish_to: none
 # Canonical source is the VERSION file at the repo root; CI fails if they
 # disagree. See docs/63-VERSIONING.md. The +N build number is set by the
 # release workflow (F-REL-005), not by hand.
-version: 0.13.0
+version: 0.17.1
 
 environment:
   sdk: ^3.11.0
@@ -34,6 +34,19 @@ dependencies:
   # Anything relational lives in the database, not here.
   shared_preferences: ^2.5.5
 
+  # The system share sheet for the minimal JSON dump (F-DAT-011). Only this
+  # one F-DAT-* feature needs it in Phase 1 — the rest still wait for Phase 5.
+  share_plus: ^12.0.0
+
+  # Reads the installed package's version/build number for About (F-SET-009,
+  # F-REL-005) — the build number is set by the release workflow via
+  # --build-number, never hand-edited, so it has to be read back, not stated.
+  package_info_plus: ^9.0.1
+
+  # The repository link on About (F-SET-009). Opens the user's own browser;
+  # not a network call made by the app itself (ADR-0002).
+  url_launcher: ^6.3.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -53,4 +66,4 @@ flutter:
 #   freezed, json_serializable   → domain entities, when they need unions
 #   fl_chart                     → F-ANA-003 (Phase 3)
 #   flutter_local_notifications  → F-TIM-003 (Phase 1)
-#   file_picker, share_plus      → F-DAT-* (Phase 5)
+#   file_picker                  → F-DAT-005/006 import (Phase 5)

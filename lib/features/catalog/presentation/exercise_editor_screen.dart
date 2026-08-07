@@ -10,6 +10,8 @@ import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/db/tables/enums.dart';
 import '../../../domain/timing/rest_defaults.dart';
+import '../../shell/widgets/async_view.dart';
+import '../../shell/widgets/confirm_sheet.dart';
 import 'exercise_labels.dart';
 
 /// Create or edit an exercise (`F-CAT-003`).
@@ -160,53 +162,31 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
 
     if (await repo.hasHistory(id)) {
       if (!mounted) return;
-      final archive = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Used in past workouts'),
-          content: Text(
+      final archive = await showConfirmSheet(
+        context,
+        title: 'Used in past workouts',
+        message:
             '$name appears in workouts you have already logged, so it cannot '
             'be deleted without breaking that history.\n\n'
             'Archiving hides it from pickers and leaves your history intact.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Archive instead'),
-            ),
-          ],
-        ),
+        confirmLabel: 'Archive instead',
+        cancelLabel: 'Cancel',
+        isDestructive: false,
       );
-      if (archive ?? false) await _setArchived(true);
+      if (archive) await _setArchived(true);
       return;
     }
 
     if (!mounted) return;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Delete $name?'),
-        content: const Text(
-          'It will be removed from the catalogue. Nothing else is affected — '
-          'this exercise has never been logged.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+    final confirmed = await showConfirmSheet(
+      context,
+      title: 'Delete $name?',
+      message:
+          'It will be removed from the catalogue. Nothing else is '
+          'affected — this exercise has never been logged.',
+      cancelLabel: 'Cancel',
     );
-    if (!(confirmed ?? false)) return;
+    if (!confirmed) return;
 
     await repo.delete(id);
     if (!mounted) return;
@@ -226,9 +206,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
     final theme = Theme.of(context);
 
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator.adaptive()),
-      );
+      return const Scaffold(body: LoadingView());
     }
 
     if (!widget.isNew && _existing == null) {

@@ -122,6 +122,11 @@ class InAppRestTimerService implements RestTimerService {
     _warn = null;
   }
 
+  /// Needs no permission and no plugin — that is exactly what makes this the
+  /// floor implementation (see class doc).
+  @override
+  Future<bool> requestPermission() async => true;
+
   /// Volume rides the system alert stream. `F-TIM-006` asks for a volume
   /// independent of media volume "where the platform allows"; through
   /// [SystemSound] it does not, and getting that needs the audio-focus handling

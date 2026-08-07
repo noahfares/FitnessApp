@@ -73,9 +73,10 @@ void main() {
     });
 
     test('resuming targets that far past now, not the original target', () {
-      final resumed = RestTimer.start(seconds: 90, nowMs: t0)
-          .pausedAt(t0 + 30000)
-          .resumedAt(t0 + 600000);
+      final resumed = RestTimer.start(
+        seconds: 90,
+        nowMs: t0,
+      ).pausedAt(t0 + 30000).resumedAt(t0 + 600000);
 
       expect(resumed.isRunning, isTrue);
       expect(resumed.remainingAt(t0 + 600000), const Duration(seconds: 60));
@@ -116,9 +117,10 @@ void main() {
     });
 
     test('adjusting a paused timer keeps it paused', () {
-      final timer = RestTimer.start(seconds: 90, nowMs: t0)
-          .pausedAt(t0 + 30000)
-          .adjusted(15, nowMs: t0 + 30000);
+      final timer = RestTimer.start(
+        seconds: 90,
+        nowMs: t0,
+      ).pausedAt(t0 + 30000).adjusted(15, nowMs: t0 + 30000);
 
       expect(timer.isPaused, isTrue);
       expect(timer.remainingAt(t0 + 999999), const Duration(seconds: 75));
@@ -133,10 +135,11 @@ void main() {
 
   group('which set started it (F-TIM-002 §5)', () {
     test('carries the set id through every transition', () {
-      final timer = RestTimer.start(seconds: 90, nowMs: t0, setId: 'set-1')
-          .pausedAt(t0 + 1000)
-          .resumedAt(t0 + 2000)
-          .adjusted(15, nowMs: t0 + 3000);
+      final timer = RestTimer.start(
+        seconds: 90,
+        nowMs: t0,
+        setId: 'set-1',
+      ).pausedAt(t0 + 1000).resumedAt(t0 + 2000).adjusted(15, nowMs: t0 + 3000);
 
       expect(timer.startedBySetId, 'set-1');
     });

@@ -96,17 +96,18 @@ else
   bad "README says '${readme_versions:-none}', VERSION says ${V}"
 fi
 
-# 9. The About screen states the current version
+# 9. The app-version constant is current.
 #    It is the only diagnostic context this app has — no telemetry, no crash
-#    reporting — so a stale version there makes bug reports unattributable.
-about=lib/features/settings/presentation/about_screen.dart
-if [ -f "$about" ]; then
-  shown=$(grep -oE "version = '[0-9]+\.[0-9]+\.[0-9]+'" "$about" \
+#    reporting — so a stale version there makes bug reports unattributable,
+#    and it's also what F-DAT-011 stamps into every export.
+version_file=lib/core/app_version.dart
+if [ -f "$version_file" ]; then
+  shown=$(grep -oE "appVersion = '[0-9]+\.[0-9]+\.[0-9]+'" "$version_file" \
           | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
   if [ "$shown" = "$V" ]; then
-    ok "About screen version current (${V})"
+    ok "App version constant current (${V})"
   else
-    bad "About screen says '${shown:-none}', VERSION says ${V}"
+    bad "App version constant says '${shown:-none}', VERSION says ${V}"
   fi
 fi
 

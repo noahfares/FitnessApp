@@ -1,6 +1,6 @@
 # F-NAV-003 — Active-workout banner
 
-Status: planned | Priority: P0 | Phase: 1
+Status: done | Priority: P0 | Phase: 1
 Depends on: F-LOG-001
 Reads: 23-NAVIGATION
 

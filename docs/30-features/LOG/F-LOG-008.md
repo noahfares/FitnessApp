@@ -1,6 +1,6 @@
 # F-LOG-008 — Session and exercise notes
 
-Status: planned | Priority: P1 | Phase: 1
+Status: done | Priority: P1 | Phase: 1
 Reads: 21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 Data: `workouts.notes`, `workout_exercises.notes`
 
