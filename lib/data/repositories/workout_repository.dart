@@ -523,14 +523,14 @@ class WorkoutRepository {
   /// about ordering and rest behaviour, not the logged data (`F-LOG-015`
   /// §4).
   Future<void> ungroupExercises(String groupId) async {
-    await (_db.update(_db.workoutExercises)
-          ..where((we) => we.groupId.equals(groupId)))
-        .write(
-          WorkoutExercisesCompanion(
-            groupId: const Value(null),
-            updatedAt: Value(_now),
-          ),
-        );
+    await (_db.update(
+      _db.workoutExercises,
+    )..where((we) => we.groupId.equals(groupId))).write(
+      WorkoutExercisesCompanion(
+        groupId: const Value(null),
+        updatedAt: Value(_now),
+      ),
+    );
   }
 
   /// Toggles the pairing between two adjacent session exercises
@@ -541,11 +541,13 @@ class WorkoutRepository {
     String workoutExerciseId,
     String nextWorkoutExerciseId,
   ) async {
-    final rows = await (_db.select(_db.workoutExercises)..where(
-      (we) =>
-          we.id.equals(workoutExerciseId) |
-          we.id.equals(nextWorkoutExerciseId),
-    )).get();
+    final rows =
+        await (_db.select(_db.workoutExercises)..where(
+              (we) =>
+                  we.id.equals(workoutExerciseId) |
+                  we.id.equals(nextWorkoutExerciseId),
+            ))
+            .get();
     final a = rows.firstWhere((r) => r.id == workoutExerciseId);
     final b = rows.firstWhere((r) => r.id == nextWorkoutExerciseId);
 
@@ -561,8 +563,9 @@ class WorkoutRepository {
       } else {
         final members =
             await (_db.select(_db.workoutExercises)..where(
-              (we) => we.groupId.equals(groupId) & we.deletedAt.isNull(),
-            )).get();
+                  (we) => we.groupId.equals(groupId) & we.deletedAt.isNull(),
+                ))
+                .get();
         memberIds.addAll(members.map((m) => m.id));
       }
     }
@@ -870,21 +873,23 @@ class WorkoutRepository {
       );
       final groupId = removed?.groupId;
       if (groupId != null) {
-        final remaining = await (_db.select(_db.workoutExercises)..where(
-          (we) =>
-              we.groupId.equals(groupId) &
-              we.id.equals(workoutExerciseId).not() &
-              we.deletedAt.isNull(),
-        )).get();
+        final remaining =
+            await (_db.select(_db.workoutExercises)..where(
+                  (we) =>
+                      we.groupId.equals(groupId) &
+                      we.id.equals(workoutExerciseId).not() &
+                      we.deletedAt.isNull(),
+                ))
+                .get();
         if (remaining.length < 2) {
-          await (_db.update(_db.workoutExercises)
-                ..where((we) => we.groupId.equals(groupId)))
-              .write(
-                WorkoutExercisesCompanion(
-                  groupId: const Value(null),
-                  updatedAt: Value(timestamp),
-                ),
-              );
+          await (_db.update(
+            _db.workoutExercises,
+          )..where((we) => we.groupId.equals(groupId))).write(
+            WorkoutExercisesCompanion(
+              groupId: const Value(null),
+              updatedAt: Value(timestamp),
+            ),
+          );
         }
       }
     });

@@ -458,11 +458,7 @@ class _SessionExerciseTile extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.link,
-                    size: 16,
-                    color: theme.colorScheme.primary,
-                  ),
+                  Icon(Icons.link, size: 16, color: theme.colorScheme.primary),
                   const SizedBox(width: 4),
                   Text(
                     'Superset',

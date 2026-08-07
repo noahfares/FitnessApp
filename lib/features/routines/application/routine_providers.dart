@@ -15,7 +15,12 @@ final archivedRoutinesProvider = StreamProvider<List<Routine>>((ref) {
   return ref
       .watch(routineRepositoryProvider)
       .watchAll(includeArchived: true)
-      .map((rows) => [for (final r in rows) if (r.archivedAt != null) r]);
+      .map(
+        (rows) => [
+          for (final r in rows)
+            if (r.archivedAt != null) r,
+        ],
+      );
 });
 
 /// Folders, flat, one level deep (`F-ROU-007`).
@@ -40,8 +45,7 @@ class RoutineListShowArchivedNotifier extends Notifier<bool> {
 
 /// One routine's days, ordered (`F-ROU-002`).
 final routineDaysProvider = StreamProvider.family<List<RoutineDay>, String>(
-  (ref, routineId) =>
-      ref.watch(routineRepositoryProvider).watchDays(routineId),
+  (ref, routineId) => ref.watch(routineRepositoryProvider).watchDays(routineId),
 );
 
 /// One day's exercises with their targets (`F-ROU-003`).

@@ -30,39 +30,30 @@ class RoutineEditorScreen extends ConsumerWidget {
     final routines = ref.watch(routinesProvider);
     final days = ref.watch(routineDaysProvider(routineId));
 
-    return routines.view(
-      errorTitle: 'Routine could not be read',
-      (rows) {
-        Routine? routine;
-        for (final r in rows) {
-          if (r.id == routineId) routine = r;
-        }
-        if (routine == null) {
-          return const Scaffold(
-            body: Center(child: Text('This routine no longer exists.')),
+    return routines.view(errorTitle: 'Routine could not be read', (rows) {
+      Routine? routine;
+      for (final r in rows) {
+        if (r.id == routineId) routine = r;
+      }
+      if (routine == null) {
+        return const Scaffold(
+          body: Center(child: Text('This routine no longer exists.')),
+        );
+      }
+      final loadedRoutine = routine;
+
+      return days.view(errorTitle: 'Days could not be read', (dayRows) {
+        // Collapse straight into the single day rather than a list of
+        // one (`F-ROU-002` §4).
+        if (dayRows.length == 1) {
+          return _SingleDayRoutineScaffold(
+            routine: loadedRoutine,
+            day: dayRows.single,
           );
         }
-        final loadedRoutine = routine;
-
-        return days.view(
-          errorTitle: 'Days could not be read',
-          (dayRows) {
-            // Collapse straight into the single day rather than a list of
-            // one (`F-ROU-002` §4).
-            if (dayRows.length == 1) {
-              return _SingleDayRoutineScaffold(
-                routine: loadedRoutine,
-                day: dayRows.single,
-              );
-            }
-            return _MultiDayRoutineScaffold(
-              routine: loadedRoutine,
-              days: dayRows,
-            );
-          },
-        );
-      },
-    );
+        return _MultiDayRoutineScaffold(routine: loadedRoutine, days: dayRows);
+      });
+    });
   }
 }
 
@@ -83,7 +74,8 @@ class _MultiDayRoutineScaffold extends ConsumerWidget {
           ? const EmptyState(
               icon: Icons.calendar_view_week_outlined,
               title: 'No days yet',
-              message: '"Push", "Pull", "Legs" — a day is what you start '
+              message:
+                  '"Push", "Pull", "Legs" — a day is what you start '
                   'a workout from.',
             )
           // Drag to reorder — order is explicit `position`, never implied
@@ -96,7 +88,7 @@ class _MultiDayRoutineScaffold extends ConsumerWidget {
                 routineId: routine.id,
                 day: days[i],
               ),
-              onReorder: (oldIndex, newIndex) =>
+              onReorderItem: (oldIndex, newIndex) =>
                   unawaited(_reorder(ref, oldIndex, newIndex)),
             ),
       bottomNavigationBar: SafeArea(
@@ -119,11 +111,12 @@ class _MultiDayRoutineScaffold extends ConsumerWidget {
         .read(routineRepositoryProvider)
         .addDay(routine.id, name: name);
     if (!context.mounted) return;
-    context.push(AppRoutes.routineDay(routine.id, day.id));
+    unawaited(context.push(AppRoutes.routineDay(routine.id, day.id)));
   }
 
   Future<void> _reorder(WidgetRef ref, int oldIndex, int newIndex) {
-    if (newIndex > oldIndex) newIndex -= 1;
+    // onReorderItem, unlike the deprecated onReorder, already adjusts
+    // newIndex for the removed item — no manual off-by-one correction here.
     final ids = [for (final day in days) day.id];
     ids.insert(newIndex, ids.removeAt(oldIndex));
     return ref.read(routineRepositoryProvider).reorderDays(ids);

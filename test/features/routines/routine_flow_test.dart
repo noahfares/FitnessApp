@@ -98,10 +98,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Cable Row'), findsOneWidget);
-      expect(
-        find.textContaining('Target: 3×8–12 · 100 kg'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('Target: 3×8–12 · 100 kg'), findsOneWidget);
 
       final sets = await db.select(db.sets).get();
       expect(sets, hasLength(3));

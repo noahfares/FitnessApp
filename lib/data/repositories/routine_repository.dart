@@ -94,10 +94,8 @@ class RoutineRepository {
     return (await findById(id))!;
   }
 
-  Future<void> rename(String id, String name) => _updateRoutine(
-    id,
-    RoutinesCompanion(name: Value(name.trim())),
-  );
+  Future<void> rename(String id, String name) =>
+      _updateRoutine(id, RoutinesCompanion(name: Value(name.trim())));
 
   Future<void> setNotes(String id, String? notes) {
     final trimmed = notes?.trim();
@@ -131,10 +129,9 @@ class RoutineRepository {
   Future<void> delete(String id) async {
     final timestamp = _now;
     await _db.transaction(() async {
-      final days =
-          await (_db.select(_db.routineDays)
-                ..where((d) => d.routineId.equals(id) & d.deletedAt.isNull()))
-              .get();
+      final days = await (_db.select(
+        _db.routineDays,
+      )..where((d) => d.routineId.equals(id) & d.deletedAt.isNull())).get();
       for (final day in days) {
         await _deleteDay(day.id, timestamp);
       }
@@ -177,9 +174,7 @@ class RoutineRepository {
 
       final days =
           await (_db.select(_db.routineDays)
-                ..where(
-                  (d) => d.routineId.equals(id) & d.deletedAt.isNull(),
-                )
+                ..where((d) => d.routineId.equals(id) & d.deletedAt.isNull())
                 ..orderBy([(d) => OrderingTerm(expression: d.position)]))
               .get();
 
@@ -214,10 +209,7 @@ class RoutineRepository {
         for (final exercise in exercises) {
           final newGroupId = switch (exercise.groupId) {
             null => null,
-            final oldGroupId => groupIdMap.putIfAbsent(
-              oldGroupId,
-              newUuidV4,
-            ),
+            final oldGroupId => groupIdMap.putIfAbsent(oldGroupId, newUuidV4),
           };
           await _db
               .into(_db.routineExercises)
@@ -277,9 +269,7 @@ class RoutineRepository {
   }
 
   Future<void> renameFolder(String id, String name) async {
-    await (_db.update(
-      _db.routineFolders,
-    )..where((f) => f.id.equals(id))).write(
+    await (_db.update(_db.routineFolders)..where((f) => f.id.equals(id))).write(
       RoutineFoldersCompanion(name: Value(name.trim()), updatedAt: Value(_now)),
     );
   }
@@ -431,9 +421,7 @@ class RoutineRepository {
 
   Stream<List<RoutineDay>> watchDays(String routineId) =>
       (_db.select(_db.routineDays)
-            ..where(
-              (d) => d.routineId.equals(routineId) & d.deletedAt.isNull(),
-            )
+            ..where((d) => d.routineId.equals(routineId) & d.deletedAt.isNull())
             ..orderBy([(d) => OrderingTerm(expression: d.position)]))
           .watch();
 
@@ -606,21 +594,23 @@ class RoutineRepository {
       // single survivor dissolves the group rather than leaving it stranded.
       final groupId = removed?.groupId;
       if (groupId != null) {
-        final remaining = await (_db.select(_db.routineExercises)..where(
-          (re) =>
-              re.groupId.equals(groupId) &
-              re.id.equals(routineExerciseId).not() &
-              re.deletedAt.isNull(),
-        )).get();
+        final remaining =
+            await (_db.select(_db.routineExercises)..where(
+                  (re) =>
+                      re.groupId.equals(groupId) &
+                      re.id.equals(routineExerciseId).not() &
+                      re.deletedAt.isNull(),
+                ))
+                .get();
         if (remaining.length < 2) {
-          await (_db.update(_db.routineExercises)
-                ..where((re) => re.groupId.equals(groupId)))
-              .write(
-                RoutineExercisesCompanion(
-                  groupId: const Value(null),
-                  updatedAt: Value(timestamp),
-                ),
-              );
+          await (_db.update(
+            _db.routineExercises,
+          )..where((re) => re.groupId.equals(groupId))).write(
+            RoutineExercisesCompanion(
+              groupId: const Value(null),
+              updatedAt: Value(timestamp),
+            ),
+          );
         }
       }
     });
@@ -635,24 +625,27 @@ class RoutineRepository {
     final timestamp = _now;
     await _db.transaction(() async {
       for (var i = 0; i < orderedRoutineExerciseIds.length; i++) {
-        await (_db.update(_db.routineExercises)
-              ..where((re) => re.id.equals(orderedRoutineExerciseIds[i])))
-            .write(
-              RoutineExercisesCompanion(
-                position: Value(i),
-                updatedAt: Value(timestamp),
-              ),
-            );
+        await (_db.update(
+          _db.routineExercises,
+        )..where((re) => re.id.equals(orderedRoutineExerciseIds[i]))).write(
+          RoutineExercisesCompanion(
+            position: Value(i),
+            updatedAt: Value(timestamp),
+          ),
+        );
       }
 
       // A drag can pull a member out of its superset's block. A group only
       // means anything while its members stay adjacent (`F-ROU-005` §1) —
       // if reordering breaks that, dissolve it rather than render two
       // "Superset" blocks sharing one `group_id`.
-      final rows = await (_db.select(_db.routineExercises)..where(
-        (re) =>
-            re.id.isIn(orderedRoutineExerciseIds) & re.deletedAt.isNull(),
-      )).get();
+      final rows =
+          await (_db.select(_db.routineExercises)..where(
+                (re) =>
+                    re.id.isIn(orderedRoutineExerciseIds) &
+                    re.deletedAt.isNull(),
+              ))
+              .get();
       final groupIdById = {for (final r in rows) r.id: r.groupId};
       final positionsByGroup = <String, List<int>>{};
       for (var i = 0; i < orderedRoutineExerciseIds.length; i++) {
@@ -725,26 +718,26 @@ class RoutineRepository {
   /// which live entirely on the workout side once a session snapshots them
   /// (`ADR-0004`).
   Future<void> ungroupExercises(String groupId) async {
-    await (_db.update(_db.routineExercises)
-          ..where((re) => re.groupId.equals(groupId)))
-        .write(
-          RoutineExercisesCompanion(
-            groupId: const Value(null),
-            updatedAt: Value(_now),
-          ),
-        );
+    await (_db.update(
+      _db.routineExercises,
+    )..where((re) => re.groupId.equals(groupId))).write(
+      RoutineExercisesCompanion(
+        groupId: const Value(null),
+        updatedAt: Value(_now),
+      ),
+    );
   }
 
   Future<void> setExerciseNotes(String routineExerciseId, String? notes) {
     final trimmed = notes?.trim();
-    return (_db.update(_db.routineExercises)
-          ..where((re) => re.id.equals(routineExerciseId)))
-        .write(
-          RoutineExercisesCompanion(
-            notes: Value(trimmed == null || trimmed.isEmpty ? null : trimmed),
-            updatedAt: Value(_now),
-          ),
-        );
+    return (_db.update(
+      _db.routineExercises,
+    )..where((re) => re.id.equals(routineExerciseId))).write(
+      RoutineExercisesCompanion(
+        notes: Value(trimmed == null || trimmed.isEmpty ? null : trimmed),
+        updatedAt: Value(_now),
+      ),
+    );
   }
 
   /// One past the highest existing `position` in [table], so appends never

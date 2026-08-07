@@ -58,8 +58,7 @@ void main() {
       expect(updated.updatedAt, clock.millisecondsSinceEpoch);
     });
 
-    test(
-        'archiving hides from watchAll by default but not with '
+    test('archiving hides from watchAll by default but not with '
         'includeArchived', () async {
       final routine = await repo.create(name: 'Old block');
       await repo.setArchived(routine.id, isArchived: true);
@@ -69,57 +68,62 @@ void main() {
       expect(withArchived.map((r) => r.id), contains(routine.id));
     });
 
-    test('deleting a routine tombstones it and its days and exercises',
-        () async {
-      final exerciseId = await makeExercise('ex1', 'Bench Press');
-      final routine = await repo.create(name: 'PPL');
-      final day = await repo.addDay(routine.id, name: 'Push');
-      await repo.addExercises(day.id, [exerciseId]);
+    test(
+      'deleting a routine tombstones it and its days and exercises',
+      () async {
+        final exerciseId = await makeExercise('ex1', 'Bench Press');
+        final routine = await repo.create(name: 'PPL');
+        final day = await repo.addDay(routine.id, name: 'Push');
+        await repo.addExercises(day.id, [exerciseId]);
 
-      await repo.delete(routine.id);
+        await repo.delete(routine.id);
 
-      expect(await repo.findById(routine.id), isNull);
-      expect(await repo.watchDays(routine.id).first, isEmpty);
-      expect(await repo.watchExercises(day.id).first, isEmpty);
-    });
+        expect(await repo.findById(routine.id), isNull);
+        expect(await repo.watchDays(routine.id).first, isEmpty);
+        expect(await repo.watchExercises(day.id).first, isEmpty);
+      },
+    );
 
-    test('duplicate produces a fully independent copy of days and targets',
-        () async {
-      final exerciseId = await makeExercise('ex1', 'Bench Press');
-      final routine = await repo.create(name: 'PPL');
-      final day = await repo.addDay(routine.id, name: 'Push');
-      await repo.addExercises(day.id, [exerciseId]);
-      final [original] = await repo.watchExercises(day.id).first;
-      await repo.setTargets(
-        original.routineExerciseId,
-        targetSets: const Value(3),
-        targetRepsMin: const Value(8),
-        targetRepsMax: const Value(12),
-      );
+    test(
+      'duplicate produces a fully independent copy of days and targets',
+      () async {
+        final exerciseId = await makeExercise('ex1', 'Bench Press');
+        final routine = await repo.create(name: 'PPL');
+        final day = await repo.addDay(routine.id, name: 'Push');
+        await repo.addExercises(day.id, [exerciseId]);
+        final [original] = await repo.watchExercises(day.id).first;
+        await repo.setTargets(
+          original.routineExerciseId,
+          targetSets: const Value(3),
+          targetRepsMin: const Value(8),
+          targetRepsMax: const Value(12),
+        );
 
-      final copy = await repo.duplicate(routine.id);
-      final copyDays = await repo.watchDays(copy.id).first;
-      expect(copyDays, hasLength(1));
-      expect(copyDays.single.id, isNot(day.id));
+        final copy = await repo.duplicate(routine.id);
+        final copyDays = await repo.watchDays(copy.id).first;
+        expect(copyDays, hasLength(1));
+        expect(copyDays.single.id, isNot(day.id));
 
-      final copyExercises =
-          await repo.watchExercises(copyDays.single.id).first;
-      expect(copyExercises, hasLength(1));
-      expect(
-        copyExercises.single.routineExerciseId,
-        isNot(original.routineExerciseId),
-      );
-      expect(copyExercises.single.targetSets, 3);
-      expect(copyExercises.single.targetRepsMax, 12);
+        final copyExercises = await repo
+            .watchExercises(copyDays.single.id)
+            .first;
+        expect(copyExercises, hasLength(1));
+        expect(
+          copyExercises.single.routineExerciseId,
+          isNot(original.routineExerciseId),
+        );
+        expect(copyExercises.single.targetSets, 3);
+        expect(copyExercises.single.targetRepsMax, 12);
 
-      // Editing the copy must never touch the original (`F-ROU-001` §2).
-      await repo.setTargets(
-        copyExercises.single.routineExerciseId,
-        targetSets: const Value(5),
-      );
-      final originalAfter = await repo.watchExercises(day.id).first;
-      expect(originalAfter.single.targetSets, 3);
-    });
+        // Editing the copy must never touch the original (`F-ROU-001` §2).
+        await repo.setTargets(
+          copyExercises.single.routineExerciseId,
+          targetSets: const Value(5),
+        );
+        final originalAfter = await repo.watchExercises(day.id).first;
+        expect(originalAfter.single.targetSets, 3);
+      },
+    );
   });
 
   group('creating a routine from a past workout (F-ROU-001 §3)', () {
@@ -130,21 +134,20 @@ void main() {
       await workouts.addExercises(workout.id, [exerciseId]);
       final [we] = await workouts.watchExercises(workout.id).first;
 
-      Future<void> logSet({required int position, required int reps}) =>
-          db
-              .into(db.sets)
-              .insert(
-                SetsCompanion.insert(
-                  id: 'set-$position',
-                  workoutExerciseId: we.workoutExerciseId,
-                  position: position,
-                  weightGrams: const Value(100000),
-                  reps: Value(reps),
-                  isCompleted: const Value(true),
-                  createdAt: 1,
-                  updatedAt: 1,
-                ),
-              );
+      Future<void> logSet({required int position, required int reps}) => db
+          .into(db.sets)
+          .insert(
+            SetsCompanion.insert(
+              id: 'set-$position',
+              workoutExerciseId: we.workoutExerciseId,
+              position: position,
+              weightGrams: const Value(100000),
+              reps: Value(reps),
+              isCompleted: const Value(true),
+              createdAt: 1,
+              updatedAt: 1,
+            ),
+          );
       await logSet(position: 0, reps: 6);
       await logSet(position: 1, reps: 8);
       await logSet(position: 2, reps: 10);
@@ -168,17 +171,19 @@ void main() {
   });
 
   group('routine days (F-ROU-002)', () {
-    test('a three-day PPL routine is creatable and independently ordered',
-        () async {
-      final routine = await repo.create(name: 'PPL');
-      await repo.addDay(routine.id, name: 'Push');
-      await repo.addDay(routine.id, name: 'Pull');
-      await repo.addDay(routine.id, name: 'Legs');
+    test(
+      'a three-day PPL routine is creatable and independently ordered',
+      () async {
+        final routine = await repo.create(name: 'PPL');
+        await repo.addDay(routine.id, name: 'Push');
+        await repo.addDay(routine.id, name: 'Pull');
+        await repo.addDay(routine.id, name: 'Legs');
 
-      final days = await repo.watchDays(routine.id).first;
-      expect(days.map((d) => d.name), ['Push', 'Pull', 'Legs']);
-      expect(days.map((d) => d.position), [0, 1, 2]);
-    });
+        final days = await repo.watchDays(routine.id).first;
+        expect(days.map((d) => d.name), ['Push', 'Pull', 'Legs']);
+        expect(days.map((d) => d.position), [0, 1, 2]);
+      },
+    );
 
     test('reorderDays persists the new order', () async {
       final routine = await repo.create(name: 'PPL');
@@ -318,50 +323,44 @@ void main() {
       expect(copy.name, contains(routine.name));
     });
 
-    test(
-      'an archived routine stays fully startable, just hidden from the '
-      'main list',
-      () async {
-        final exerciseId = await makeExercise('sq', 'Squat');
-        final routine = await repo.create(name: 'Legs');
-        final day = await repo.addDay(routine.id, name: 'Day 1');
-        await repo.addExercises(day.id, [exerciseId]);
+    test('an archived routine stays fully startable, just hidden from the '
+        'main list', () async {
+      final exerciseId = await makeExercise('sq', 'Squat');
+      final routine = await repo.create(name: 'Legs');
+      final day = await repo.addDay(routine.id, name: 'Day 1');
+      await repo.addExercises(day.id, [exerciseId]);
 
-        await repo.setArchived(routine.id, isArchived: true);
+      await repo.setArchived(routine.id, isArchived: true);
 
-        expect(await repo.watchAll().first, isEmpty);
-        final withArchived = await repo.watchAll(includeArchived: true).first;
-        expect(withArchived.single.id, routine.id);
-        // Everything needed to start from this day is still there.
-        expect(await repo.watchDays(routine.id).first, hasLength(1));
-        expect(await repo.watchExercises(day.id).first, hasLength(1));
+      expect(await repo.watchAll().first, isEmpty);
+      final withArchived = await repo.watchAll(includeArchived: true).first;
+      expect(withArchived.single.id, routine.id);
+      // Everything needed to start from this day is still there.
+      expect(await repo.watchDays(routine.id).first, hasLength(1));
+      expect(await repo.watchExercises(day.id).first, hasLength(1));
 
-        await repo.setArchived(routine.id, isArchived: false);
-        expect(await repo.watchAll().first, hasLength(1));
-      },
-    );
+      await repo.setArchived(routine.id, isArchived: false);
+      expect(await repo.watchAll().first, hasLength(1));
+    });
   });
 
   group('supersets (F-ROU-005)', () {
-    test(
-      'groupExercises assigns a shared group id to every member',
-      () async {
-        final bench = await makeExercise('bench', 'Bench Press');
-        final fly = await makeExercise('fly', 'Cable Fly');
-        final routine = await repo.create(name: 'Push');
-        final day = await repo.addDay(routine.id, name: 'Day 1');
-        await repo.addExercises(day.id, [bench, fly]);
-        final rows = await repo.watchExercises(day.id).first;
+    test('groupExercises assigns a shared group id to every member', () async {
+      final bench = await makeExercise('bench', 'Bench Press');
+      final fly = await makeExercise('fly', 'Cable Fly');
+      final routine = await repo.create(name: 'Push');
+      final day = await repo.addDay(routine.id, name: 'Day 1');
+      await repo.addExercises(day.id, [bench, fly]);
+      final rows = await repo.watchExercises(day.id).first;
 
-        await repo.groupExercises([
-          for (final row in rows) row.routineExerciseId,
-        ]);
+      await repo.groupExercises([
+        for (final row in rows) row.routineExerciseId,
+      ]);
 
-        final grouped = await repo.watchExercises(day.id).first;
-        expect(grouped[0].groupId, isNotNull);
-        expect(grouped[0].groupId, grouped[1].groupId);
-      },
-    );
+      final grouped = await repo.watchExercises(day.id).first;
+      expect(grouped[0].groupId, isNotNull);
+      expect(grouped[0].groupId, grouped[1].groupId);
+    });
 
     test('ungroupExercises clears group id for every member', () async {
       final bench = await makeExercise('bench', 'Bench Press');
@@ -423,35 +422,32 @@ void main() {
       expect(copiedRows[0].groupId, isNot(originalGroupId));
     });
 
-    test(
-      'dragging a member out of a superset dissolves the group',
-      () async {
-        final bench = await makeExercise('bench', 'Bench Press');
-        final fly = await makeExercise('fly', 'Cable Fly');
-        final row = await makeExercise('row', 'Cable Row');
-        final routine = await repo.create(name: 'Push');
-        final day = await repo.addDay(routine.id, name: 'Day 1');
-        await repo.addExercises(day.id, [bench, fly, row]);
-        final rows = await repo.watchExercises(day.id).first;
-        // Group the first two (bench, fly); leave "row" standalone.
-        await repo.groupExercises([
-          rows[0].routineExerciseId,
-          rows[1].routineExerciseId,
-        ]);
-        final grouped = await repo.watchExercises(day.id).first;
-        expect(grouped.where((r) => r.groupId != null), hasLength(2));
+    test('dragging a member out of a superset dissolves the group', () async {
+      final bench = await makeExercise('bench', 'Bench Press');
+      final fly = await makeExercise('fly', 'Cable Fly');
+      final row = await makeExercise('row', 'Cable Row');
+      final routine = await repo.create(name: 'Push');
+      final day = await repo.addDay(routine.id, name: 'Day 1');
+      await repo.addExercises(day.id, [bench, fly, row]);
+      final rows = await repo.watchExercises(day.id).first;
+      // Group the first two (bench, fly); leave "row" standalone.
+      await repo.groupExercises([
+        rows[0].routineExerciseId,
+        rows[1].routineExerciseId,
+      ]);
+      final grouped = await repo.watchExercises(day.id).first;
+      expect(grouped.where((r) => r.groupId != null), hasLength(2));
 
-        // Drag "row" between the two grouped members — the group is no
-        // longer contiguous.
-        await repo.reorderExercises([
-          rows[0].routineExerciseId,
-          rows[2].routineExerciseId,
-          rows[1].routineExerciseId,
-        ]);
+      // Drag "row" between the two grouped members — the group is no
+      // longer contiguous.
+      await repo.reorderExercises([
+        rows[0].routineExerciseId,
+        rows[2].routineExerciseId,
+        rows[1].routineExerciseId,
+      ]);
 
-        final after = await repo.watchExercises(day.id).first;
-        expect(after.every((r) => r.groupId == null), isTrue);
-      },
-    );
+      final after = await repo.watchExercises(day.id).first;
+      expect(after.every((r) => r.groupId == null), isTrue);
+    });
   });
 }

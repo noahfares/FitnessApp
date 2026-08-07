@@ -39,48 +39,45 @@ class RoutineDayEditorScreen extends ConsumerWidget {
     final days = ref.watch(routineDaysProvider(routineId));
     final exercises = ref.watch(routineDayExercisesProvider(dayId));
 
-    return days.view(
-      errorTitle: 'Day could not be read',
-      (rows) {
-        RoutineDay? day;
-        for (final d in rows) {
-          if (d.id == dayId) day = d;
-        }
-        if (day == null) {
-          return const Scaffold(
-            body: Center(child: Text('This day no longer exists.')),
-          );
-        }
-        final loadedDay = day;
-
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(loadedDay.name),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.edit_outlined),
-                tooltip: 'Rename',
-                onPressed: () => unawaited(_rename(context, ref, loadedDay)),
-              ),
-            ],
-          ),
-          body: exercises.view(
-            errorTitle: 'Exercises could not be read',
-            (exerciseRows) => DayExerciseList(
-              routineId: routineId,
-              day: loadedDay,
-              rows: exerciseRows,
-            ),
-          ),
-          bottomNavigationBar: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.screen),
-              child: StartDayButton(dayId: dayId),
-            ),
-          ),
+    return days.view(errorTitle: 'Day could not be read', (rows) {
+      RoutineDay? day;
+      for (final d in rows) {
+        if (d.id == dayId) day = d;
+      }
+      if (day == null) {
+        return const Scaffold(
+          body: Center(child: Text('This day no longer exists.')),
         );
-      },
-    );
+      }
+      final loadedDay = day;
+
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(loadedDay.name),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              tooltip: 'Rename',
+              onPressed: () => unawaited(_rename(context, ref, loadedDay)),
+            ),
+          ],
+        ),
+        body: exercises.view(
+          errorTitle: 'Exercises could not be read',
+          (exerciseRows) => DayExerciseList(
+            routineId: routineId,
+            day: loadedDay,
+            rows: exerciseRows,
+          ),
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.screen),
+            child: StartDayButton(dayId: dayId),
+          ),
+        ),
+      );
+    });
   }
 
   Future<void> _rename(
@@ -136,11 +133,10 @@ class _DayExerciseListState extends ConsumerState<DayExerciseList> {
       );
     }
 
-    final selectedIndices =
-        [
-          for (var i = 0; i < rows.length; i++)
-            if (_selected.contains(rows[i].routineExerciseId)) i,
-        ]..sort();
+    final selectedIndices = [
+      for (var i = 0; i < rows.length; i++)
+        if (_selected.contains(rows[i].routineExerciseId)) i,
+    ]..sort();
     final canGroup =
         selectedIndices.length >= 2 &&
         selectedIndices.last - selectedIndices.first ==
@@ -190,8 +186,7 @@ class _DayExerciseListState extends ConsumerState<DayExerciseList> {
               final row = rows[i];
               final groupId = row.groupId;
               final isFirstInGroup =
-                  groupId != null &&
-                  (i == 0 || rows[i - 1].groupId != groupId);
+                  groupId != null && (i == 0 || rows[i - 1].groupId != groupId);
               final isLastInGroup =
                   groupId != null &&
                   (i == rows.length - 1 || rows[i + 1].groupId != groupId);
@@ -214,7 +209,7 @@ class _DayExerciseListState extends ConsumerState<DayExerciseList> {
                     : () => unawaited(_ungroup(groupId)),
               );
             },
-            onReorder: (oldIndex, newIndex) =>
+            onReorderItem: (oldIndex, newIndex) =>
                 unawaited(_reorder(oldIndex, newIndex)),
           ),
         ),
@@ -239,7 +234,8 @@ class _DayExerciseListState extends ConsumerState<DayExerciseList> {
   }
 
   Future<void> _reorder(int oldIndex, int newIndex) {
-    if (newIndex > oldIndex) newIndex -= 1;
+    // onReorderItem, unlike the deprecated onReorder, already adjusts
+    // newIndex for the removed item — no manual off-by-one correction here.
     final ids = [for (final row in widget.rows) row.routineExerciseId];
     ids.insert(newIndex, ids.removeAt(oldIndex));
     return ref.read(routineRepositoryProvider).reorderExercises(ids);
@@ -291,10 +287,7 @@ class _ExerciseTargetTile extends ConsumerWidget {
     final summary = <String>[
       if (row.targetSets != null) '${row.targetSets}×$displayRange',
       if (row.targetWeightGrams != null)
-        formatter.setWeight(
-          Mass.grams(row.targetWeightGrams!),
-          showUnit: true,
-        ),
+        formatter.setWeight(Mass.grams(row.targetWeightGrams!), showUnit: true),
       if (row.targetRpe != null) '@RPE ${row.targetRpe}',
       if (row.restSeconds != null) formatRestDuration(row.restSeconds!),
     ];
@@ -365,11 +358,7 @@ class _ExerciseTargetTile extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.link,
-                    size: 16,
-                    color: theme.colorScheme.primary,
-                  ),
+                  Icon(Icons.link, size: 16, color: theme.colorScheme.primary),
                   const SizedBox(width: 4),
                   Text(
                     'Superset',
@@ -410,8 +399,7 @@ class _TargetEditorSheet extends ConsumerStatefulWidget {
   final RoutineExerciseDetail row;
 
   @override
-  ConsumerState<_TargetEditorSheet> createState() =>
-      _TargetEditorSheetState();
+  ConsumerState<_TargetEditorSheet> createState() => _TargetEditorSheetState();
 }
 
 class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
@@ -426,19 +414,15 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
     super.initState();
     final row = widget.row;
     _sets = TextEditingController(text: row.targetSets?.toString() ?? '');
-    _repsMin = TextEditingController(
-      text: row.targetRepsMin?.toString() ?? '',
-    );
-    _repsMax = TextEditingController(
-      text: row.targetRepsMax?.toString() ?? '',
-    );
+    _repsMin = TextEditingController(text: row.targetRepsMin?.toString() ?? '');
+    _repsMax = TextEditingController(text: row.targetRepsMax?.toString() ?? '');
     final prefs = ref.read(unitPreferencesProvider);
     _weight = TextEditingController(
       text: row.targetWeightGrams == null
           ? ''
           : ref
-              .read(quantityFormatterProvider)
-              .massValueOnly(Mass.grams(row.targetWeightGrams!), prefs.load),
+                .read(quantityFormatterProvider)
+                .massValueOnly(Mass.grams(row.targetWeightGrams!), prefs.load),
     );
     _restSeconds = row.restSeconds;
   }

@@ -62,7 +62,7 @@ class RoutineListScreen extends ConsumerWidget {
         .read(routineRepositoryProvider)
         .create(name: name);
     if (!context.mounted) return;
-    context.push(AppRoutes.routine(routine.id));
+    unawaited(context.push(AppRoutes.routine(routine.id)));
   }
 
   Future<void> _createFolder(BuildContext context, WidgetRef ref) async {
@@ -80,29 +80,23 @@ class _RoutineList extends ConsumerWidget {
     final routines = ref.watch(routinesProvider);
     final folders = ref.watch(routineFoldersProvider);
 
-    return routines.view(
-      errorTitle: 'Routines could not be read',
-      (rows) {
-        if (rows.isEmpty) {
-          return EmptyState(
-            icon: Icons.checklist_outlined,
-            title: 'No routines yet',
-            message:
-                'A routine holds days; a day is what you start a '
-                'workout from.',
-          );
-        }
-        return folders.when(
-          data: (folderRows) => _GroupedRoutineList(
-            routines: rows,
-            folders: folderRows,
-          ),
-          loading: () => _GroupedRoutineList(routines: rows, folders: const []),
-          error: (_, __) =>
-              _GroupedRoutineList(routines: rows, folders: const []),
+    return routines.view(errorTitle: 'Routines could not be read', (rows) {
+      if (rows.isEmpty) {
+        return const EmptyState(
+          icon: Icons.checklist_outlined,
+          title: 'No routines yet',
+          message:
+              'A routine holds days; a day is what you start a '
+              'workout from.',
         );
-      },
-    );
+      }
+      return folders.when(
+        data: (folderRows) =>
+            _GroupedRoutineList(routines: rows, folders: folderRows),
+        loading: () => _GroupedRoutineList(routines: rows, folders: const []),
+        error: (_, _) => _GroupedRoutineList(routines: rows, folders: const []),
+      );
+    });
   }
 }
 
@@ -184,7 +178,8 @@ class _ArchivedRoutineList extends ConsumerWidget {
           ? const EmptyState(
               icon: Icons.inventory_2_outlined,
               title: 'Nothing archived',
-              message: 'Archived routines stay startable and can be '
+              message:
+                  'Archived routines stay startable and can be '
                   'restored from here.',
             )
           : ListView.builder(
@@ -211,12 +206,10 @@ class _RoutineTile extends ConsumerWidget {
         title: Text(routine.name),
         subtitle: days.when(
           data: (rows) => Text(
-            rows.isEmpty
-                ? 'No days yet'
-                : rows.map((d) => d.name).join(' · '),
+            rows.isEmpty ? 'No days yet' : rows.map((d) => d.name).join(' · '),
           ),
           loading: () => const SizedBox.shrink(),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
         ),
         trailing: isArchived
             ? IconButton(

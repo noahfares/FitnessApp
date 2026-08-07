@@ -307,11 +307,11 @@ group") — the logger shows every exercise's full set list at once rather
 than one exercise at a time, so there is no single focus to advance without
 first reshaping the screen into something this batch didn't intend to build.
 
-Local toolchain: Flutter at `/opt/flutter` (add to `PATH`). No Android SDK, so
-`flutter build apk` is CI-only. Flutter web is not a target platform.
-
-This session had no local Flutter/Dart toolchain available (a different
-machine than the `/opt/flutter` one above) — `tools/verify.sh` and
-`tools/test.sh` could not be run. Formatting and analysis are unverified;
-CI is authoritative for this commit. Run `tools/verify.sh --fix` locally on
-a machine with Flutter before trusting this batch is actually green.
+Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
+`C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
+then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`
+via `setx`/`[Environment]::SetEnvironmentVariable`). No Android SDK on
+either, so `flutter build apk` is CI-only. Flutter web is not a target
+platform. `tools/verify.sh` passes clean on both as of this note — if a
+future session finds neither toolchain present, set one up the same way
+before trusting an unverified diff.

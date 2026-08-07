@@ -544,51 +544,45 @@ void main() {
       return day.id;
     }
 
-    test(
-      'creates the right number of set rows, named and provenanced from '
-      'the day',
-      () async {
-        final dayId = await makeDayWithTarget();
+    test('creates the right number of set rows, named and provenanced from '
+        'the day', () async {
+      final dayId = await makeDayWithTarget();
 
-        final workout = await repo.startFromRoutineDay(dayId);
+      final workout = await repo.startFromRoutineDay(dayId);
 
-        expect(workout.name, 'Legs');
-        expect(workout.sourceRoutineDayId, dayId);
-        final [exercise] = await repo.watchExercises(workout.id).first;
-        expect(exercise.setCount, 3);
-        expect(exercise.target!.repsMin, 6);
-        expect(exercise.target!.repsMax, 10);
-        expect(exercise.target!.weightGrams, 100000);
-        // The copy is complete, not a live reference: rows are unfinished
-        // targets, not already-logged values (`F-ROU-010` §1, §5).
-        final sets = await db.select(db.sets).get();
-        expect(sets, hasLength(3));
-        expect(
-          sets.every((s) => !s.isCompleted && s.weightGrams == null),
-          isTrue,
-        );
-      },
-    );
+      expect(workout.name, 'Legs');
+      expect(workout.sourceRoutineDayId, dayId);
+      final [exercise] = await repo.watchExercises(workout.id).first;
+      expect(exercise.setCount, 3);
+      expect(exercise.target!.repsMin, 6);
+      expect(exercise.target!.repsMax, 10);
+      expect(exercise.target!.weightGrams, 100000);
+      // The copy is complete, not a live reference: rows are unfinished
+      // targets, not already-logged values (`F-ROU-010` §1, §5).
+      final sets = await db.select(db.sets).get();
+      expect(sets, hasLength(3));
+      expect(
+        sets.every((s) => !s.isCompleted && s.weightGrams == null),
+        isTrue,
+      );
+    });
 
-    test(
-      'editing the routine afterwards does not alter the workout',
-      () async {
-        final dayId = await makeDayWithTarget();
-        final workout = await repo.startFromRoutineDay(dayId);
-        final [before] = await repo.watchExercises(workout.id).first;
+    test('editing the routine afterwards does not alter the workout', () async {
+      final dayId = await makeDayWithTarget();
+      final workout = await repo.startFromRoutineDay(dayId);
+      final [before] = await repo.watchExercises(workout.id).first;
 
-        final [detail] = await routines.watchExercises(dayId).first;
-        await routines.setTargets(
-          detail.routineExerciseId,
-          targetSets: const Value(10),
-          targetWeightGrams: const Value(1),
-        );
+      final [detail] = await routines.watchExercises(dayId).first;
+      await routines.setTargets(
+        detail.routineExerciseId,
+        targetSets: const Value(10),
+        targetWeightGrams: const Value(1),
+      );
 
-        final [after] = await repo.watchExercises(workout.id).first;
-        expect(after.setCount, before.setCount);
-        expect(after.target!.weightGrams, before.target!.weightGrams);
-      },
-    );
+      final [after] = await repo.watchExercises(workout.id).first;
+      expect(after.setCount, before.setCount);
+      expect(after.target!.weightGrams, before.target!.weightGrams);
+    });
 
     test(
       'deleting the routine mid-workout does not break the session',
@@ -609,22 +603,19 @@ void main() {
       },
     );
 
-    test(
-      'a day with no targets behaves like an empty workout with the '
-      'right exercises',
-      () async {
-        await makeExercise('row', 'Cable Row');
-        final routine = await routines.create(name: 'Pull day');
-        final day = await routines.addDay(routine.id, name: 'Pull');
-        await routines.addExercises(day.id, ['row']);
+    test('a day with no targets behaves like an empty workout with the '
+        'right exercises', () async {
+      await makeExercise('row', 'Cable Row');
+      final routine = await routines.create(name: 'Pull day');
+      final day = await routines.addDay(routine.id, name: 'Pull');
+      await routines.addExercises(day.id, ['row']);
 
-        final workout = await repo.startFromRoutineDay(day.id);
+      final workout = await repo.startFromRoutineDay(day.id);
 
-        final [exercise] = await repo.watchExercises(workout.id).first;
-        expect(exercise.setCount, 1);
-        expect(exercise.target!.isEmpty, isTrue);
-      },
-    );
+      final [exercise] = await repo.watchExercises(workout.id).first;
+      expect(exercise.setCount, 1);
+      expect(exercise.target!.isEmpty, isTrue);
+    });
 
     test('refuses a second in-progress workout', () async {
       final dayId = await makeDayWithTarget();
@@ -668,20 +659,17 @@ void main() {
       return (a.workoutExerciseId, b.workoutExerciseId);
     }
 
-    test(
-      'groupExercises assigns a shared group id to every member',
-      () async {
-        final (a, b) = await makeTwoExerciseWorkout();
+    test('groupExercises assigns a shared group id to every member', () async {
+      final (a, b) = await makeTwoExerciseWorkout();
 
-        await repo.groupExercises([a, b]);
+      await repo.groupExercises([a, b]);
 
-        final exercises = await repo
-            .watchExercises((await repo.findActive())!.id)
-            .first;
-        expect(exercises[0].groupId, isNotNull);
-        expect(exercises[0].groupId, exercises[1].groupId);
-      },
-    );
+      final exercises = await repo
+          .watchExercises((await repo.findActive())!.id)
+          .first;
+      expect(exercises[0].groupId, isNotNull);
+      expect(exercises[0].groupId, exercises[1].groupId);
+    });
 
     test('toggleGroupWithNext groups two ungrouped exercises', () async {
       final (a, b) = await makeTwoExerciseWorkout();

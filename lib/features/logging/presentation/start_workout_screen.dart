@@ -171,11 +171,7 @@ class _RoutineDaysSection extends ConsumerWidget {
     );
   }
 
-  Future<void> _start(
-    BuildContext context,
-    WidgetRef ref,
-    String dayId,
-  ) async {
+  Future<void> _start(BuildContext context, WidgetRef ref, String dayId) async {
     final repo = ref.read(workoutRepositoryProvider);
     try {
       await repo.startFromRoutineDay(dayId);

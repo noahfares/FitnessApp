@@ -80,7 +80,7 @@ class WorkoutDetailScreen extends ConsumerWidget {
         .read(routineRepositoryProvider)
         .createFromWorkout(workoutId, name: name);
     if (!context.mounted) return;
-    context.push(AppRoutes.routine(routine.id));
+    unawaited(context.push(AppRoutes.routine(routine.id)));
   }
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
