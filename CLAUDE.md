@@ -171,7 +171,7 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.19.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
+Version **0.24.0**. **Phase 0 complete** — scaffold, CI, auto-tagging, units,
 theming, five-tab shell, and the Drift schema (now at **v3**).
 
 **Phase 1 complete.** Batches 1.1–1.9 done:
@@ -362,6 +362,34 @@ deferred: because storage is always total, switching mode is display-only,
 so neither migrating nor refusing was ever needed. Not built: RPE does not
 appear on the history or edit-past-workout screens, and neither feature yet
 feeds `F-PRG-005` or `F-ANA-011`, both still `planned`.
+
+**Batch 2.6 — PR detection.** `F-LOG-013` done. No schema change —
+`personal_records` and its `PrKind` enum have existed since schema v3; this
+batch is the first to read or write either. `domain/analytics/e1rm.dart`
+(Epley only — formula selection is `F-SET-006`, Phase 3) and
+`domain/analytics/personal_records.dart` hold the pure detection logic
+(`detectPrs`), each with fixture-backed tests against
+`docs/40-ANALYTICS-SPEC.md` §1/§4. `PersonalRecordRepository.evaluateSet`
+runs live on every set completion for `maxWeight`, `maxRepsAtWeight` and
+`bestE1rm`; `maxSessionVolume` is deliberately evaluated separately, once,
+in `evaluateSessionVolume` when the workout finishes — a per-set running
+total would keep beating its own more-recent self as a session progresses,
+celebrating arithmetic rather than a real record. `rebuildForExercise`/
+`rebuildAll` are the full recompute rule 4 requires (a cache can be demoted
+but never knows the next-best value without rescanning raw sets); wired to
+every delete, undo, and un-complete on both the live and history set rows,
+and exposed as "Rebuild personal records" on Settings › Data as the rule-5
+maintenance action. `PrBadge` (`features/shell/widgets/`) is the inline
+badge on the live set row; its own mount-time entrance animation stands in
+for the "brief, non-blocking animation" the spec asks for, so no separate
+celebratory overlay exists. The finish summary lists each session's records
+by exercise name. Not built: editing a completed set's **value** (weight or
+reps) through the numeric keypad, without un-ticking and re-ticking it, does
+not yet trigger a cache rebuild — only completion-toggling and deletion do,
+so a stale record can survive an in-place correction until the next
+delete/toggle or maintenance rebuild touches that exercise (`F-LOG-013`'s
+own status note has the detail). `F-ANA-007` (the PR timeline this batch's
+cache is meant to eventually feed) remains `planned`, Phase 3.
 
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,

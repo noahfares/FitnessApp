@@ -289,6 +289,12 @@ class _ActiveWorkout extends ConsumerWidget {
     }
 
     await repo.finish(workout.id);
+    // maxSessionVolume only means something once the session's total is
+    // final (`F-LOG-013`, `docs/40-ANALYTICS-SPEC.md` §4) — unlike the other
+    // three kinds, it is never evaluated mid-session.
+    await ref
+        .read(personalRecordRepositoryProvider)
+        .evaluateSessionVolume(workout.id);
     if (!context.mounted) return;
     // Replaces the stack rather than popping, so back does not walk into a
     // finished session (docs/23-NAVIGATION.md §navigation-invariants).
@@ -518,6 +524,7 @@ class _SessionExerciseTile extends ConsumerWidget {
               incrementGrams: exercise.incrementGrams,
               restSeconds: restSeconds,
               perSide: perSide,
+              exerciseId: exercise.exerciseId,
             ),
         AddSetButton(workoutExerciseId: exercise.workoutExerciseId),
         if (nextExercise != null)

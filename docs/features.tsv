@@ -40,7 +40,7 @@ F-LOG-009	1	done	P0	Edit and delete past workouts			21-DATA-MODEL#sets, 24-DESIG
 F-LOG-010	2	done	P1	Modify a session in progress	F-LOG-002		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-011	1	done	P0	Workout history list			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-012	1	done	P0	Workout detail			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
-F-LOG-013	2	planned	P1	PR detection and celebration	F-LOG-003		40-ANALYTICS-SPEC#4-personal-records, 21-DATA-MODEL#personal_records
+F-LOG-013	2	done	P1	PR detection and celebration	F-LOG-003		40-ANALYTICS-SPEC#4-personal-records, 21-DATA-MODEL#personal_records
 F-LOG-014	2	done	P1	RPE and RIR		F-PRG-005	21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-015	2	in-progress	P1	Supersets in the logger	F-ROU-005		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-016	2	done	P1	Repeat a previous session			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory

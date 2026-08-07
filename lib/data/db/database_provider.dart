@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../io/json_dump_service.dart';
 import '../repositories/body_measurement_repository.dart';
 import '../repositories/exercise_repository.dart';
+import '../repositories/personal_record_repository.dart';
 import '../repositories/routine_repository.dart';
 import '../repositories/set_repository.dart';
 import '../repositories/workout_repository.dart';
@@ -51,4 +52,9 @@ final jsonDumpServiceProvider = Provider<JsonDumpService>(
 /// Routines, their days, and per-exercise targets (`F-ROU-001`–`F-ROU-003`).
 final routineRepositoryProvider = Provider<RoutineRepository>(
   (ref) => RoutineRepository(ref.watch(databaseProvider)),
+);
+
+/// The `personal_records` cache (`F-LOG-013`).
+final personalRecordRepositoryProvider = Provider<PersonalRecordRepository>(
+  (ref) => PersonalRecordRepository(ref.watch(databaseProvider)),
 );
