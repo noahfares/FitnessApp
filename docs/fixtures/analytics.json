@@ -10,7 +10,7 @@
       { "weightKg": 100, "reps": 5,  "epley": 116.667, "brzycki": 112.500, "lombardi": 117.462, "reliable": true },
       { "weightKg": 100, "reps": 8,  "epley": 126.667, "brzycki": 124.138, "lombardi": 123.114, "reliable": true },
       { "weightKg": 100, "reps": 10, "epley": 133.333, "brzycki": 133.333, "lombardi": 125.893, "reliable": true },
-      { "weightKg": 60,  "reps": 12, "epley": 84.000,  "brzycki": 86.400,  "lombardi": 76.049,  "reliable": true },
+      { "weightKg": 60,  "reps": 12, "epley": 84.000,  "brzycki": 86.400,  "lombardi": 76.925,  "reliable": true },
       { "weightKg": 60,  "reps": 15, "reliable": false, "$note": "r > 12 is flagged unreliable" }
     ]
   },

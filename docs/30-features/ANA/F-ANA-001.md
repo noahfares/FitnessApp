@@ -18,9 +18,10 @@ Reads: 40-ANALYTICS-SPEC, 20-ARCHITECTURE#the-one-hard-rule
       (`tools/verify.sh`'s `layers` check, pre-existing since Phase 0).
 - [ ] Every metric in the spec has a passing fixture test. e1RM (§1) and
       personal records (§4) landed in batch 2.6; per-exercise history (§1/§2
-      composition) in batch 3.1. Volume load (§2 standalone), sets-per-muscle
-      (§3), consistency (§5), and muscle balance (§9) remain, scheduled across
-      batches 3.3–3.4.
+      composition) in batch 3.1; the e1RM trend (§1, all three formulas) and
+      its regression overlay (shares §7's slope maths) in batch 3.2. Volume
+      load (§2 standalone), sets-per-muscle (§3), consistency (§5), and
+      muscle balance (§9) remain, scheduled across batches 3.3–3.4.
 - [ ] Computing a year of history stays under 100 ms on a mid-range device —
       not yet measured; revisit once more of the spec's metrics exist to
       benchmark together.
@@ -39,6 +40,16 @@ filtering seam was out of scope for landing the first Phase 3 batch. §4
 partially met: `exerciseHistoryProvider` is a `StreamProvider.family` keyed by
 exercise id, but there is no date range yet to key on — that arrives with
 `F-ANA-015` (batch 3.2).
+
+## Status notes (batch 3.2)
+
+§4's date range now exists (`F-ANA-015`'s `resolveRange`/`DateRange`), and
+`ExerciseDetailScreen`'s trend section resolves it against a newly-added
+`analyticsClockProvider` rather than a direct `DateTime.now()` call — the
+same testable-clock seam `restClockProvider` already used, needed the moment
+a chart's default range depends on "now" and a test wants to pin it. Still
+`in-progress`: acceptance items 2 and 3 above remain open until the
+sets-per-muscle, consistency and muscle-balance fixtures land.
 
 ---
 

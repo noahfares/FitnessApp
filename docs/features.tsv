@@ -62,7 +62,7 @@ F-TIM-008	—	idea	P3	Interval / EMOM timer			20-ARCHITECTURE#cross-platform-dis
 F-TIM-009	4	planned	P2	Stopwatch for timed exercises	F-CAT-002		20-ARCHITECTURE#cross-platform-discipline
 F-ANA-001	3	in-progress	P0	Analytics engine		F-ANA-002 … F-ANA-014	40-ANALYTICS-SPEC, 20-ARCHITECTURE#the-one-hard-rule
 F-ANA-002	3	done	P0	Per-exercise history			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-003	3	planned	P1	Estimated 1RM trend	F-ANA-001		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-003	3	done	P1	Estimated 1RM trend	F-ANA-001		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-004	3	planned	P1	Volume charts	F-ANA-001		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-005	3	planned	P1	Sets per muscle group per week	F-CAT-013	F-ROU-011	40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-006	3	planned	P1	Consistency			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
@@ -74,7 +74,7 @@ F-ANA-011	4	planned	P2	Rep range and intensity distribution	F-LOG-014		40-ANALYT
 F-ANA-012	4	planned	P3	Duration and rest compliance	F-TIM-007		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-013	4	planned	P2	Weekly insight cards	F-ANA-003, F-ANA-004, F-ANA-005, F-ANA-009		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-014	4	planned	P3	Body map heat overlay	F-CAT-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-015	3	planned	P1	Date range and filter controls			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-015	3	in-progress	P1	Date range and filter controls			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-016	3	planned	P2	Chart interaction			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-017	—	idea	P3	Year in review			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-018	—	idea	P3	Exercise comparison			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
@@ -112,7 +112,7 @@ F-SET-002	0	done	P0	Theme mode			22-UNITS
 F-SET-003	1	done	P1	Rest-timer defaults	F-TIM-005		22-UNITS
 F-SET-004	4	planned	P1	Bar and plate inventory	F-PLT-002		22-UNITS
 F-SET-005	3	planned	P1	Week start		F-ANA-004, F-ANA-006	22-UNITS
-F-SET-006	3	planned	P2	e1RM formula	F-ANA-003		22-UNITS
+F-SET-006	3	done	P2	e1RM formula	F-ANA-003		22-UNITS
 F-SET-007	2	done	P1	Increment steps	F-SET-001		22-UNITS
 F-SET-008	2	planned	P2	Notification preferences	F-TIM-003		22-UNITS
 F-SET-009	1	done	P1	About			22-UNITS
@@ -134,7 +134,7 @@ F-NAV-008	—	idea	P3	App shortcuts			23-NAVIGATION
 F-THM-001	0	done	P0	Material 3 foundation		F-THM-002, F-THM-003, F-THM-004	24-DESIGN-SYSTEM
 F-THM-002	0	done	P0	Light and dark schemes	F-THM-001		24-DESIGN-SYSTEM, 30-features/LOG/F-LOG-004
 F-THM-003	2	done	P2	Dynamic colour			24-DESIGN-SYSTEM
-F-THM-004	3	planned	P1	Chart theming	F-THM-001, F-ANA-001		24-DESIGN-SYSTEM
+F-THM-004	3	done	P1	Chart theming	F-THM-001, F-ANA-001		24-DESIGN-SYSTEM
 F-THM-005	0	done	P1	Typography	F-THM-001		24-DESIGN-SYSTEM
 F-THM-006	6	planned	P2	App icon and branding			24-DESIGN-SYSTEM
 F-A11Y-001	6	planned	P1	Screen reader support			24-DESIGN-SYSTEM#accessibility-baseline

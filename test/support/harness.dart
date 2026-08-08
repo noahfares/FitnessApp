@@ -36,6 +36,7 @@ import 'package:fitness_app/data/platform/app_info_service.dart';
 import 'package:fitness_app/data/platform/export_sharer.dart';
 import 'package:fitness_app/data/platform/rest_timer_service.dart';
 import 'package:fitness_app/domain/timing/rest_settings.dart';
+import 'package:fitness_app/features/analytics/application/analytics_clock_provider.dart';
 import 'package:fitness_app/features/logging/application/active_workout_providers.dart';
 import 'package:fitness_app/features/settings/application/unit_preferences_provider.dart';
 import 'package:fitness_app/features/timing/application/rest_timer_providers.dart';
@@ -133,6 +134,7 @@ Future<ProviderContainer> testContainer({
       // Pinned to the same instant as the display tick, so a rest started
       // during a test counts down from where the test thinks it is.
       restClockProvider.overrideWithValue(() => now ?? DateTime.now()),
+      analyticsClockProvider.overrideWithValue(() => now ?? DateTime.now()),
       restTimerServiceProvider.overrideWithValue(FakeRestTimerService()),
       appInfoServiceProvider.overrideWithValue(const FakeAppInfoService()),
       // Caller overrides come last so they win.

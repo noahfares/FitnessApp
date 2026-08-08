@@ -508,6 +508,46 @@ catalogue test kept passing untouched. Not built: date-range scoping
 (`F-ANA-015`, batch 3.2) — every session shows unconditionally, which only
 becomes a real problem once there's enough logged history for it to matter.
 
+**Batch 3.2 — e1RM trend & date range.** `F-ANA-003`, `F-SET-006` done;
+`F-ANA-015` `in-progress` (by design — "shared across every chart" can't be
+verified with only one chart to share it with yet); `F-THM-004` done. No
+schema change. `fl_chart` is now a real dependency (previously reserved in
+`pubspec.yaml`'s deferred-deps comment) — `TrendChart`
+(`features/shell/widgets/`) is the shared line-chart component the design
+system names, reading colours from `context.appColors.chartSeries` rather
+than literals, respecting the never-zero-based Y axis rule for weight
+charts, and rendering unreliable points (§1 rule 2, reps > 12) as hollow
+dots instead of hiding them — exclusion is a screen-level toggle, not the
+chart's decision. `domain/analytics/e1rm.dart` gained `estimate1Rm`/
+`E1rmFormula` (Epley/Brzycki/Lombardi, including Brzycki's undefined-range
+fallback at r≥37) alongside the pre-existing Epley-only `epley1Rm`, which
+stays untouched and is still what PR detection and per-exercise history use
+— record-keeping isn't a user preference the way a trend chart's formula is.
+`domain/analytics/linear_regression.dart` is the optional overlay's
+least-squares slope, deliberately written as a shared utility rather than
+inlined, since `F-ANA-009` (Phase 4 stall detection) needs the identical
+computation on different data. `domain/analytics/date_range.dart`
+(`RangePreset`, `resolveRange`) and an in-memory
+`dateRangeSelectionProvider` back `DateRangeSelector`, a horizontally
+scrolling row of choice chips (six labels don't fit a `SegmentedButton` on a
+phone width) wired into `ExerciseDetailScreen`'s new trend section above its
+batch-3.1 session list. Added `analyticsClockProvider`
+(`Provider<DateTime Function()>`, the same shape `restClockProvider` already
+used) so a chart's default range resolves against an overridable "now"
+instead of a bare `DateTime.now()` call — without it, a widget test logging
+a fixed date and expecting it inside "the last 3 months" would silently
+start failing once the real calendar moved far enough past that date; the
+test harness overrides it alongside `restClockProvider` whenever `now` is
+passed to `pumpScreen`. Found and fixed along the way: the analytics spec's
+own `e1rm` fixture had an arithmetic error in one cell (Lombardi at 60kg×12
+reps read 76.049; `60 × 12^0.10` is actually 76.925, confirmed numerically
+against the other four rows in the same table, which all match their
+formula exactly) — corrected in both `docs/40-ANALYTICS-SPEC.md` and
+`docs/fixtures/analytics.json` rather than worked around. Not built: the
+regression overlay and unreliable-set toggles are screen-local `State`, not
+persisted preferences — reasonable for a first chart, worth revisiting if a
+second chart wants the same toggles to agree with each other.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

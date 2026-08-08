@@ -7,7 +7,7 @@ publish_to: none
 # Canonical source is the VERSION file at the repo root; CI fails if they
 # disagree. See docs/63-VERSIONING.md. The +N build number is set by the
 # release workflow (F-REL-005), not by hand.
-version: 0.28.0
+version: 0.29.0
 
 environment:
   sdk: ^3.11.0
@@ -52,6 +52,10 @@ dependencies:
   # unsupported platform, which is exactly the "off" state already needed.
   dynamic_color: ^1.9.0
 
+  # Charts (F-ANA-003, F-THM-004). Renders in-widget, so it themes correctly
+  # in light and dark without bespoke platform work (docs/20-ARCHITECTURE.md).
+  fl_chart: ^1.1.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -69,6 +73,5 @@ flutter:
 # Dependencies deliberately not added yet — each arrives with the batch that
 # needs it, to keep `pub get` and CI fast:
 #   freezed, json_serializable   → domain entities, when they need unions
-#   fl_chart                     → F-ANA-003 (Phase 3)
 #   flutter_local_notifications  → F-TIM-003 (Phase 1)
 #   file_picker                  → F-DAT-005/006 import (Phase 5)

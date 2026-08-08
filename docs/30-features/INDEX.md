@@ -102,7 +102,7 @@
 |---|---|---|---|---|
 | [F-ANA-001](ANA/F-ANA-001.md) | Analytics engine | 3 | P0 | in-progress |
 | [F-ANA-002](ANA/F-ANA-002.md) | Per-exercise history | 3 | P0 | done |
-| [F-ANA-003](ANA/F-ANA-003.md) | Estimated 1RM trend | 3 | P1 | planned |
+| [F-ANA-003](ANA/F-ANA-003.md) | Estimated 1RM trend | 3 | P1 | done |
 | [F-ANA-004](ANA/F-ANA-004.md) | Volume charts | 3 | P1 | planned |
 | [F-ANA-005](ANA/F-ANA-005.md) | Sets per muscle group per week | 3 | P1 | planned |
 | [F-ANA-006](ANA/F-ANA-006.md) | Consistency | 3 | P1 | planned |
@@ -114,7 +114,7 @@
 | [F-ANA-012](ANA/F-ANA-012.md) | Duration and rest compliance | 4 | P3 | planned |
 | [F-ANA-013](ANA/F-ANA-013.md) | Weekly insight cards | 4 | P2 | planned |
 | [F-ANA-014](ANA/F-ANA-014.md) | Body map heat overlay | 4 | P3 | planned |
-| [F-ANA-015](ANA/F-ANA-015.md) | Date range and filter controls | 3 | P1 | planned |
+| [F-ANA-015](ANA/F-ANA-015.md) | Date range and filter controls | 3 | P1 | in-progress |
 | [F-ANA-016](ANA/F-ANA-016.md) | Chart interaction | 3 | P2 | planned |
 | [F-ANA-017](ANA/F-ANA-017.md) | Year in review | — | P3 | idea |
 | [F-ANA-018](ANA/F-ANA-018.md) | Exercise comparison | — | P3 | idea |
@@ -172,7 +172,7 @@
 | [F-SET-003](SET/F-SET-003.md) | Rest-timer defaults | 1 | P1 | done |
 | [F-SET-004](SET/F-SET-004.md) | Bar and plate inventory | 4 | P1 | planned |
 | [F-SET-005](SET/F-SET-005.md) | Week start | 3 | P1 | planned |
-| [F-SET-006](SET/F-SET-006.md) | e1RM formula | 3 | P2 | planned |
+| [F-SET-006](SET/F-SET-006.md) | e1RM formula | 3 | P2 | done |
 | [F-SET-007](SET/F-SET-007.md) | Increment steps | 2 | P1 | done |
 | [F-SET-008](SET/F-SET-008.md) | Notification preferences | 2 | P2 | planned |
 | [F-SET-009](SET/F-SET-009.md) | About | 1 | P1 | done |
@@ -209,7 +209,7 @@
 | [F-THM-001](THM/F-THM-001.md) | Material 3 foundation | 0 | P0 | done |
 | [F-THM-002](THM/F-THM-002.md) | Light and dark schemes | 0 | P0 | done |
 | [F-THM-003](THM/F-THM-003.md) | Dynamic colour | 2 | P2 | done |
-| [F-THM-004](THM/F-THM-004.md) | Chart theming | 3 | P1 | planned |
+| [F-THM-004](THM/F-THM-004.md) | Chart theming | 3 | P1 | done |
 | [F-THM-005](THM/F-THM-005.md) | Typography | 0 | P1 | done |
 | [F-THM-006](THM/F-THM-006.md) | App icon and branding | 6 | P2 | planned |
 

@@ -77,10 +77,13 @@ Where `w` = weight, `r` = reps.
 | 100 kg | 5 | 116.667 | 112.500 | 117.462 |
 | 100 kg | 8 | 126.667 | 124.138 | 123.114 |
 | 100 kg | 10 | 133.333 | 133.333 | 125.893 |
-| 60 kg | 12 | 84.000 | 86.400 | 76.049 |
+| 60 kg | 12 | 84.000 | 86.400 | 76.925 |
 
 Worked: Epley at 100×8 = `100 × (1 + 8/30)` = `100 × 1.26667` = **126.667**.
 Brzycki = `100 × 36/29` = **124.138**. Lombardi = `100 × 8^0.1` = **123.114**.
+(Lombardi at 60×12 = `60 × 12^0.1` = `60 × 1.28209` = **76.925** — corrected in
+batch 3.2; the table previously read 76.049, arithmetically inconsistent with
+the formula the other four rows all match exactly.)
 
 Note the three agree closely at 5–10 reps and diverge outside it — which is why
 the choice is exposed to the user rather than hidden.
