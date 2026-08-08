@@ -46,14 +46,35 @@ first gate is `dart format --set-exit-if-changed`, which fails the job before a
 single test runs, so a green local suite is not evidence of a green build.
 `tools/verify.sh --fix` formats in place first.
 
-### Run the tests
+**Run the full `tools/verify.sh` exactly once per session, right before the
+commit.** It re-runs the entire suite and full analyzer every time — cheap
+once, wasteful as a mid-development sanity check. While iterating, use the
+targeted commands below instead and save the full run for the actual gate.
+
+### Run the tests, and analyze, cheaply while iterating
 
 `tools/test.sh` — failures only, one line when the suite is green (254 lines of
 "passed" is 254 lines of nothing). `tools/test.sh -v` when debugging, and it
-takes paths: `tools/test.sh test/domain`.
+takes paths: `tools/test.sh test/domain`. **Scope it to the file or directory
+you're touching** (`tools/test.sh test/domain/routines`), not the whole suite —
+that's what the one-shot `verify.sh` at the end is for.
+
+Same for the analyzer: `flutter analyze <path>` on the files just changed, not
+`flutter analyze lib/`. After the first `flutter` call in a session, pass
+`--no-pub` on subsequent ones — pub re-resolves and reprints its "Resolving
+dependencies" preamble on every invocation otherwise, which is pure noise once
+packages are already fetched.
 
 Widget tests build on `test/support/harness.dart`; read it before writing a new
-one rather than re-deriving the provider overrides.
+one rather than re-deriving the provider overrides. **Widget tests are for new
+interaction or layout logic** — a screen that reveals a real bug if built
+wrong (state toggles, reorder/drag, a layout that can starve a sibling of
+space, as `_RoutinePreviewCard`'s `ExpansionTile` once did). **They are not
+required for a widget that only renders data it's given** — a card, a tile, a
+label — where a domain-level test on the data it renders plus a quick read of
+the code is the cheaper and sufficient check. When in doubt, prefer a
+pure-domain unit test (fast, no widget pump, no provider harness) over a
+widget test that exercises the same logic through a screen.
 
 ### Check project state
 
