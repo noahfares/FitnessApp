@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import 'package:go_router/go_router.dart';
+
+import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
 import '../../../data/db/tables/enums.dart';
 import '../../../domain/analytics/analytics_set_record.dart';
 import '../../../domain/analytics/date_range.dart';
+import '../../../domain/analytics/muscle_balance.dart';
 import '../../../domain/analytics/sets_per_muscle.dart';
 import '../../../domain/analytics/weekly_volume.dart';
 import '../../catalog/presentation/exercise_labels.dart';
@@ -111,9 +115,78 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
     final muscleSets = setsByMuscle[muscleName] ?? const [];
     final contributors = contributingExercises(inRange, muscle: muscleName);
 
+    final trailingWindowRecords = widget.records
+        .where(
+          (r) => !r.date.isBefore(
+            weekStart.weekStartFor(now.subtract(const Duration(days: 27))),
+          ),
+        )
+        .toList();
+    final trailingTotals = totalSetsPerMuscle(
+      setsPerMuscleByWeek(trailingWindowRecords, weekStart: weekStart),
+    );
+    final pushPull = pushPullRatio(trailingTotals);
+    final quadHamstring = quadHamstringRatio(trailingTotals);
+
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.screen),
       children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => context.push(AppRoutes.consistency),
+                  icon: const Icon(Icons.calendar_month_outlined),
+                  label: const Text('Consistency'),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => context.push(AppRoutes.prTimeline),
+                  icon: const Icon(Icons.emoji_events_outlined),
+                  label: const Text('PR timeline'),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+          child: Text('Muscle balance', style: theme.textTheme.titleMedium),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+          child: Text(
+            'Trailing 4 weeks. A rough guide, not a prescription.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+          child: Row(
+            children: [
+              Expanded(
+                child: _RatioTile(label: 'Push : pull', ratio: pushPull.ratio),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: _RatioTile(
+                  label: 'Quad : hamstring',
+                  ratio: quadHamstring.ratio,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Divider(height: AppSpacing.xl),
         const DateRangeSelector(),
         const SizedBox(height: AppSpacing.md),
         Padding(
@@ -235,4 +308,33 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
     RangePreset.allTime => 'All time',
     RangePreset.custom => 'Custom range',
   };
+}
+
+class _RatioTile extends StatelessWidget {
+  const _RatioTile({required this.label, required this.ratio});
+
+  final String label;
+
+  /// `null` reports "no data recorded" rather than infinity (§9 rule 2).
+  final double? ratio;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          ratio == null ? '—' : '${ratio!.toStringAsFixed(2)} : 1',
+          style: theme.textTheme.headlineSmall,
+        ),
+        Text(
+          ratio == null ? '$label — no data recorded' : label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
 }

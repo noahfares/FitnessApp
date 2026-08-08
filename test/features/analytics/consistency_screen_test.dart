@@ -5,20 +5,19 @@ import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/tables/enums.dart';
 import 'package:fitness_app/data/repositories/set_repository.dart';
 import 'package:fitness_app/data/repositories/workout_repository.dart';
-import 'package:fitness_app/features/analytics/presentation/insights_screen.dart';
-import 'package:fitness_app/features/shell/widgets/weekly_bar_chart.dart';
+import 'package:fitness_app/features/analytics/presentation/consistency_screen.dart';
+import 'package:fitness_app/features/shell/widgets/calendar_heatmap.dart';
 
 import '../../support/harness.dart';
 
-/// Batch 3.3 — `F-ANA-004`/`F-ANA-005` reached through the real
-/// `InsightsScreen`, complementing the domain-level fixture tests.
+/// Batch 3.4 — `F-ANA-006` reached through the real `ConsistencyScreen`.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late AppDatabase db;
   late WorkoutRepository workouts;
   late SetRepository sets;
-  final clock = DateTime(2026, 7, 15);
+  final clock = DateTime(2026, 8, 7);
 
   setUp(() {
     db = testDatabase();
@@ -26,18 +25,13 @@ void main() {
     sets = SetRepository(db, clock: () => clock);
   });
 
-  Future<void> makeExercise(
-    String id, {
-    Muscle primaryMuscle = Muscle.chest,
-    List<String> secondaryMuscles = const [],
-  }) => db
+  Future<void> makeExercise(String id) => db
       .into(db.exercises)
       .insert(
         ExercisesCompanion.insert(
           id: id,
           name: id,
-          primaryMuscle: primaryMuscle,
-          secondaryMuscles: Value(secondaryMuscles),
+          primaryMuscle: Muscle.chest,
           equipment: Equipment.barbell,
           trackingType: TrackingType.weightReps,
           createdAt: 1,
@@ -45,15 +39,10 @@ void main() {
         ),
       );
 
-  testWidgets('no sessions shows the empty state', (tester) async {
-    await pumpScreen(tester, const InsightsScreen(), db: db, now: clock);
-    expect(find.text('No sessions yet'), findsOneWidget);
-  });
-
-  testWidgets('a logged session renders the overall volume chart', (
+  testWidgets('renders the heatmap and stat tiles for a logged session', (
     tester,
   ) async {
-    await makeExercise('bench', secondaryMuscles: const ['triceps']);
+    await makeExercise('bench');
     final workout = await workouts.start();
     await workouts.addExercises(workout.id, ['bench']);
     final we = (await workouts.watchExercises(workout.id).first)
@@ -66,12 +55,16 @@ void main() {
       reps: const Value(5),
     );
 
-    await pumpScreen(tester, const InsightsScreen(), db: db, now: clock);
+    await pumpScreen(tester, const ConsistencyScreen(), db: db, now: clock);
 
-    expect(find.text('No sessions yet'), findsNothing);
-    expect(find.text('Overall weekly volume'), findsOneWidget);
-    expect(find.byType(WeeklyBarChart), findsWidgets);
-    // The dropdown's non-selected menu items render offstage for sizing.
-    expect(find.text('Chest', skipOffstage: false), findsWidgets);
+    expect(find.byType(CalendarHeatmap), findsOneWidget);
+    expect(find.text('Current streak'), findsOneWidget);
+    expect(find.text('Sessions / week'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('no sessions still renders without throwing', (tester) async {
+    await pumpScreen(tester, const ConsistencyScreen(), db: db, now: clock);
+    expect(tester.takeException(), isNull);
   });
 }

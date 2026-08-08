@@ -95,3 +95,13 @@ List<MuscleContribution> contributingExercises(
       MuscleContribution(exerciseName: entry.key, sets: entry.value),
   ];
 }
+
+/// Collapses [setsPerMuscleByWeek]'s weekly series into one total per
+/// muscle — what `F-ANA-008`'s balance ratios need over their trailing
+/// window, which cares about a total, not a week-by-week breakdown.
+Map<String, double> totalSetsPerMuscle(
+  Map<String, List<MuscleWeekPoint>> byWeek,
+) => {
+  for (final entry in byWeek.entries)
+    entry.key: entry.value.fold<double>(0, (sum, point) => sum + point.sets),
+};

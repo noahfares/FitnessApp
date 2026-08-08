@@ -272,4 +272,42 @@ void main() {
       expect(stored.map((r) => r.exerciseId).toSet(), {'bench', 'squat'});
     });
   });
+
+  group('watchTimeline (F-ANA-007)', () {
+    test('newest first, with the exercise name', () async {
+      await makeExercise('bench');
+
+      clock = DateTime(2026, 8, 1);
+      final firstSet = await logSet('bench', weightGrams: 100000, reps: 5);
+      await records.evaluateSet(firstSet);
+
+      clock = DateTime(2026, 8, 5);
+      final secondSet = await logSet('bench', weightGrams: 105000, reps: 5);
+      await records.evaluateSet(secondSet);
+
+      final timeline = await records.watchTimeline().first;
+
+      expect(timeline, isNotEmpty);
+      expect(timeline.first.exerciseName, 'bench');
+      // Newest achievement first.
+      for (var i = 1; i < timeline.length; i++) {
+        expect(
+          timeline[i - 1].achievedAt,
+          greaterThanOrEqualTo(timeline[i].achievedAt),
+        );
+      }
+    });
+
+    test('a deleted exercise is excluded', () async {
+      await makeExercise('bench');
+      final setId = await logSet('bench', weightGrams: 100000, reps: 5);
+      await records.evaluateSet(setId);
+
+      await (db.update(db.exercises)..where((e) => e.id.equals('bench'))).write(
+        ExercisesCompanion(deletedAt: Value(clock.millisecondsSinceEpoch)),
+      );
+
+      expect(await records.watchTimeline().first, isEmpty);
+    });
+  });
 }

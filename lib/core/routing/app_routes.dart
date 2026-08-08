@@ -23,6 +23,12 @@ abstract final class AppRoutes {
   static const String history = '/history';
   static const String insights = '/insights';
 
+  /// `F-ANA-006`.
+  static const String consistency = '/insights/consistency';
+
+  /// `F-ANA-007`.
+  static const String prTimeline = '/insights/prs';
+
   /// The session in progress. A **singleton** — at most one workout may exist
   /// with a null `ended_at`, in navigation and in the database (`F-LOG-001`).
   static const String activeWorkout = '/workout/active';

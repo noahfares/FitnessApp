@@ -501,6 +501,69 @@ class PersonalRecordRepository {
       achievedAt: row.read<int?>('achieved_at') ?? _now,
     );
   }
+
+  /// Every record, newest first, with its exercise's name — "the app's
+  /// highlight reel" (`F-ANA-007`). Filtering by exercise or kind happens at
+  /// the call site, the same pattern `watchExerciseHistory` uses for date
+  /// scoping, rather than as query parameters here.
+  Stream<List<PrTimelineEntry>> watchTimeline() => _db
+      .customSelect(
+        '''
+    SELECT pr.exercise_id AS exercise_id,
+           e.name         AS exercise_name,
+           pr.kind         AS kind,
+           pr.qualifier    AS qualifier,
+           pr.value        AS value,
+           pr.achieved_at  AS achieved_at
+      FROM personal_records pr
+      JOIN exercises e ON e.id = pr.exercise_id
+     WHERE pr.deleted_at IS NULL
+       AND e.deleted_at  IS NULL
+     ORDER BY pr.achieved_at DESC
+    ''',
+        readsFrom: {_db.personalRecords, _db.exercises},
+      )
+      .watch()
+      .map(
+        (rows) => [
+          for (final row in rows)
+            PrTimelineEntry(
+              exerciseId: row.read<String>('exercise_id'),
+              exerciseName: row.read<String>('exercise_name'),
+              kind: PrKind.values.byName(row.read<String>('kind')),
+              qualifierGrams: row.read<int?>('qualifier'),
+              valueGrams: row.read<int>('value'),
+              achievedAt: row.read<int>('achieved_at'),
+            ),
+        ],
+      );
+}
+
+/// One entry on the PR timeline (`F-ANA-007`).
+class PrTimelineEntry {
+  const PrTimelineEntry({
+    required this.exerciseId,
+    required this.exerciseName,
+    required this.kind,
+    required this.qualifierGrams,
+    required this.valueGrams,
+    required this.achievedAt,
+  });
+
+  final String exerciseId;
+  final String exerciseName;
+  final PrKind kind;
+
+  /// The weight in grams this record was set at, for `maxRepsAtWeight` only.
+  final int? qualifierGrams;
+
+  /// Grams for `maxWeight`/`bestE1rm`; reps for `maxRepsAtWeight`; grams for
+  /// `maxSessionVolume` — matches `personal_records.value`'s own overloaded
+  /// meaning (`docs/21-DATA-MODEL.md`).
+  final int valueGrams;
+
+  /// UTC epoch milliseconds.
+  final int achievedAt;
 }
 
 PrKind _toDataKind(PrDetectionKind kind) => switch (kind) {

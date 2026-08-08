@@ -65,9 +65,9 @@ F-ANA-002	3	done	P0	Per-exercise history			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-003	3	done	P1	Estimated 1RM trend	F-ANA-001		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-004	3	done	P1	Volume charts	F-ANA-001		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-005	3	in-progress	P1	Sets per muscle group per week	F-CAT-013	F-ROU-011	40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-006	3	planned	P1	Consistency			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-007	3	planned	P1	PR timeline	F-LOG-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-008	3	planned	P2	Muscle balance	F-CAT-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-006	3	in-progress	P1	Consistency			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-007	3	done	P1	PR timeline	F-LOG-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-008	3	in-progress	P2	Muscle balance	F-CAT-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-009	4	planned	P2	Stall detection	F-ANA-003		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-010	4	planned	P2	Acute-to-chronic workload ratio			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-011	4	planned	P2	Rep range and intensity distribution	F-LOG-014		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets

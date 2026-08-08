@@ -579,6 +579,36 @@ sets-per-muscle chart (`F-ANA-005` §2) and applying `WeekStart` to streaks
 or the calendar (`F-ANA-006`, neither exists yet) — both explicitly deferred
 in each feature's own status notes, not silently dropped.
 
+**Batch 3.4 — consistency, PR timeline & balance.** `F-ANA-007` done;
+`F-ANA-006`, `F-ANA-008` both `in-progress` (each for its own documented
+reason). No schema change — `personal_records.achieved_at` has existed
+since schema v3; this batch is the first to read it outside the repository
+that writes it. `domain/analytics/consistency.dart` matches the spec's
+`streak` fixture exactly, including its trickiest rule: the in-progress
+current week never breaks a streak but still counts in the trailing-4-week
+average. `CalendarHeatmap` (`features/shell/widgets/`) uses exactly two
+cell states — trained or not — no colour ramp by volume and no red for a
+miss, since "no shame" (§5 rule 4) is a colour rule as much as a motion
+one. `PersonalRecordRepository.watchTimeline` is a plain join with no
+domain layer needed — a display list, not a computed metric — reusing
+`SessionSummaryScreen`'s own per-kind description wording so a record
+reads identically whether celebrated in the moment or found later on the
+new `PrTimelineScreen`. `domain/analytics/muscle_balance.dart`'s two
+ratios match §9's fixture exactly (27:22, ≈1.23:1), computed over their own
+independent trailing-4-week window rather than the shared date range
+selector — §9 fixes its own window regardless of what someone has picked
+for the volume charts above it — and each ratio's muscle list is the
+specific, narrower set §9's own table names, not
+`domain/catalog/muscle_taxonomy.dart`'s broader push/pull category from
+batch 3.3 (the two serve different purposes; neither is wrong). Both new
+screens reached from a new button row at the top of `InsightsScreen`. Not
+built: `F-ANA-006`'s weekly target is a fixed `3`, not yet the
+user-configurable setting the spec calls for, and its schedule-adherence
+figure waits on `F-ROU-012` (scheduling), which doesn't exist; `F-ANA-008`'s
+radar chart of relative volume by muscle group ships as two plain-text
+ratio tiles instead, clearly labelled a rough guide rather than a
+prescription.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

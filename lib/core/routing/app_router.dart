@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/analytics/presentation/consistency_screen.dart';
 import '../../features/analytics/presentation/exercise_detail_screen.dart';
 import '../../features/analytics/presentation/insights_screen.dart';
+import '../../features/analytics/presentation/pr_timeline_screen.dart';
 import '../../features/body/presentation/body_weight_screen.dart';
 import '../../features/catalog/presentation/exercise_catalog_screen.dart';
 import '../../features/catalog/presentation/exercise_editor_screen.dart';
@@ -128,6 +130,18 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.insights,
                 builder: (context, state) => const InsightsScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'consistency',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => const ConsistencyScreen(),
+                  ),
+                  GoRoute(
+                    path: 'prs',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => const PrTimelineScreen(),
+                  ),
+                ],
               ),
             ],
           ),

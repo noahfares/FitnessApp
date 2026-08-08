@@ -105,9 +105,9 @@
 | [F-ANA-003](ANA/F-ANA-003.md) | Estimated 1RM trend | 3 | P1 | done |
 | [F-ANA-004](ANA/F-ANA-004.md) | Volume charts | 3 | P1 | done |
 | [F-ANA-005](ANA/F-ANA-005.md) | Sets per muscle group per week | 3 | P1 | in-progress |
-| [F-ANA-006](ANA/F-ANA-006.md) | Consistency | 3 | P1 | planned |
-| [F-ANA-007](ANA/F-ANA-007.md) | PR timeline | 3 | P1 | planned |
-| [F-ANA-008](ANA/F-ANA-008.md) | Muscle balance | 3 | P2 | planned |
+| [F-ANA-006](ANA/F-ANA-006.md) | Consistency | 3 | P1 | in-progress |
+| [F-ANA-007](ANA/F-ANA-007.md) | PR timeline | 3 | P1 | done |
+| [F-ANA-008](ANA/F-ANA-008.md) | Muscle balance | 3 | P2 | in-progress |
 | [F-ANA-009](ANA/F-ANA-009.md) | Stall detection | 4 | P2 | planned |
 | [F-ANA-010](ANA/F-ANA-010.md) | Acute-to-chronic workload ratio | 4 | P2 | planned |
 | [F-ANA-011](ANA/F-ANA-011.md) | Rep range and intensity distribution | 4 | P2 | planned |
