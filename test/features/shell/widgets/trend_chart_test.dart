@@ -53,4 +53,29 @@ void main() {
 
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'renders with a tap-through callback and zoom disabled (F-ANA-016)',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          home: Scaffold(
+            body: TrendChart(
+              points: const [
+                TrendChartPoint(x: 0, y: 100, label: 'Jan 1', workoutId: 'w1'),
+                TrendChartPoint(x: 1, y: 105, label: 'Jan 8', workoutId: 'w2'),
+                TrendChartPoint(x: 2, y: 110, label: 'Jan 15', workoutId: 'w3'),
+              ],
+              valueLabel: (v) => '${v.toStringAsFixed(1)} kg',
+              zoomEnabled: false,
+              onPointTap: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

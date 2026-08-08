@@ -134,5 +134,41 @@ void main() {
       ];
       expect(contributingExercises(records, muscle: 'quads'), isEmpty);
     });
+
+    test('scopes to one tapped week when week/weekStart are given', () {
+      final records = [
+        AnalyticsSetRecord(
+          date: DateTime(2026, 8, 3),
+          setType: 'working',
+          isCompleted: true,
+          trackingType: 'weightReps',
+          exerciseName: 'Bench Press',
+          primaryMuscle: 'chest',
+          secondaryMuscles: const [],
+          weightGrams: 60000,
+          reps: 8,
+        ),
+        AnalyticsSetRecord(
+          date: DateTime(2026, 8, 10),
+          setType: 'working',
+          isCompleted: true,
+          trackingType: 'weightReps',
+          exerciseName: 'Incline Press',
+          primaryMuscle: 'chest',
+          secondaryMuscles: const [],
+          weightGrams: 50000,
+          reps: 8,
+        ),
+      ];
+
+      final result = contributingExercises(
+        records,
+        muscle: 'chest',
+        week: DateTime(2026, 8, 3),
+        weekStart: WeekStart.monday,
+      );
+
+      expect(result.single.exerciseName, 'Bench Press');
+    });
   });
 }

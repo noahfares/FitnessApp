@@ -39,6 +39,11 @@ class RoutineListScreen extends ConsumerWidget {
           ),
           if (!showArchived) ...[
             IconButton(
+              icon: const Icon(Icons.library_add_outlined),
+              tooltip: 'Starter programs',
+              onPressed: () => context.push(AppRoutes.starterPrograms),
+            ),
+            IconButton(
               icon: const Icon(Icons.create_new_folder_outlined),
               tooltip: 'New folder',
               onPressed: () => unawaited(_createFolder(context, ref)),
@@ -82,12 +87,15 @@ class _RoutineList extends ConsumerWidget {
 
     return routines.view(errorTitle: 'Routines could not be read', (rows) {
       if (rows.isEmpty) {
-        return const EmptyState(
+        return EmptyState(
           icon: Icons.checklist_outlined,
           title: 'No routines yet',
           message:
               'A routine holds days; a day is what you start a '
-              'workout from.',
+              'workout from. A starter program is the fastest way to '
+              'get one.',
+          actionLabel: 'Browse starter programs',
+          onAction: () => context.push(AppRoutes.starterPrograms),
         );
       }
       return folders.when(

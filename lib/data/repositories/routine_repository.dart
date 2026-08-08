@@ -1,8 +1,23 @@
 import 'package:drift/drift.dart';
 
 import '../../core/ids/uuid.dart';
+import '../../domain/routines/starter_programs.dart';
 import '../db/app_database.dart';
 import '../db/tables/shared.dart' show StringListConverter;
+
+/// What [RoutineRepository.importStarterProgram] did — reported so a
+/// reference the catalogue no longer has (an exercise deleted since the
+/// program was written) is a visible skip, never a dangling id or a
+/// swallowed failure.
+class StarterProgramImportResult {
+  const StarterProgramImportResult({
+    required this.routineId,
+    required this.skippedExternalIds,
+  });
+
+  final String routineId;
+  final List<String> skippedExternalIds;
+}
 
 /// One exercise inside a routine day, joined to its catalogue row
 /// (`F-ROU-003`).
@@ -447,6 +462,110 @@ class RoutineRepository {
     });
 
     return (await findById(routineId))!;
+  }
+
+  /// Imports a built-in [StarterProgram] as a new routine (`F-ROU-015`). A
+  /// one-shot copy — same "snapshot, never link" reasoning as [duplicate]
+  /// and [createFromWorkout] (`ADR-0004` generalised one level up): no
+  /// back-reference to the template is kept, so a future catalogue or
+  /// program change can never rewrite a routine the user has already
+  /// imported and edited.
+  ///
+  /// Exercises are resolved by the catalogue's stable `external_id`
+  /// (`ExerciseSeeder`), never by name — the seeder's own matching rule. A
+  /// reference the catalogue no longer has is skipped and reported rather
+  /// than inserted as a dangling id.
+  Future<StarterProgramImportResult> importStarterProgram(
+    StarterProgram program,
+  ) async {
+    final externalIds = {
+      for (final day in program.days)
+        for (final exercise in day.exercises) exercise.exerciseExternalId,
+    };
+    final rows =
+        await (_db.select(_db.exercises)..where(
+              (e) => e.externalId.isIn(externalIds) & e.deletedAt.isNull(),
+            ))
+            .get();
+    final exerciseIdByExternalId = {
+      for (final row in rows)
+        if (row.externalId != null) row.externalId!: row.id,
+    };
+    final skipped = <String>[];
+
+    final routineId = newUuidV4();
+    final timestamp = _now;
+    final position = await _nextPositionIn('routines');
+
+    await _db.transaction(() async {
+      await _db
+          .into(_db.routines)
+          .insert(
+            RoutinesCompanion.insert(
+              id: routineId,
+              name: program.name,
+              notes: Value(program.attribution),
+              position: position,
+              createdAt: timestamp,
+              updatedAt: timestamp,
+            ),
+          );
+
+      for (var dayIndex = 0; dayIndex < program.days.length; dayIndex++) {
+        final day = program.days[dayIndex];
+        final dayId = newUuidV4();
+        await _db
+            .into(_db.routineDays)
+            .insert(
+              RoutineDaysCompanion.insert(
+                id: dayId,
+                routineId: routineId,
+                name: day.name,
+                position: dayIndex,
+                notes: Value(day.loadingNotes),
+                createdAt: timestamp,
+                updatedAt: timestamp,
+              ),
+            );
+
+        final groupIdByKey = <String, String>{};
+        var exercisePosition = 0;
+        for (final exercise in day.exercises) {
+          final exerciseId =
+              exerciseIdByExternalId[exercise.exerciseExternalId];
+          if (exerciseId == null) {
+            skipped.add(exercise.exerciseExternalId);
+            continue;
+          }
+          final groupId = switch (exercise.groupKey) {
+            null => null,
+            final key => groupIdByKey.putIfAbsent(key, newUuidV4),
+          };
+          await _db
+              .into(_db.routineExercises)
+              .insert(
+                RoutineExercisesCompanion.insert(
+                  id: newUuidV4(),
+                  routineDayId: dayId,
+                  exerciseId: exerciseId,
+                  position: exercisePosition,
+                  groupId: Value(groupId),
+                  targetSets: Value(exercise.targetSets),
+                  targetRepsMin: Value(exercise.targetRepsMin),
+                  targetRepsMax: Value(exercise.targetRepsMax),
+                  createdAt: timestamp,
+                  updatedAt: timestamp,
+                ),
+              );
+          exercisePosition++;
+        }
+      }
+    });
+
+    return StarterProgramImportResult(
+      routineId: routineId,
+      skippedExternalIds: skipped,
+    );
   }
 
   // -------------------------------------------------------------------- Days

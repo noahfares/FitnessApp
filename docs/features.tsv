@@ -27,7 +27,7 @@ F-ROU-011	3	done	P2	Routine preview	F-ANA-005		21-DATA-MODEL#routine_days, 70-de
 F-ROU-012	3	in-progress	P2	Scheduling			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-013	—	idea	P2	Cycles, blocks and deload weeks			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-014	—	idea	P2	Share and import routines	F-DAT-001		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
-F-ROU-015	3	planned	P2	Built-in starter programs			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-015	3	done	P2	Built-in starter programs			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-LOG-001	1	done	P0	Start, finish, and discard a workout		F-LOG-002, F-LOG-003, F-LOG-007	21-DATA-MODEL#workouts, 23-NAVIGATION
 F-LOG-002	1	done	P0	Add exercises to a session	F-LOG-001, F-CAT-001		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-003	1	done	P0	Set row entry	F-LOG-002, F-CAT-002	F-LOG-004, F-LOG-005, F-LOG-006	21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory, 22-UNITS
@@ -75,7 +75,7 @@ F-ANA-012	4	planned	P3	Duration and rest compliance	F-TIM-007		40-ANALYTICS-SPEC
 F-ANA-013	4	planned	P2	Weekly insight cards	F-ANA-003, F-ANA-004, F-ANA-005, F-ANA-009		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-014	4	planned	P3	Body map heat overlay	F-CAT-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-015	3	in-progress	P1	Date range and filter controls			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-016	3	planned	P2	Chart interaction			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-016	3	done	P2	Chart interaction			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-017	—	idea	P3	Year in review			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-018	—	idea	P3	Exercise comparison			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-PRG-001	4	planned	P1	Progression engine core	F-ROU-003, F-ROU-010, F-LOG-004	F-PRG-002 … F-PRG-006	40-ANALYTICS-SPEC, 20-ARCHITECTURE#the-one-hard-rule, 22-UNITS

@@ -66,11 +66,14 @@ class MuscleContribution {
 }
 
 /// Which exercises contributed to [muscle], most first (`F-ANA-005` §3's
-/// drill-down) — over every counted set in [records], not scoped to one
-/// week, since tap-through to a single bar is `F-ANA-016` (batch 3.6).
+/// drill-down) — over every counted set in [records] by default. Passing
+/// [week] and [weekStart] scopes it to one tapped bar instead
+/// (`F-ANA-016`'s per-bar tap-through).
 List<MuscleContribution> contributingExercises(
   List<AnalyticsSetRecord> records, {
   required String muscle,
+  DateTime? week,
+  WeekStart? weekStart,
 }) {
   final totals = <String, double>{};
   for (final record in records) {
@@ -78,6 +81,11 @@ List<MuscleContribution> contributingExercises(
       setType: record.setType,
       isCompleted: record.isCompleted,
     )) {
+      continue;
+    }
+    if (week != null &&
+        weekStart != null &&
+        weekStart.weekStartFor(record.date) != week) {
       continue;
     }
     if (record.primaryMuscle == muscle) {

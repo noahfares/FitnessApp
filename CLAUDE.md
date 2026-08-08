@@ -666,6 +666,56 @@ half of `F-ROU-012`'s own open question, and wiring `F-ANA-006`'s
 schedule-adherence figure to the column this batch finally populates — the
 column exists now, but that feature wasn't touched.
 
+**Batch 3.6 — chart interaction & starter programs.** `F-ANA-016` and
+`F-ROU-015` both done — the last batch of Phase 3. No schema change.
+Chart interaction (`F-ANA-016`): `TrendChart` gains tap-through to a point's
+source workout (`onPointTap`, `TrendChartPoint.workoutId` carried from
+`E1rmTrendPoint`/`ExerciseHistorySession.workoutId`, reached from the e1RM
+trend on `ExerciseDetailScreen`) and pinch-to-zoom on the time axis via
+fl_chart 1.2's `FlTransformationConfig` (already satisfied by batch 3.2's
+`^1.1.1` constraint — the resolved lockfile had already moved to 1.2.0,
+the first minor with transformation support, with no `pubspec.yaml`
+change needed); `WeeklyBarChart` gains per-bar tap-through instead of
+zoom — a
+week aggregates many workouts, so there's no single session to navigate to,
+and pinch/pan risked fighting the routine day editor Preview card's parent
+scroll the same way batch 3.5's own chart there once broke a widget test.
+Tapping a bar on Insights' "hard sets per muscle" chart now scopes the
+existing "contributing exercises" drill-down (`F-ANA-005` §3) to that one
+week, closing the exact deferral `sets_per_muscle.dart`'s doc comment named
+since batch 3.3 ("tap-through to a single bar is `F-ANA-016`, batch 3.6").
+Starter programs (`F-ROU-015`): `domain/routines/starter_programs.dart`
+(pure Dart, `StarterProgram`/`StarterProgramDay`/`StarterProgramExercise`)
+ships all six named programs — PPL, Upper/Lower, Starting Strength, GZCLP,
+5/3/1, nSuns — as structure only, exercises referenced by the catalogue's
+stable `external_id` rather than a database row id; percentage/wave loading
+the schema's absolute targets can't express (5/3/1, nSuns) lands in each
+day's `loadingNotes`, written in this codebase's own words, never
+transcribed from the source, alongside an `attribution` string and a
+source `attributionUrl` for every program.
+`RoutineRepository.importStarterProgram` resolves references against the
+live catalogue at import time, skips and reports whatever it can't find
+rather than failing the whole import, and keeps no back-reference to the
+template — same "snapshot, never link" reasoning as `duplicate()`/
+`createFromWorkout()` (`ADR-0004` generalised one level up). Reached from
+`StarterProgramGalleryScreen` (`/routines/starter-programs`), a browsable
+list rather than an `ExerciseSeeder`-style auto-seed, linked from the
+routine list's empty state and a permanent app-bar icon. A pure-domain test
+asserts every program's exercise references resolve against the seeded
+catalogue — the guard against a program silently rotting as the seed list
+changes. Not built: reduce-motion gating (`F-A11Y-005`) for either chart
+widget — no chart anywhere in the codebase reads
+`MediaQuery.disableAnimations` yet, and adding it here alone, for these two
+widgets only, without an app-wide convention was judged out of scope.
+
+**Phase 3 batches 3.1–3.6 are all done.** Its own exit criteria
+(`docs/50-ROADMAP.md` §Phase 3 — every scheduled metric fixture-tested, every
+chart themed and sparse-data-safe, figures hand-checked against a real
+training block, full recomputation under 100 ms) have not yet been audited
+as a phase-level pass the way Phase 2's audit batch did; that audit, and
+declaring the phase complete, is its own piece of work for the project
+owner, not implied by the last batch landing.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

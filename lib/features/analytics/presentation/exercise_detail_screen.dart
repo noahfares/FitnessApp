@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/formatting/quantity_formatter.dart';
+import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
 import '../../../domain/analytics/date_range.dart';
@@ -145,6 +147,7 @@ class _TrendSectionState extends ConsumerState<_TrendSection> {
           y: Mass.grams(trend[i].e1rmGrams).toUnit(prefs.load),
           label: DateFormat.MMMd().format(trend[i].date),
           reliable: trend[i].reliable,
+          workoutId: trend[i].workoutId,
         ),
     ];
 
@@ -174,6 +177,8 @@ class _TrendSectionState extends ConsumerState<_TrendSection> {
             subtitle: '${_rangeLabel(selection.preset)} · ${prefs.load.symbol}',
             showRegression: _showRegression,
             valueLabel: (v) => v.toStringAsFixed(1),
+            onPointTap: (point) =>
+                context.push(AppRoutes.historyWorkout(point.workoutId!)),
           ),
         ),
         Padding(

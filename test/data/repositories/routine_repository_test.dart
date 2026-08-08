@@ -6,6 +6,7 @@ import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/tables/enums.dart';
 import 'package:fitness_app/data/repositories/routine_repository.dart';
 import 'package:fitness_app/data/repositories/workout_repository.dart';
+import 'package:fitness_app/domain/routines/starter_programs.dart';
 
 /// `F-ROU-001`, `F-ROU-002`, `F-ROU-003`, `F-ROU-004`, `F-ROU-007`,
 /// `F-ROU-008`, `F-ROU-009`.
@@ -505,6 +506,171 @@ void main() {
       final copy = await repo.duplicate(routine.id);
       final copiedDays = await repo.watchDays(copy.id).first;
       expect(copiedDays.single.scheduledWeekdays, [1, 4]);
+    });
+  });
+
+  group('importStarterProgram (F-ROU-015)', () {
+    Future<void> makeExternalExercise(String externalId, String name) async {
+      await db
+          .into(db.exercises)
+          .insert(
+            ExercisesCompanion.insert(
+              id: 'ex-$externalId',
+              externalId: Value(externalId),
+              name: name,
+              primaryMuscle: Muscle.chest,
+              equipment: Equipment.barbell,
+              trackingType: TrackingType.weightReps,
+              createdAt: 1,
+              updatedAt: 1,
+            ),
+          );
+    }
+
+    test(
+      'imports days, exercises and targets, resolving by externalId',
+      () async {
+        await makeExternalExercise('barbell-bench-press', 'Bench Press');
+        await makeExternalExercise('overhead-press', 'Overhead Press');
+
+        const program = StarterProgram(
+          id: 'test-program',
+          name: 'Test Program',
+          summary: 'summary',
+          attribution: 'Structure by Someone',
+          attributionUrl: 'https://example.com',
+          days: [
+            StarterProgramDay(
+              name: 'Day 1',
+              loadingNotes: 'notes',
+              exercises: [
+                StarterProgramExercise(
+                  exerciseExternalId: 'barbell-bench-press',
+                  targetSets: 3,
+                  targetRepsMin: 5,
+                  targetRepsMax: 5,
+                ),
+                StarterProgramExercise(exerciseExternalId: 'overhead-press'),
+              ],
+            ),
+          ],
+        );
+
+        final result = await repo.importStarterProgram(program);
+
+        expect(result.skippedExternalIds, isEmpty);
+        final routine = await repo.findById(result.routineId);
+        expect(routine!.name, 'Test Program');
+        expect(routine.notes, 'Structure by Someone');
+
+        final days = await repo.watchDays(result.routineId).first;
+        expect(days.single.name, 'Day 1');
+        expect(days.single.notes, 'notes');
+
+        final exercises = await repo.watchExercises(days.single.id).first;
+        expect(exercises.map((e) => e.exerciseName), [
+          'Bench Press',
+          'Overhead Press',
+        ]);
+        expect(exercises.first.targetSets, 3);
+        expect(exercises.first.targetRepsMin, 5);
+      },
+    );
+
+    test(
+      'skips and reports an exercise the catalogue has no row for',
+      () async {
+        await makeExternalExercise('barbell-bench-press', 'Bench Press');
+
+        const program = StarterProgram(
+          id: 'test-program',
+          name: 'Test Program',
+          summary: 'summary',
+          attribution: 'Structure by Someone',
+          attributionUrl: 'https://example.com',
+          days: [
+            StarterProgramDay(
+              name: 'Day 1',
+              exercises: [
+                StarterProgramExercise(
+                  exerciseExternalId: 'barbell-bench-press',
+                ),
+                StarterProgramExercise(exerciseExternalId: 'does-not-exist'),
+              ],
+            ),
+          ],
+        );
+
+        final result = await repo.importStarterProgram(program);
+
+        expect(result.skippedExternalIds, ['does-not-exist']);
+        final days = await repo.watchDays(result.routineId).first;
+        final exercises = await repo.watchExercises(days.single.id).first;
+        expect(exercises, hasLength(1));
+        expect(exercises.single.exerciseName, 'Bench Press');
+      },
+    );
+
+    test('groups exercises sharing a groupKey into one superset', () async {
+      await makeExternalExercise('barbell-bench-press', 'Bench Press');
+      await makeExternalExercise('overhead-press', 'Overhead Press');
+
+      const program = StarterProgram(
+        id: 'test-program',
+        name: 'Test Program',
+        summary: 'summary',
+        attribution: 'Structure by Someone',
+        attributionUrl: 'https://example.com',
+        days: [
+          StarterProgramDay(
+            name: 'Day 1',
+            exercises: [
+              StarterProgramExercise(
+                exerciseExternalId: 'barbell-bench-press',
+                groupKey: 'a',
+              ),
+              StarterProgramExercise(
+                exerciseExternalId: 'overhead-press',
+                groupKey: 'a',
+              ),
+            ],
+          ),
+        ],
+      );
+
+      final result = await repo.importStarterProgram(program);
+      final days = await repo.watchDays(result.routineId).first;
+      final exercises = await repo.watchExercises(days.single.id).first;
+
+      expect(exercises[0].groupId, isNotNull);
+      expect(exercises[0].groupId, exercises[1].groupId);
+    });
+
+    test('importing twice never links the two routines together', () async {
+      await makeExternalExercise('barbell-bench-press', 'Bench Press');
+
+      const program = StarterProgram(
+        id: 'test-program',
+        name: 'Test Program',
+        summary: 'summary',
+        attribution: 'Structure by Someone',
+        attributionUrl: 'https://example.com',
+        days: [
+          StarterProgramDay(
+            name: 'Day 1',
+            exercises: [
+              StarterProgramExercise(exerciseExternalId: 'barbell-bench-press'),
+            ],
+          ),
+        ],
+      );
+
+      final first = await repo.importStarterProgram(program);
+      final second = await repo.importStarterProgram(program);
+
+      expect(first.routineId, isNot(second.routineId));
+      await repo.delete(first.routineId);
+      expect(await repo.findById(second.routineId), isNotNull);
     });
   });
 }

@@ -17,6 +17,7 @@ class TrendChartPoint {
     required this.y,
     required this.label,
     this.reliable = true,
+    this.workoutId,
   });
 
   final double x;
@@ -29,6 +30,11 @@ class TrendChartPoint {
   /// (`F-ANA-003` §3) — never hidden outright here; exclusion is the caller's
   /// decision, made before points reach this widget.
   final bool reliable;
+
+  /// The workout this point's value came from, if any — what [onPointTap]
+  /// hands back for tap-through (`F-ANA-016`). Null for a caller with no
+  /// single source session to point at.
+  final String? workoutId;
 }
 
 /// Line chart with an optional linear-regression overlay
@@ -46,6 +52,8 @@ class TrendChart extends StatelessWidget {
     super.key,
     this.subtitle,
     this.showRegression = false,
+    this.onPointTap,
+    this.zoomEnabled = true,
   });
 
   final List<TrendChartPoint> points;
@@ -57,6 +65,15 @@ class TrendChart extends StatelessWidget {
   final String? subtitle;
 
   final bool showRegression;
+
+  /// Tap-through to the point's source session (`F-ANA-016`). Null skips the
+  /// tap gesture entirely rather than tapping to nowhere.
+  final void Function(TrendChartPoint point)? onPointTap;
+
+  /// Pinch-to-zoom on the time axis (`docs/24-DESIGN-SYSTEM.md` §Charts,
+  /// `F-ANA-016`). Off for a chart embedded in a scrolling container that
+  /// would otherwise fight the gesture for the same pointer.
+  final bool zoomEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +121,11 @@ class TrendChart extends StatelessWidget {
         SizedBox(
           height: 220,
           child: LineChart(
+            transformationConfig: FlTransformationConfig(
+              scaleAxis: zoomEnabled
+                  ? FlScaleAxis.horizontal
+                  : FlScaleAxis.none,
+            ),
             LineChartData(
               minY: chartMinY,
               maxY: chartMaxY,
@@ -166,6 +188,16 @@ class TrendChart extends StatelessWidget {
                         null,
                   ],
                 ),
+                touchCallback: onPointTap == null
+                    ? null
+                    : (event, response) {
+                        if (event is! FlTapUpEvent) return;
+                        final spots = response?.lineBarSpots;
+                        if (spots == null || spots.isEmpty) return;
+                        final spot = spots.first;
+                        if (spot.barIndex != 0) return;
+                        onPointTap!(points[spot.spotIndex]);
+                      },
               ),
               lineBarsData: [
                 LineChartBarData(

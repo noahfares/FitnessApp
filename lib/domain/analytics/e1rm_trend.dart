@@ -19,6 +19,7 @@ class E1rmTrendPoint {
     required this.date,
     required this.e1rmGrams,
     required this.reliable,
+    required this.workoutId,
   });
 
   final DateTime date;
@@ -28,6 +29,10 @@ class E1rmTrendPoint {
   /// undefined-range fallback fired (§1 rules 2–3). Charts may exclude these
   /// rather than plot a number nobody should trust (`F-ANA-003` §3).
   final bool reliable;
+
+  /// The session that produced this point — what tap-through navigates to
+  /// (`F-ANA-016`).
+  final String workoutId;
 }
 
 /// Oldest-to-newest trend points for [sessions] — already assumed to be
@@ -63,6 +68,7 @@ List<E1rmTrendPoint> e1rmTrend(
           date: session.localDate,
           e1rmGrams: best.weightGrams,
           reliable: best.reliable,
+          workoutId: session.workoutId,
         ),
       );
     }

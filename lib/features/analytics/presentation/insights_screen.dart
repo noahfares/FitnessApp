@@ -90,6 +90,11 @@ class _InsightsBody extends ConsumerStatefulWidget {
 class _InsightsBodyState extends ConsumerState<_InsightsBody> {
   Muscle _selectedMuscle = Muscle.chest;
 
+  /// Set by tapping a bar on the sets-per-muscle chart (`F-ANA-016`'s
+  /// per-bar tap-through). Null scopes the drill-down to the whole range,
+  /// same as before this feature existed.
+  DateTime? _selectedWeek;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -113,7 +118,12 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
     );
     final setsByMuscle = setsPerMuscleByWeek(inRange, weekStart: weekStart);
     final muscleSets = setsByMuscle[muscleName] ?? const [];
-    final contributors = contributingExercises(inRange, muscle: muscleName);
+    final contributors = contributingExercises(
+      inRange,
+      muscle: muscleName,
+      week: _selectedWeek,
+      weekStart: weekStart,
+    );
 
     final trailingWindowRecords = widget.records
         .where(
@@ -221,7 +231,12 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
               DropdownButton<Muscle>(
                 value: _selectedMuscle,
                 onChanged: (value) {
-                  if (value != null) setState(() => _selectedMuscle = value);
+                  if (value != null) {
+                    setState(() {
+                      _selectedMuscle = value;
+                      _selectedWeek = null;
+                    });
+                  }
                 },
                 items: [
                   for (final muscle in Muscle.values)
@@ -275,15 +290,32 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
             ],
             subtitle: rangeLabel,
             valueLabel: (v) => v.toStringAsFixed(1),
+            // Tap a bar to scope "Contributing exercises" to that one week
+            // (`F-ANA-016`) — carried over from `F-ANA-005`'s own deferral.
+            onBarTap: (index, _) =>
+                setState(() => _selectedWeek = muscleSets[index].weekStart),
           ),
         ),
         if (contributors.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-            child: Text(
-              'Contributing exercises',
-              style: theme.textTheme.labelLarge,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _selectedWeek == null
+                      ? 'Contributing exercises'
+                      : 'Contributing exercises — week of '
+                            '${DateFormat.MMMd().format(_selectedWeek!)}',
+                  style: theme.textTheme.labelLarge,
+                ),
+                if (_selectedWeek != null)
+                  TextButton(
+                    onPressed: () => setState(() => _selectedWeek = null),
+                    child: const Text('Clear'),
+                  ),
+              ],
             ),
           ),
           for (final contributor in contributors)

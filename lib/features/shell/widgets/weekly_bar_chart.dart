@@ -27,11 +27,18 @@ class WeeklyBarChart extends StatelessWidget {
     required this.valueLabel,
     super.key,
     this.subtitle,
+    this.onBarTap,
   });
 
   final List<WeeklyBarPoint> points;
   final String Function(double value) valueLabel;
   final String? subtitle;
+
+  /// Per-bar tap-through (`F-ANA-016`) — e.g. scoping a drill-down list to
+  /// the tapped week. Null skips the tap gesture entirely. The index is
+  /// into [points], so the caller can map back to its own richer data for
+  /// the same bar (`WeeklyBarPoint` itself only carries a display label).
+  final void Function(int index, WeeklyBarPoint point)? onBarTap;
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +125,15 @@ class WeeklyBarChart extends StatelessWidget {
                         ),
                       ),
                 ),
+                touchCallback: onBarTap == null
+                    ? null
+                    : (event, response) {
+                        if (event is! FlTapUpEvent) return;
+                        final spot = response?.spot;
+                        if (spot == null) return;
+                        final index = spot.touchedBarGroupIndex;
+                        onBarTap!(index, points[index]);
+                      },
               ),
               barGroups: [
                 for (var i = 0; i < points.length; i++)

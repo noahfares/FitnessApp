@@ -40,4 +40,26 @@ void main() {
     await pump(tester, const [WeeklyBarPoint(value: 0, label: 'Aug 3')]);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('renders with a per-bar tap-through callback (F-ANA-016)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        home: Scaffold(
+          body: WeeklyBarChart(
+            points: const [
+              WeeklyBarPoint(value: 1000, label: 'Aug 3'),
+              WeeklyBarPoint(value: 1200, label: 'Aug 10'),
+            ],
+            valueLabel: (v) => v.toStringAsFixed(0),
+            onBarTap: (_, _) {},
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+  });
 }

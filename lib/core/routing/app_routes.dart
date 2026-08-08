@@ -19,6 +19,10 @@ abstract final class AppRoutes {
   static String routineDay(String routineId, String dayId) =>
       '${routine(routineId)}/days/$dayId';
 
+  /// `F-ROU-015` — the built-in program gallery, reached from the routine
+  /// list's empty state or app bar.
+  static const String starterPrograms = '$routines/starter-programs';
+
   static const String start = '/start';
   static const String history = '/history';
   static const String insights = '/insights';

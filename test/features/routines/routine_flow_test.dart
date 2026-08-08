@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -135,4 +136,46 @@ void main() {
       expect(find.text('Only Day'), findsNothing);
     },
   );
+
+  testWidgets('starter program gallery imports a program and reports skipped '
+      'exercises (F-ROU-015)', (tester) async {
+    // Only one of the PPL program's exercises exists in this catalogue —
+    // the rest must be silently skipped and reported, not crash the import.
+    await db
+        .into(db.exercises)
+        .insert(
+          ExercisesCompanion.insert(
+            id: 'bench',
+            externalId: const Value('barbell-bench-press'),
+            name: 'Bench Press',
+            primaryMuscle: Muscle.chest,
+            equipment: Equipment.barbell,
+            trackingType: TrackingType.weightReps,
+            createdAt: 1,
+            updatedAt: 1,
+          ),
+        );
+    await openRoutines(tester);
+
+    // The empty state offers the gallery before any routine exists.
+    expect(find.text('No routines yet'), findsOneWidget);
+    await tester.tap(find.text('Browse starter programs'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Starter programs'), findsOneWidget);
+    expect(find.text('Push/Pull/Legs'), findsOneWidget);
+
+    await tester
+        .tap(find.widgetWithText(FilledButton, 'Add to my routines').first)
+        .then((_) => tester.pumpAndSettle());
+    await tester.tap(find.widgetWithText(FilledButton, 'Add'));
+    await tester.pumpAndSettle();
+
+    // Lands on the new routine, not the gallery.
+    expect(find.text('Push/Pull/Legs'), findsOneWidget);
+    expect(find.textContaining('could not be added'), findsOneWidget);
+
+    final routines = await db.select(db.routines).get();
+    expect(routines.single.name, 'Push/Pull/Legs');
+  });
 }

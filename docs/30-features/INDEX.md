@@ -52,7 +52,7 @@
 | [F-ROU-012](ROU/F-ROU-012.md) | Scheduling | 3 | P2 | in-progress |
 | [F-ROU-013](ROU/F-ROU-013.md) | Cycles, blocks and deload weeks | — | P2 | idea |
 | [F-ROU-014](ROU/F-ROU-014.md) | Share and import routines | — | P2 | idea |
-| [F-ROU-015](ROU/F-ROU-015.md) | Built-in starter programs | 3 | P2 | planned |
+| [F-ROU-015](ROU/F-ROU-015.md) | Built-in starter programs | 3 | P2 | done |
 
 ## `LOG` — Workout logging
 
@@ -115,7 +115,7 @@
 | [F-ANA-013](ANA/F-ANA-013.md) | Weekly insight cards | 4 | P2 | planned |
 | [F-ANA-014](ANA/F-ANA-014.md) | Body map heat overlay | 4 | P3 | planned |
 | [F-ANA-015](ANA/F-ANA-015.md) | Date range and filter controls | 3 | P1 | in-progress |
-| [F-ANA-016](ANA/F-ANA-016.md) | Chart interaction | 3 | P2 | planned |
+| [F-ANA-016](ANA/F-ANA-016.md) | Chart interaction | 3 | P2 | done |
 | [F-ANA-017](ANA/F-ANA-017.md) | Year in review | — | P3 | idea |
 | [F-ANA-018](ANA/F-ANA-018.md) | Exercise comparison | — | P3 | idea |
 
