@@ -609,6 +609,42 @@ radar chart of relative volume by muscle group ships as two plain-text
 ratio tiles instead, clearly labelled a rough guide rather than a
 prescription.
 
+**Batch 3.5 — routine programming view.** `F-ROU-011` done; `F-ROU-012`
+`in-progress` (its own status note has the detail — fixed weekdays only, no
+rolling rotation). No schema change — `routine_days.scheduled_weekdays` has
+existed since schema v1 and `duplicate()` already carried it over; this batch
+is the first to read or write it anywhere else. `domain/routines/routine_preview.dart`
+(`estimateSessionDurationSeconds`, `plannedSetsPerMuscle`, `plannedVolumeGrams`)
+reuses `domain/timing/rest_defaults.dart`'s `resolveRestSeconds`/
+`restSecondsForGroupMember` for duration (spec §11) and the same
+1.0-primary/0.5-secondary rule `F-ANA-005` uses for sets-per-muscle (spec §3),
+applied to a day's *targets* rather than logged sets — fixture-tested against
+the same `setsPerMuscle` worked example. `RoutineExerciseDetail` and its
+backing query gained the exercise's tracking type, equipment, both muscle
+fields and its default rest seconds, so the preview can resolve rest and
+attribute muscles without a second query. The day editor's new "Preview"
+card shows duration and volume in its collapsed subtitle always — only the
+`WeeklyBarChart` (fixed 200 px) sits behind an `ExpansionTile`, collapsed by
+default. The first version kept the whole card, chart included, always
+expanded, which starved the `Expanded` exercise list of layout height badly
+enough to break an existing widget test (`routine_flow_test.dart`) on a short
+day; collapsing just the chart fixed both the test and the real on-device
+layout, since the bug wasn't test-specific, and a widget test now covers both
+the collapsed and expanded state so the same starvation can't regress
+silently. Muscle-name lookups for the chart use `Muscle.values.asNameMap()`
+rather than `.byName`, since `secondary_muscles` is a plain
+`StringListConverter` column with no DB-level guarantee every stored name is
+still a recognised `Muscle` — same reasoning as `categoryOf()`'s
+deliberate null-for-unknown. Scheduling (`F-ROU-012`): `RoutineRepository
+.setScheduledWeekdays`/`watchDaysForWeekday` (ISO weekday ints, matching
+`DateTime.weekday`), a "Schedule" action (calendar icon or day-tile menu) on
+every day-editing surface, and the dashboard's new "Today: Push" card
+(`_TodaysScheduleCard`, hidden while a workout is already in progress —
+`_ResumeOrStartCard` already owns that state). Not built: the rolling-rotation
+half of `F-ROU-012`'s own open question, and wiring `F-ANA-006`'s
+schedule-adherence figure to the column this batch finally populates — the
+column exists now, but that feature wasn't touched.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

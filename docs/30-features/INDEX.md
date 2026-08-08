@@ -48,8 +48,8 @@
 | [F-ROU-008](ROU/F-ROU-008.md) | Duplicate and version | 2 | P1 | done |
 | [F-ROU-009](ROU/F-ROU-009.md) | Archive routines | 2 | P2 | done |
 | [F-ROU-010](ROU/F-ROU-010.md) | Start a workout from a routine day | 2 | P0 | done |
-| [F-ROU-011](ROU/F-ROU-011.md) | Routine preview | 3 | P2 | planned |
-| [F-ROU-012](ROU/F-ROU-012.md) | Scheduling | 3 | P2 | planned |
+| [F-ROU-011](ROU/F-ROU-011.md) | Routine preview | 3 | P2 | done |
+| [F-ROU-012](ROU/F-ROU-012.md) | Scheduling | 3 | P2 | in-progress |
 | [F-ROU-013](ROU/F-ROU-013.md) | Cycles, blocks and deload weeks | — | P2 | idea |
 | [F-ROU-014](ROU/F-ROU-014.md) | Share and import routines | — | P2 | idea |
 | [F-ROU-015](ROU/F-ROU-015.md) | Built-in starter programs | 3 | P2 | planned |

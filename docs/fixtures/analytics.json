@@ -112,6 +112,16 @@
     "tolerance": 0.01
   },
 
+  "estimatedSessionDuration": {
+    "spec": "40-ANALYTICS-SPEC#11-estimated-session-duration",
+    "avgSetSeconds": 45,
+    "exercises": [
+      { "name": "Bench Press", "equipment": "barbell", "primaryMuscle": "chest", "sets": 4, "routineRestSeconds": 120 },
+      { "name": "Cable Fly",   "equipment": "cable",   "primaryMuscle": "chest", "sets": 3, "routineRestSeconds": null, "$note": "chest is a compound muscle, so the built-in default is 90s" }
+    ],
+    "expectedSeconds": 1065
+  },
+
   "emptyInput": {
     "$note": "Every analytics function must return a defined empty result for these, never throw and never zero. Zero and unknown are different things.",
     "sets": [],

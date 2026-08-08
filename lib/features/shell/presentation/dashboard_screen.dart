@@ -16,6 +16,7 @@ import '../../logging/application/active_workout_providers.dart';
 import '../../logging/presentation/active_workout_screen.dart'
     show formatElapsed;
 import '../../logging/presentation/start_workout_screen.dart';
+import '../../routines/application/routine_providers.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../widgets/async_view.dart';
 import '../widgets/empty_state.dart';
@@ -23,9 +24,9 @@ import '../widgets/empty_state.dart';
 /// The home tab (`F-NAV-004`): resume or start a workout first, then recent
 /// activity, then everywhere else in the app.
 ///
-/// Today's scheduled day, streaks, recent PRs and insight cards all depend on
-/// features that don't exist yet (`F-ROU-012`, PR detection, and the Phase 3
-/// analytics providers) — they arrive with those, not as placeholders here.
+/// Streaks, recent PRs and insight cards all depend on features that don't
+/// exist yet — they arrive with those, not as placeholders here. Today's
+/// scheduled day (`F-ROU-012`) landed in batch 3.5.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -49,6 +50,7 @@ class DashboardScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(AppSpacing.screen),
         children: [
           const _ResumeOrStartCard(),
+          const _TodaysScheduleCard(),
           const SizedBox(height: AppSpacing.md),
           const _BodyweightCard(),
           const SizedBox(height: AppSpacing.xl),
@@ -164,6 +166,42 @@ class _ResumeOrStartCard extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// "Today: Push" — the day(s) scheduled for today (`F-ROU-012`), or nothing
+/// at all when no day is scheduled or a workout is already in progress
+/// (`_ResumeOrStartCard` already covers that case).
+class _TodaysScheduleCard extends ConsumerWidget {
+  const _TodaysScheduleCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final active = ref.watch(activeWorkoutProvider).value;
+    if (active != null) return const SizedBox.shrink();
+
+    final scheduled = ref.watch(todaysScheduledDaysProvider).value ?? const [];
+    if (scheduled.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.md),
+      child: Column(
+        children: [
+          for (final day in scheduled)
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.today_outlined),
+                title: Text('Today: ${day.dayName}'),
+                subtitle: Text(day.routineName),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(
+                  AppRoutes.routineDay(day.routineId, day.dayId),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

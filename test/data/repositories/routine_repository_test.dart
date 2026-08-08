@@ -450,4 +450,61 @@ void main() {
       expect(after.every((r) => r.groupId == null), isTrue);
     });
   });
+
+  group('scheduling (F-ROU-012)', () {
+    test('setScheduledWeekdays persists ISO weekdays', () async {
+      final routine = await repo.create(name: 'Push Pull Legs');
+      final day = await repo.addDay(routine.id, name: 'Push');
+      await repo.setScheduledWeekdays(day.id, [1, 3, 5]);
+
+      final updated = await repo.findDayById(day.id);
+      expect(updated!.scheduledWeekdays, [1, 3, 5]);
+    });
+
+    test(
+      'watchDaysForWeekday returns only days scheduled for that day',
+      () async {
+        final routine = await repo.create(name: 'Push Pull Legs');
+        final push = await repo.addDay(routine.id, name: 'Push');
+        final pull = await repo.addDay(routine.id, name: 'Pull');
+        await repo.setScheduledWeekdays(push.id, [1, 4]);
+        await repo.setScheduledWeekdays(pull.id, [2, 5]);
+
+        final monday = await repo.watchDaysForWeekday(1).first;
+        expect(monday, hasLength(1));
+        expect(monday.single.dayName, 'Push');
+
+        final wednesday = await repo.watchDaysForWeekday(3).first;
+        expect(wednesday, isEmpty);
+      },
+    );
+
+    test('an archived routine\'s scheduled days are excluded', () async {
+      final routine = await repo.create(name: 'Push Pull Legs');
+      final day = await repo.addDay(routine.id, name: 'Push');
+      await repo.setScheduledWeekdays(day.id, [1]);
+      await repo.setArchived(routine.id, isArchived: true);
+
+      expect(await repo.watchDaysForWeekday(1).first, isEmpty);
+    });
+
+    test('a deleted day is excluded even if still "scheduled"', () async {
+      final routine = await repo.create(name: 'Push Pull Legs');
+      final day = await repo.addDay(routine.id, name: 'Push');
+      await repo.setScheduledWeekdays(day.id, [1]);
+      await repo.deleteDay(day.id);
+
+      expect(await repo.watchDaysForWeekday(1).first, isEmpty);
+    });
+
+    test('duplicate carries the source day\'s schedule over', () async {
+      final routine = await repo.create(name: 'Push Pull Legs');
+      final day = await repo.addDay(routine.id, name: 'Push');
+      await repo.setScheduledWeekdays(day.id, [1, 4]);
+
+      final copy = await repo.duplicate(routine.id);
+      final copiedDays = await repo.watchDays(copy.id).first;
+      expect(copiedDays.single.scheduledWeekdays, [1, 4]);
+    });
+  });
 }

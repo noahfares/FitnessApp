@@ -23,8 +23,8 @@ F-ROU-007	2	done	P2	Folders			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-
 F-ROU-008	2	done	P1	Duplicate and version	F-ROU-001		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-009	2	done	P2	Archive routines			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-010	2	done	P0	Start a workout from a routine day	F-ROU-003, F-LOG-001	F-PRG-001	70-decisions/ADR-0004-template-snapshot, 21-DATA-MODEL#workout_exercises
-F-ROU-011	3	planned	P2	Routine preview	F-ANA-005		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
-F-ROU-012	3	planned	P2	Scheduling			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-011	3	done	P2	Routine preview	F-ANA-005		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-012	3	in-progress	P2	Scheduling			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-013	—	idea	P2	Cycles, blocks and deload weeks			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-014	—	idea	P2	Share and import routines	F-DAT-001		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-015	3	planned	P2	Built-in starter programs			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot

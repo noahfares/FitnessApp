@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../core/ids/uuid.dart';
 import '../db/app_database.dart';
+import '../db/tables/shared.dart' show StringListConverter;
 
 /// One exercise inside a routine day, joined to its catalogue row
 /// (`F-ROU-003`).
@@ -16,12 +17,17 @@ class RoutineExerciseDetail {
     required this.exerciseName,
     required this.position,
     this.groupId,
+    required this.trackingType,
+    required this.equipment,
+    required this.primaryMuscle,
+    required this.secondaryMuscles,
     this.targetSets,
     this.targetRepsMin,
     this.targetRepsMax,
     this.targetWeightGrams,
     this.targetRpe,
     this.restSeconds,
+    this.exerciseDefaultRestSeconds,
     this.notes,
   });
 
@@ -30,13 +36,39 @@ class RoutineExerciseDetail {
   final String exerciseName;
   final int position;
   final String? groupId;
+
+  /// The exercise's own catalogue attributes — carried alongside the target
+  /// so `F-ROU-011`'s preview can resolve rest and attribute muscle-sets
+  /// without a second query.
+  final String trackingType;
+  final String equipment;
+  final String primaryMuscle;
+  final List<String> secondaryMuscles;
+
   final int? targetSets;
   final int? targetRepsMin;
   final int? targetRepsMax;
   final int? targetWeightGrams;
   final double? targetRpe;
   final int? restSeconds;
+  final int? exerciseDefaultRestSeconds;
   final String? notes;
+}
+
+/// One routine day scheduled for a given weekday (`F-ROU-012`) — what the
+/// dashboard's "today: Push" card reads.
+class ScheduledDay {
+  const ScheduledDay({
+    required this.routineId,
+    required this.routineName,
+    required this.dayId,
+    required this.dayName,
+  });
+
+  final String routineId;
+  final String routineName;
+  final String dayId;
+  final String dayName;
 }
 
 /// Routines, their days, and the per-exercise targets within each day
@@ -458,6 +490,54 @@ class RoutineRepository {
     );
   }
 
+  /// Assigns fixed weekdays to a day, or clears them with an empty list
+  /// (`F-ROU-012`). ISO weekday ints (1 = Monday .. 7 = Sunday) — the same
+  /// convention `DateTime.weekday` uses, so no translation is needed at the
+  /// "is today a scheduled day" call site. A rolling rotation ("day 3 of 6")
+  /// is not modelled — fixed weekdays only, per the schema's own column.
+  Future<void> setScheduledWeekdays(String id, List<int> weekdays) async {
+    await (_db.update(_db.routineDays)..where((d) => d.id.equals(id))).write(
+      RoutineDaysCompanion(
+        scheduledWeekdays: Value(weekdays),
+        updatedAt: Value(_now),
+      ),
+    );
+  }
+
+  /// Every non-archived routine's days scheduled for [weekday] (ISO 1-7),
+  /// oldest routine first — what the dashboard's "today: Push" card reads
+  /// (`F-ROU-012`).
+  Stream<List<ScheduledDay>> watchDaysForWeekday(int weekday) {
+    return (_db.select(_db.routineDays).join([
+            innerJoin(
+              _db.routines,
+              _db.routines.id.equalsExp(_db.routineDays.routineId),
+            ),
+          ])
+          ..where(
+            _db.routineDays.deletedAt.isNull() &
+                _db.routines.deletedAt.isNull() &
+                _db.routines.archivedAt.isNull(),
+          )
+          ..orderBy([OrderingTerm(expression: _db.routines.position)]))
+        .watch()
+        .map(
+          (rows) => [
+            for (final row in rows)
+              if (row
+                  .readTable(_db.routineDays)
+                  .scheduledWeekdays
+                  .contains(weekday))
+                ScheduledDay(
+                  routineId: row.readTable(_db.routines).id,
+                  routineName: row.readTable(_db.routines).name,
+                  dayId: row.readTable(_db.routineDays).id,
+                  dayName: row.readTable(_db.routineDays).name,
+                ),
+          ],
+        );
+  }
+
   /// Persists the day order after a drag-to-reorder (`F-ROU-004`).
   Future<void> reorderDays(List<String> orderedDayIds) async {
     final timestamp = _now;
@@ -510,12 +590,17 @@ class RoutineRepository {
                  e.name               AS exercise_name,
                  re.position          AS position,
                  re.group_id          AS group_id,
+                 e.tracking_type      AS tracking_type,
+                 e.equipment          AS equipment,
+                 e.primary_muscle     AS primary_muscle,
+                 e.secondary_muscles  AS secondary_muscles,
                  re.target_sets       AS target_sets,
                  re.target_reps_min   AS target_reps_min,
                  re.target_reps_max   AS target_reps_max,
                  re.target_weight_grams AS target_weight_grams,
                  re.target_rpe        AS target_rpe,
                  re.rest_seconds      AS rest_seconds,
+                 e.default_rest_seconds AS exercise_default_rest_seconds,
                  re.notes             AS notes
             FROM routine_exercises re
             JOIN exercises e ON e.id = re.exercise_id
@@ -535,12 +620,21 @@ class RoutineRepository {
                 exerciseName: row.read<String>('exercise_name'),
                 position: row.read<int>('position'),
                 groupId: row.read<String?>('group_id'),
+                trackingType: row.read<String>('tracking_type'),
+                equipment: row.read<String>('equipment'),
+                primaryMuscle: row.read<String>('primary_muscle'),
+                secondaryMuscles: const StringListConverter().fromSql(
+                  row.read<String>('secondary_muscles'),
+                ),
                 targetSets: row.read<int?>('target_sets'),
                 targetRepsMin: row.read<int?>('target_reps_min'),
                 targetRepsMax: row.read<int?>('target_reps_max'),
                 targetWeightGrams: row.read<int?>('target_weight_grams'),
                 targetRpe: row.read<double?>('target_rpe'),
                 restSeconds: row.read<int?>('rest_seconds'),
+                exerciseDefaultRestSeconds: row.read<int?>(
+                  'exercise_default_rest_seconds',
+                ),
                 notes: row.read<String?>('notes'),
               ),
           ],

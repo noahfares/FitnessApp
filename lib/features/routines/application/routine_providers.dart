@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/repositories/routine_repository.dart';
+import '../../analytics/application/analytics_clock_provider.dart';
 
 /// The routine list (`F-ROU-001`). Archived routines are excluded — the same
 /// organisational-hide rule as archived exercises.
@@ -54,3 +55,10 @@ final routineDayExercisesProvider =
       (ref, dayId) =>
           ref.watch(routineRepositoryProvider).watchExercises(dayId),
     );
+
+/// Every day scheduled for today (`F-ROU-012`) — the dashboard's
+/// "today: Push" card.
+final todaysScheduledDaysProvider = StreamProvider<List<ScheduledDay>>((ref) {
+  final now = ref.watch(analyticsClockProvider)();
+  return ref.watch(routineRepositoryProvider).watchDaysForWeekday(now.weekday);
+});

@@ -10,15 +10,20 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../data/db/tables/enums.dart';
 import '../../../data/repositories/routine_repository.dart';
 import '../../../data/repositories/workout_repository.dart';
 import '../../../domain/routines/rep_range.dart';
+import '../../../domain/routines/routine_preview.dart';
 import '../../../domain/timing/rest_defaults.dart';
+import '../../catalog/presentation/exercise_labels.dart';
 import '../../logging/presentation/exercise_picker_sheet.dart';
+import '../../settings/application/rest_timer_settings_provider.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import '../../shell/widgets/empty_state.dart';
+import '../../shell/widgets/weekly_bar_chart.dart';
 import '../application/routine_providers.dart';
 import 'routine_list_screen.dart' show promptRoutineName;
 
@@ -55,6 +60,11 @@ class RoutineDayEditorScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(loadedDay.name),
           actions: [
+            IconButton(
+              icon: const Icon(Icons.calendar_today_outlined),
+              tooltip: 'Schedule',
+              onPressed: () => unawaited(_schedule(context, ref, loadedDay)),
+            ),
             IconButton(
               icon: const Icon(Icons.edit_outlined),
               tooltip: 'Rename',
@@ -93,6 +103,118 @@ class RoutineDayEditorScreen extends ConsumerWidget {
     if (name != null && name.trim().isNotEmpty) {
       await ref.read(routineRepositoryProvider).renameDay(day.id, name);
     }
+  }
+
+  Future<void> _schedule(
+    BuildContext context,
+    WidgetRef ref,
+    RoutineDay day,
+  ) async {
+    final selected = await showWeekdaySchedulerSheet(
+      context,
+      initial: day.scheduledWeekdays,
+    );
+    if (selected != null) {
+      await ref
+          .read(routineRepositoryProvider)
+          .setScheduledWeekdays(day.id, selected);
+    }
+  }
+}
+
+/// Mon–Sun, ISO weekday order (`DateTime.weekday`: 1 = Monday .. 7 = Sunday).
+const List<String> _weekdayAbbreviations = [
+  'Mon',
+  'Tue',
+  'Wed',
+  'Thu',
+  'Fri',
+  'Sat',
+  'Sun',
+];
+
+/// `"Mon, Wed, Fri"`, empty when nothing's scheduled (`F-ROU-012`).
+String formatScheduledWeekdays(List<int> weekdays) {
+  if (weekdays.isEmpty) return '';
+  final sorted = [...weekdays]..sort();
+  return sorted.map((day) => _weekdayAbbreviations[day - 1]).join(', ');
+}
+
+/// A day's fixed weekday assignment (`F-ROU-012`) — optional, so an empty
+/// selection is a valid save, not a cancelled one. Returns `null` only when
+/// the sheet is dismissed without saving.
+Future<List<int>?> showWeekdaySchedulerSheet(
+  BuildContext context, {
+  required List<int> initial,
+}) {
+  return showModalBottomSheet<List<int>>(
+    context: context,
+    useRootNavigator: true,
+    showDragHandle: true,
+    builder: (context) => _WeekdaySchedulerSheet(initial: initial),
+  );
+}
+
+class _WeekdaySchedulerSheet extends StatefulWidget {
+  const _WeekdaySchedulerSheet({required this.initial});
+
+  final List<int> initial;
+
+  @override
+  State<_WeekdaySchedulerSheet> createState() => _WeekdaySchedulerSheetState();
+}
+
+class _WeekdaySchedulerSheetState extends State<_WeekdaySchedulerSheet> {
+  late final Set<int> _selected = {...widget.initial};
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.screen,
+          0,
+          AppSpacing.screen,
+          AppSpacing.screen,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Schedule', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              'Optional — pick the weekdays you plan to train this day.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Wrap(
+              spacing: AppSpacing.sm,
+              children: [
+                for (var day = 1; day <= 7; day++)
+                  FilterChip(
+                    label: Text(_weekdayAbbreviations[day - 1]),
+                    selected: _selected.contains(day),
+                    onSelected: (selected) => setState(() {
+                      if (selected) {
+                        _selected.add(day);
+                      } else {
+                        _selected.remove(day);
+                      }
+                    }),
+                  ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            FilledButton(
+              onPressed: () =>
+                  Navigator.of(context).pop(_selected.toList()..sort()),
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -144,6 +266,15 @@ class _DayExerciseListState extends ConsumerState<DayExerciseList> {
 
     return Column(
       children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.screen,
+            AppSpacing.screen,
+            AppSpacing.screen,
+            0,
+          ),
+          child: _RoutinePreviewCard(rows: rows),
+        ),
         if (_selected.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(
@@ -555,6 +686,104 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
 
     if (!context.mounted) return;
     Navigator.of(context).pop();
+  }
+}
+
+/// Estimated duration, planned volume, and sets per muscle for this day,
+/// before it's ever run (`F-ROU-011`) — turns the day editor from a list
+/// builder into a programming tool.
+class _RoutinePreviewCard extends ConsumerWidget {
+  const _RoutinePreviewCard({required this.rows});
+
+  final List<RoutineExerciseDetail> rows;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final formatter = ref.watch(quantityFormatterProvider);
+    final globalRestSeconds = ref
+        .watch(restTimerSettingsProvider)
+        .defaultSeconds;
+
+    final previewExercises = [
+      for (var i = 0; i < rows.length; i++)
+        RoutinePreviewExercise(
+          exerciseName: rows[i].exerciseName,
+          trackingType: rows[i].trackingType,
+          equipment: rows[i].equipment,
+          primaryMuscle: rows[i].primaryMuscle,
+          secondaryMuscles: rows[i].secondaryMuscles,
+          targetSets: rows[i].targetSets,
+          targetRepsMin: rows[i].targetRepsMin,
+          targetRepsMax: rows[i].targetRepsMax,
+          targetWeightGrams: rows[i].targetWeightGrams,
+          routineRestSeconds: rows[i].restSeconds,
+          exerciseDefaultRestSeconds: rows[i].exerciseDefaultRestSeconds,
+          isGrouped: rows[i].groupId != null,
+          isLastInGroup:
+              rows[i].groupId == null ||
+              i == rows.length - 1 ||
+              rows[i + 1].groupId != rows[i].groupId,
+        ),
+    ];
+
+    final durationSeconds = estimateSessionDurationSeconds(
+      previewExercises,
+      globalRestSeconds: globalRestSeconds,
+    );
+    final volumeGrams = plannedVolumeGrams(previewExercises);
+    final setsByMuscle = plannedSetsPerMuscle(previewExercises);
+
+    // `asNameMap` rather than `byName`: `secondaryMuscles` is a plain
+    // `StringListConverter` column, not `textEnum`, so nothing at the DB
+    // level guarantees every stored name is still a recognised `Muscle` —
+    // same reasoning as `categoryOf()`'s deliberate null-for-unknown.
+    final muscleNames = Muscle.values.asNameMap();
+    final barPoints = [
+      for (final entry in setsByMuscle.entries)
+        if (muscleNames[entry.key] case final muscle?)
+          WeeklyBarPoint(value: entry.value, label: muscle.label),
+    ]..sort((a, b) => b.value.compareTo(a.value));
+
+    final durationLabel = durationSeconds == 0
+        ? '—'
+        : '~${(durationSeconds / 60).round()} min';
+    final volumeLabel = volumeGrams == 0
+        ? '—'
+        : formatter.volume(Mass.grams(volumeGrams));
+
+    return Card(
+      // The numbers that matter — duration and volume — sit in the subtitle
+      // so they're visible without expanding anything. Only the chart, which
+      // needs real height (`WeeklyBarChart`'s fixed 200 px), stays behind the
+      // `ExpansionTile` and collapsed by default — a day list can be short,
+      // and this card must never starve the `Expanded` exercise list beneath
+      // it of layout height (it did, once, before this became collapsible).
+      child: ExpansionTile(
+        initiallyExpanded: false,
+        title: Text('Preview', style: theme.textTheme.titleMedium),
+        subtitle: Text('$durationLabel · $volumeLabel'),
+        childrenPadding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          0,
+          AppSpacing.md,
+          AppSpacing.md,
+        ),
+        children: [
+          if (barPoints.isNotEmpty)
+            WeeklyBarChart(
+              points: barPoints,
+              subtitle: 'Sets per muscle',
+              valueLabel: (v) => v.toStringAsFixed(1),
+            )
+          else
+            const Padding(
+              padding: EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Text('Set targets to see sets per muscle here.'),
+            ),
+        ],
+      ),
+    );
   }
 }
 

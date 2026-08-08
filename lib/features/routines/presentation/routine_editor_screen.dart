@@ -12,7 +12,12 @@ import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import '../../shell/widgets/empty_state.dart';
 import '../application/routine_providers.dart';
-import 'routine_day_editor_screen.dart' show DayExerciseList, StartDayButton;
+import 'routine_day_editor_screen.dart'
+    show
+        DayExerciseList,
+        StartDayButton,
+        formatScheduledWeekdays,
+        showWeekdaySchedulerSheet;
 import 'routine_list_screen.dart' show promptRoutineName;
 
 /// A routine's days (`F-ROU-002`) — add, rename, delete, and jump into each
@@ -138,7 +143,14 @@ class _SingleDayRoutineScaffold extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(routine.name),
-        actions: [_RoutineMenu(routine: routine)],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_today_outlined),
+            tooltip: 'Schedule',
+            onPressed: () => unawaited(_schedule(context, ref)),
+          ),
+          _RoutineMenu(routine: routine),
+        ],
       ),
       body: exercises.view(
         errorTitle: 'Exercises could not be read',
@@ -152,6 +164,18 @@ class _SingleDayRoutineScaffold extends ConsumerWidget {
       ),
     );
   }
+
+  Future<void> _schedule(BuildContext context, WidgetRef ref) async {
+    final selected = await showWeekdaySchedulerSheet(
+      context,
+      initial: day.scheduledWeekdays,
+    );
+    if (selected != null) {
+      await ref
+          .read(routineRepositoryProvider)
+          .setScheduledWeekdays(day.id, selected);
+    }
+  }
 }
 
 class _DayTile extends ConsumerWidget {
@@ -162,12 +186,15 @@ class _DayTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final scheduleLabel = formatScheduledWeekdays(day.scheduledWeekdays);
     return Card(
       child: ListTile(
         title: Text(day.name),
+        subtitle: scheduleLabel.isEmpty ? null : Text(scheduleLabel),
         trailing: PopupMenuButton<_DayAction>(
           onSelected: (action) => unawaited(_handle(context, ref, action)),
           itemBuilder: (context) => const [
+            PopupMenuItem(value: _DayAction.schedule, child: Text('Schedule')),
             PopupMenuItem(value: _DayAction.rename, child: Text('Rename')),
             PopupMenuItem(value: _DayAction.delete, child: Text('Delete')),
           ],
@@ -184,6 +211,14 @@ class _DayTile extends ConsumerWidget {
   ) async {
     final repo = ref.read(routineRepositoryProvider);
     switch (action) {
+      case _DayAction.schedule:
+        final selected = await showWeekdaySchedulerSheet(
+          context,
+          initial: day.scheduledWeekdays,
+        );
+        if (selected != null) {
+          await repo.setScheduledWeekdays(day.id, selected);
+        }
       case _DayAction.rename:
         final name = await promptRoutineName(
           context,
@@ -204,7 +239,7 @@ class _DayTile extends ConsumerWidget {
   }
 }
 
-enum _DayAction { rename, delete }
+enum _DayAction { schedule, rename, delete }
 
 class _RoutineMenu extends ConsumerWidget {
   const _RoutineMenu({required this.routine});

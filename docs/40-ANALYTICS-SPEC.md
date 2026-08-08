@@ -433,6 +433,19 @@ With `avgSetSeconds` defaulting to 45 and rest resolved per `F-ROU-006`.
 Crude by design — it exists so a routine editor can warn that a plan implies a
 two-hour session, not to predict anything precisely. Label it as approximate.
 
+### Fixture — `estimatedSessionDuration`
+
+Two exercises, no superset: Bench Press (barbell, 4 sets, routine rest 120s)
+and Cable Fly (cable, primary muscle `chest` — a compound muscle per
+`F-TIM-005`'s split, so its built-in default is 90s, not 60s — 3 sets, no
+override).
+
+```
+Bench Press: 4 × (45 + 120) = 660
+Cable Fly:   3 × (45 +  90) = 405
+total                       = 1065 s  (~18 min)
+```
+
 ---
 
 ## Implementation notes
