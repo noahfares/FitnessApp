@@ -5,12 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/app_routes.dart';
+import '../../../core/units/week_start.dart';
 import '../../../domain/logging/rpe.dart';
 import '../../../domain/timing/rest_defaults.dart';
 import '../application/rest_timer_settings_provider.dart';
 import '../application/rpe_settings_provider.dart';
 import '../application/theme_provider.dart';
 import '../application/unit_preferences_provider.dart';
+import '../application/week_start_provider.dart';
 
 /// Settings root.
 ///
@@ -26,6 +28,8 @@ class SettingsScreen extends ConsumerWidget {
     final restTimer = ref.watch(restTimerSettingsProvider);
     final rpe = ref.watch(rpeSettingsProvider);
     final rpeNotifier = ref.read(rpeSettingsProvider.notifier);
+    final weekStart = ref.watch(weekStartProvider);
+    final weekStartNotifier = ref.read(weekStartProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
@@ -68,6 +72,41 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
             ),
+          // A three-value choice, so this lives inline rather than behind its
+          // own route, same reasoning as RPE above (`F-SET-005`).
+          const ListTile(
+            leading: Icon(Icons.calendar_view_week_outlined),
+            title: Text('Week starts on'),
+            subtitle: Text(
+              'Applies to weekly volume, sets-per-muscle and streaks.',
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 56, right: 16, bottom: 8),
+            child: RadioGroup<WeekStart>(
+              groupValue: weekStart,
+              onChanged: (value) {
+                if (value != null) unawaited(weekStartNotifier.set(value));
+              },
+              child: Row(
+                children: [
+                  for (final option in [
+                    WeekStart.monday,
+                    WeekStart.saturday,
+                    WeekStart.sunday,
+                  ])
+                    Expanded(
+                      child: RadioListTile<WeekStart>(
+                        value: option,
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(_weekdayLabel(option)),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.straighten),
@@ -120,4 +159,12 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
   }
+
+  static String _weekdayLabel(WeekStart weekStart) =>
+      switch (weekStart.weekday) {
+        DateTime.monday => 'Mon',
+        DateTime.saturday => 'Sat',
+        DateTime.sunday => 'Sun',
+        _ => 'Mon',
+      };
 }

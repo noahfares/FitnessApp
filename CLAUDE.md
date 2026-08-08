@@ -548,6 +548,37 @@ regression overlay and unreliable-set toggles are screen-local `State`, not
 persisted preferences — reasonable for a first chart, worth revisiting if a
 second chart wants the same toggles to agree with each other.
 
+**Batch 3.3 — volume & muscle analytics.** `F-ANA-004` done; `F-CAT-013`,
+`F-SET-005`, `F-ANA-005` all `in-progress` (each for its own documented
+reason — see their status notes). No schema change. `core/units/week_start.dart`
+(`WeekStart`) mirrors `UnitPreferences`'s shape: a country-code first-run
+default (Sunday for the US/Canada, Saturday for a handful of Gulf states,
+Monday elsewhere), persisted afterwards via `WeekStartNotifier`, exposed as
+a three-way radio row on Settings root. `domain/catalog/muscle_taxonomy.dart`
+maps all 21 muscles to push/pull/legs/core except `neck` and `fullBody`,
+which resolve to `null` deliberately rather than being forced into a
+category — verified against the analytics spec's own push/pull ratio
+fixture. Two new domain modules split "per exercise" from "per
+muscle/overall" because they start from different data:
+`weekly_volume.dart`'s `weeklyVolumeFromSessions` sums the existing
+`ExerciseHistorySession.volumeGrams` for a new "Weekly volume" section on
+`ExerciseDetailScreen`; `weeklyVolume` and `sets_per_muscle.dart`'s
+`setsPerMuscleByWeek`/`contributingExercises` work from a new cross-catalogue
+stream, `SetRepository.watchAllAnalyticsSets` (`AnalyticsSetRecord`, joining
+`sets`/`workout_exercises`/`workouts`/`exercises`), that nothing before this
+batch needed. `WeeklyBarChart` (`features/shell/widgets/`) is the shared
+zero-based bar component the design system names, built on `fl_chart`'s
+`BarChart` the same way `TrendChart` used `LineChart`. The Insights tab's
+Phase-3 placeholder is gone: `InsightsScreen` now shows the shared date
+range selector, overall weekly volume, and muscle-scoped volume/sets-per-week
+charts behind a single muscle dropdown, with a non-interactive "contributing
+exercises" list beneath (`F-ANA-005` §3's drill-down — scoped to the whole
+selected range rather than one tapped bar, since per-bar tap-through is
+`F-ANA-016`, batch 3.6, not built yet). Not built: reference bands on the
+sets-per-muscle chart (`F-ANA-005` §2) and applying `WeekStart` to streaks
+or the calendar (`F-ANA-006`, neither exists yet) — both explicitly deferred
+in each feature's own status notes, not silently dropped.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/analytics/presentation/exercise_detail_screen.dart';
+import '../../features/analytics/presentation/insights_screen.dart';
 import '../../features/body/presentation/body_weight_screen.dart';
 import '../../features/catalog/presentation/exercise_catalog_screen.dart';
 import '../../features/catalog/presentation/exercise_editor_screen.dart';
@@ -126,13 +127,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.insights,
-                builder: (context, state) => const PlaceholderScreen(
-                  title: 'Insights',
-                  arrivesIn: 'Phase 3',
-                  description:
-                      'Estimated 1RM trends, volume, sets per muscle group, '
-                      'streaks and PRs.',
-                ),
+                builder: (context, state) => const InsightsScreen(),
               ),
             ],
           ),

@@ -9,12 +9,15 @@ import '../../../domain/analytics/date_range.dart';
 import '../../../domain/analytics/e1rm.dart';
 import '../../../domain/analytics/e1rm_trend.dart';
 import '../../../domain/analytics/exercise_history.dart';
+import '../../../domain/analytics/weekly_volume.dart';
 import '../../settings/application/e1rm_formula_provider.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import '../../settings/application/week_start_provider.dart';
 import '../../settings/presentation/e1rm_formula_sheet.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/empty_state.dart';
 import '../../shell/widgets/trend_chart.dart';
+import '../../shell/widgets/weekly_bar_chart.dart';
 import '../application/analytics_clock_provider.dart';
 import '../application/date_range_provider.dart';
 import '../application/exercise_history_providers.dart';
@@ -70,7 +73,7 @@ class _ExerciseDetailBody extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.screen),
       itemCount: sessions.length + 1,
       itemBuilder: (context, i) {
-        if (i == 0) return _TrendSection(sessions: sessions);
+        if (i == 0) return _AnalyticsHeader(sessions: sessions);
         final session = sessions[i - 1];
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
@@ -81,9 +84,31 @@ class _ExerciseDetailBody extends ConsumerWidget {
   }
 }
 
-/// The `e1RM trend` chart, its date range selector, and its two display
-/// toggles — everything `F-ANA-003` and `F-ANA-015` add above the session
-/// list that `F-ANA-002` already built.
+/// The shared date range selector (`F-ANA-015`) once, followed by both
+/// charts that read it — the e1RM trend (`F-ANA-003`) and weekly volume
+/// (`F-ANA-004`) — above the session list `F-ANA-002` already built.
+class _AnalyticsHeader extends StatelessWidget {
+  const _AnalyticsHeader({required this.sessions});
+
+  final List<ExerciseHistorySession> sessions;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const DateRangeSelector(),
+        const SizedBox(height: AppSpacing.sm),
+        _TrendSection(sessions: sessions),
+        const SizedBox(height: AppSpacing.md),
+        _VolumeSection(sessions: sessions),
+        const Divider(height: AppSpacing.xl),
+      ],
+    );
+  }
+}
+
+/// The `e1RM trend` chart and its two display toggles (`F-ANA-003`).
 class _TrendSection extends ConsumerStatefulWidget {
   const _TrendSection({required this.sessions});
 
@@ -142,8 +167,6 @@ class _TrendSectionState extends ConsumerState<_TrendSection> {
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
-        const DateRangeSelector(),
-        const SizedBox(height: AppSpacing.sm),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: TrendChart(
@@ -172,7 +195,6 @@ class _TrendSectionState extends ConsumerState<_TrendSection> {
             ],
           ),
         ),
-        const Divider(height: AppSpacing.xl),
       ],
     );
   }
@@ -182,15 +204,63 @@ class _TrendSectionState extends ConsumerState<_TrendSection> {
     E1rmFormula.brzycki => 'Brzycki',
     E1rmFormula.lombardi => 'Lombardi',
   };
+}
 
-  static String _rangeLabel(RangePreset preset) => switch (preset) {
-    RangePreset.fourWeeks => 'Last 4 weeks',
-    RangePreset.threeMonths => 'Last 3 months',
-    RangePreset.sixMonths => 'Last 6 months',
-    RangePreset.oneYear => 'Last year',
-    RangePreset.allTime => 'All time',
-    RangePreset.custom => 'Custom range',
-  };
+String _rangeLabel(RangePreset preset) => switch (preset) {
+  RangePreset.fourWeeks => 'Last 4 weeks',
+  RangePreset.threeMonths => 'Last 3 months',
+  RangePreset.sixMonths => 'Last 6 months',
+  RangePreset.oneYear => 'Last year',
+  RangePreset.allTime => 'All time',
+  RangePreset.custom => 'Custom range',
+};
+
+/// The weekly volume chart (`F-ANA-004`) — per-exercise volume, bucketed by
+/// the shared date range and the user's week-start setting.
+class _VolumeSection extends ConsumerWidget {
+  const _VolumeSection({required this.sessions});
+
+  final List<ExerciseHistorySession> sessions;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final selection = ref.watch(dateRangeSelectionProvider);
+    final weekStart = ref.watch(weekStartProvider);
+    final prefs = ref.watch(unitPreferencesProvider);
+    final now = ref.watch(analyticsClockProvider)();
+
+    final range = resolveRange(selection.preset, now, custom: selection.custom);
+    final inRange = sessions.where((s) => range.contains(s.localDate)).toList();
+    final weekly = weeklyVolumeFromSessions(inRange, weekStart: weekStart);
+
+    final points = [
+      for (final point in weekly)
+        WeeklyBarPoint(
+          value: Mass.grams(point.volumeGrams).toUnit(prefs.load),
+          label: DateFormat.MMMd().format(point.weekStart),
+        ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+          child: Text('Weekly volume', style: theme.textTheme.titleMedium),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+          child: WeeklyBarChart(
+            points: points,
+            subtitle: '${_rangeLabel(selection.preset)} · ${prefs.load.symbol}',
+            valueLabel: (v) => v.toStringAsFixed(0),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class _SessionCard extends StatelessWidget {

@@ -10,3 +10,9 @@ library;
 /// Whether a set with [setType] and [isCompleted] counts towards any metric.
 bool isCountedSet({required String setType, required bool isCompleted}) =>
     setType != 'warmup' && isCompleted;
+
+/// Whether [trackingType] contributes to volume load
+/// (docs/40-ANALYTICS-SPEC.md §2 rule 1) — other tracking types are excluded
+/// entirely, never counted as zero.
+bool isVolumeEligible(String trackingType) =>
+    trackingType == 'weightReps' || trackingType == 'weightTime';

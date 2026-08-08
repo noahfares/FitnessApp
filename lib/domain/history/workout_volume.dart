@@ -34,9 +34,7 @@ int totalVolumeGrams(Iterable<CountedSet> sets) {
     if (!isCountedSet(setType: set.setType, isCompleted: set.isCompleted)) {
       continue;
     }
-    if (set.trackingType != 'weightReps' && set.trackingType != 'weightTime') {
-      continue;
-    }
+    if (!isVolumeEligible(set.trackingType)) continue;
     final weight = set.weightGrams;
     final reps = set.reps;
     if (weight == null || reps == null) continue;

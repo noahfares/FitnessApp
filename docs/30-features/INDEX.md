@@ -31,7 +31,7 @@
 | [F-CAT-010](CAT/F-CAT-010.md) | Merge duplicate exercises | — | P2 | idea |
 | [F-CAT-011](CAT/F-CAT-011.md) | Exercise media | — | P3 | idea |
 | [F-CAT-012](CAT/F-CAT-012.md) | Substitution suggestions | — | P2 | idea |
-| [F-CAT-013](CAT/F-CAT-013.md) | Muscle taxonomy and body map data | 3 | P1 | planned |
+| [F-CAT-013](CAT/F-CAT-013.md) | Muscle taxonomy and body map data | 3 | P1 | in-progress |
 | [F-CAT-014](CAT/F-CAT-014.md) | Exercise variants and modifiers | — | P3 | idea |
 
 ## `ROU` — Routines & programs
@@ -103,8 +103,8 @@
 | [F-ANA-001](ANA/F-ANA-001.md) | Analytics engine | 3 | P0 | in-progress |
 | [F-ANA-002](ANA/F-ANA-002.md) | Per-exercise history | 3 | P0 | done |
 | [F-ANA-003](ANA/F-ANA-003.md) | Estimated 1RM trend | 3 | P1 | done |
-| [F-ANA-004](ANA/F-ANA-004.md) | Volume charts | 3 | P1 | planned |
-| [F-ANA-005](ANA/F-ANA-005.md) | Sets per muscle group per week | 3 | P1 | planned |
+| [F-ANA-004](ANA/F-ANA-004.md) | Volume charts | 3 | P1 | done |
+| [F-ANA-005](ANA/F-ANA-005.md) | Sets per muscle group per week | 3 | P1 | in-progress |
 | [F-ANA-006](ANA/F-ANA-006.md) | Consistency | 3 | P1 | planned |
 | [F-ANA-007](ANA/F-ANA-007.md) | PR timeline | 3 | P1 | planned |
 | [F-ANA-008](ANA/F-ANA-008.md) | Muscle balance | 3 | P2 | planned |
@@ -171,7 +171,7 @@
 | [F-SET-002](SET/F-SET-002.md) | Theme mode | 0 | P0 | done |
 | [F-SET-003](SET/F-SET-003.md) | Rest-timer defaults | 1 | P1 | done |
 | [F-SET-004](SET/F-SET-004.md) | Bar and plate inventory | 4 | P1 | planned |
-| [F-SET-005](SET/F-SET-005.md) | Week start | 3 | P1 | planned |
+| [F-SET-005](SET/F-SET-005.md) | Week start | 3 | P1 | in-progress |
 | [F-SET-006](SET/F-SET-006.md) | e1RM formula | 3 | P2 | done |
 | [F-SET-007](SET/F-SET-007.md) | Increment steps | 2 | P1 | done |
 | [F-SET-008](SET/F-SET-008.md) | Notification preferences | 2 | P2 | planned |

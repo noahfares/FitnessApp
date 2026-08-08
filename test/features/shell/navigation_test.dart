@@ -37,7 +37,7 @@ void main() {
       await tester.tap(find.byIcon(Icons.insights_outlined));
       await tester.pumpAndSettle();
 
-      expect(find.text('Arrives in Phase 3'), findsOneWidget);
+      expect(find.text('No sessions yet'), findsOneWidget);
       expect(find.text('Ready to train?'), findsNothing);
     });
 

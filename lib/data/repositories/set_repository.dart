@@ -1,9 +1,11 @@
 import 'package:drift/drift.dart';
 
 import '../../core/ids/uuid.dart';
+import '../../domain/analytics/analytics_set_record.dart';
 import '../../domain/analytics/exercise_history.dart';
 import '../db/app_database.dart';
 import '../db/tables/enums.dart';
+import '../db/tables/shared.dart';
 
 /// One set from the most recent completed session containing an exercise —
 /// the "last time" values (`F-LOG-004`).
@@ -437,5 +439,70 @@ class SetRepository {
       );
     }
     return [for (final id in order) sessions[id]!];
+  }
+
+  /// Every counted-or-not set across the whole catalogue, with its
+  /// exercise's muscle attribution (`F-ANA-004`'s muscle-group/overall
+  /// volume, `F-ANA-005`'s sets-per-muscle-per-week). Unscoped by date —
+  /// range filtering happens in `domain/`, the same pattern
+  /// `watchExerciseHistory` already uses.
+  Stream<List<AnalyticsSetRecord>> watchAllAnalyticsSets() =>
+      _analyticsSetsQuery().watch().map(_mapAnalyticsSets);
+
+  Selectable<QueryRow> _analyticsSetsQuery() => _db.customSelect(
+    '''
+    SELECT w.started_at                    AS started_at,
+           w.started_at_tz_offset_minutes  AS tz_offset,
+           s.set_type                      AS set_type,
+           s.is_completed                  AS is_completed,
+           s.weight_grams                  AS weight_grams,
+           s.reps                          AS reps,
+           e.tracking_type                 AS tracking_type,
+           e.name                          AS exercise_name,
+           e.primary_muscle                AS primary_muscle,
+           e.secondary_muscles             AS secondary_muscles
+      FROM sets s
+      JOIN workout_exercises we ON we.id = s.workout_exercise_id
+      JOIN workouts w           ON w.id  = we.workout_id
+      JOIN exercises e          ON e.id  = we.exercise_id
+     WHERE we.deleted_at IS NULL
+       AND w.deleted_at  IS NULL
+       AND s.deleted_at  IS NULL
+       AND e.deleted_at  IS NULL
+    ''',
+    readsFrom: {_db.sets, _db.workoutExercises, _db.workouts, _db.exercises},
+  );
+
+  static const _secondaryMusclesConverter = StringListConverter();
+
+  static List<AnalyticsSetRecord> _mapAnalyticsSets(List<QueryRow> rows) => [
+    for (final row in rows)
+      AnalyticsSetRecord(
+        date: _localDate(
+          row.read<int>('started_at'),
+          row.read<int>('tz_offset'),
+        ),
+        setType: row.read<String>('set_type'),
+        isCompleted: row.read<bool>('is_completed'),
+        trackingType: row.read<String>('tracking_type'),
+        exerciseName: row.read<String>('exercise_name'),
+        primaryMuscle: row.read<String>('primary_muscle'),
+        secondaryMuscles: _secondaryMusclesConverter.fromSql(
+          row.read<String>('secondary_muscles'),
+        ),
+        weightGrams: row.read<int?>('weight_grams'),
+        reps: row.read<int?>('reps'),
+      ),
+  ];
+
+  /// Same local-date derivation as `WorkoutHistoryEntry.localDate` — never
+  /// from UTC alone (ADR-0008).
+  static DateTime _localDate(int startedAtUtcMs, int tzOffsetMinutes) {
+    final utc = DateTime.fromMillisecondsSinceEpoch(
+      startedAtUtcMs,
+      isUtc: true,
+    );
+    final local = utc.add(Duration(minutes: tzOffsetMinutes));
+    return DateTime(local.year, local.month, local.day);
   }
 }
