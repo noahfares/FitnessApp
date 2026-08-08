@@ -304,6 +304,70 @@ void main() {
     });
   });
 
+  group('watchExerciseHistory (F-ANA-002)', () {
+    test('newest session first, other exercises excluded', () async {
+      await makeExercise('bench');
+      await makeExercise('squat');
+
+      clock = DateTime(2026, 8, 1);
+      final firstWe = await startWith('bench');
+      await sets.complete(
+        (await sets.getSets(firstWe)).single.id,
+        weightGrams: const Value(100000),
+        reps: const Value(5),
+      );
+      await workouts.finish((await workouts.findActive())!.id);
+
+      clock = DateTime(2026, 8, 5);
+      final squatWe = await startWith('squat');
+      await sets.complete(
+        (await sets.getSets(squatWe)).single.id,
+        weightGrams: const Value(140000),
+        reps: const Value(5),
+      );
+      await workouts.finish((await workouts.findActive())!.id);
+
+      clock = DateTime(2026, 8, 8);
+      final secondWe = await startWith('bench');
+      await sets.complete(
+        (await sets.getSets(secondWe)).single.id,
+        weightGrams: const Value(105000),
+        reps: const Value(5),
+      );
+      await workouts.finish((await workouts.findActive())!.id);
+
+      final history = await sets.watchExerciseHistory('bench').first;
+
+      expect(history, hasLength(2));
+      expect(history[0].startedAt, DateTime(2026, 8, 8).millisecondsSinceEpoch);
+      expect(history[1].startedAt, DateTime(2026, 8, 1).millisecondsSinceEpoch);
+      expect(history[0].bestSet?.weightGrams, 105000);
+    });
+
+    test('an incomplete or warm-up set is excluded from volume', () async {
+      await makeExercise('bench');
+      final we = await startWith('bench');
+      final workingId = (await sets.getSets(we)).single.id;
+      await sets.setType(workingId, SetType.warmup);
+      await sets.complete(
+        workingId,
+        weightGrams: const Value(60000),
+        reps: const Value(10),
+      );
+      final plannedId = await sets.addSet(we);
+      await sets.updateValues(
+        plannedId,
+        weightGrams: const Value(100000),
+        reps: const Value(5),
+      );
+
+      final history = await sets.watchExerciseHistory('bench').first;
+
+      expect(history.single.volumeGrams, 0);
+      expect(history.single.countedSets, isEmpty);
+    });
+  });
+
   group('ghost values (F-LOG-004)', () {
     /// A finished session of [exerciseId] with the given completed sets.
     Future<void> logSession(

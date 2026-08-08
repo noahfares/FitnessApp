@@ -60,8 +60,8 @@ F-TIM-006	1	done	P1	Alert style			20-ARCHITECTURE#cross-platform-discipline
 F-TIM-007	2	done	P2	Rest-taken recording			20-ARCHITECTURE#cross-platform-discipline
 F-TIM-008	—	idea	P3	Interval / EMOM timer			20-ARCHITECTURE#cross-platform-discipline
 F-TIM-009	4	planned	P2	Stopwatch for timed exercises	F-CAT-002		20-ARCHITECTURE#cross-platform-discipline
-F-ANA-001	3	planned	P0	Analytics engine		F-ANA-002 … F-ANA-014	40-ANALYTICS-SPEC, 20-ARCHITECTURE#the-one-hard-rule
-F-ANA-002	3	planned	P0	Per-exercise history			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-001	3	in-progress	P0	Analytics engine		F-ANA-002 … F-ANA-014	40-ANALYTICS-SPEC, 20-ARCHITECTURE#the-one-hard-rule
+F-ANA-002	3	done	P0	Per-exercise history			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-003	3	planned	P1	Estimated 1RM trend	F-ANA-001		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-004	3	planned	P1	Volume charts	F-ANA-001		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-005	3	planned	P1	Sets per muscle group per week	F-CAT-013	F-ROU-011	40-ANALYTICS-SPEC, 21-DATA-MODEL#sets

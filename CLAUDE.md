@@ -475,6 +475,39 @@ zero, no focus-advance on completion), and `F-TIM-004`/`F-SET-008` stay
 the same one Phase 1 set — a phase closes on its exit criteria being met,
 not on every one of its features reaching `done`.
 
+**Phase 3 started (v0.28.0) — batched into 3.1–3.6** in
+`docs/50-ROADMAP.md`, the same way Phases 0–1 were, since later phases only
+get batched once actually scheduled. Ordering: the shared analytics engine
+first, paired with its first real consumer rather than shipped alone; the
+`fl_chart` dependency (pre-declared in `pubspec.yaml`) introduced with the
+first batch that actually renders a chart (3.2); `F-CAT-013`'s muscle
+taxonomy before its two readers; polish batches last. Full rationale is in
+the roadmap doc itself, not restated here.
+
+**Batch 3.1 — engine & per-exercise history.** `F-ANA-002` done; `F-ANA-001`
+`in-progress` (by design — it's the umbrella for every `F-ANA-*` fixture
+test through batch 3.4, not a single deliverable). No schema change.
+`domain/analytics/analytics_boundary.dart`'s `isCountedSet()` is the shared
+warm-up/incomplete filter the spec's §universal-preconditions rules 2–3 ask
+for; `domain/history/workout_volume.dart` was refactored in place to use it
+(behaviour unchanged, existing tests untouched) rather than leaving a second
+inline copy of the same two-line check. `domain/analytics/personal_records.dart`
+was deliberately **not** touched — retrofitting an already-shipped,
+fixture-tested Phase 2 feature's filtering seam was out of scope for landing
+the first Phase 3 batch. `domain/analytics/exercise_history.dart`
+(`ExerciseHistorySession`) composes the existing `epley1Rm` with the shared
+filter for best-set-by-e1RM and volume, fixture-tested against the same
+`sessionE1rm`/`volumeLoad` worked examples the spec already defines.
+`SetRepository.watchExerciseHistory` is a newest-first join across
+`sets`/`workout_exercises`/`workouts` scoped to one exercise, shaped like the
+existing ghost-values query. `ExerciseDetailScreen` lives at the new
+`/exercises/:exerciseId` route (nested under it: `/edit`, unchanged) and is
+reached from a new history icon on each catalogue row — the row's own tap
+still opens the editor directly, exactly as before, so every existing
+catalogue test kept passing untouched. Not built: date-range scoping
+(`F-ANA-015`, batch 3.2) — every session shows unconditionally, which only
+becomes a real problem once there's enough logged history for it to matter.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

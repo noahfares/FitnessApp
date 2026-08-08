@@ -325,7 +325,11 @@ class _ExerciseTile extends ConsumerWidget {
       subtitle: Text(
         '${exercise.primaryMuscle.label} · ${exercise.equipment.label}',
       ),
-      trailing: const Icon(Icons.chevron_right),
+      trailing: IconButton(
+        icon: const Icon(Icons.show_chart),
+        tooltip: 'History',
+        onPressed: () => context.push(AppRoutes.exerciseDetail(exercise.id)),
+      ),
       onTap: () => context.push(AppRoutes.exerciseEdit(exercise.id)),
     );
   }

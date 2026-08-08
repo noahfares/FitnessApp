@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/analytics/presentation/exercise_detail_screen.dart';
 import '../../features/body/presentation/body_weight_screen.dart';
 import '../../features/catalog/presentation/exercise_catalog_screen.dart';
 import '../../features/catalog/presentation/exercise_editor_screen.dart';
@@ -166,11 +167,20 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const ExerciseEditorScreen(),
           ),
           GoRoute(
-            path: ':exerciseId/edit',
+            path: ':exerciseId',
             parentNavigatorKey: _rootNavigatorKey,
-            builder: (context, state) => ExerciseEditorScreen(
-              exerciseId: state.pathParameters['exerciseId'],
+            builder: (context, state) => ExerciseDetailScreen(
+              exerciseId: state.pathParameters['exerciseId']!,
             ),
+            routes: [
+              GoRoute(
+                path: 'edit',
+                parentNavigatorKey: _rootNavigatorKey,
+                builder: (context, state) => ExerciseEditorScreen(
+                  exerciseId: state.pathParameters['exerciseId'],
+                ),
+              ),
+            ],
           ),
         ],
       ),

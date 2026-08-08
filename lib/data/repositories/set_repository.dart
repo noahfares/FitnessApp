@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../core/ids/uuid.dart';
+import '../../domain/analytics/exercise_history.dart';
 import '../db/app_database.dart';
 import '../db/tables/enums.dart';
 
@@ -377,5 +378,64 @@ class SetRepository {
       if (a[i] != b[i]) return false;
     }
     return true;
+  }
+
+  /// Every session containing [exerciseId], newest first, each with its sets
+  /// in position order (`F-ANA-002`).
+  Stream<List<ExerciseHistorySession>> watchExerciseHistory(
+    String exerciseId,
+  ) => _exerciseHistoryQuery(exerciseId).watch().map(_mapExerciseHistory);
+
+  Selectable<QueryRow> _exerciseHistoryQuery(String exerciseId) =>
+      _db.customSelect(
+        '''
+    SELECT w.id                            AS workout_id,
+           w.name                          AS workout_name,
+           w.started_at                    AS started_at,
+           w.started_at_tz_offset_minutes  AS tz_offset,
+           s.set_type                      AS set_type,
+           s.is_completed                  AS is_completed,
+           s.weight_grams                  AS weight_grams,
+           s.reps                          AS reps
+      FROM sets s
+      JOIN workout_exercises we ON we.id = s.workout_exercise_id
+      JOIN workouts w           ON w.id  = we.workout_id
+     WHERE we.exercise_id = ?
+       AND we.deleted_at IS NULL
+       AND w.deleted_at  IS NULL
+       AND s.deleted_at  IS NULL
+     ORDER BY w.started_at DESC, s.position ASC
+    ''',
+        variables: [Variable<String>(exerciseId)],
+        readsFrom: {_db.sets, _db.workoutExercises, _db.workouts},
+      );
+
+  static List<ExerciseHistorySession> _mapExerciseHistory(List<QueryRow> rows) {
+    final sessions = <String, ExerciseHistorySession>{};
+    final order = <String>[];
+    for (final row in rows) {
+      final workoutId = row.read<String>('workout_id');
+      var session = sessions[workoutId];
+      if (session == null) {
+        session = ExerciseHistorySession(
+          workoutId: workoutId,
+          workoutName: row.read<String>('workout_name'),
+          startedAt: row.read<int>('started_at'),
+          startedAtTzOffsetMinutes: row.read<int>('tz_offset'),
+          sets: const [],
+        );
+        sessions[workoutId] = session;
+        order.add(workoutId);
+      }
+      session.sets.add(
+        ExerciseHistorySet(
+          setType: row.read<String>('set_type'),
+          isCompleted: row.read<bool>('is_completed'),
+          weightGrams: row.read<int?>('weight_grams'),
+          reps: row.read<int?>('reps'),
+        ),
+      );
+    }
+    return [for (final id in order) sessions[id]!];
   }
 }

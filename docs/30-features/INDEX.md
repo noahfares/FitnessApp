@@ -100,8 +100,8 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-ANA-001](ANA/F-ANA-001.md) | Analytics engine | 3 | P0 | planned |
-| [F-ANA-002](ANA/F-ANA-002.md) | Per-exercise history | 3 | P0 | planned |
+| [F-ANA-001](ANA/F-ANA-001.md) | Analytics engine | 3 | P0 | in-progress |
+| [F-ANA-002](ANA/F-ANA-002.md) | Per-exercise history | 3 | P0 | done |
 | [F-ANA-003](ANA/F-ANA-003.md) | Estimated 1RM trend | 3 | P1 | planned |
 | [F-ANA-004](ANA/F-ANA-004.md) | Volume charts | 3 | P1 | planned |
 | [F-ANA-005](ANA/F-ANA-005.md) | Sets per muscle group per week | 3 | P1 | planned |

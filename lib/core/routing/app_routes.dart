@@ -45,9 +45,12 @@ abstract final class AppRoutes {
   static const String exercises = '/exercises';
   static const String exerciseNew = '/exercises/new';
 
+  /// `/exercises/:exerciseId` — the per-exercise history screen (`F-ANA-002`).
+  static String exerciseDetail(String exerciseId) => '$exercises/$exerciseId';
+
   /// `/exercises/:exerciseId/edit`.
   static String exerciseEdit(String exerciseId) =>
-      '$exercises/$exerciseId/edit';
+      '${exerciseDetail(exerciseId)}/edit';
 
   // Pushed over the shell — low-frequency, so they do not dilute the five tabs.
   static const String settings = '/settings';

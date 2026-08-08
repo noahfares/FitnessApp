@@ -2,6 +2,8 @@
 /// `F-LOG-018` for the totals shown in history and the finish summary.
 library;
 
+import '../analytics/analytics_boundary.dart';
+
 /// The measured values of one counted set, stripped down to what the formula
 /// needs. Not a `WorkoutSet`: this must stay constructible without Drift so
 /// the maths is testable in isolation (docs/20-ARCHITECTURE.md).
@@ -29,8 +31,9 @@ class CountedSet {
 int totalVolumeGrams(Iterable<CountedSet> sets) {
   var total = 0;
   for (final set in sets) {
-    if (set.setType == 'warmup') continue;
-    if (!set.isCompleted) continue;
+    if (!isCountedSet(setType: set.setType, isCompleted: set.isCompleted)) {
+      continue;
+    }
     if (set.trackingType != 'weightReps' && set.trackingType != 'weightTime') {
       continue;
     }
