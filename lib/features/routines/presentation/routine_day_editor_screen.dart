@@ -13,6 +13,7 @@ import '../../../data/db/database_provider.dart';
 import '../../../data/db/tables/enums.dart';
 import '../../../data/repositories/routine_repository.dart';
 import '../../../data/repositories/workout_repository.dart';
+import '../../../domain/logging/rpe.dart';
 import '../../../domain/progression/linear_progression.dart';
 import '../../../domain/progression/progression_rule.dart';
 import '../../../domain/routines/rep_range.dart';
@@ -543,6 +544,7 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
   late final TextEditingController _increment;
   int? _restSeconds;
   late ProgressionRuleType _ruleType;
+  double? _targetRpe;
 
   @override
   void initState() {
@@ -562,12 +564,14 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
             ),
     );
     _restSeconds = row.restSeconds;
+    _targetRpe = row.targetRpe;
 
     final rule = row.progressionRule;
     _ruleType = rule.type;
     final incrementGrams = switch (rule) {
       LinearProgressionRule(config: final config) => config.incrementGrams,
       DoubleProgressionRule(config: final config) => config.incrementGrams,
+      RpeAutoregulationRule(config: final config) => config.incrementGrams,
       _ => defaultIncrementGrams(row.primaryMuscle),
     };
     _increment = TextEditingController(
@@ -598,144 +602,183 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
           top: AppSpacing.lg,
           bottom: AppSpacing.screen + MediaQuery.viewInsetsOf(context).bottom,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(widget.row.exerciseName, style: theme.textTheme.titleLarge),
-            const SizedBox(height: AppSpacing.lg),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _sets,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Sets',
-                      border: OutlineInputBorder(),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(widget.row.exerciseName, style: theme.textTheme.titleLarge),
+              const SizedBox(height: AppSpacing.lg),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _sets,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Sets',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: TextField(
-                    controller: _repsMin,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Reps min',
-                      border: OutlineInputBorder(),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: TextField(
+                      controller: _repsMin,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Reps min',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: TextField(
-                    controller: _repsMax,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Reps max',
-                      border: OutlineInputBorder(),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: TextField(
+                      controller: _repsMax,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Reps max',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            TextField(
-              controller: _weight,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+                ],
               ),
-              decoration: InputDecoration(
-                labelText: 'Target weight (${prefs.load.symbol})',
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            DropdownButtonFormField<int>(
-              initialValue: _restSeconds ?? 0,
-              decoration: const InputDecoration(
-                labelText: 'Rest',
-                border: OutlineInputBorder(),
-                helperText: 'Overrides the exercise and global defaults.',
-              ),
-              items: [
-                const DropdownMenuItem(value: 0, child: Text('Default')),
-                for (final seconds in restDurationChoices)
-                  DropdownMenuItem(
-                    value: seconds,
-                    child: Text(formatRestDuration(seconds)),
-                  ),
-              ],
-              onChanged: (seconds) => setState(
-                () => _restSeconds = (seconds ?? 0) == 0 ? null : seconds,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Text('Progression', style: theme.textTheme.titleMedium),
-            const SizedBox(height: AppSpacing.sm),
-            // Plain language, not a configuration form (`F-PRG-007`) — the
-            // concepts are simple ("keep it the same" vs. "add weight when I
-            // hit my sets") even though the vocabulary underneath isn't.
-            SegmentedButton<ProgressionRuleType>(
-              segments: const [
-                ButtonSegment(
-                  value: ProgressionRuleType.manualCarryForward,
-                  label: Text('I\'ll decide'),
-                ),
-                ButtonSegment(
-                  value: ProgressionRuleType.linear,
-                  label: Text('Add weight on success'),
-                ),
-                ButtonSegment(
-                  value: ProgressionRuleType.doubleProgression,
-                  label: Text('Add reps, then weight'),
-                ),
-              ],
-              selected: {_ruleType},
-              onSelectionChanged: (selection) =>
-                  setState(() => _ruleType = selection.first),
-            ),
-            if (_ruleType == ProgressionRuleType.linear) ...[
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.lg),
               TextField(
-                controller: _increment,
+                controller: _weight,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
                 decoration: InputDecoration(
-                  labelText: 'Add when I hit every set (${prefs.load.symbol})',
+                  labelText: 'Target weight (${prefs.load.symbol})',
                   border: const OutlineInputBorder(),
-                  helperText:
-                      'Repeats the same weight on a partial miss; deloads '
-                      'after three misses in a row.',
                 ),
               ),
-            ],
-            if (_ruleType == ProgressionRuleType.doubleProgression) ...[
+              const SizedBox(height: AppSpacing.lg),
+              DropdownButtonFormField<int>(
+                initialValue: _restSeconds ?? 0,
+                decoration: const InputDecoration(
+                  labelText: 'Rest',
+                  border: OutlineInputBorder(),
+                  helperText: 'Overrides the exercise and global defaults.',
+                ),
+                items: [
+                  const DropdownMenuItem(value: 0, child: Text('Default')),
+                  for (final seconds in restDurationChoices)
+                    DropdownMenuItem(
+                      value: seconds,
+                      child: Text(formatRestDuration(seconds)),
+                    ),
+                ],
+                onChanged: (seconds) => setState(
+                  () => _restSeconds = (seconds ?? 0) == 0 ? null : seconds,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Text('Progression', style: theme.textTheme.titleMedium),
               const SizedBox(height: AppSpacing.sm),
-              TextField(
-                controller: _increment,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
+              // Plain language, not a configuration form (`F-PRG-007`) — the
+              // concepts are simple ("keep it the same" vs. "add weight when I
+              // hit my sets") even though the vocabulary underneath isn't.
+              SegmentedButton<ProgressionRuleType>(
+                segments: const [
+                  ButtonSegment(
+                    value: ProgressionRuleType.manualCarryForward,
+                    label: Text('I\'ll decide'),
+                  ),
+                  ButtonSegment(
+                    value: ProgressionRuleType.linear,
+                    label: Text('Add weight on success'),
+                  ),
+                  ButtonSegment(
+                    value: ProgressionRuleType.doubleProgression,
+                    label: Text('Add reps, then weight'),
+                  ),
+                  ButtonSegment(
+                    value: ProgressionRuleType.rpeAutoregulation,
+                    label: Text('Match effort (RPE)'),
+                  ),
+                ],
+                selected: {_ruleType},
+                onSelectionChanged: (selection) =>
+                    setState(() => _ruleType = selection.first),
+              ),
+              if (_ruleType == ProgressionRuleType.linear) ...[
+                const SizedBox(height: AppSpacing.sm),
+                TextField(
+                  controller: _increment,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText:
+                        'Add when I hit every set (${prefs.load.symbol})',
+                    border: const OutlineInputBorder(),
+                    helperText:
+                        'Repeats the same weight on a partial miss; deloads '
+                        'after three misses in a row.',
+                  ),
                 ),
-                decoration: InputDecoration(
-                  labelText:
-                      'Add when I hit the top of my rep range '
-                      '(${prefs.load.symbol})',
-                  border: const OutlineInputBorder(),
-                  helperText:
-                      'Uses the Reps min/max above as the range. Deloads '
-                      'after three sessions in a row below the minimum.',
+              ],
+              if (_ruleType == ProgressionRuleType.doubleProgression) ...[
+                const SizedBox(height: AppSpacing.sm),
+                TextField(
+                  controller: _increment,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText:
+                        'Add when I hit the top of my rep range '
+                        '(${prefs.load.symbol})',
+                    border: const OutlineInputBorder(),
+                    helperText:
+                        'Uses the Reps min/max above as the range. Deloads '
+                        'after three sessions in a row below the minimum.',
+                  ),
                 ),
+              ],
+              if (_ruleType == ProgressionRuleType.rpeAutoregulation) ...[
+                const SizedBox(height: AppSpacing.sm),
+                DropdownButtonFormField<double>(
+                  initialValue: _targetRpe,
+                  decoration: const InputDecoration(
+                    labelText: 'Target RPE',
+                    border: OutlineInputBorder(),
+                    helperText:
+                        'How hard the last set should feel. Comes in easier — '
+                        'add more; harder — add less or back off.',
+                  ),
+                  items: [
+                    for (final step in rpeSteps)
+                      DropdownMenuItem(
+                        value: step,
+                        child: Text(formatRpeValue(step)),
+                      ),
+                  ],
+                  onChanged: (value) => setState(() => _targetRpe = value),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                TextField(
+                  controller: _increment,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Base step (${prefs.load.symbol})',
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ],
+              const SizedBox(height: AppSpacing.lg),
+              FilledButton(
+                onPressed: () => unawaited(_save(context)),
+                child: const Text('Save targets'),
               ),
             ],
-            const SizedBox(height: AppSpacing.lg),
-            FilledButton(
-              onPressed: () => unawaited(_save(context)),
-              child: const Text('Save targets'),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -757,6 +800,7 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
       targetRepsMin: Value(repsMin),
       targetRepsMax: Value(repsMax),
       targetWeightGrams: Value(weight?.grams),
+      targetRpe: Value(_targetRpe),
       restSeconds: Value(_restSeconds),
     );
 
@@ -771,6 +815,13 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
       ),
       ProgressionRuleType.doubleProgression => DoubleProgressionRule(
         config: DoubleProgressionConfig(
+          incrementGrams:
+              parser.parseMass(_increment.text, prefs.load)?.grams ??
+              defaultIncrementGrams(widget.row.primaryMuscle),
+        ),
+      ),
+      ProgressionRuleType.rpeAutoregulation => RpeAutoregulationRule(
+        config: RpeAutoregulationConfig(
           incrementGrams:
               parser.parseMass(_increment.text, prefs.load)?.grams ??
               defaultIncrementGrams(widget.row.primaryMuscle),

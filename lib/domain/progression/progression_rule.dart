@@ -8,7 +8,12 @@ library;
 
 import 'dart:convert';
 
-enum ProgressionRuleType { manualCarryForward, linear, doubleProgression }
+enum ProgressionRuleType {
+  manualCarryForward,
+  linear,
+  doubleProgression,
+  rpeAutoregulation,
+}
 
 /// Per-exercise linear-progression parameters (`F-PRG-002` §3).
 class LinearProgressionConfig {
@@ -47,6 +52,26 @@ class DoubleProgressionConfig {
   final double deloadFraction;
 }
 
+/// Per-exercise RPE-autoregulation parameters (`F-PRG-005`). The
+/// `failureThreshold`/`deloadFraction` pair is only used when the rule
+/// degrades to linear progression — no RPE logged for the last session.
+class RpeAutoregulationConfig {
+  const RpeAutoregulationConfig({
+    required this.incrementGrams,
+    this.backoffFraction = 0.10,
+    this.failureThreshold = 3,
+    this.deloadFraction = 0.10,
+  });
+
+  final int incrementGrams;
+
+  /// Fraction of the current weight cut when the logged RPE came in well
+  /// over target.
+  final double backoffFraction;
+  final int failureThreshold;
+  final double deloadFraction;
+}
+
 sealed class ProgressionRule {
   const ProgressionRule();
 
@@ -72,6 +97,14 @@ sealed class ProgressionRule {
         config: DoubleProgressionConfig(
           incrementGrams: map['incrementGrams'] as int,
           floorMissThreshold: map['floorMissThreshold'] as int? ?? 3,
+          deloadFraction: (map['deloadFraction'] as num?)?.toDouble() ?? 0.10,
+        ),
+      ),
+      'rpeAutoregulation' => RpeAutoregulationRule(
+        config: RpeAutoregulationConfig(
+          incrementGrams: map['incrementGrams'] as int,
+          backoffFraction: (map['backoffFraction'] as num?)?.toDouble() ?? 0.10,
+          failureThreshold: map['failureThreshold'] as int? ?? 3,
           deloadFraction: (map['deloadFraction'] as num?)?.toDouble() ?? 0.10,
         ),
       ),
@@ -123,6 +156,27 @@ class DoubleProgressionRule extends ProgressionRule {
     'type': 'doubleProgression',
     'incrementGrams': config.incrementGrams,
     'floorMissThreshold': config.floorMissThreshold,
+    'deloadFraction': config.deloadFraction,
+  });
+}
+
+/// Adjusts load from the gap between the last session's logged RPE and the
+/// exercise's target RPE (`F-PRG-005`). Degrades to linear progression when
+/// no RPE was logged for the last session.
+class RpeAutoregulationRule extends ProgressionRule {
+  const RpeAutoregulationRule({required this.config});
+
+  final RpeAutoregulationConfig config;
+
+  @override
+  ProgressionRuleType get type => ProgressionRuleType.rpeAutoregulation;
+
+  @override
+  String toJson() => jsonEncode({
+    'type': 'rpeAutoregulation',
+    'incrementGrams': config.incrementGrams,
+    'backoffFraction': config.backoffFraction,
+    'failureThreshold': config.failureThreshold,
     'deloadFraction': config.deloadFraction,
   });
 }

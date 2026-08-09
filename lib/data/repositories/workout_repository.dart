@@ -466,6 +466,7 @@ class WorkoutRepository {
             staticReps: row.read<int?>('target_reps_min'),
             staticRepsMax: row.read<int?>('target_reps_max'),
             staticSets: row.read<int?>('target_sets'),
+            staticTargetRpe: row.read<double?>('target_rpe'),
           ),
         ),
       );

@@ -769,12 +769,14 @@ needed. Not built: double progression, percentage/training-max, and
 RPE-autoregulated rules (`F-PRG-003`–`F-PRG-005`, batch 4.2); plate-aware
 rounding and a routine-level (rather than per-exercise) rule default.
 
-**Batch 4.2 — remaining progression rules (partial, v0.35.0).** `F-PRG-003`
-(double progression) done; `F-PRG-010`, `F-PRG-004`, `F-PRG-005` untouched,
-still `planned` — this batch is not closed. No schema change —
-`routine_exercises.progression_rule` already stored an arbitrary JSON union;
-this is the second variant written into it. `domain/progression/double_progression.dart`
-mirrors `linear_progression.dart`'s shape but judges a session against two
+**Batch 4.2 — remaining progression rules (partial, v0.36.0).** `F-PRG-003`
+(double progression) and `F-PRG-005` (RPE-autoregulated) done; `F-PRG-010`,
+`F-PRG-004` untouched, still `planned` — this batch is not closed. No schema
+change — `routine_exercises.progression_rule` already stored an arbitrary
+JSON union; this batch writes the second and third variants into it, and
+`sets.rpe` (`F-LOG-014`, schema v1) is the first thing outside the logger to
+read it. `domain/progression/double_progression.dart` mirrors
+`linear_progression.dart`'s shape but judges a session against two
 thresholds instead of one (`repsMax` for "add weight", `repsMin` for "heading
 toward deload" — a mid-range session is neither and just repeats), with the
 same derived-not-stored trailing-streak approach `computeTargets` already
@@ -782,16 +784,38 @@ used for the linear rule's failure count. `ProgressionContext` gained
 `staticRepsMax` (`staticReps` already existed, doubling as the rep floor for
 this rule) since `TargetSet.reps` still isn't read anywhere downstream of
 `startFromRoutineDay` — only `weightGrams`, `sets` and `rationale` are.
-`docs/40-ANALYTICS-SPEC.md` §12 gained the rule plus a `doubleProgression`
-fixture (success/partial/failure/deload/first-run) mirrored into
-`docs/fixtures/analytics.json`. Not started: `F-PRG-010` (training max) needs
-a persistence decision this session didn't make — a new per-exercise column
-(schema v4) vs. cramming it into the rule JSON, which would contradict "per
-exercise, independent of any one rule"; `F-PRG-004` (percentage-based) also
-depends on `F-ROU-013` (week/cycle structure), which doesn't exist yet, so it
-can't reach full fidelity regardless of `F-PRG-010`; `F-PRG-005`
-(RPE-autoregulated) depends only on already-shipped `F-LOG-014` and is the
-one item here with no blocker — the natural next pickup.
+`domain/progression/rpe_autoregulation.dart` compares the target RPE
+(`routine_exercises.target_rpe`, already existed) against the RPE logged on
+last session's top set and buckets the gap into four bands (≥1 under: double
+step, 0–1 under: normal step, 0–1 over: repeat, ≥1 over: 10% back-off),
+reusing `ProgressionOutcome.success`/`.partial`/`.deload` rather than adding
+new enum values — the same three directions linear progression already
+names, reached by a different signal. No RPE logged, or no target RPE
+configured, degrades to plain linear progression exactly (`F-PRG-005`'s own
+spec) — `computeTargets`'s linear-rule body was extracted to a private
+`_computeLinearTarget` helper so both the `LinearProgressionRule` case and
+this degrade path share one implementation rather than two copies.
+`ExerciseHistorySet` gained an `rpe` field and `SetRepository`'s exercise-
+history query now selects `s.rpe` — nothing before this batch needed a set's
+RPE outside the logger itself. The day editor's target sheet gained a fourth
+segment ("Match effort (RPE)"), a target-RPE dropdown (the existing
+`rpeSteps` from `F-LOG-014`), and — since a fourth segment plus its fields
+now overflow the sheet's fixed test-harness height — the whole sheet is
+wrapped in a `SingleChildScrollView`; `routine_flow_test.dart`'s existing
+"Save targets" tap needed `scrollUntilVisible` with an explicit `scrollable:`
+finder as a result, since two `Scrollable`s are now on screen at once (the
+background list plus the sheet) and the unscoped default binds to whichever
+one flutter_test picks arbitrarily first. `docs/40-ANALYTICS-SPEC.md` §12
+gained both rules plus `doubleProgression` and `rpeAutoregulation` fixtures
+(success/partial/failure/deload/first-run, and RPE's own degrade case),
+mirrored into `docs/fixtures/analytics.json`. Not started: `F-PRG-010`
+(training max) needs a persistence decision this session didn't make — a new
+per-exercise column (schema v4) vs. cramming it into the rule JSON, which
+would contradict "per exercise, independent of any one rule"; `F-PRG-004`
+(percentage-based) depends on it, and also on `F-ROU-013` (week/cycle
+structure), which doesn't exist yet, so it can't reach full fidelity
+regardless of what `F-PRG-010` decides — the two remaining items in this
+batch, in dependency order.
 
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,

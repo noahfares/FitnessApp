@@ -129,6 +129,87 @@ void main() {
     });
   });
 
+  ExerciseHistorySession rpeSession(num weightKg, int reps, double? rpe) =>
+      ExerciseHistorySession(
+        workoutId: 'w',
+        workoutName: 'Push',
+        startedAt: 0,
+        startedAtTzOffsetMinutes: 0,
+        sets: [
+          ExerciseHistorySet(
+            setType: 'working',
+            isCompleted: true,
+            weightGrams: (weightKg * 1000).round(),
+            reps: reps,
+            rpe: rpe,
+          ),
+        ],
+      );
+
+  group('rpe autoregulation', () {
+    const rpeConfig = RpeAutoregulationConfig(
+      incrementGrams: 2500,
+      backoffFraction: 0.10,
+    );
+    const rpeContext = ProgressionContext(
+      staticWeightGrams: 100000,
+      staticReps: 5,
+      staticSets: 1,
+      staticTargetRpe: 8.0,
+    );
+
+    test('came in under target RPE proposes more weight than plain repeat', () {
+      final result = computeTargets(
+        rule: const RpeAutoregulationRule(config: rpeConfig),
+        exerciseHistory: [rpeSession(100, 5, 7.5)],
+        context: rpeContext,
+      );
+
+      expect(result.weightGrams, 102500);
+      expect(result.rationale.outcome, ProgressionOutcome.success);
+    });
+
+    test('came in well over target RPE proposes a back-off', () {
+      final result = computeTargets(
+        rule: const RpeAutoregulationRule(config: rpeConfig),
+        exerciseHistory: [rpeSession(100, 5, 9.5)],
+        context: rpeContext,
+      );
+
+      expect(result.weightGrams, 90000);
+      expect(result.rationale.outcome, ProgressionOutcome.deload);
+    });
+
+    test('no RPE logged degrades to plain linear progression', () {
+      final result = computeTargets(
+        rule: const RpeAutoregulationRule(config: rpeConfig),
+        exerciseHistory: [rpeSession(100, 5, null)],
+        context: rpeContext,
+      );
+
+      // Every counted set met the static target (5 reps @ 100 kg) →
+      // the linear-progression success path, +1x increment, not the RPE
+      // rule's own gap-based math.
+      expect(result.weightGrams, 102500);
+      expect(result.rationale.outcome, ProgressionOutcome.success);
+    });
+
+    test('no target RPE configured degrades to plain linear progression', () {
+      final result = computeTargets(
+        rule: const RpeAutoregulationRule(config: rpeConfig),
+        exerciseHistory: [rpeSession(100, 5, 7.0)],
+        context: const ProgressionContext(
+          staticWeightGrams: 100000,
+          staticReps: 5,
+          staticSets: 1,
+        ),
+      );
+
+      expect(result.weightGrams, 102500);
+      expect(result.rationale.outcome, ProgressionOutcome.success);
+    });
+  });
+
   group('double progression', () {
     const doubleConfig = DoubleProgressionConfig(
       incrementGrams: 2500,

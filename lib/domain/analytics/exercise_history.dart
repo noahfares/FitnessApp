@@ -19,12 +19,17 @@ class ExerciseHistorySet {
     required this.isCompleted,
     this.weightGrams,
     this.reps,
+    this.rpe,
   });
 
   final String setType;
   final bool isCompleted;
   final int? weightGrams;
   final int? reps;
+
+  /// Logged difficulty, always stored as RPE regardless of display mode
+  /// (`F-LOG-014`). Null when nothing was recorded.
+  final double? rpe;
 }
 
 /// One session containing the exercise, and every set logged for it there.

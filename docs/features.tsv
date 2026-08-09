@@ -82,7 +82,7 @@ F-PRG-001	4	in-progress	P1	Progression engine core	F-ROU-003, F-ROU-010, F-LOG-0
 F-PRG-002	4	done	P1	Linear progression	F-PRG-001		40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-003	4	done	P1	Double progression	F-PRG-001		40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-004	4	planned	P2	Percentage / training-max based	F-PRG-010		40-ANALYTICS-SPEC, 22-UNITS
-F-PRG-005	4	planned	P2	RPE-autoregulated	F-LOG-014		40-ANALYTICS-SPEC, 22-UNITS
+F-PRG-005	4	done	P2	RPE-autoregulated	F-LOG-014		40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-006	4	done	P1	Manual carry-forward			40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-007	4	done	P1	Rule assignment			40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-008	4	done	P1	Target explanation	F-PRG-001		40-ANALYTICS-SPEC, 22-UNITS

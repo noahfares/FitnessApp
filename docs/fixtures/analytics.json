@@ -158,6 +158,24 @@
     ]
   },
 
+  "rpeAutoregulation": {
+    "spec": "40-ANALYTICS-SPEC#12-progression-rules",
+    "exercise": { "name": "Squat", "primaryMuscle": "quads" },
+    "targetWeightKg": 100,
+    "targetReps": 5,
+    "targetRpe": 8.0,
+    "incrementKg": 2.5,
+    "backoffFraction": 0.10,
+    "cases": [
+      { "name": "came in well under target", "set": [100, 5], "rpe": 6.5, "expectedNextWeightKg": 105 },
+      { "name": "came in under target", "set": [100, 5], "rpe": 7.5, "expectedNextWeightKg": 102.5 },
+      { "name": "at target", "set": [100, 5], "rpe": 8.0, "expectedNextWeightKg": 102.5 },
+      { "name": "came in over target", "set": [100, 5], "rpe": 8.5, "expectedNextWeightKg": 100 },
+      { "name": "came in well over target", "set": [100, 5], "rpe": 9.5, "expectedNextWeightKg": 90 },
+      { "name": "no RPE logged degrades to linear progression", "set": [100, 5], "rpe": null, "expectedNextWeightKg": 102.5 }
+    ]
+  },
+
   "emptyInput": {
     "$note": "Every analytics function must return a defined empty result for these, never throw and never zero. Zero and unknown are different things.",
     "sets": [],

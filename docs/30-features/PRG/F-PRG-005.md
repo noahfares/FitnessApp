@@ -1,6 +1,6 @@
 # F-PRG-005 — RPE-autoregulated
 
-Status: planned | Priority: P2 | Phase: 4
+Status: done | Priority: P2 | Phase: 4
 Depends on: F-LOG-014
 Reads: 40-ANALYTICS-SPEC, 22-UNITS
 

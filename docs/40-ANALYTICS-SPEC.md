@@ -450,7 +450,8 @@ total                       = 1065 s  (~18 min)
 
 ## 12. Progression rules
 
-Used by: `F-PRG-001`, `F-PRG-002`, `F-PRG-003`, `F-PRG-006`, `F-PRG-009`.
+Used by: `F-PRG-001`, `F-PRG-002`, `F-PRG-003`, `F-PRG-005`, `F-PRG-006`,
+`F-PRG-009`.
 
 `computeTargets(rule, exerciseHistory, context) -> TargetSet` proposes the
 next session's target weight and reps for one exercise, given its own
@@ -528,6 +529,29 @@ keeps working up the range. `floorMissThreshold` and `deloadFraction`
 default the same as linear progression (3 sessions, 10%); `increment`
 defaults the same way too (§ rule 2 above).
 
+### RPE-autoregulated (`F-PRG-005`)
+
+Adjusts load from the gap between the exercise's target RPE
+(`routine_exercises.target_rpe`) and the RPE actually logged on last
+session's top set:
+
+```
+gap = targetRpe − actualRpe   (positive: the set came in easier than aimed for)
+
+gap >= 1.0            → nextWeight = weight + 2 × increment
+0 <= gap < 1.0          → nextWeight = weight + increment
+-1.0 < gap < 0          → nextWeight = weight (repeat)
+gap <= -1.0             → nextWeight = weight × (1 − backoffFraction)
+```
+
+No RPE was logged on last session's top set (or the exercise has no target
+RPE configured) → the rule **degrades to linear progression** (`F-PRG-002`)
+unchanged, judged on weight/reps alone — RPE is a refinement layered on top
+of the same linear formula, not a competing decision path, since it has
+nothing to compare against without a logged value. `backoffFraction`
+defaults to 10%, same as every other rule's deload cut; `increment` defaults
+the same way linear progression's does (§ rule 2 above).
+
 ### Manual carry-forward (`F-PRG-006`)
 
 The null rule: `nextWeight`/`nextReps` = the previous session's actual
@@ -576,6 +600,23 @@ The partial case is the one this rule gets wrong if implemented as "hit
 target reps or not" with a single number: 8 reps clears the bottom of the
 range, so it must not count toward the deload streak the way a floor miss
 does, even though it's short of the 12-rep ceiling that would add weight.
+
+### Fixture — `rpeAutoregulation`
+
+Squat, target `1×5 @ 100 kg`, target RPE `8.0`, `incrementKg = 2.5`,
+`backoffFraction = 0.10`.
+
+```
+came in well under  100×5 @ RPE 6.5 (gap 1.5)  → next 105 kg (+2×increment)
+came in under        100×5 @ RPE 7.5 (gap 0.5)  → next 102.5 kg (+increment)
+at target             100×5 @ RPE 8.0 (gap 0)    → next 102.5 kg (+increment)
+came in over          100×5 @ RPE 8.5 (gap −0.5) → next 100 kg (repeat)
+came in well over    100×5 @ RPE 9.5 (gap −1.5) → next 90 kg (100 × 0.90)
+no RPE logged         100×5, rpe null            → degrades to linear
+                                                    progression, same result
+                                                    as `linearProgression`'s
+                                                    success case: 102.5 kg
+```
 
 ---
 

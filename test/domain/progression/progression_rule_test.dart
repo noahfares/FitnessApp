@@ -70,4 +70,33 @@ void main() {
     expect(config.floorMissThreshold, 3);
     expect(config.deloadFraction, 0.10);
   });
+
+  test('RPE autoregulation round-trips its config through JSON', () {
+    const rule = RpeAutoregulationRule(
+      config: RpeAutoregulationConfig(
+        incrementGrams: 2500,
+        backoffFraction: 0.15,
+        failureThreshold: 2,
+        deloadFraction: 0.20,
+      ),
+    );
+    final decoded = ProgressionRule.fromJson(rule.toJson());
+    expect(decoded, isA<RpeAutoregulationRule>());
+    final config = (decoded as RpeAutoregulationRule).config;
+    expect(config.incrementGrams, 2500);
+    expect(config.backoffFraction, 0.15);
+    expect(config.failureThreshold, 2);
+    expect(config.deloadFraction, 0.20);
+  });
+
+  test('RPE autoregulation defaults its optional fields when omitted from '
+      'stored JSON', () {
+    final decoded = ProgressionRule.fromJson(
+      '{"type": "rpeAutoregulation", "incrementGrams": 2500}',
+    );
+    final config = (decoded as RpeAutoregulationRule).config;
+    expect(config.backoffFraction, 0.10);
+    expect(config.failureThreshold, 3);
+    expect(config.deloadFraction, 0.10);
+  });
 }

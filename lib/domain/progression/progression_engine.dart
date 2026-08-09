@@ -21,6 +21,7 @@ import 'double_progression.dart';
 import 'linear_progression.dart';
 import 'progression_rationale.dart';
 import 'progression_rule.dart';
+import 'rpe_autoregulation.dart';
 import 'session_result.dart';
 
 class TargetSet {
@@ -46,6 +47,7 @@ class ProgressionContext {
     this.staticReps,
     this.staticRepsMax,
     this.staticSets,
+    this.staticTargetRpe,
   });
 
   final int? staticWeightGrams;
@@ -57,6 +59,10 @@ class ProgressionContext {
   /// The top of the rep range — only read by a double-progression rule.
   final int? staticRepsMax;
   final int? staticSets;
+
+  /// The exercise's own target RPE — only read by the RPE-autoregulation
+  /// rule (`F-PRG-005`).
+  final double? staticTargetRpe;
 }
 
 int _topSetWeight(List<ExerciseHistorySet> sets) =>
@@ -104,52 +110,10 @@ TargetSet computeTargets({
       );
 
     case LinearProgressionRule(config: final config):
-      final lastSets = priorSessions.first.countedSets;
-      final currentWeight = _topSetWeight(lastSets);
-      final targetReps =
-          context.staticReps ??
-          lastSets.map((set) => set.reps ?? 0).reduce((a, b) => a > b ? a : b);
-
-      final lastResult = evaluateSession(
-        lastSets,
-        targetWeightGrams: currentWeight,
-        targetReps: targetReps,
-      );
-
-      // Walk backward through sessions at this same weight, counting a
-      // trailing run of failures — the streak `applyLinearProgression`
-      // needs, derived rather than stored.
-      var trailingFailures = 0;
-      for (final session in priorSessions) {
-        final sets = session.countedSets;
-        if (_topSetWeight(sets) != currentWeight) break;
-        final result = evaluateSession(
-          sets,
-          targetWeightGrams: currentWeight,
-          targetReps: targetReps,
-        );
-        if (result != SessionResult.failure) break;
-        trailingFailures++;
-      }
-      final failuresBeforeLastSession = lastResult == SessionResult.failure
-          ? trailingFailures - 1
-          : 0;
-
-      final applied = applyLinearProgression(
-        state: LinearProgressionState(
-          weightGrams: currentWeight,
-          consecutiveFailures: failuresBeforeLastSession,
-        ),
-        result: lastResult,
+      return _computeLinearTarget(
+        priorSessions: priorSessions,
         config: config,
-        previousReps: lastSets.first.reps ?? targetReps,
-      );
-
-      return TargetSet(
-        weightGrams: applied.state.weightGrams,
-        reps: targetReps,
-        sets: context.staticSets ?? lastSets.length,
-        rationale: applied.rationale,
+        context: context,
       );
 
     case DoubleProgressionRule(config: final config):
@@ -207,5 +171,100 @@ TargetSet computeTargets({
         sets: context.staticSets ?? lastSets.length,
         rationale: applied.rationale,
       );
+
+    case RpeAutoregulationRule(config: final config):
+      final lastSets = priorSessions.first.countedSets;
+      final currentWeight = _topSetWeight(lastSets);
+      final topSet = lastSets.firstWhere(
+        (set) => (set.weightGrams ?? 0) == currentWeight,
+      );
+      final targetRpe = context.staticTargetRpe;
+      final actualRpe = topSet.rpe;
+
+      // No RPE to compare against — degrades to plain linear progression
+      // (`F-PRG-005`'s own spec), reusing the exact same fallback the
+      // `LinearProgressionRule` case above uses.
+      if (targetRpe == null || actualRpe == null) {
+        return _computeLinearTarget(
+          priorSessions: priorSessions,
+          config: LinearProgressionConfig(
+            incrementGrams: config.incrementGrams,
+            failureThreshold: config.failureThreshold,
+            deloadFraction: config.deloadFraction,
+          ),
+          context: context,
+        );
+      }
+
+      final targetReps =
+          context.staticReps ??
+          lastSets.map((set) => set.reps ?? 0).reduce((a, b) => a > b ? a : b);
+      final applied = applyRpeAutoregulation(
+        weightGrams: currentWeight,
+        gap: targetRpe - actualRpe,
+        config: config,
+        previousReps: topSet.reps ?? targetReps,
+      );
+
+      return TargetSet(
+        weightGrams: applied.weightGrams,
+        reps: targetReps,
+        sets: context.staticSets ?? lastSets.length,
+        rationale: applied.rationale,
+      );
   }
+}
+
+TargetSet _computeLinearTarget({
+  required List<ExerciseHistorySession> priorSessions,
+  required LinearProgressionConfig config,
+  required ProgressionContext context,
+}) {
+  final lastSets = priorSessions.first.countedSets;
+  final currentWeight = _topSetWeight(lastSets);
+  final targetReps =
+      context.staticReps ??
+      lastSets.map((set) => set.reps ?? 0).reduce((a, b) => a > b ? a : b);
+
+  final lastResult = evaluateSession(
+    lastSets,
+    targetWeightGrams: currentWeight,
+    targetReps: targetReps,
+  );
+
+  // Walk backward through sessions at this same weight, counting a
+  // trailing run of failures — the streak `applyLinearProgression`
+  // needs, derived rather than stored.
+  var trailingFailures = 0;
+  for (final session in priorSessions) {
+    final sets = session.countedSets;
+    if (_topSetWeight(sets) != currentWeight) break;
+    final result = evaluateSession(
+      sets,
+      targetWeightGrams: currentWeight,
+      targetReps: targetReps,
+    );
+    if (result != SessionResult.failure) break;
+    trailingFailures++;
+  }
+  final failuresBeforeLastSession = lastResult == SessionResult.failure
+      ? trailingFailures - 1
+      : 0;
+
+  final applied = applyLinearProgression(
+    state: LinearProgressionState(
+      weightGrams: currentWeight,
+      consecutiveFailures: failuresBeforeLastSession,
+    ),
+    result: lastResult,
+    config: config,
+    previousReps: lastSets.first.reps ?? targetReps,
+  );
+
+  return TargetSet(
+    weightGrams: applied.state.weightGrams,
+    reps: targetReps,
+    sets: context.staticSets ?? lastSets.length,
+    rationale: applied.rationale,
+  );
 }

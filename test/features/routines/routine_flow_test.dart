@@ -141,6 +141,11 @@ void main() {
       await tester.enterText(fields.at(3), '100');
       await tester.tap(find.text('Add weight on success'));
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.text('Save targets'),
+        200,
+        scrollable: find.byType(Scrollable).last,
+      );
       await tester.tap(find.text('Save targets'));
       await tester.pumpAndSettle();
 

@@ -404,7 +404,8 @@ class SetRepository {
            s.set_type                      AS set_type,
            s.is_completed                  AS is_completed,
            s.weight_grams                  AS weight_grams,
-           s.reps                          AS reps
+           s.reps                          AS reps,
+           s.rpe                           AS rpe
       FROM sets s
       JOIN workout_exercises we ON we.id = s.workout_exercise_id
       JOIN workouts w           ON w.id  = we.workout_id
@@ -441,6 +442,7 @@ class SetRepository {
           isCompleted: row.read<bool>('is_completed'),
           weightGrams: row.read<int?>('weight_grams'),
           reps: row.read<int?>('reps'),
+          rpe: row.read<double?>('rpe'),
         ),
       );
     }
