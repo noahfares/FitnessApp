@@ -5,8 +5,12 @@ import 'package:drift/drift.dart';
 import '../../core/ids/uuid.dart';
 import '../../domain/history/workout_history.dart';
 import '../../domain/history/workout_volume.dart';
+import '../../domain/progression/progression_engine.dart';
+import '../../domain/progression/progression_rationale.dart';
+import '../../domain/progression/progression_rule.dart';
 import '../db/app_database.dart';
 import '../db/tables/enums.dart';
+import 'set_repository.dart';
 
 /// Thrown when starting a workout while one is already in progress.
 ///
@@ -98,6 +102,7 @@ class SessionExerciseTarget {
     this.weightGrams,
     this.rpe,
     this.restSeconds,
+    this.rationale,
   });
 
   factory SessionExerciseTarget.fromJson(String json) {
@@ -109,6 +114,7 @@ class SessionExerciseTarget {
       weightGrams: map['targetWeightGrams'] as int?,
       rpe: (map['targetRpe'] as num?)?.toDouble(),
       restSeconds: map['restSeconds'] as int?,
+      rationale: ProgressionRationale.fromJson(map['rationale']),
     );
   }
 
@@ -121,6 +127,11 @@ class SessionExerciseTarget {
   /// The routine exercise's own rest override — the first tier in
   /// `resolveRestSeconds`'s resolution order (`F-ROU-006`).
   final int? restSeconds;
+
+  /// Why the engine proposed [weightGrams]/[repsMin], if it was proposed by
+  /// a progression rule rather than left blank (`F-PRG-008`). Null for an
+  /// exercise added mid-session, which never went through the engine.
+  final ProgressionRationale? rationale;
 
   bool get isEmpty =>
       sets == null &&
@@ -423,7 +434,7 @@ class WorkoutRepository {
           '''
           SELECT id, exercise_id, position, group_id, target_sets,
                  target_reps_min, target_reps_max, target_weight_grams,
-                 target_rpe, rest_seconds
+                 target_rpe, rest_seconds, progression_rule
             FROM routine_exercises
            WHERE routine_day_id = ? AND deleted_at IS NULL
            ORDER BY position
@@ -432,6 +443,32 @@ class WorkoutRepository {
           readsFrom: {_db.routineExercises},
         )
         .get();
+
+    // Read-only, and independent of the write transaction below — resolving
+    // each exercise's proposed target needs its own full history, and
+    // `computeTargets` (`F-PRG-001`) is pure Dart with no database access of
+    // its own.
+    final setRepository = SetRepository(_db);
+    final proposals = <TargetSet>[];
+    for (final row in exerciseRows) {
+      final rule = ProgressionRule.fromJson(
+        row.read<String?>('progression_rule'),
+      );
+      final history = await setRepository.getExerciseHistory(
+        row.read<String>('exercise_id'),
+      );
+      proposals.add(
+        computeTargets(
+          rule: rule,
+          exerciseHistory: history,
+          context: ProgressionContext(
+            staticWeightGrams: row.read<int?>('target_weight_grams'),
+            staticReps: row.read<int?>('target_reps_min'),
+            staticSets: row.read<int?>('target_sets'),
+          ),
+        ),
+      );
+    }
 
     final now = _localNow;
     final timestamp = now.millisecondsSinceEpoch;
@@ -452,15 +489,25 @@ class WorkoutRepository {
             ),
           );
 
-      for (final row in exerciseRows) {
-        final targetSets = row.read<int?>('target_sets');
+      for (var i = 0; i < exerciseRows.length; i++) {
+        final row = exerciseRows[i];
+        final proposal = proposals[i];
+        final targetSets = proposal.sets;
+        // The routine's own configured rep *range* is always kept as-is —
+        // `TargetSet.reps` is a single number (the fixed rep target a linear
+        // rule judges against, `docs/40-ANALYTICS-SPEC.md` §12), and
+        // collapsing a deliberately configured `8–12` down to it on every
+        // start after the first would silently destroy the range every
+        // existing routine already has, which nothing in `F-PRG-002` or
+        // `F-PRG-006` asks for — progression owns the weight, not the range.
         final targetSnapshot = jsonEncode({
           'targetSets': targetSets,
           'targetRepsMin': row.read<int?>('target_reps_min'),
           'targetRepsMax': row.read<int?>('target_reps_max'),
-          'targetWeightGrams': row.read<int?>('target_weight_grams'),
+          'targetWeightGrams': proposal.weightGrams,
           'targetRpe': row.read<double?>('target_rpe'),
           'restSeconds': row.read<int?>('rest_seconds'),
+          'rationale': proposal.rationale.toJson(),
         });
 
         final workoutExerciseId = newUuidV4();

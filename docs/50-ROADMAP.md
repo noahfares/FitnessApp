@@ -322,15 +322,49 @@ and `F-ROU-015` (starter programs) are last because the former is polish
 across every chart already built and the latter is independent content,
 same reasoning Phase 2 gave for its own trailing polish batches.
 
-**Exit criteria**
-- [ ] Every metric in [`40-ANALYTICS-SPEC.md`](40-ANALYTICS-SPEC.md) scheduled
-      for this phase has a passing fixture test.
-- [ ] All charts render correctly in both themes and degrade gracefully with
-      sparse data.
-- [ ] Figures are cross-checked by hand against the raw log for one real
-      training block. **Nothing else in this phase counts if the numbers are
-      wrong.**
-- [ ] Full recomputation over all existing history stays under 100 ms.
+**Exit criteria — audited at v0.34.0, mirroring Phase 2's audit batch: a test
+per criterion that proves the criterion's own wording, not just its
+component features' specs. Phase 3 complete, declared by the project owner
+with one criterion explicitly waived below rather than silently carried
+forward.**
+- [x] Every metric in [`40-ANALYTICS-SPEC.md`](40-ANALYTICS-SPEC.md) scheduled
+      for this phase has a passing fixture test. §1 e1RM (`e1rm_test.dart`),
+      §2 volume load (`weekly_volume_test.dart`, `workout_volume_test.dart`),
+      §3 sets per muscle (`sets_per_muscle_test.dart`), §4 personal records
+      (`personal_records_test.dart`), §5 consistency (`consistency_test.dart`),
+      §9 muscle balance (`muscle_balance_test.dart`) and §11 session duration
+      (`routine_preview_test.dart`) each have their spec's own fixture as a
+      test. §6 (bodyweight EMA, `F-BOD-003`) and §7 (stall detection,
+      `F-ANA-009`) are Phase 4 features and were never scheduled for this
+      phase — `linear_regression.dart`'s shared slope utility that §7 will
+      reuse already has its own fixture test, built ahead of time in batch
+      3.2.
+- [x] All charts render correctly in both themes and degrade gracefully with
+      sparse data. Sparse data (empty, single-point, single-zero-value,
+      fewer-than-three-points, unreliable-point) was already covered for all
+      three chart widgets; dark-theme rendering was not — added one
+      `AppTheme.dark()` case per widget (`trend_chart_test.dart`,
+      `weekly_bar_chart_test.dart`, `calendar_heatmap_test.dart`), plus a
+      `dark` parameter on `pumpScreen` for future screen-level theme tests.
+- [ ] ~~Figures are cross-checked by hand against the raw log for one real
+      training block.~~ **Waived**, same reasoning as Phase 1's "two weeks of
+      real training logged" criterion: there is still no real training block
+      to check figures against, and this app is not yet anyone's
+      daily-driver tracker. Revisit once one exists — an unchecked figure is
+      a real gap, not a formality, and this waiver does not make the numbers
+      trusted, only acknowledges they haven't been checked yet.
+- [ ] ~~Full recomputation over all existing history stays under 100 ms~~ —
+      **verified as "linear, not quadratic" only**, not as a literal 100ms
+      wall-clock number, left unchecked rather than ticked for the part that
+      isn't. `recompute_performance_test.dart` found the real
+      obstacle: `flutter test` runs pure Dart on the VM's JIT tier, not the
+      AOT-compiled release build the 100ms budget was written for, and
+      measured roughly a 3x-over-budget result on a desktop CPU for reasons
+      entirely explained by that gap (confirmed by comparing 1-year vs.
+      5-year synthetic history — time scales with data size, not with a
+      hidden quadratic term). The literal on-device number needs the same
+      real-APK-and-device verification Phase 1's on-device criteria used and
+      this session's toolchain doesn't have; it is not asserted here as met.
 
 ---
 
@@ -351,6 +385,51 @@ The differentiator phase.
 `F-ANA-013` `F-ANA-014`
 
 **Logging** `F-LOG-019` `F-LOG-020` `F-TIM-009`
+
+Batched into 4.1–4.6, the same way Phases 2–3 were, since later batches only
+get scheduled once the phase actually starts:
+
+| Batch | Features | Shared reads |
+|---|---|---|
+| **4.1** Progression engine & first rule | `F-PRG-001` `F-PRG-002` `F-PRG-006` `F-PRG-007` `F-PRG-008` `F-PRG-009` | `40-ANALYTICS-SPEC#12-progression-rules` `20-ARCHITECTURE#the-one-hard-rule` `22-UNITS` `21-DATA-MODEL#routine_exercises` |
+| **4.2** Remaining progression rules | `F-PRG-003` `F-PRG-004` `F-PRG-010` `F-PRG-005` | `40-ANALYTICS-SPEC#12-progression-rules` `22-UNITS` |
+| **4.3** Plate maths | `F-PLT-002` `F-PLT-001` `F-PLT-004` `F-PLT-003` `F-PLT-005` `F-PRG-012` | `21-DATA-MODEL#bars-and-plates` `22-UNITS` |
+| **4.4** Body tracking | `F-BOD-002` `F-BOD-003` | `21-DATA-MODEL#body_measurements` `22-UNITS` `40-ANALYTICS-SPEC#6-bodyweight-trend-ema` |
+| **4.5** Advanced analytics & deload | `F-ANA-009` `F-ANA-010` `F-ANA-011` `F-ANA-012` `F-ANA-013` `F-ANA-014` `F-PRG-011` | `40-ANALYTICS-SPEC#7-stall-detection` `40-ANALYTICS-SPEC#8-acute-to-chronic-workload-ratio` `40-ANALYTICS-SPEC#10-intensity-and-rep-distribution` |
+| **4.6** Logging extras | `F-LOG-019` `F-LOG-020` `F-TIM-009` | `21-DATA-MODEL#exercises` `21-DATA-MODEL#sets` `24-DESIGN-SYSTEM#component-inventory` |
+
+Ordering rationale: the engine (`F-PRG-001`) leads, same reasoning as
+`F-ANA-001` in Phase 3 — paired with its simplest real rule (`F-PRG-002`,
+linear) and the always-available null rule (`F-PRG-006`) rather than shipped
+alone, plus the assignment UI and explanation that make either rule
+reachable and legible at all (`F-PRG-007`, `F-PRG-008`) and the
+failure/deload handling `F-PRG-002` itself needs to be a complete rule
+(`F-PRG-009`). `40-ANALYTICS-SPEC.md` has no progression section yet — one is
+added in this batch (§12) with worked fixtures, since Phase 4's own exit
+criterion demands fixture tests per rule and none of Phase 1–3 needed one.
+**4.2** completes the remaining P1/P2 rule types once the engine shape is
+proven: double progression (`F-PRG-003`) needs nothing new, then training-max
+management (`F-PRG-010`) before percentage-based (`F-PRG-004`, which depends
+on it), then RPE-autoregulation (`F-PRG-005`, depends only on `F-LOG-014`,
+already done). **4.3** is plate maths as its own batch — `F-PLT-002`
+(inventory) before `F-PLT-001` (the calculator that reads it) before
+`F-PLT-004` (closest achievable weight, needs both), then the two P2
+extras (`F-PLT-003`, `F-PLT-005`); `F-PRG-012` (plate-aware rounding) closes
+the batch since it depends on `F-PLT-001` and is what finally satisfies
+`F-PRG-001` §6 and the Phase 4 exit criterion about never proposing
+unassemblable plates — `F-PRG-001` itself ships in 4.1 without that
+guarantee met yet, the same kind of documented partial-acceptance Phase 3's
+batches repeatedly used. **4.4** (body tracking) has no dependency on
+anything progression- or plate-related and could run anywhere; grouped here
+because `F-BOD-003`'s EMA smoothing is the one still-unbuilt §6 metric from
+`40-ANALYTICS-SPEC.md`, closing that gap from the Phase 3 audit above.
+**4.5** groups every remaining `F-ANA-*` metric with `F-PRG-011` (deload
+suggestion), since it depends on two of them (`F-ANA-009` stall detection,
+`F-ANA-010` ACWR) and both need real history to tune thresholds against —
+this is also the batch that finally makes "insight cards say nothing when
+data is insufficient" a testable exit criterion rather than an aspiration.
+**4.6** is trailing odds and ends with no dependents of their own, same
+reasoning Phases 2–3 gave their own trailing batches.
 
 **Exit criteria**
 - [ ] Starting a routine day pre-fills targets that are correct, explained, and

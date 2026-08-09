@@ -47,4 +47,25 @@ void main() {
 
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('renders in dark theme without throwing (Phase 3 exit)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.dark(),
+        home: Scaffold(
+          body: CalendarHeatmap(
+            trainingDays: {DateTime(2026, 8, 3), DateTime(2026, 8, 5)},
+            weekStart: WeekStart.monday,
+            now: DateTime(2026, 8, 7),
+            weeksToShow: 4,
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(Container), findsNWidgets(28));
+  });
 }

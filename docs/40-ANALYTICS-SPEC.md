@@ -448,6 +448,89 @@ total                       = 1065 s  (~18 min)
 
 ---
 
+## 12. Progression rules
+
+Used by: `F-PRG-001`, `F-PRG-002`, `F-PRG-006`, `F-PRG-009`.
+
+`computeTargets(rule, exerciseHistory, context) -> TargetSet` proposes the
+next session's target weight and reps for one exercise, given its own
+logged history. Two rules land in Phase 4 batch 4.1: **linear progression**
+(automated) and **manual carry-forward** (the default, explicitly
+opinion-free per `F-PRG-006`).
+
+### Session result
+
+For an exercise with a target of `n` sets at `targetWeight` and
+`targetReps`, each counted set is **met** if its weight ≥ `targetWeight` and
+its reps ≥ `targetReps`. The session as a whole is:
+
+| Result | Condition |
+|---|---|
+| `success` | every counted set met |
+| `failure` | no counted set met |
+| `partial` | some but not all counted sets met |
+
+### Linear progression (`F-PRG-002`)
+
+```
+success  → nextWeight = weight + increment,  consecutiveFailures = 0
+partial  → nextWeight = weight (repeat),      consecutiveFailures unchanged
+failure  → consecutiveFailures += 1
+           if consecutiveFailures >= failureThreshold:
+               nextWeight = weight × (1 − deloadFraction)
+               consecutiveFailures = 0
+           else:
+               nextWeight = weight (repeat)
+```
+
+### Rules
+
+1. **`partial` is its own outcome, not a failure.** It neither increments nor
+   resets the consecutive-failure count — a session with some sets made is
+   evidence of neither "getting stronger" nor "this weight isn't working",
+   and folding it into either would make the streak count lie about which
+   one actually happened.
+2. `increment` and `failureThreshold` are per-exercise, defaulting from the
+   exercise's primary muscle's `MuscleCategory` (`F-CAT-013`):
+   `MuscleCategory.legs` defaults to 5 kg, everything else (including no
+   category) to 2.5 kg — smaller joints, smaller jumps. `failureThreshold`
+   defaults to 3 consecutive failures regardless of category.
+3. `deloadFraction` defaults to 10%.
+4. **First-run has no verdict.** With no prior session for this exercise,
+   the rule falls back to the routine's static target unchanged
+   (`F-PRG-001` §5) — there is nothing to be a success or failure relative
+   to yet.
+5. Weight rounding to an achievable load happens after this computation,
+   never before (`F-PRG-012`, not yet built — Phase 4 batch 4.3).
+
+### Manual carry-forward (`F-PRG-006`)
+
+The null rule: `nextWeight`/`nextReps` = the previous session's actual
+values verbatim, with no success/partial/failure evaluation at all. This is
+the default for every routine exercise until a rule is explicitly assigned
+(`F-PRG-007`).
+
+### Fixture — `linearProgression`
+
+Bench Press (primary muscle `chest` → not `legs` → 2.5 kg increment),
+target `3×5 @ 100 kg`, `failureThreshold = 3`, `deloadFraction = 0.10`.
+
+```
+success  100×5, 100×5, 100×5           → next 102.5 kg, streak → 0
+partial  100×5, 100×5, 100×3           → next 100 kg (repeat), streak unchanged
+failure  100×3, 100×3, 100×3 (streak 0 → 1) → next 100 kg (repeat), streak = 1
+failure  100×3, 100×3, 100×3 (streak 2 → 3, threshold reached)
+                                        → next 90 kg (100 × 0.90), streak → 0
+first-run  no prior session            → falls back to routine's static
+                                          target, 100 kg unchanged
+```
+
+The deload case is the one a naive "just keep repeating on failure"
+implementation gets wrong — three failures in a row should propose a lighter
+weight, not the same one a fourth time.
+
+---
+
 ## Implementation notes
 
 1. Every function above is pure: plain inputs, plain outputs, no clock, no

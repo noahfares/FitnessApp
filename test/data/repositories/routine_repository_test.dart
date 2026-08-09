@@ -6,6 +6,7 @@ import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/tables/enums.dart';
 import 'package:fitness_app/data/repositories/routine_repository.dart';
 import 'package:fitness_app/data/repositories/workout_repository.dart';
+import 'package:fitness_app/domain/progression/progression_rule.dart';
 import 'package:fitness_app/domain/routines/starter_programs.dart';
 
 /// `F-ROU-001`, `F-ROU-002`, `F-ROU-003`, `F-ROU-004`, `F-ROU-007`,
@@ -125,6 +126,82 @@ void main() {
         expect(originalAfter.single.targetSets, 3);
       },
     );
+
+    test('duplicate carries the progression rule to the copy', () async {
+      final exerciseId = await makeExercise('ex1', 'Bench Press');
+      final routine = await repo.create(name: 'PPL');
+      final day = await repo.addDay(routine.id, name: 'Push');
+      await repo.addExercises(day.id, [exerciseId]);
+      final [original] = await repo.watchExercises(day.id).first;
+      await repo.setProgressionRule(
+        original.routineExerciseId,
+        const LinearProgressionRule(
+          config: LinearProgressionConfig(incrementGrams: 2500),
+        ),
+      );
+
+      final copy = await repo.duplicate(routine.id);
+      final [copyDay] = await repo.watchDays(copy.id).first;
+      final [copyExercise] = await repo.watchExercises(copyDay.id).first;
+
+      expect(copyExercise.progressionRule, isA<LinearProgressionRule>());
+    });
+  });
+
+  group('progression rule assignment (F-PRG-007)', () {
+    test('a routine exercise defaults to manual carry-forward', () async {
+      final exerciseId = await makeExercise('ex1', 'Bench Press');
+      final routine = await repo.create(name: 'PPL');
+      final day = await repo.addDay(routine.id, name: 'Push');
+      await repo.addExercises(day.id, [exerciseId]);
+
+      final [exercise] = await repo.watchExercises(day.id).first;
+      expect(exercise.progressionRule, isA<ManualCarryForwardRule>());
+    });
+
+    test('assigning a linear rule persists its config', () async {
+      final exerciseId = await makeExercise('ex1', 'Bench Press');
+      final routine = await repo.create(name: 'PPL');
+      final day = await repo.addDay(routine.id, name: 'Push');
+      await repo.addExercises(day.id, [exerciseId]);
+      final [exercise] = await repo.watchExercises(day.id).first;
+
+      await repo.setProgressionRule(
+        exercise.routineExerciseId,
+        const LinearProgressionRule(
+          config: LinearProgressionConfig(
+            incrementGrams: 5000,
+            failureThreshold: 2,
+            deloadFraction: 0.15,
+          ),
+        ),
+      );
+
+      final [updated] = await repo.watchExercises(day.id).first;
+      final rule = updated.progressionRule as LinearProgressionRule;
+      expect(rule.config.incrementGrams, 5000);
+      expect(rule.config.failureThreshold, 2);
+      expect(rule.config.deloadFraction, 0.15);
+    });
+
+    test('clearing the rule reverts to manual carry-forward', () async {
+      final exerciseId = await makeExercise('ex1', 'Bench Press');
+      final routine = await repo.create(name: 'PPL');
+      final day = await repo.addDay(routine.id, name: 'Push');
+      await repo.addExercises(day.id, [exerciseId]);
+      final [exercise] = await repo.watchExercises(day.id).first;
+      await repo.setProgressionRule(
+        exercise.routineExerciseId,
+        const LinearProgressionRule(
+          config: LinearProgressionConfig(incrementGrams: 2500),
+        ),
+      );
+
+      await repo.setProgressionRule(exercise.routineExerciseId, null);
+
+      final [cleared] = await repo.watchExercises(day.id).first;
+      expect(cleared.progressionRule, isA<ManualCarryForwardRule>());
+    });
   });
 
   group('creating a routine from a past workout (F-ROU-001 §3)', () {

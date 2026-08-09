@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fitness_app/core/routing/app_router.dart';
 import 'package:fitness_app/core/routing/app_routes.dart';
 import 'package:fitness_app/data/db/app_database.dart';
+import 'package:fitness_app/data/db/database_provider.dart';
 import 'package:fitness_app/data/db/tables/enums.dart';
 
 import '../../support/harness.dart';
@@ -108,6 +109,72 @@ void main() {
       final workouts = await db.select(db.workouts).get();
       expect(workouts.single.name, 'Day 1');
       expect(workouts.single.sourceRoutineDayId, isNotNull);
+    },
+  );
+
+  testWidgets(
+    'assigning a linear progression rule proposes an incremented target on '
+    'a second start (F-PRG-007, batch 4.1)',
+    (tester) async {
+      await seedExercise();
+      await openRoutines(tester);
+
+      await tester.tap(find.byTooltip('New routine'));
+      await tester.pumpAndSettle();
+      await saveDialog(tester, 'Pull Day');
+      await tester.tap(find.text('Add a day'));
+      await tester.pumpAndSettle();
+      await saveDialog(tester, 'Day 1');
+      await tester.tap(find.text('Add exercises'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Cable Row'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Add 1'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Cable Row'));
+      await tester.pumpAndSettle();
+      final fields = find.byType(TextField);
+      await tester.enterText(fields.at(0), '3');
+      await tester.enterText(fields.at(1), '5');
+      await tester.enterText(fields.at(2), '5');
+      await tester.enterText(fields.at(3), '100');
+      await tester.tap(find.text('Add weight on success'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Save targets'));
+      await tester.pumpAndSettle();
+
+      // First start: no history yet, so the static 100 kg target is used.
+      await tester.tap(find.text('Start workout'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('100 kg'), findsWidgets);
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MaterialApp)),
+      );
+      final workouts = container.read(workoutRepositoryProvider);
+      final sets = container.read(setRepositoryProvider);
+      final workoutId = (await db.select(db.workouts).get()).single.id;
+      final workoutExercise =
+          (await db.select(db.workoutExercises).get()).single;
+      for (final set in await sets.getSets(workoutExercise.id)) {
+        await sets.complete(
+          set.id,
+          weightGrams: const Value(100000),
+          reps: const Value(5),
+        );
+      }
+      await workouts.finish(workoutId);
+
+      // Back to the day and start again — the routine's own progression
+      // engine should now propose 102.5 kg, not the static 100 kg target.
+      final routineId = (await db.select(db.routines).get()).single.id;
+      container.read(routerProvider).go(AppRoutes.routine(routineId));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Start workout'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('102.5 kg'), findsWidgets);
     },
   );
 

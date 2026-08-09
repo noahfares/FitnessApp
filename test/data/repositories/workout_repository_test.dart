@@ -7,6 +7,8 @@ import 'package:fitness_app/data/db/tables/enums.dart';
 import 'package:fitness_app/data/repositories/routine_repository.dart';
 import 'package:fitness_app/data/repositories/set_repository.dart';
 import 'package:fitness_app/data/repositories/workout_repository.dart';
+import 'package:fitness_app/domain/progression/progression_rationale.dart';
+import 'package:fitness_app/domain/progression/progression_rule.dart';
 
 /// `F-LOG-001`, `F-LOG-002`, `F-LOG-007`.
 void main() {
@@ -674,6 +676,183 @@ void main() {
         expect(exercises[0].groupId, exercises[1].groupId);
       },
     );
+  });
+
+  group('progression-proposed targets (F-PRG-001, batch 4.1)', () {
+    late RoutineRepository routines;
+    late SetRepository sets;
+
+    setUp(() {
+      routines = RoutineRepository(db, clock: () => clock);
+      sets = SetRepository(db, clock: () => clock);
+    });
+
+    Future<String> makeDayWithRule(ProgressionRule rule) async {
+      await makeExercise('bench', 'Bench Press');
+      final routine = await routines.create(name: 'Push');
+      final day = await routines.addDay(routine.id, name: 'Push');
+      await routines.addExercises(day.id, ['bench']);
+      final [detail] = await routines.watchExercises(day.id).first;
+      await routines.setTargets(
+        detail.routineExerciseId,
+        targetSets: const Value(3),
+        targetRepsMin: const Value(5),
+        targetRepsMax: const Value(5),
+        targetWeightGrams: const Value(100000),
+      );
+      await routines.setProgressionRule(detail.routineExerciseId, rule);
+      return day.id;
+    }
+
+    test('first start with a linear rule proposes the routine\'s own static '
+        'target — there is no history yet to progress from', () async {
+      final dayId = await makeDayWithRule(
+        const LinearProgressionRule(
+          config: LinearProgressionConfig(incrementGrams: 2500),
+        ),
+      );
+
+      final workout = await repo.startFromRoutineDay(dayId);
+      final [exercise] = await repo.watchExercises(workout.id).first;
+
+      expect(exercise.target!.weightGrams, 100000);
+      expect(exercise.target!.rationale!.outcome, ProgressionOutcome.firstRun);
+    });
+
+    test('a second start after a fully successful session proposes the '
+        'incremented weight, not the routine\'s static target', () async {
+      final dayId = await makeDayWithRule(
+        const LinearProgressionRule(
+          config: LinearProgressionConfig(incrementGrams: 2500),
+        ),
+      );
+
+      final first = await repo.startFromRoutineDay(dayId);
+      final [firstExercise] = await repo.watchExercises(first.id).first;
+      for (final set in await sets.getSets(firstExercise.workoutExerciseId)) {
+        await sets.complete(
+          set.id,
+          weightGrams: const Value(100000),
+          reps: const Value(5),
+        );
+      }
+      await repo.finish(first.id);
+      clock = clock.add(const Duration(days: 2));
+
+      final second = await repo.startFromRoutineDay(dayId);
+      final [secondExercise] = await repo.watchExercises(second.id).first;
+
+      expect(secondExercise.target!.weightGrams, 102500);
+      expect(
+        secondExercise.target!.rationale!.outcome,
+        ProgressionOutcome.success,
+      );
+    });
+
+    test('three consecutive failed sessions propose a deloaded weight, and say '
+        'so — not silently the same weight a fourth time', () async {
+      final dayId = await makeDayWithRule(
+        const LinearProgressionRule(
+          config: LinearProgressionConfig(
+            incrementGrams: 2500,
+            failureThreshold: 3,
+            deloadFraction: 0.10,
+          ),
+        ),
+      );
+
+      Future<String> startFailAndFinish() async {
+        final workout = await repo.startFromRoutineDay(dayId);
+        final [exercise] = await repo.watchExercises(workout.id).first;
+        for (final set in await sets.getSets(exercise.workoutExerciseId)) {
+          await sets.complete(
+            set.id,
+            weightGrams: const Value(100000),
+            reps: const Value(3), // below the 5-rep target: a failure
+          );
+        }
+        await repo.finish(workout.id);
+        clock = clock.add(const Duration(days: 2));
+        return workout.id;
+      }
+
+      await startFailAndFinish();
+      await startFailAndFinish();
+      await startFailAndFinish();
+
+      final fourth = await repo.startFromRoutineDay(dayId);
+      final [exercise] = await repo.watchExercises(fourth.id).first;
+
+      expect(exercise.target!.weightGrams, 90000);
+      expect(exercise.target!.rationale!.outcome, ProgressionOutcome.deload);
+    });
+
+    test('manual carry-forward (the default) carries the last logged weight '
+        'forward with no automated increment', () async {
+      final dayId = await makeDayWithRule(const ManualCarryForwardRule());
+
+      final first = await repo.startFromRoutineDay(dayId);
+      final [firstExercise] = await repo.watchExercises(first.id).first;
+      for (final set in await sets.getSets(firstExercise.workoutExerciseId)) {
+        await sets.complete(
+          set.id,
+          weightGrams: const Value(105000),
+          reps: const Value(5),
+        );
+      }
+      await repo.finish(first.id);
+      clock = clock.add(const Duration(days: 2));
+
+      final second = await repo.startFromRoutineDay(dayId);
+      final [secondExercise] = await repo.watchExercises(second.id).first;
+
+      expect(secondExercise.target!.weightGrams, 105000);
+      expect(
+        secondExercise.target!.rationale!.outcome,
+        ProgressionOutcome.manualCarryForward,
+      );
+    });
+
+    test("a configured rep range survives a second start unchanged — "
+        "progression owns the weight, not the range", () async {
+      await makeExercise('bench', 'Bench Press');
+      final routine = await routines.create(name: 'Push');
+      final day = await routines.addDay(routine.id, name: 'Push');
+      await routines.addExercises(day.id, ['bench']);
+      final [detail] = await routines.watchExercises(day.id).first;
+      await routines.setTargets(
+        detail.routineExerciseId,
+        targetSets: const Value(3),
+        targetRepsMin: const Value(8),
+        targetRepsMax: const Value(12),
+        targetWeightGrams: const Value(100000),
+      );
+      await routines.setProgressionRule(
+        detail.routineExerciseId,
+        const LinearProgressionRule(
+          config: LinearProgressionConfig(incrementGrams: 2500),
+        ),
+      );
+
+      final first = await repo.startFromRoutineDay(day.id);
+      final [firstExercise] = await repo.watchExercises(first.id).first;
+      for (final set in await sets.getSets(firstExercise.workoutExerciseId)) {
+        await sets.complete(
+          set.id,
+          weightGrams: const Value(100000),
+          reps: const Value(10),
+        );
+      }
+      await repo.finish(first.id);
+      clock = clock.add(const Duration(days: 2));
+
+      final second = await repo.startFromRoutineDay(day.id);
+      final [secondExercise] = await repo.watchExercises(second.id).first;
+
+      expect(secondExercise.target!.weightGrams, 102500);
+      expect(secondExercise.target!.repsMin, 8);
+      expect(secondExercise.target!.repsMax, 12);
+    });
   });
 
   group('a full training week from routine days (Phase 2 exit criterion)', () {

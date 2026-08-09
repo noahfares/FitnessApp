@@ -122,6 +122,24 @@
     "expectedSeconds": 1065
   },
 
+  "linearProgression": {
+    "spec": "40-ANALYTICS-SPEC#12-progression-rules",
+    "exercise": { "name": "Bench Press", "primaryMuscle": "chest" },
+    "targetWeightKg": 100,
+    "targetReps": 5,
+    "incrementKg": 2.5,
+    "failureThreshold": 3,
+    "deloadFraction": 0.10,
+    "cases": [
+      { "name": "success",   "sets": [[100,5],[100,5],[100,5]], "priorStreak": 0, "expectedNextWeightKg": 102.5, "expectedStreak": 0 },
+      { "name": "partial",   "sets": [[100,5],[100,5],[100,3]], "priorStreak": 0, "expectedNextWeightKg": 100,   "expectedStreak": 0 },
+      { "name": "partial preserves an in-progress streak", "sets": [[100,5],[100,3]], "priorStreak": 1, "expectedNextWeightKg": 100, "expectedStreak": 1 },
+      { "name": "failure",   "sets": [[100,3],[100,3],[100,3]], "priorStreak": 0, "expectedNextWeightKg": 100,  "expectedStreak": 1 },
+      { "name": "failure triggers deload at threshold", "sets": [[100,3],[100,3],[100,3]], "priorStreak": 2, "expectedNextWeightKg": 90, "expectedStreak": 0 },
+      { "name": "first-run falls back to the static target", "sets": null, "expectedFallback": true }
+    ]
+  },
+
   "emptyInput": {
     "$note": "Every analytics function must return a defined empty result for these, never throw and never zero. Zero and unknown are different things.",
     "sets": [],

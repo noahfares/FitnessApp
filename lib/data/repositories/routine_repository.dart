@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../core/ids/uuid.dart';
+import '../../domain/progression/progression_rule.dart';
 import '../../domain/routines/starter_programs.dart';
 import '../db/app_database.dart';
 import '../db/tables/shared.dart' show StringListConverter;
@@ -44,6 +45,7 @@ class RoutineExerciseDetail {
     this.restSeconds,
     this.exerciseDefaultRestSeconds,
     this.notes,
+    this.progressionRule = const ManualCarryForwardRule(),
   });
 
   final String routineExerciseId;
@@ -68,6 +70,11 @@ class RoutineExerciseDetail {
   final int? restSeconds;
   final int? exerciseDefaultRestSeconds;
   final String? notes;
+
+  /// Decoded `routine_exercises.progression_rule` (`F-PRG-001`, `F-PRG-007`).
+  /// Never null — an absent stored value decodes to
+  /// [ManualCarryForwardRule], the default.
+  final ProgressionRule progressionRule;
 }
 
 /// One routine day scheduled for a given weekday (`F-ROU-012`) — what the
@@ -274,6 +281,7 @@ class RoutineRepository {
                   targetRpe: Value(exercise.targetRpe),
                   restSeconds: Value(exercise.restSeconds),
                   notes: Value(exercise.notes),
+                  progressionRule: Value(exercise.progressionRule),
                   createdAt: timestamp,
                   updatedAt: timestamp,
                 ),
@@ -720,7 +728,8 @@ class RoutineRepository {
                  re.target_rpe        AS target_rpe,
                  re.rest_seconds      AS rest_seconds,
                  e.default_rest_seconds AS exercise_default_rest_seconds,
-                 re.notes             AS notes
+                 re.notes             AS notes,
+                 re.progression_rule  AS progression_rule
             FROM routine_exercises re
             JOIN exercises e ON e.id = re.exercise_id
            WHERE re.routine_day_id = ? AND re.deleted_at IS NULL
@@ -755,6 +764,9 @@ class RoutineRepository {
                   'exercise_default_rest_seconds',
                 ),
                 notes: row.read<String?>('notes'),
+                progressionRule: ProgressionRule.fromJson(
+                  row.read<String?>('progression_rule'),
+                ),
               ),
           ],
         );
@@ -900,6 +912,25 @@ class RoutineRepository {
         targetWeightGrams: targetWeightGrams,
         targetRpe: targetRpe,
         restSeconds: restSeconds,
+        updatedAt: Value(_now),
+      ),
+    );
+  }
+
+  /// Assigns [rule] to one routine exercise (`F-PRG-007`). `null` clears it
+  /// back to no stored rule, which decodes as [ManualCarryForwardRule]
+  /// anyway (`ProgressionRule.fromJson`) — stored as an explicit null rather
+  /// than an encoded manual rule so a raw dump reads "never configured"
+  /// distinctly from "configured to do nothing".
+  Future<void> setProgressionRule(
+    String routineExerciseId,
+    ProgressionRule? rule,
+  ) {
+    return (_db.update(
+      _db.routineExercises,
+    )..where((re) => re.id.equals(routineExerciseId))).write(
+      RoutineExercisesCompanion(
+        progressionRule: Value(rule?.toJson()),
         updatedAt: Value(_now),
       ),
     );

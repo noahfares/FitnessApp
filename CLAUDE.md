@@ -708,13 +708,66 @@ widget — no chart anywhere in the codebase reads
 `MediaQuery.disableAnimations` yet, and adding it here alone, for these two
 widgets only, without an app-wide convention was judged out of scope.
 
-**Phase 3 batches 3.1–3.6 are all done.** Its own exit criteria
-(`docs/50-ROADMAP.md` §Phase 3 — every scheduled metric fixture-tested, every
-chart themed and sparse-data-safe, figures hand-checked against a real
-training block, full recomputation under 100 ms) have not yet been audited
-as a phase-level pass the way Phase 2's audit batch did; that audit, and
-declaring the phase complete, is its own piece of work for the project
-owner, not implied by the last batch landing.
+**Phase 3 audited and declared complete (v0.34.0)**, mirroring Phase 2's own
+audit batch: a test per exit criterion proving the criterion's own wording.
+Every Phase-3-scheduled metric already had its spec's fixture as a test;
+dark-theme rendering was the one real gap in "charts render in both themes"
+and is now covered for all three chart widgets (`TrendChart`,
+`WeeklyBarChart`, `CalendarHeatmap`), alongside a `dark` param added to
+`pumpScreen` for future screen-level theme tests. Two criteria could not be
+verified in this session and are recorded as such rather than silently
+marked met: the real-training-block figure check is **waived**, same
+reasoning as Phase 1's own waived "two weeks of real training" criterion —
+there is still no real block to check against; and the literal "under
+100 ms on a mid-range device" number needs an AOT-compiled release build on
+real hardware to mean anything — `flutter test`'s JIT tier measured ~3x over
+budget for reasons entirely explained by that gap, not by the code being
+slow, so `recompute_performance_test.dart` instead proves recomputation is
+linear in history size, not quadratic, and defers the literal wall-clock
+number to the same on-device verification Phase 1's criteria used.
+
+**Phase 4 started (v0.34.0) — batched into 4.1–4.6** in
+`docs/50-ROADMAP.md`, the same way Phases 2–3 were.
+
+**Batch 4.1 — progression engine & first rule.** `F-PRG-002`, `F-PRG-006`,
+`F-PRG-007`, `F-PRG-008` and `F-PRG-009` done; `F-PRG-001` `in-progress` —
+its own acceptance note has the one unmet criterion (plate-aware rounding,
+waiting on `F-PRG-012` in batch 4.3). No schema change —
+`routine_exercises.progression_rule` and `workout_exercises.target_snapshot`
+have existed since schema v3 and v1 respectively; this batch is the first to
+write a real value into the former or read anything beyond the static
+routine target out of the latter. `40-ANALYTICS-SPEC.md` had no progression
+section before this batch — §12 is new, with a `linearProgression` fixture
+covering success, partial, failure, deload, and first-run, the same set
+Phase 4's own exit criterion demands per rule.
+`lib/domain/progression/` holds the pure engine: `computeTargets` (the
+literal `F-PRG-001` §1 signature) derives a linear rule's failure streak by
+walking real logged history backward rather than storing an incrementally
+updated counter — the same recompute-from-raw-data reasoning
+`PersonalRecordRepository.rebuildAll` already used — and models one
+**top set** per exercise, not independent per-set progression (`F-PRG-001`'s
+own doc comment names this as the scope `F-PRG-002`'s spec describes).
+`ProgressionRationale` is structured data, not a sentence — canonical units
+only, so `lib/features/logging/presentation/progression_rationale_text.dart`
+is what turns it into "You hit every set at 100 kg last time, so this is
++2.5 kg." using the same `QuantityFormatter` every other screen already
+reads weight through, shown collapsed-to-one-line and expandable on the
+active workout screen, the same interaction `_StickyNoteText` already used
+there for the exercise note. `RoutineRepository.setProgressionRule` and a
+`SegmentedButton` on the day editor's target sheet ("I'll decide" vs. "Add
+weight on success") are `F-PRG-007`; `duplicate()` was updated to carry a
+routine exercise's assigned rule to its copy, closing the same
+copy-every-field gap `F-ROU-005`'s superset `group_id` fix closed for
+batch 2.1. `startFromRoutineDay` now calls `computeTargets` for every
+exercise — a real behaviour change, deliberate and spec'd
+(`F-PRG-006` names manual carry-forward "the default"): a *second* start of
+a routine day with no rule assigned now proposes the last actually-logged
+weight rather than repeating the routine's static target verbatim, which a
+new repository test asserts directly. `SetRepository.getExerciseHistory` is
+the one-shot equivalent of the existing `watchExerciseHistory` stream this
+needed. Not built: double progression, percentage/training-max, and
+RPE-autoregulated rules (`F-PRG-003`–`F-PRG-005`, batch 4.2); plate-aware
+rounding and a routine-level (rather than per-exercise) rule default.
 
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,

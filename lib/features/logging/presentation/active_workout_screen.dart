@@ -29,6 +29,7 @@ import '../../timing/presentation/rest_timer_bar.dart';
 import '../application/active_workout_providers.dart';
 import '../application/set_providers.dart';
 import 'exercise_picker_sheet.dart';
+import 'progression_rationale_text.dart';
 import 'set_row.dart';
 import 'set_value_format.dart';
 
@@ -484,6 +485,15 @@ class _SessionExerciseTile extends ConsumerWidget {
                   'Target: $summary',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.primary,
+                  ),
+                ),
+              if (exercise.target case final target?
+                  when !target.isEmpty && target.rationale != null)
+                ProgressionRationaleText(
+                  text: progressionRationaleText(
+                    target.rationale!,
+                    ref.watch(quantityFormatterProvider),
+                    prefs.load,
                   ),
                 ),
               // The exercise's own persistent note, distinct from anything

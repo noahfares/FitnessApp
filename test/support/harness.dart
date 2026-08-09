@@ -158,6 +158,7 @@ Future<ProviderContainer> pumpScreen(
   DateTime? now,
   String? country,
   double textScale = 1,
+  bool dark = false,
   Map<String, Object> prefs = const {},
   List<Override> overrides = const [],
 }) async {
@@ -173,7 +174,7 @@ Future<ProviderContainer> pumpScreen(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: AppTheme.light(),
+        theme: dark ? AppTheme.dark() : AppTheme.light(),
         home: textScale == 1
             ? screen
             : MediaQuery(

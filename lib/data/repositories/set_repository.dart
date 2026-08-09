@@ -388,6 +388,12 @@ class SetRepository {
     String exerciseId,
   ) => _exerciseHistoryQuery(exerciseId).watch().map(_mapExerciseHistory);
 
+  /// One-shot equivalent of [watchExerciseHistory], newest session first —
+  /// what the progression engine reads at workout-start time (`F-PRG-001`),
+  /// which needs a single snapshot rather than a live stream.
+  Future<List<ExerciseHistorySession>> getExerciseHistory(String exerciseId) =>
+      _exerciseHistoryQuery(exerciseId).get().then(_mapExerciseHistory);
+
   Selectable<QueryRow> _exerciseHistoryQuery(String exerciseId) =>
       _db.customSelect(
         '''

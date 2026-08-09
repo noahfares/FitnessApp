@@ -13,6 +13,8 @@ import '../../../data/db/database_provider.dart';
 import '../../../data/db/tables/enums.dart';
 import '../../../data/repositories/routine_repository.dart';
 import '../../../data/repositories/workout_repository.dart';
+import '../../../domain/progression/linear_progression.dart';
+import '../../../domain/progression/progression_rule.dart';
 import '../../../domain/routines/rep_range.dart';
 import '../../../domain/routines/routine_preview.dart';
 import '../../../domain/timing/rest_defaults.dart';
@@ -538,7 +540,9 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
   late final TextEditingController _repsMin;
   late final TextEditingController _repsMax;
   late final TextEditingController _weight;
+  late final TextEditingController _increment;
   int? _restSeconds;
+  late ProgressionRuleType _ruleType;
 
   @override
   void initState() {
@@ -548,14 +552,26 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
     _repsMin = TextEditingController(text: row.targetRepsMin?.toString() ?? '');
     _repsMax = TextEditingController(text: row.targetRepsMax?.toString() ?? '');
     final prefs = ref.read(unitPreferencesProvider);
+    final formatter = ref.read(quantityFormatterProvider);
     _weight = TextEditingController(
       text: row.targetWeightGrams == null
           ? ''
-          : ref
-                .read(quantityFormatterProvider)
-                .massValueOnly(Mass.grams(row.targetWeightGrams!), prefs.load),
+          : formatter.massValueOnly(
+              Mass.grams(row.targetWeightGrams!),
+              prefs.load,
+            ),
     );
     _restSeconds = row.restSeconds;
+
+    final rule = row.progressionRule;
+    _ruleType = rule.type;
+    final incrementGrams = switch (rule) {
+      LinearProgressionRule(config: final config) => config.incrementGrams,
+      _ => defaultIncrementGrams(row.primaryMuscle),
+    };
+    _increment = TextEditingController(
+      text: formatter.massValueOnly(Mass.grams(incrementGrams), prefs.load),
+    );
   }
 
   @override
@@ -564,6 +580,7 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
     _repsMin.dispose();
     _repsMax.dispose();
     _weight.dispose();
+    _increment.dispose();
     super.dispose();
   }
 
@@ -654,6 +671,43 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
+            Text('Progression', style: theme.textTheme.titleMedium),
+            const SizedBox(height: AppSpacing.sm),
+            // Plain language, not a configuration form (`F-PRG-007`) — the
+            // concepts are simple ("keep it the same" vs. "add weight when I
+            // hit my sets") even though the vocabulary underneath isn't.
+            SegmentedButton<ProgressionRuleType>(
+              segments: const [
+                ButtonSegment(
+                  value: ProgressionRuleType.manualCarryForward,
+                  label: Text('I\'ll decide'),
+                ),
+                ButtonSegment(
+                  value: ProgressionRuleType.linear,
+                  label: Text('Add weight on success'),
+                ),
+              ],
+              selected: {_ruleType},
+              onSelectionChanged: (selection) =>
+                  setState(() => _ruleType = selection.first),
+            ),
+            if (_ruleType == ProgressionRuleType.linear) ...[
+              const SizedBox(height: AppSpacing.sm),
+              TextField(
+                controller: _increment,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Add when I hit every set (${prefs.load.symbol})',
+                  border: const OutlineInputBorder(),
+                  helperText:
+                      'Repeats the same weight on a partial miss; deloads '
+                      'after three misses in a row.',
+                ),
+              ),
+            ],
+            const SizedBox(height: AppSpacing.lg),
             FilledButton(
               onPressed: () => unawaited(_save(context)),
               child: const Text('Save targets'),
@@ -673,16 +727,27 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
     final repsMax = int.tryParse(_repsMax.text.trim());
     final weight = parser.parseMass(_weight.text, prefs.load);
 
-    await ref
-        .read(routineRepositoryProvider)
-        .setTargets(
-          widget.row.routineExerciseId,
-          targetSets: Value(sets),
-          targetRepsMin: Value(repsMin),
-          targetRepsMax: Value(repsMax),
-          targetWeightGrams: Value(weight?.grams),
-          restSeconds: Value(_restSeconds),
-        );
+    final repo = ref.read(routineRepositoryProvider);
+    await repo.setTargets(
+      widget.row.routineExerciseId,
+      targetSets: Value(sets),
+      targetRepsMin: Value(repsMin),
+      targetRepsMax: Value(repsMax),
+      targetWeightGrams: Value(weight?.grams),
+      restSeconds: Value(_restSeconds),
+    );
+
+    final rule = switch (_ruleType) {
+      ProgressionRuleType.manualCarryForward => null,
+      ProgressionRuleType.linear => LinearProgressionRule(
+        config: LinearProgressionConfig(
+          incrementGrams:
+              parser.parseMass(_increment.text, prefs.load)?.grams ??
+              defaultIncrementGrams(widget.row.primaryMuscle),
+        ),
+      ),
+    };
+    await repo.setProgressionRule(widget.row.routineExerciseId, rule);
 
     if (!context.mounted) return;
     Navigator.of(context).pop();
