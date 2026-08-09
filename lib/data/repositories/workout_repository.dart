@@ -464,6 +464,7 @@ class WorkoutRepository {
           context: ProgressionContext(
             staticWeightGrams: row.read<int?>('target_weight_grams'),
             staticReps: row.read<int?>('target_reps_min'),
+            staticRepsMax: row.read<int?>('target_reps_max'),
             staticSets: row.read<int?>('target_sets'),
           ),
         ),

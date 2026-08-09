@@ -125,7 +125,7 @@
 |---|---|---|---|---|
 | [F-PRG-001](PRG/F-PRG-001.md) | Progression engine core | 4 | P1 | in-progress |
 | [F-PRG-002](PRG/F-PRG-002.md) | Linear progression | 4 | P1 | done |
-| [F-PRG-003](PRG/F-PRG-003.md) | Double progression | 4 | P1 | planned |
+| [F-PRG-003](PRG/F-PRG-003.md) | Double progression | 4 | P1 | done |
 | [F-PRG-004](PRG/F-PRG-004.md) | Percentage / training-max based | 4 | P2 | planned |
 | [F-PRG-005](PRG/F-PRG-005.md) | RPE-autoregulated | 4 | P2 | planned |
 | [F-PRG-006](PRG/F-PRG-006.md) | Manual carry-forward | 4 | P1 | done |

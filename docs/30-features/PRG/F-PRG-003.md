@@ -1,6 +1,6 @@
 # F-PRG-003 — Double progression
 
-Status: planned | Priority: P1 | Phase: 4
+Status: done | Priority: P1 | Phase: 4
 Depends on: F-PRG-001
 Reads: 40-ANALYTICS-SPEC, 22-UNITS
 

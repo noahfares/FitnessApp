@@ -140,6 +140,24 @@
     ]
   },
 
+  "doubleProgression": {
+    "spec": "40-ANALYTICS-SPEC#12-progression-rules",
+    "exercise": { "name": "Goblet Squat", "primaryMuscle": "quads" },
+    "targetWeightKg": 20,
+    "targetRepsMin": 8,
+    "targetRepsMax": 12,
+    "incrementKg": 2.5,
+    "floorMissThreshold": 3,
+    "deloadFraction": 0.10,
+    "cases": [
+      { "name": "success (top met)", "sets": [[20,12],[20,12],[20,12]], "priorFloorMisses": 0, "expectedNextWeightKg": 22.5, "expectedNextRepsFloor": 8, "expectedFloorMisses": 0 },
+      { "name": "partial", "sets": [[20,10],[20,9],[20,8]], "priorFloorMisses": 0, "expectedNextWeightKg": 20, "expectedFloorMisses": 0 },
+      { "name": "floor miss", "sets": [[20,7],[20,6],[20,5]], "priorFloorMisses": 0, "expectedNextWeightKg": 20, "expectedFloorMisses": 1 },
+      { "name": "floor miss triggers deload at threshold", "sets": [[20,7],[20,6],[20,5]], "priorFloorMisses": 2, "expectedNextWeightKg": 18, "expectedFloorMisses": 0 },
+      { "name": "first-run falls back to the static target", "sets": null, "expectedFallback": true }
+    ]
+  },
+
   "emptyInput": {
     "$note": "Every analytics function must return a defined empty result for these, never throw and never zero. Zero and unknown are different things.",
     "sets": [],

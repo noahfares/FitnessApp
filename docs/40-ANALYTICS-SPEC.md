@@ -450,7 +450,7 @@ total                       = 1065 s  (~18 min)
 
 ## 12. Progression rules
 
-Used by: `F-PRG-001`, `F-PRG-002`, `F-PRG-006`, `F-PRG-009`.
+Used by: `F-PRG-001`, `F-PRG-002`, `F-PRG-003`, `F-PRG-006`, `F-PRG-009`.
 
 `computeTargets(rule, exerciseHistory, context) -> TargetSet` proposes the
 next session's target weight and reps for one exercise, given its own
@@ -503,6 +503,31 @@ failure  → consecutiveFailures += 1
 5. Weight rounding to an achievable load happens after this computation,
    never before (`F-PRG-012`, not yet built — Phase 4 batch 4.3).
 
+### Double progression (`F-PRG-003`)
+
+Fixed weight, working up a rep *range* (`targetRepsMin`–`targetRepsMax`)
+across sessions, rather than a single rep target:
+
+```
+every set at repsMax        → nextWeight = weight + increment, nextReps = repsMin,
+                               floorMisses = 0
+every set below repsMin     → floorMisses += 1
+                               if floorMisses >= floorMissThreshold:
+                                   nextWeight = weight × (1 − deloadFraction)
+                                   floorMisses = 0
+                               else:
+                                   nextWeight = weight (repeat)
+otherwise                   → nextWeight = weight (repeat), floorMisses unchanged
+```
+
+Two independent thresholds, not one: a session is judged against `repsMax`
+for the "add weight" case and separately against `repsMin` for the
+"heading toward deload" case — a session that clears `repsMin` on some sets
+but not all counts as neither, and repeats the same weight while the lifter
+keeps working up the range. `floorMissThreshold` and `deloadFraction`
+default the same as linear progression (3 sessions, 10%); `increment`
+defaults the same way too (§ rule 2 above).
+
 ### Manual carry-forward (`F-PRG-006`)
 
 The null rule: `nextWeight`/`nextReps` = the previous session's actual
@@ -528,6 +553,29 @@ first-run  no prior session            → falls back to routine's static
 The deload case is the one a naive "just keep repeating on failure"
 implementation gets wrong — three failures in a row should propose a lighter
 weight, not the same one a fourth time.
+
+### Fixture — `doubleProgression`
+
+Goblet Squat, target `3×8–12 @ 20 kg`, `floorMissThreshold = 3`,
+`deloadFraction = 0.10`, `incrementKg = 2.5`.
+
+```
+success (top met)  20×12, 20×12, 20×12       → next 22.5 kg, reps reset to 8,
+                                                floorMisses → 0
+partial             20×10, 20×9, 20×8         → next 20 kg (repeat),
+                                                floorMisses unchanged
+failure (floor miss) 20×7, 20×6, 20×5 (misses 0 → 1) → next 20 kg (repeat),
+                                                floorMisses = 1
+failure → deload    20×7, 20×6, 20×5 (misses 2 → 3, threshold reached)
+                                        → next 18 kg (20 × 0.90), floorMisses → 0
+first-run  no prior session            → falls back to routine's static
+                                          target, 20 kg unchanged
+```
+
+The partial case is the one this rule gets wrong if implemented as "hit
+target reps or not" with a single number: 8 reps clears the bottom of the
+range, so it must not count toward the deload streak the way a floor miss
+does, even though it's short of the 12-rep ceiling that would add weight.
 
 ---
 

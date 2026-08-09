@@ -17,6 +17,7 @@
 library;
 
 import '../analytics/exercise_history.dart';
+import 'double_progression.dart';
 import 'linear_progression.dart';
 import 'progression_rationale.dart';
 import 'progression_rule.dart';
@@ -43,11 +44,18 @@ class ProgressionContext {
   const ProgressionContext({
     this.staticWeightGrams,
     this.staticReps,
+    this.staticRepsMax,
     this.staticSets,
   });
 
   final int? staticWeightGrams;
+
+  /// The bottom of the rep range for a double-progression rule; the fixed
+  /// rep target for a linear rule.
   final int? staticReps;
+
+  /// The top of the rep range — only read by a double-progression rule.
+  final int? staticRepsMax;
   final int? staticSets;
 }
 
@@ -140,6 +148,62 @@ TargetSet computeTargets({
       return TargetSet(
         weightGrams: applied.state.weightGrams,
         reps: targetReps,
+        sets: context.staticSets ?? lastSets.length,
+        rationale: applied.rationale,
+      );
+
+    case DoubleProgressionRule(config: final config):
+      final lastSets = priorSessions.first.countedSets;
+      final currentWeight = _topSetWeight(lastSets);
+      final repsMin = context.staticReps ?? 1;
+      final repsMax = context.staticRepsMax ?? repsMin;
+
+      final lastTopResult = evaluateSession(
+        lastSets,
+        targetWeightGrams: currentWeight,
+        targetReps: repsMax,
+      );
+      final lastFloorResult = evaluateSession(
+        lastSets,
+        targetWeightGrams: currentWeight,
+        targetReps: repsMin,
+      );
+
+      // Walk backward through sessions at this same weight, counting a
+      // trailing run of "every set below the floor" — the streak
+      // `applyDoubleProgression`'s deload rule needs, derived rather than
+      // stored, same reasoning as the linear rule's failure streak above.
+      var trailingFloorMisses = 0;
+      for (final session in priorSessions) {
+        final sets = session.countedSets;
+        if (_topSetWeight(sets) != currentWeight) break;
+        final floorResult = evaluateSession(
+          sets,
+          targetWeightGrams: currentWeight,
+          targetReps: repsMin,
+        );
+        if (floorResult != SessionResult.failure) break;
+        trailingFloorMisses++;
+      }
+      final missesBeforeLastSession = lastFloorResult == SessionResult.failure
+          ? trailingFloorMisses - 1
+          : 0;
+
+      final applied = applyDoubleProgression(
+        state: DoubleProgressionState(
+          weightGrams: currentWeight,
+          floorMisses: missesBeforeLastSession,
+        ),
+        topResult: lastTopResult,
+        floorResult: lastFloorResult,
+        config: config,
+        previousReps: lastSets.first.reps ?? repsMin,
+        repsMin: repsMin,
+      );
+
+      return TargetSet(
+        weightGrams: applied.state.weightGrams,
+        reps: repsMin,
         sets: context.staticSets ?? lastSets.length,
         rationale: applied.rationale,
       );

@@ -8,7 +8,7 @@ library;
 
 import 'dart:convert';
 
-enum ProgressionRuleType { manualCarryForward, linear }
+enum ProgressionRuleType { manualCarryForward, linear, doubleProgression }
 
 /// Per-exercise linear-progression parameters (`F-PRG-002` §3).
 class LinearProgressionConfig {
@@ -23,6 +23,25 @@ class LinearProgressionConfig {
 
   /// Consecutive failed sessions before a deload triggers (§2, §3).
   final int failureThreshold;
+
+  /// Fraction of the current weight cut on deload, e.g. `0.10` = 10%.
+  final double deloadFraction;
+}
+
+/// Per-exercise double-progression parameters (`F-PRG-003`).
+class DoubleProgressionConfig {
+  const DoubleProgressionConfig({
+    required this.incrementGrams,
+    this.floorMissThreshold = 3,
+    this.deloadFraction = 0.10,
+  });
+
+  /// Added to the weight once every set reaches the top of the rep range.
+  final int incrementGrams;
+
+  /// Consecutive sessions with every set below the bottom of the rep range
+  /// before a deload triggers (§3).
+  final int floorMissThreshold;
 
   /// Fraction of the current weight cut on deload, e.g. `0.10` = 10%.
   final double deloadFraction;
@@ -46,6 +65,13 @@ sealed class ProgressionRule {
         config: LinearProgressionConfig(
           incrementGrams: map['incrementGrams'] as int,
           failureThreshold: map['failureThreshold'] as int? ?? 3,
+          deloadFraction: (map['deloadFraction'] as num?)?.toDouble() ?? 0.10,
+        ),
+      ),
+      'doubleProgression' => DoubleProgressionRule(
+        config: DoubleProgressionConfig(
+          incrementGrams: map['incrementGrams'] as int,
+          floorMissThreshold: map['floorMissThreshold'] as int? ?? 3,
           deloadFraction: (map['deloadFraction'] as num?)?.toDouble() ?? 0.10,
         ),
       ),
@@ -79,6 +105,24 @@ class LinearProgressionRule extends ProgressionRule {
     'type': 'linear',
     'incrementGrams': config.incrementGrams,
     'failureThreshold': config.failureThreshold,
+    'deloadFraction': config.deloadFraction,
+  });
+}
+
+/// Fixed weight, working up a rep range across sessions (`F-PRG-003`).
+class DoubleProgressionRule extends ProgressionRule {
+  const DoubleProgressionRule({required this.config});
+
+  final DoubleProgressionConfig config;
+
+  @override
+  ProgressionRuleType get type => ProgressionRuleType.doubleProgression;
+
+  @override
+  String toJson() => jsonEncode({
+    'type': 'doubleProgression',
+    'incrementGrams': config.incrementGrams,
+    'floorMissThreshold': config.floorMissThreshold,
     'deloadFraction': config.deloadFraction,
   });
 }

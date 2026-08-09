@@ -28,6 +28,10 @@ enum ProgressionOutcome {
 
   /// The failure streak just reached the deload threshold.
   deload,
+
+  /// Every counted set reached the top of the rep range last time
+  /// (`F-PRG-003` §2) — weight goes up, reps reset to the bottom.
+  repRangeTopMet,
 }
 
 class ProgressionRationale {

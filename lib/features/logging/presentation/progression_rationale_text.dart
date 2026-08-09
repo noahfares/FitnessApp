@@ -44,6 +44,11 @@ String progressionRationaleText(
       return 'Missed target ${rationale.consecutiveFailures} sessions in a '
           'row — deloading to ${weight(previousWeight! + rationale.deltaGrams)} '
           '${unit.symbol}.';
+    case ProgressionOutcome.repRangeTopMet:
+      return 'You hit the top of your rep range at '
+          '${weight(previousWeight!)} ${unit.symbol} last time, so this is +'
+          '${weight(rationale.deltaGrams)} ${unit.symbol} — back to the '
+          'bottom of the range.';
   }
 }
 

@@ -567,6 +567,7 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
     _ruleType = rule.type;
     final incrementGrams = switch (rule) {
       LinearProgressionRule(config: final config) => config.incrementGrams,
+      DoubleProgressionRule(config: final config) => config.incrementGrams,
       _ => defaultIncrementGrams(row.primaryMuscle),
     };
     _increment = TextEditingController(
@@ -686,6 +687,10 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                   value: ProgressionRuleType.linear,
                   label: Text('Add weight on success'),
                 ),
+                ButtonSegment(
+                  value: ProgressionRuleType.doubleProgression,
+                  label: Text('Add reps, then weight'),
+                ),
               ],
               selected: {_ruleType},
               onSelectionChanged: (selection) =>
@@ -704,6 +709,24 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                   helperText:
                       'Repeats the same weight on a partial miss; deloads '
                       'after three misses in a row.',
+                ),
+              ),
+            ],
+            if (_ruleType == ProgressionRuleType.doubleProgression) ...[
+              const SizedBox(height: AppSpacing.sm),
+              TextField(
+                controller: _increment,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText:
+                      'Add when I hit the top of my rep range '
+                      '(${prefs.load.symbol})',
+                  border: const OutlineInputBorder(),
+                  helperText:
+                      'Uses the Reps min/max above as the range. Deloads '
+                      'after three sessions in a row below the minimum.',
                 ),
               ),
             ],
@@ -741,6 +764,13 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
       ProgressionRuleType.manualCarryForward => null,
       ProgressionRuleType.linear => LinearProgressionRule(
         config: LinearProgressionConfig(
+          incrementGrams:
+              parser.parseMass(_increment.text, prefs.load)?.grams ??
+              defaultIncrementGrams(widget.row.primaryMuscle),
+        ),
+      ),
+      ProgressionRuleType.doubleProgression => DoubleProgressionRule(
+        config: DoubleProgressionConfig(
           incrementGrams:
               parser.parseMass(_increment.text, prefs.load)?.grams ??
               defaultIncrementGrams(widget.row.primaryMuscle),

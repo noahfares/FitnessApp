@@ -769,6 +769,30 @@ needed. Not built: double progression, percentage/training-max, and
 RPE-autoregulated rules (`F-PRG-003`–`F-PRG-005`, batch 4.2); plate-aware
 rounding and a routine-level (rather than per-exercise) rule default.
 
+**Batch 4.2 — remaining progression rules (partial, v0.35.0).** `F-PRG-003`
+(double progression) done; `F-PRG-010`, `F-PRG-004`, `F-PRG-005` untouched,
+still `planned` — this batch is not closed. No schema change —
+`routine_exercises.progression_rule` already stored an arbitrary JSON union;
+this is the second variant written into it. `domain/progression/double_progression.dart`
+mirrors `linear_progression.dart`'s shape but judges a session against two
+thresholds instead of one (`repsMax` for "add weight", `repsMin` for "heading
+toward deload" — a mid-range session is neither and just repeats), with the
+same derived-not-stored trailing-streak approach `computeTargets` already
+used for the linear rule's failure count. `ProgressionContext` gained
+`staticRepsMax` (`staticReps` already existed, doubling as the rep floor for
+this rule) since `TargetSet.reps` still isn't read anywhere downstream of
+`startFromRoutineDay` — only `weightGrams`, `sets` and `rationale` are.
+`docs/40-ANALYTICS-SPEC.md` §12 gained the rule plus a `doubleProgression`
+fixture (success/partial/failure/deload/first-run) mirrored into
+`docs/fixtures/analytics.json`. Not started: `F-PRG-010` (training max) needs
+a persistence decision this session didn't make — a new per-exercise column
+(schema v4) vs. cramming it into the rule JSON, which would contradict "per
+exercise, independent of any one rule"; `F-PRG-004` (percentage-based) also
+depends on `F-ROU-013` (week/cycle structure), which doesn't exist yet, so it
+can't reach full fidelity regardless of `F-PRG-010`; `F-PRG-005`
+(RPE-autoregulated) depends only on already-shipped `F-LOG-014` and is the
+one item here with no blocker — the natural next pickup.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

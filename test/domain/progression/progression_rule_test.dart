@@ -44,4 +44,30 @@ void main() {
     expect(config.failureThreshold, 3);
     expect(config.deloadFraction, 0.10);
   });
+
+  test('double progression round-trips its config through JSON', () {
+    const rule = DoubleProgressionRule(
+      config: DoubleProgressionConfig(
+        incrementGrams: 2500,
+        floorMissThreshold: 2,
+        deloadFraction: 0.15,
+      ),
+    );
+    final decoded = ProgressionRule.fromJson(rule.toJson());
+    expect(decoded, isA<DoubleProgressionRule>());
+    final config = (decoded as DoubleProgressionRule).config;
+    expect(config.incrementGrams, 2500);
+    expect(config.floorMissThreshold, 2);
+    expect(config.deloadFraction, 0.15);
+  });
+
+  test('double progression defaults the floor-miss threshold and deload '
+      'fraction when omitted from stored JSON', () {
+    final decoded = ProgressionRule.fromJson(
+      '{"type": "doubleProgression", "incrementGrams": 2500}',
+    );
+    final config = (decoded as DoubleProgressionRule).config;
+    expect(config.floorMissThreshold, 3);
+    expect(config.deloadFraction, 0.10);
+  });
 }

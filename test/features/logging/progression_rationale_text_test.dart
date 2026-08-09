@@ -54,6 +54,19 @@ void main() {
     expect(text, contains('repeating the same weight'));
   });
 
+  test('repRangeTopMet names the previous weight and the increment', () {
+    const rationale = ProgressionRationale(
+      outcome: ProgressionOutcome.repRangeTopMet,
+      previousWeightGrams: 20000,
+      previousReps: 12,
+      targetReps: 8,
+      deltaGrams: 2500,
+    );
+    final text = progressionRationaleText(rationale, formatter, MassUnit.kg);
+    expect(text, contains('20 kg'));
+    expect(text, contains('+2.5 kg'));
+  });
+
   test('manual carry-forward names what was actually carried forward', () {
     const rationale = ProgressionRationale(
       outcome: ProgressionOutcome.manualCarryForward,

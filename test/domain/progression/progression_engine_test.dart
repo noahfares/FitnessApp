@@ -129,6 +129,89 @@ void main() {
     });
   });
 
+  group('double progression', () {
+    const doubleConfig = DoubleProgressionConfig(
+      incrementGrams: 2500,
+      floorMissThreshold: 3,
+      deloadFraction: 0.10,
+    );
+    const rangeContext = ProgressionContext(
+      staticWeightGrams: 20000,
+      staticReps: 8,
+      staticRepsMax: 12,
+      staticSets: 3,
+    );
+
+    test('every set at the top of the range: +increment, reps reset', () {
+      final result = computeTargets(
+        rule: const DoubleProgressionRule(config: doubleConfig),
+        exerciseHistory: [
+          session([(20, 12), (20, 12), (20, 12)]),
+        ],
+        context: rangeContext,
+      );
+
+      expect(result.weightGrams, 22500);
+      expect(result.reps, 8);
+      expect(result.rationale.outcome, ProgressionOutcome.repRangeTopMet);
+    });
+
+    test('mid-range sets: repeat weight, no streak', () {
+      final result = computeTargets(
+        rule: const DoubleProgressionRule(config: doubleConfig),
+        exerciseHistory: [
+          session([(20, 10), (20, 9), (20, 8)]),
+        ],
+        context: rangeContext,
+      );
+
+      expect(result.weightGrams, 20000);
+      expect(result.rationale.outcome, ProgressionOutcome.partial);
+    });
+
+    test('every set below the floor: repeat weight, streak increments', () {
+      final result = computeTargets(
+        rule: const DoubleProgressionRule(config: doubleConfig),
+        exerciseHistory: [
+          session([(20, 7), (20, 6), (20, 5)]),
+        ],
+        context: rangeContext,
+      );
+
+      expect(result.weightGrams, 20000);
+      expect(result.rationale.outcome, ProgressionOutcome.failure);
+      expect(result.rationale.consecutiveFailures, 1);
+    });
+
+    test('three consecutive floor misses trigger a 10% deload', () {
+      final result = computeTargets(
+        rule: const DoubleProgressionRule(config: doubleConfig),
+        exerciseHistory: [
+          session([(20, 7), (20, 6), (20, 5)]),
+          session([(20, 7), (20, 6), (20, 5)]),
+          session([(20, 7), (20, 6), (20, 5)]),
+        ],
+        context: rangeContext,
+      );
+
+      expect(result.weightGrams, 18000);
+      expect(result.rationale.outcome, ProgressionOutcome.deload);
+      expect(result.rationale.consecutiveFailures, 3);
+    });
+
+    test('first run falls back to the static target', () {
+      final result = computeTargets(
+        rule: const DoubleProgressionRule(config: doubleConfig),
+        exerciseHistory: const [],
+        context: rangeContext,
+      );
+
+      expect(result.weightGrams, 20000);
+      expect(result.reps, 8);
+      expect(result.rationale.outcome, ProgressionOutcome.firstRun);
+    });
+  });
+
   group('manual carry-forward', () {
     test('carries the last session\'s top set forward verbatim', () {
       final result = computeTargets(
