@@ -1,0 +1,70 @@
+/// Plate-aware rounding (`F-PRG-012`), `docs/40-ANALYTICS-SPEC.md` §13.
+///
+/// Applied to a [TargetSet] *after* `computeTargets`, never folded into it —
+/// the progression rules stay in canonical, plate-free arithmetic, and this
+/// is a separate, optional pass.
+library;
+
+import '../plates/plate_calculator.dart';
+import 'progression_engine.dart';
+import 'progression_rationale.dart';
+
+/// Rounds [target]'s weight to the nearest load assemblable from [inventory]
+/// on [barWeightGrams].
+///
+/// When rounding erases the entire proposed change — the rounded weight
+/// equals [previousWeightGrams], but the raw proposal didn't — the weight is
+/// held and a rep is added instead (§3), rather than silently proposing the
+/// same weight as last time with no way to tell that apart from a plain
+/// repeat.
+TargetSet applyPlateRounding({
+  required TargetSet target,
+  required int barWeightGrams,
+  required List<PlateSpec> inventory,
+  int? previousWeightGrams,
+  RoundingDirection direction = RoundingDirection.down,
+}) {
+  final proposed = target.weightGrams;
+  if (proposed == null) return target;
+
+  final rounded = closestAchievableGrams(
+    targetGrams: proposed,
+    barWeightGrams: barWeightGrams,
+    inventory: inventory,
+    direction: direction,
+  );
+  if (rounded == null || rounded == proposed) return target;
+
+  if (previousWeightGrams != null &&
+      rounded == previousWeightGrams &&
+      proposed != previousWeightGrams) {
+    return TargetSet(
+      weightGrams: previousWeightGrams,
+      reps: (target.reps ?? 0) + 1,
+      sets: target.sets,
+      rationale: ProgressionRationale(
+        outcome: ProgressionOutcome.plateRoundingHeld,
+        previousWeightGrams: target.rationale.previousWeightGrams,
+        previousReps: target.rationale.previousReps,
+        targetReps: target.reps,
+        consecutiveFailures: target.rationale.consecutiveFailures,
+        rawWeightGrams: proposed,
+      ),
+    );
+  }
+
+  return TargetSet(
+    weightGrams: rounded,
+    reps: target.reps,
+    sets: target.sets,
+    rationale: ProgressionRationale(
+      outcome: target.rationale.outcome,
+      previousWeightGrams: target.rationale.previousWeightGrams,
+      previousReps: target.rationale.previousReps,
+      targetReps: target.rationale.targetReps,
+      deltaGrams: target.rationale.deltaGrams,
+      consecutiveFailures: target.rationale.consecutiveFailures,
+      rawWeightGrams: proposed,
+    ),
+  );
+}

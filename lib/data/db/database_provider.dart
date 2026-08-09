@@ -4,6 +4,7 @@ import '../io/json_dump_service.dart';
 import '../repositories/body_measurement_repository.dart';
 import '../repositories/exercise_repository.dart';
 import '../repositories/personal_record_repository.dart';
+import '../repositories/plate_repository.dart';
 import '../repositories/routine_repository.dart';
 import '../repositories/set_repository.dart';
 import '../repositories/workout_repository.dart';
@@ -57,4 +58,9 @@ final routineRepositoryProvider = Provider<RoutineRepository>(
 /// The `personal_records` cache (`F-LOG-013`).
 final personalRecordRepositoryProvider = Provider<PersonalRecordRepository>(
   (ref) => PersonalRecordRepository(ref.watch(databaseProvider)),
+);
+
+/// Bars and the plate inventory (`F-PLT-002`).
+final plateRepositoryProvider = Provider<PlateRepository>(
+  (ref) => PlateRepository(ref.watch(databaseProvider)),
 );

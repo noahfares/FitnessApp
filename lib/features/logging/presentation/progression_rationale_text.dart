@@ -49,6 +49,10 @@ String progressionRationaleText(
           '${weight(previousWeight!)} ${unit.symbol} last time, so this is +'
           '${weight(rationale.deltaGrams)} ${unit.symbol} — back to the '
           'bottom of the range.';
+    case ProgressionOutcome.plateRoundingHeld:
+      return "The next jump isn't assemblable from your plates, so weight "
+          'stays at ${weight(previousWeight!)} ${unit.symbol} and reps go up '
+          'by one instead.';
   }
 }
 

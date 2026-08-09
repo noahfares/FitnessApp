@@ -68,6 +68,9 @@ abstract final class AppRoutes {
   static const String settingsAppearance = '/settings/appearance';
   static const String settingsRestTimer = '/settings/rest-timer';
   static const String settingsData = '/settings/data';
+
+  /// Bars and the plate inventory (`F-PLT-002`).
+  static const String settingsPlates = '/settings/plates';
   static const String settingsAbout = '/settings/about';
 
   /// Bodyweight log (`F-BOD-001`). Reached from Home, same as settings — body

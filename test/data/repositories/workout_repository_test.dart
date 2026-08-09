@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/tables/enums.dart';
+import 'package:fitness_app/data/repositories/plate_repository.dart';
 import 'package:fitness_app/data/repositories/routine_repository.dart';
 import 'package:fitness_app/data/repositories/set_repository.dart';
 import 'package:fitness_app/data/repositories/workout_repository.dart';
@@ -852,6 +853,138 @@ void main() {
       expect(secondExercise.target!.weightGrams, 102500);
       expect(secondExercise.target!.repsMin, 8);
       expect(secondExercise.target!.repsMax, 12);
+    });
+  });
+
+  group('plate-aware rounding on proposed targets (F-PRG-012, batch 4.3)', () {
+    late RoutineRepository routines;
+    late SetRepository sets;
+    late PlateRepository plates;
+
+    setUp(() {
+      routines = RoutineRepository(db, clock: () => clock);
+      sets = SetRepository(db, clock: () => clock);
+      plates = PlateRepository(db, clock: () => clock);
+    });
+
+    Future<void> setUpInventory() async {
+      final barId = await plates.createBar(
+        id: 'bar',
+        name: 'Standard barbell',
+        weightGrams: 20000,
+        isDefault: true,
+      );
+      await (db.update(
+        db.exercises,
+      )..where((e) => e.id.equals('bench'))).write(
+        ExercisesCompanion(defaultBarId: Value(barId)),
+      );
+      for (final (grams, pairs) in const [
+        (20000, 4),
+        (10000, 2),
+        (5000, 2),
+      ]) {
+        await plates.createPlate(
+          id: 'plate$grams',
+          weightGrams: grams,
+          countAvailable: pairs,
+        );
+      }
+    }
+
+    test(
+      'a raw increase that is not assemblable holds weight and adds a rep',
+      () async {
+        await makeExercise('bench', 'Bench Press');
+        await setUpInventory();
+        final routine = await routines.create(name: 'Push');
+        final day = await routines.addDay(routine.id, name: 'Push');
+        await routines.addExercises(day.id, ['bench']);
+        final [detail] = await routines.watchExercises(day.id).first;
+        await routines.setTargets(
+          detail.routineExerciseId,
+          targetSets: const Value(3),
+          targetRepsMin: const Value(5),
+          targetRepsMax: const Value(5),
+          targetWeightGrams: const Value(100000),
+        );
+        await routines.setProgressionRule(
+          detail.routineExerciseId,
+          const LinearProgressionRule(
+            config: LinearProgressionConfig(incrementGrams: 2500),
+          ),
+        );
+
+        final first = await repo.startFromRoutineDay(day.id);
+        final [firstExercise] = await repo.watchExercises(first.id).first;
+        for (final set in await sets.getSets(
+          firstExercise.workoutExerciseId,
+        )) {
+          await sets.complete(
+            set.id,
+            weightGrams: const Value(100000),
+            reps: const Value(5),
+          );
+        }
+        await repo.finish(first.id);
+        clock = clock.add(const Duration(days: 2));
+
+        // Raw proposal is 102.5 kg — not assemblable from this inventory
+        // (no 1.25 kg plate) — so it must round back to 100 kg, and since
+        // that erases the whole increment, hold weight and add a rep.
+        final second = await repo.startFromRoutineDay(day.id);
+        final [secondExercise] = await repo.watchExercises(second.id).first;
+
+        expect(secondExercise.target!.weightGrams, 100000);
+        expect(secondExercise.target!.repsMin, 6);
+        expect(
+          secondExercise.target!.rationale!.outcome,
+          ProgressionOutcome.plateRoundingHeld,
+        );
+        expect(secondExercise.target!.rationale!.rawWeightGrams, 102500);
+      },
+    );
+
+    test('no plate inventory configured leaves targets unrounded', () async {
+      await makeExercise('bench', 'Bench Press');
+      final routine = await routines.create(name: 'Push');
+      final day = await routines.addDay(routine.id, name: 'Push');
+      await routines.addExercises(day.id, ['bench']);
+      final [detail] = await routines.watchExercises(day.id).first;
+      await routines.setTargets(
+        detail.routineExerciseId,
+        targetSets: const Value(3),
+        targetRepsMin: const Value(5),
+        targetRepsMax: const Value(5),
+        targetWeightGrams: const Value(100000),
+      );
+      await routines.setProgressionRule(
+        detail.routineExerciseId,
+        const LinearProgressionRule(
+          config: LinearProgressionConfig(incrementGrams: 2500),
+        ),
+      );
+
+      final first = await repo.startFromRoutineDay(day.id);
+      final [firstExercise] = await repo.watchExercises(first.id).first;
+      for (final set in await sets.getSets(firstExercise.workoutExerciseId)) {
+        await sets.complete(
+          set.id,
+          weightGrams: const Value(100000),
+          reps: const Value(5),
+        );
+      }
+      await repo.finish(first.id);
+      clock = clock.add(const Duration(days: 2));
+
+      final second = await repo.startFromRoutineDay(day.id);
+      final [secondExercise] = await repo.watchExercises(second.id).first;
+
+      expect(secondExercise.target!.weightGrams, 102500);
+      expect(
+        secondExercise.target!.rationale!.outcome,
+        ProgressionOutcome.success,
+      );
     });
   });
 

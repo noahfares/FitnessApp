@@ -62,6 +62,7 @@ class ExerciseRepository {
     List<String> aliases = const [],
     String? notes,
     int? defaultRestSeconds,
+    String? defaultBarId,
     WeightEntryMode? weightEntryMode,
     int? incrementGrams,
   }) async {
@@ -79,6 +80,7 @@ class ExerciseRepository {
             aliases: Value(aliases),
             notes: Value(notes),
             defaultRestSeconds: Value(defaultRestSeconds),
+            defaultBarId: Value(defaultBarId),
             weightEntryMode: Value(
               weightEntryMode ?? defaultWeightEntryModeFor(equipment),
             ),

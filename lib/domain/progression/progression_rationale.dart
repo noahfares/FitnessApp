@@ -32,6 +32,12 @@ enum ProgressionOutcome {
   /// Every counted set reached the top of the rep range last time
   /// (`F-PRG-003` §2) — weight goes up, reps reset to the bottom.
   repRangeTopMet,
+
+  /// The raw proposal rounded to an assemblable load lands back on the
+  /// weight already being lifted — the smallest achievable plate jump
+  /// exceeds the rule's increment (`F-PRG-012` §3). Weight is held; a rep is
+  /// added instead.
+  plateRoundingHeld,
 }
 
 class ProgressionRationale {
@@ -42,6 +48,7 @@ class ProgressionRationale {
     this.targetReps,
     this.deltaGrams = 0,
     this.consecutiveFailures = 0,
+    this.rawWeightGrams,
   });
 
   final ProgressionOutcome outcome;
@@ -61,6 +68,12 @@ class ProgressionRationale {
 
   final int consecutiveFailures;
 
+  /// The raw pre-rounding proposal, only set when plate-aware rounding
+  /// (`F-PRG-012`) actually changed the weight — including the
+  /// [ProgressionOutcome.plateRoundingHeld] case, where it's what the rule
+  /// wanted before rounding erased it entirely.
+  final int? rawWeightGrams;
+
   /// Persisted as a nested object inside `workout_exercises.target_snapshot`
   /// (`F-PRG-008` §3) — alongside the proposed numbers themselves rather
   /// than as a separate column, since it is only ever read back for the one
@@ -72,6 +85,7 @@ class ProgressionRationale {
     'targetReps': targetReps,
     'deltaGrams': deltaGrams,
     'consecutiveFailures': consecutiveFailures,
+    'rawWeightGrams': rawWeightGrams,
   };
 
   static ProgressionRationale? fromJson(Object? json) {
@@ -93,6 +107,7 @@ class ProgressionRationale {
       targetReps: map['targetReps'] as int?,
       deltaGrams: map['deltaGrams'] as int? ?? 0,
       consecutiveFailures: map['consecutiveFailures'] as int? ?? 0,
+      rawWeightGrams: map['rawWeightGrams'] as int?,
     );
   }
 }

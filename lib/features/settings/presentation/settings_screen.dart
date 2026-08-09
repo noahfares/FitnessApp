@@ -148,6 +148,12 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push(AppRoutes.settingsData),
           ),
+          ListTile(
+            leading: const Icon(Icons.fitness_center),
+            title: const Text('Bars & plates'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRoutes.settingsPlates),
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.info_outline),

@@ -5,11 +5,14 @@ import 'package:drift/drift.dart';
 import '../../core/ids/uuid.dart';
 import '../../domain/history/workout_history.dart';
 import '../../domain/history/workout_volume.dart';
+import '../../domain/plates/plate_calculator.dart';
+import '../../domain/progression/plate_aware_rounding.dart';
 import '../../domain/progression/progression_engine.dart';
 import '../../domain/progression/progression_rationale.dart';
 import '../../domain/progression/progression_rule.dart';
 import '../db/app_database.dart';
 import '../db/tables/enums.dart';
+import 'plate_repository.dart';
 import 'set_repository.dart';
 
 /// Thrown when starting a workout while one is already in progress.
@@ -432,15 +435,17 @@ class WorkoutRepository {
     final exerciseRows = await _db
         .customSelect(
           '''
-          SELECT id, exercise_id, position, group_id, target_sets,
-                 target_reps_min, target_reps_max, target_weight_grams,
-                 target_rpe, rest_seconds, progression_rule
-            FROM routine_exercises
-           WHERE routine_day_id = ? AND deleted_at IS NULL
-           ORDER BY position
+          SELECT re.id, re.exercise_id, re.position, re.group_id,
+                 re.target_sets, re.target_reps_min, re.target_reps_max,
+                 re.target_weight_grams, re.target_rpe, re.rest_seconds,
+                 re.progression_rule, e.default_bar_id
+            FROM routine_exercises re
+            JOIN exercises e ON e.id = re.exercise_id
+           WHERE re.routine_day_id = ? AND re.deleted_at IS NULL
+           ORDER BY re.position
           ''',
           variables: [Variable<String>(routineDayId)],
-          readsFrom: {_db.routineExercises},
+          readsFrom: {_db.routineExercises, _db.exercises},
         )
         .get();
 
@@ -449,6 +454,14 @@ class WorkoutRepository {
     // `computeTargets` (`F-PRG-001`) is pure Dart with no database access of
     // its own.
     final setRepository = SetRepository(_db);
+    final plateRepository = PlateRepository(_db);
+    // Shared across every exercise in the day — the plate inventory doesn't
+    // vary per exercise, only which bar it's loaded on does.
+    final usablePlates = await plateRepository.getUsablePlates();
+    final inventory = [
+      for (final p in usablePlates)
+        PlateSpec(weightGrams: p.weightGrams, pairsAvailable: p.countAvailable),
+    ];
     final proposals = <TargetSet>[];
     for (final row in exerciseRows) {
       final rule = ProgressionRule.fromJson(
@@ -457,19 +470,36 @@ class WorkoutRepository {
       final history = await setRepository.getExerciseHistory(
         row.read<String>('exercise_id'),
       );
-      proposals.add(
-        computeTargets(
-          rule: rule,
-          exerciseHistory: history,
-          context: ProgressionContext(
-            staticWeightGrams: row.read<int?>('target_weight_grams'),
-            staticReps: row.read<int?>('target_reps_min'),
-            staticRepsMax: row.read<int?>('target_reps_max'),
-            staticSets: row.read<int?>('target_sets'),
-            staticTargetRpe: row.read<double?>('target_rpe'),
-          ),
+      var target = computeTargets(
+        rule: rule,
+        exerciseHistory: history,
+        context: ProgressionContext(
+          staticWeightGrams: row.read<int?>('target_weight_grams'),
+          staticReps: row.read<int?>('target_reps_min'),
+          staticRepsMax: row.read<int?>('target_reps_max'),
+          staticSets: row.read<int?>('target_sets'),
+          staticTargetRpe: row.read<double?>('target_rpe'),
         ),
       );
+
+      // Plate-aware rounding (`F-PRG-012`) — applied after `computeTargets`,
+      // never before (§13). Skipped entirely with no bar or empty inventory
+      // configured, so a fresh install with no plates set up yet behaves
+      // exactly as it did before this batch.
+      if (target.weightGrams != null && inventory.isNotEmpty) {
+        final bar = await plateRepository.resolveBar(
+          row.read<String?>('default_bar_id'),
+        );
+        if (bar != null) {
+          target = applyPlateRounding(
+            target: target,
+            barWeightGrams: bar.weightGrams,
+            inventory: inventory,
+            previousWeightGrams: target.rationale.previousWeightGrams,
+          );
+        }
+      }
+      proposals.add(target);
     }
 
     final now = _localNow;
@@ -502,9 +532,19 @@ class WorkoutRepository {
         // start after the first would silently destroy the range every
         // existing routine already has, which nothing in `F-PRG-002` or
         // `F-PRG-006` asks for — progression owns the weight, not the range.
+        // Plate-aware rounding's "hold weight, add a rep" branch
+        // (`F-PRG-012` §3) is the one case where the proposal's own rep
+        // count must override the routine's static range — every other
+        // outcome keeps the range exactly as configured, same reasoning as
+        // the comment above.
+        final repsMinOverride =
+            proposal.rationale.outcome == ProgressionOutcome.plateRoundingHeld
+            ? proposal.reps
+            : row.read<int?>('target_reps_min');
+
         final targetSnapshot = jsonEncode({
           'targetSets': targetSets,
-          'targetRepsMin': row.read<int?>('target_reps_min'),
+          'targetRepsMin': repsMinOverride,
           'targetRepsMax': row.read<int?>('target_reps_max'),
           'targetWeightGrams': proposal.weightGrams,
           'targetRpe': row.read<double?>('target_rpe'),

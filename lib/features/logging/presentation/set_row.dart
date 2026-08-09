@@ -119,6 +119,7 @@ class SetRow extends ConsumerWidget {
               equipment: equipment,
               incrementGrams: incrementGrams,
               perSide: perSide,
+              exerciseId: exerciseId,
             ),
           ),
         ),

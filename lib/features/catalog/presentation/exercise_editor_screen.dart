@@ -13,6 +13,7 @@ import '../../../data/db/tables/enums.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/weight_steps.dart';
 import '../../../domain/timing/rest_defaults.dart';
+import '../../settings/application/plate_providers.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
@@ -59,6 +60,9 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
   /// Null means "use the global setting, then the built-in for this kind of
   /// exercise" (`F-TIM-005`).
   int? _defaultRestSeconds;
+
+  /// Null means "use the inventory's own default bar" (`F-PLT-002` §4).
+  String? _defaultBarId;
 
   /// The row being edited, once loaded. Null while loading and for a new one.
   Exercise? _existing;
@@ -107,6 +111,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         _equipment = row.equipment;
         _trackingType = row.trackingType;
         _defaultRestSeconds = row.defaultRestSeconds;
+        _defaultBarId = row.defaultBarId;
         _weightEntryMode = row.weightEntryMode;
         _notes.text = row.notes ?? '';
         _aliases = List<String>.of(row.aliases);
@@ -172,6 +177,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         aliases: _aliases,
         notes: notes.isEmpty ? null : notes,
         defaultRestSeconds: _defaultRestSeconds,
+        defaultBarId: _defaultBarId,
         weightEntryMode: weightEntryMode,
         incrementGrams: incrementGrams,
       );
@@ -187,6 +193,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
           aliases: Value(_aliases),
           notes: Value(notes.isEmpty ? null : notes),
           defaultRestSeconds: Value(_defaultRestSeconds),
+          defaultBarId: Value(_defaultBarId),
           weightEntryMode: Value(weightEntryMode),
           incrementGrams: Value(incrementGrams),
         ),
@@ -422,6 +429,34 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
               () => _defaultRestSeconds = (seconds ?? 0) == 0 ? null : seconds,
             ),
           ),
+          if (_equipment == Equipment.barbell) ...[
+            const SizedBox(height: AppSpacing.lg),
+            // The plate calculator and plate-aware rounding load this
+            // exercise on whichever bar is picked here, falling back to the
+            // inventory's own default bar when left unset (`F-PLT-002` §4).
+            Builder(
+              builder: (context) {
+                final bars = ref.watch(barsProvider).value ?? const [];
+                return DropdownButtonFormField<String?>(
+                  initialValue: bars.any((b) => b.id == _defaultBarId)
+                      ? _defaultBarId
+                      : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Bar',
+                    border: OutlineInputBorder(),
+                    helperText: "Left as Default, uses the inventory's own "
+                        'default bar (Settings › Bars & plates).',
+                  ),
+                  items: [
+                    const DropdownMenuItem(value: null, child: Text('Default')),
+                    for (final bar in bars)
+                      DropdownMenuItem(value: bar.id, child: Text(bar.name)),
+                  ],
+                  onChanged: (id) => setState(() => _defaultBarId = id),
+                );
+              },
+            ),
+          ],
           if (setFieldsFor(_trackingType.name).contains(SetField.weight)) ...[
             const SizedBox(height: AppSpacing.lg),
             // Overrides `defaultStep`'s per-equipment default

@@ -1,6 +1,6 @@
 # F-PLT-001 — Plate calculator
 
-Status: planned | Priority: P1 | Phase: 4
+Status: in-progress | Priority: P1 | Phase: 4
 Depends on: F-PLT-002 | Blocks: F-PRG-012, F-LOG-020
 Reads: 22-UNITS, 21-DATA-MODEL#bars-and-plates
 Screens: Active Workout (sheet), Numeric Keypad
@@ -29,6 +29,16 @@ weight. Inventory with no small plates, so the minimum jump is large. Bar not
 loaded symmetrically — out of scope, symmetric loading is assumed.
 
 ---
+
+## Status note (batch 4.3)
+
+§1–§4 done: `domain/plates/plate_calculator.dart`'s `solvePlateLoad`
+(greedy heaviest-first, closest-below/above on a miss, fixture-tested
+against `docs/40-ANALYTICS-SPEC.md` §13), and `PlateCalculatorSheet`,
+reached with one tap from the weight field on the numeric keypad for any
+barbell exercise. §5 (fixed dumbbells, machine stacks) stays unbuilt —
+it depends on `F-PLT-005`, not attempted this batch — so this feature
+stays `in-progress` rather than `done`.
 
 ## Why
 

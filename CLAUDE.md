@@ -817,6 +817,53 @@ structure), which doesn't exist yet, so it can't reach full fidelity
 regardless of what `F-PRG-010` decides — the two remaining items in this
 batch, in dependency order.
 
+**Batch 4.3 — plate maths (partial, v0.37.0).** `F-PLT-002`, `F-PLT-004` and
+`F-PRG-012` done; `F-PLT-001` `in-progress` (its own status note has the
+detail — §5's non-barbell cases wait on `F-PLT-005`); `F-PLT-003` (loading
+visualisation) and `F-PLT-005` (machine/stack increments), both P2, not
+attempted — this batch is not closed. Schema unchanged — `bars` and
+`plates` have existed since schema v3, unpopulated until now; this batch is
+the first to read or write either. `docs/40-ANALYTICS-SPEC.md` gained §13
+(plate solve, closest achievable, plate-aware rounding) with a single
+worked fixture reused across all three, deliberately built with no
+micro-plates in its inventory so a 2.5 kg progression increment is *not*
+assemblable — the case §3 exists for — mirrored into
+`docs/fixtures/analytics.json#plateMaths`. `domain/plates/plate_calculator.dart`
+holds `solvePlateLoad` (greedy heaviest-first per §2, closest-below/above
+via the smallest unused pair on a miss) and `closestAchievableGrams`
+(`F-PLT-004`, direction-configurable, default down).
+`domain/progression/plate_aware_rounding.dart`'s `applyPlateRounding` is
+applied by `WorkoutRepository.startFromRoutineDay` *after* `computeTargets`,
+never inside it (§12 rule 5) — every 4.1/4.2 progression fixture test stays
+untouched, and rounding is skipped entirely with no bar or empty inventory
+configured, so a fresh install behaves exactly as it did before this batch.
+Its §3 case — a raw increase that rounds back to the previous session's
+weight — is `ProgressionOutcome.plateRoundingHeld`, detected structurally
+(the round-trip) rather than by comparing the jump to the rule's own
+increment number, so it holds correctly under RPE-autoregulation's
+`2×increment` branch too. That case also needed
+`WorkoutRepository.startFromRoutineDay`'s own snapshot write fixed: it was
+building `targetRepsMin` from the routine's static config unconditionally
+(a deliberate `F-PRG-001`-era choice, "never collapse a configured range"),
+which silently discarded the held case's `reps + 1` — now overridden
+specifically for `plateRoundingHeld`, every other outcome unchanged.
+`PlateRepository` (`F-PLT-002`) — CRUD for both tables plus `resolveBar`
+(exercise's own bar → inventory default → heaviest available, never
+throwing on a tombstoned `default_bar_id`) and `seedDefaultsIfNeeded`, a
+first-run-only kg/lb set gated by an `app_settings` marker rather than the
+load unit itself, so a later unit switch never rewrites a curated
+inventory — `main()` resolves the seed unit the same way
+`UnitPreferencesNotifier`'s own first-run inference does, since that
+provider isn't constructed yet this early in startup. New surfaces: Settings
+› Bars & plates (`PlateSettingsScreen`, add/edit bars, enable and set pair
+counts on plates); a "Bar" dropdown on the exercise editor for barbell
+exercises only (§4); and `PlateCalculatorSheet`, one tap from the weight
+field on the numeric keypad for any barbell exercise (§4 of `F-PLT-001`).
+Not built: `F-PLT-003`'s to-scale coloured-plate drawing and `F-PLT-005`'s
+fixed-dumbbell/machine-stack weight sources — both P2, deliberately deferred
+rather than attempted partially, same reasoning prior batches gave their
+own P2 deferrals.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

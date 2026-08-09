@@ -134,7 +134,7 @@
 | [F-PRG-009](PRG/F-PRG-009.md) | Failure and deload handling | 4 | P1 | done |
 | [F-PRG-010](PRG/F-PRG-010.md) | Training max management | 4 | P2 | planned |
 | [F-PRG-011](PRG/F-PRG-011.md) | Deload suggestion | 4 | P2 | planned |
-| [F-PRG-012](PRG/F-PRG-012.md) | Plate-aware rounding | 4 | P1 | planned |
+| [F-PRG-012](PRG/F-PRG-012.md) | Plate-aware rounding | 4 | P1 | done |
 
 ## `BOD` — Body metrics
 
@@ -183,10 +183,10 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-PLT-001](PLT/F-PLT-001.md) | Plate calculator | 4 | P1 | planned |
-| [F-PLT-002](PLT/F-PLT-002.md) | Bar and plate inventory | 4 | P1 | planned |
+| [F-PLT-001](PLT/F-PLT-001.md) | Plate calculator | 4 | P1 | in-progress |
+| [F-PLT-002](PLT/F-PLT-002.md) | Bar and plate inventory | 4 | P1 | done |
 | [F-PLT-003](PLT/F-PLT-003.md) | Loading visualisation | 4 | P2 | planned |
-| [F-PLT-004](PLT/F-PLT-004.md) | Closest achievable weight | 4 | P1 | planned |
+| [F-PLT-004](PLT/F-PLT-004.md) | Closest achievable weight | 4 | P1 | done |
 | [F-PLT-005](PLT/F-PLT-005.md) | Machine and stack increments | 4 | P2 | planned |
 
 ## `NAV` — App shell & navigation

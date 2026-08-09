@@ -620,6 +620,102 @@ no RPE logged         100×5, rpe null            → degrades to linear
 
 ---
 
+## 13. Plate maths
+
+Used by: `F-PLT-001`, `F-PLT-004`, `F-PRG-012`.
+
+Three pure functions, all in `lib/domain/plates/`. Symmetric loading is
+assumed throughout (§universal preconditions apply the same "never silently
+wrong" bar as every other metric here, even though this section isn't a
+training-progress metric).
+
+### Plate solve (`F-PLT-001`)
+
+```
+solvePlateLoad(targetGrams, barWeightGrams, inventory) -> PlateSolveResult
+```
+
+1. `target < bar` → `belowBar`; the bar alone is the closest-above result.
+2. `(target − bar)` odd (cannot split into two equal integer-gram sides) →
+   `oddLoad`.
+3. Otherwise, greedy heaviest-first over one side's half-target: for each
+   plate size descending, use as many pairs as available without exceeding
+   the remaining budget. If nothing remains, `exact`. If something remains,
+   the greedy result is `closestBelow`; `closestAbove` is that same result
+   plus one more pair of the smallest plate size that still has an unused
+   pair (or absent, if every plate is already fully used).
+
+### Closest achievable weight (`F-PLT-004`)
+
+```
+closestAchievableGrams(targetGrams, barWeightGrams, inventory, direction) -> int?
+```
+
+Wraps `solvePlateLoad`: `exact` returns the target unchanged; `down` returns
+`closestBelow` (or the bar weight if nothing is assemblable below it);
+`up` returns `closestAbove` (or falls back to `closestBelow` if nothing is
+assemblable above — more plates can't be conjured); `nearest` picks whichever
+of the two is numerically closer, ties favouring `down` (undershooting is
+never a missed rep the way overshooting is). Default direction is `down`.
+
+### Plate-aware rounding (`F-PRG-012`)
+
+Applied to a `TargetSet` **after** `computeTargets` (§12 rule 5), never
+folded into it — the progression rules above stay in canonical, plate-free
+arithmetic, and rounding is a separate, optional pass:
+
+```
+rounded = closestAchievableGrams(proposed.weightGrams, bar, inventory, direction)
+
+rounded == previousWeightGrams AND proposed.weightGrams != previousWeightGrams
+    → the rounding erased the entire proposed increase: hold weight at
+      previousWeightGrams, add one rep instead, rationale records why
+otherwise
+    → weightGrams = rounded, rationale records the raw proposal if rounding
+      changed it
+```
+
+The first branch is §3's "smallest achievable jump exceeds the rule's
+increment" case — detected structurally (rounding round-tripped back to
+where the lifter already was) rather than by comparing the jump size to the
+rule's configured increment directly, which stays correct even when a rule's
+increment isn't a single fixed number (RPE-autoregulation's `2×increment`
+branch, `F-PRG-005`).
+
+### Fixture — `plateMaths`
+
+One bar (20 kg / 20,000 g) and one inventory with no micro-plates —
+20 kg × 4 pairs, 10 kg × 2 pairs, 5 kg × 2 pairs — deliberately chosen so that
+a 2.5 kg progression increment is *not* assemblable, the case §3 exists for.
+
+```
+solvePlateLoad:
+  100 kg (exact)     → 20 kg × 2 pairs/side, exact
+  103 kg (inexact)    → closestBelow 100 kg, closestAbove 110 kg
+  15 kg (below bar)   → belowBar, closestAbove = 20 kg (bar only)
+  20.001 kg (odd)     → oddLoad (1 g cannot split evenly per side)
+
+closestAchievableGrams(103 kg):
+  down    → 100 kg
+  up      → 110 kg
+  nearest → 100 kg   (|103−100| = 3 < |110−103| = 7)
+
+plate-aware rounding, previous weight 100 kg (assembled exactly):
+  proposed 102.5 kg (100 kg + 2.5 kg increment)
+    → not assemblable from this inventory (needs a 1.25 kg plate this
+      lifter doesn't own); rounds down to 100 kg, which equals the previous
+      weight → held: weight stays 100 kg, reps +1 instead
+```
+
+The held case is the one a naive "just round the number" implementation gets
+wrong: rounding down from 102.5 kg to 100 kg is individually correct, but
+silently proposing the *same* weight as last session, indistinguishable from
+`ProgressionOutcome.failure`'s repeat, hides that the engine actually wanted
+to progress and couldn't — §3 exists so the lifter is told to add a rep
+instead, not left thinking the exercise stalled.
+
+---
+
 ## Implementation notes
 
 1. Every function above is pure: plain inputs, plain outputs, no clock, no

@@ -14,6 +14,7 @@ import '../../../domain/logging/duration_entry.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/weight_steps.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import 'plate_calculator_sheet.dart';
 import 'set_value_format.dart';
 
 /// Opens the keypad for one set, focused on [initialField] (`F-LOG-006`).
@@ -29,6 +30,7 @@ Future<void> showSetKeypad(
   required String equipment,
   int? incrementGrams,
   bool perSide = false,
+  String? exerciseId,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -43,6 +45,7 @@ Future<void> showSetKeypad(
       equipment: equipment,
       incrementGrams: incrementGrams,
       perSide: perSide,
+      exerciseId: exerciseId,
     ),
   );
 }
@@ -65,11 +68,17 @@ class NumericKeypadSheet extends ConsumerStatefulWidget {
     required this.equipment,
     this.perSide = false,
     this.incrementGrams,
+    this.exerciseId,
   });
 
   final WorkoutSet set;
   final List<SetField> fields;
   final SetField initialField;
+
+  /// Null when the calling screen doesn't have it to hand (e.g. history
+  /// editing) — the plate-calculator button is hidden in that case rather
+  /// than resolving a bar it can't attribute to an exercise.
+  final String? exerciseId;
 
   /// Stored enum name, for the default step (`F-LOG-006` §2).
   final String equipment;
@@ -167,6 +176,27 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
                   ),
                   const SizedBox(width: AppSpacing.sm),
                 ],
+                if (_field == SetField.weight &&
+                    widget.exerciseId != null &&
+                    widget.equipment == 'barbell')
+                  IconButton(
+                    tooltip: 'Plate calculator',
+                    icon: const Icon(Icons.calculate_outlined),
+                    onPressed: () {
+                      final grams = _parseGrams();
+                      if (grams == null) return;
+                      final total = widget.perSide
+                          ? (Mass.grams(grams) * 2).grams
+                          : grams;
+                      unawaited(
+                        showPlateCalculatorSheet(
+                          context,
+                          exerciseId: widget.exerciseId!,
+                          targetGrams: total,
+                        ),
+                      );
+                    },
+                  ),
                 IconButton(
                   tooltip: 'Done',
                   onPressed: () => Navigator.of(context).pop(),

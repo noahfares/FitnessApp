@@ -176,6 +176,35 @@
     ]
   },
 
+  "plateMaths": {
+    "spec": "40-ANALYTICS-SPEC#13-plate-maths",
+    "barWeightKg": 20,
+    "inventory": [
+      { "weightKg": 20, "pairsAvailable": 4 },
+      { "weightKg": 10, "pairsAvailable": 2 },
+      { "weightKg": 5,  "pairsAvailable": 2 }
+    ],
+    "solveCases": [
+      { "name": "exact",       "targetKg": 100,   "expectedStatus": "exact",     "expectedAchievedKg": 100 },
+      { "name": "inexact",     "targetKg": 103,    "expectedStatus": "closest",   "expectedClosestBelowKg": 100, "expectedClosestAboveKg": 110 },
+      { "name": "below bar",   "targetKg": 15,     "expectedStatus": "belowBar",  "expectedClosestAboveKg": 20 },
+      { "name": "odd load",    "targetGrams": 20001, "expectedStatus": "oddLoad" }
+    ],
+    "closestAchievableCases": [
+      { "name": "down (default)", "targetKg": 103, "direction": "down",    "expectedKg": 100 },
+      { "name": "up",              "targetKg": 103, "direction": "up",      "expectedKg": 110 },
+      { "name": "nearest",         "targetKg": 103, "direction": "nearest", "expectedKg": 100 }
+    ],
+    "plateAwareRoundingCase": {
+      "previousWeightKg": 100,
+      "proposedWeightKg": 102.5,
+      "$note": "100 kg + 2.5 kg increment; not assemblable from this inventory (needs a 1.25 kg plate)",
+      "expectedWeightKg": 100,
+      "expectedHeld": true,
+      "expectedRepsDelta": 1
+    }
+  },
+
   "emptyInput": {
     "$note": "Every analytics function must return a defined empty result for these, never throw and never zero. Zero and unknown are different things.",
     "sets": [],
