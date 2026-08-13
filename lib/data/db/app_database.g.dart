@@ -833,6 +833,17 @@ class $ExercisesTable extends Exercises
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _trainingMaxGramsMeta = const VerificationMeta(
+    'trainingMaxGrams',
+  );
+  @override
+  late final GeneratedColumn<int> trainingMaxGrams = GeneratedColumn<int>(
+    'training_max_grams',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _seedUpdatedAtMeta = const VerificationMeta(
     'seedUpdatedAt',
   );
@@ -873,6 +884,7 @@ class $ExercisesTable extends Exercises
     stackStepGrams,
     stackHalfStepGrams,
     warmupRuleset,
+    trainingMaxGrams,
     seedUpdatedAt,
   ];
   @override
@@ -1030,6 +1042,15 @@ class $ExercisesTable extends Exercises
         ),
       );
     }
+    if (data.containsKey('training_max_grams')) {
+      context.handle(
+        _trainingMaxGramsMeta,
+        trainingMaxGrams.isAcceptableOrUnknown(
+          data['training_max_grams']!,
+          _trainingMaxGramsMeta,
+        ),
+      );
+    }
     if (data.containsKey('seed_updated_at')) {
       context.handle(
         _seedUpdatedAtMeta,
@@ -1173,6 +1194,10 @@ class $ExercisesTable extends Exercises
         DriftSqlType.string,
         data['${effectivePrefix}warmup_ruleset'],
       ),
+      trainingMaxGrams: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}training_max_grams'],
+      ),
       seedUpdatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}seed_updated_at'],
@@ -1296,6 +1321,14 @@ class Exercise extends DataClass implements Insertable<Exercise> {
   /// `{percent, reps}` steps. Null uses the app-wide default ramp.
   final String? warmupRuleset;
 
+  /// The anchor for percentage-based progression (`F-PRG-004`), canonical
+  /// grams — set by hand or derived from the exercise's best e1RM
+  /// (`F-PRG-010`). Null until the user sets one; a percentage-based rule
+  /// falls back to the routine's static target with no training max
+  /// configured, the same "nothing to compute from yet" shape every other
+  /// rule's first-run case already uses.
+  final int? trainingMaxGrams;
+
   /// `updatedAt` as of the last time **seeding** wrote this row.
   ///
   /// Resolves the open question in `F-CAT-001`: a seeded row counts as
@@ -1334,6 +1367,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     this.stackStepGrams,
     this.stackHalfStepGrams,
     this.warmupRuleset,
+    this.trainingMaxGrams,
     this.seedUpdatedAt,
   });
   @override
@@ -1424,6 +1458,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     if (!nullToAbsent || warmupRuleset != null) {
       map['warmup_ruleset'] = Variable<String>(warmupRuleset);
     }
+    if (!nullToAbsent || trainingMaxGrams != null) {
+      map['training_max_grams'] = Variable<int>(trainingMaxGrams);
+    }
     if (!nullToAbsent || seedUpdatedAt != null) {
       map['seed_updated_at'] = Variable<int>(seedUpdatedAt);
     }
@@ -1483,6 +1520,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       warmupRuleset: warmupRuleset == null && nullToAbsent
           ? const Value.absent()
           : Value(warmupRuleset),
+      trainingMaxGrams: trainingMaxGrams == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trainingMaxGrams),
       seedUpdatedAt: seedUpdatedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(seedUpdatedAt),
@@ -1540,6 +1580,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       stackStepGrams: serializer.fromJson<int?>(json['stackStepGrams']),
       stackHalfStepGrams: serializer.fromJson<int?>(json['stackHalfStepGrams']),
       warmupRuleset: serializer.fromJson<String?>(json['warmupRuleset']),
+      trainingMaxGrams: serializer.fromJson<int?>(json['trainingMaxGrams']),
       seedUpdatedAt: serializer.fromJson<int?>(json['seedUpdatedAt']),
     );
   }
@@ -1592,6 +1633,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       'stackStepGrams': serializer.toJson<int?>(stackStepGrams),
       'stackHalfStepGrams': serializer.toJson<int?>(stackHalfStepGrams),
       'warmupRuleset': serializer.toJson<String?>(warmupRuleset),
+      'trainingMaxGrams': serializer.toJson<int?>(trainingMaxGrams),
       'seedUpdatedAt': serializer.toJson<int?>(seedUpdatedAt),
     };
   }
@@ -1624,6 +1666,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     Value<int?> stackStepGrams = const Value.absent(),
     Value<int?> stackHalfStepGrams = const Value.absent(),
     Value<String?> warmupRuleset = const Value.absent(),
+    Value<int?> trainingMaxGrams = const Value.absent(),
     Value<int?> seedUpdatedAt = const Value.absent(),
   }) => Exercise(
     id: id ?? this.id,
@@ -1667,6 +1710,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     warmupRuleset: warmupRuleset.present
         ? warmupRuleset.value
         : this.warmupRuleset,
+    trainingMaxGrams: trainingMaxGrams.present
+        ? trainingMaxGrams.value
+        : this.trainingMaxGrams,
     seedUpdatedAt: seedUpdatedAt.present
         ? seedUpdatedAt.value
         : this.seedUpdatedAt,
@@ -1734,6 +1780,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       warmupRuleset: data.warmupRuleset.present
           ? data.warmupRuleset.value
           : this.warmupRuleset,
+      trainingMaxGrams: data.trainingMaxGrams.present
+          ? data.trainingMaxGrams.value
+          : this.trainingMaxGrams,
       seedUpdatedAt: data.seedUpdatedAt.present
           ? data.seedUpdatedAt.value
           : this.seedUpdatedAt,
@@ -1770,6 +1819,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           ..write('stackStepGrams: $stackStepGrams, ')
           ..write('stackHalfStepGrams: $stackHalfStepGrams, ')
           ..write('warmupRuleset: $warmupRuleset, ')
+          ..write('trainingMaxGrams: $trainingMaxGrams, ')
           ..write('seedUpdatedAt: $seedUpdatedAt')
           ..write(')'))
         .toString();
@@ -1804,6 +1854,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     stackStepGrams,
     stackHalfStepGrams,
     warmupRuleset,
+    trainingMaxGrams,
     seedUpdatedAt,
   ]);
   @override
@@ -1837,6 +1888,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           other.stackStepGrams == this.stackStepGrams &&
           other.stackHalfStepGrams == this.stackHalfStepGrams &&
           other.warmupRuleset == this.warmupRuleset &&
+          other.trainingMaxGrams == this.trainingMaxGrams &&
           other.seedUpdatedAt == this.seedUpdatedAt);
 }
 
@@ -1868,6 +1920,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
   final Value<int?> stackStepGrams;
   final Value<int?> stackHalfStepGrams;
   final Value<String?> warmupRuleset;
+  final Value<int?> trainingMaxGrams;
   final Value<int?> seedUpdatedAt;
   final Value<int> rowid;
   const ExercisesCompanion({
@@ -1898,6 +1951,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     this.stackStepGrams = const Value.absent(),
     this.stackHalfStepGrams = const Value.absent(),
     this.warmupRuleset = const Value.absent(),
+    this.trainingMaxGrams = const Value.absent(),
     this.seedUpdatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1929,6 +1983,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     this.stackStepGrams = const Value.absent(),
     this.stackHalfStepGrams = const Value.absent(),
     this.warmupRuleset = const Value.absent(),
+    this.trainingMaxGrams = const Value.absent(),
     this.seedUpdatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -1966,6 +2021,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     Expression<int>? stackStepGrams,
     Expression<int>? stackHalfStepGrams,
     Expression<String>? warmupRuleset,
+    Expression<int>? trainingMaxGrams,
     Expression<int>? seedUpdatedAt,
     Expression<int>? rowid,
   }) {
@@ -2001,6 +2057,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       if (stackHalfStepGrams != null)
         'stack_half_step_grams': stackHalfStepGrams,
       if (warmupRuleset != null) 'warmup_ruleset': warmupRuleset,
+      if (trainingMaxGrams != null) 'training_max_grams': trainingMaxGrams,
       if (seedUpdatedAt != null) 'seed_updated_at': seedUpdatedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -2034,6 +2091,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     Value<int?>? stackStepGrams,
     Value<int?>? stackHalfStepGrams,
     Value<String?>? warmupRuleset,
+    Value<int?>? trainingMaxGrams,
     Value<int?>? seedUpdatedAt,
     Value<int>? rowid,
   }) {
@@ -2066,6 +2124,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       stackStepGrams: stackStepGrams ?? this.stackStepGrams,
       stackHalfStepGrams: stackHalfStepGrams ?? this.stackHalfStepGrams,
       warmupRuleset: warmupRuleset ?? this.warmupRuleset,
+      trainingMaxGrams: trainingMaxGrams ?? this.trainingMaxGrams,
       seedUpdatedAt: seedUpdatedAt ?? this.seedUpdatedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -2177,6 +2236,9 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     if (warmupRuleset.present) {
       map['warmup_ruleset'] = Variable<String>(warmupRuleset.value);
     }
+    if (trainingMaxGrams.present) {
+      map['training_max_grams'] = Variable<int>(trainingMaxGrams.value);
+    }
     if (seedUpdatedAt.present) {
       map['seed_updated_at'] = Variable<int>(seedUpdatedAt.value);
     }
@@ -2216,6 +2278,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
           ..write('stackStepGrams: $stackStepGrams, ')
           ..write('stackHalfStepGrams: $stackHalfStepGrams, ')
           ..write('warmupRuleset: $warmupRuleset, ')
+          ..write('trainingMaxGrams: $trainingMaxGrams, ')
           ..write('seedUpdatedAt: $seedUpdatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -10453,6 +10516,7 @@ typedef $$ExercisesTableCreateCompanionBuilder =
       Value<int?> stackStepGrams,
       Value<int?> stackHalfStepGrams,
       Value<String?> warmupRuleset,
+      Value<int?> trainingMaxGrams,
       Value<int?> seedUpdatedAt,
       Value<int> rowid,
     });
@@ -10485,6 +10549,7 @@ typedef $$ExercisesTableUpdateCompanionBuilder =
       Value<int?> stackStepGrams,
       Value<int?> stackHalfStepGrams,
       Value<String?> warmupRuleset,
+      Value<int?> trainingMaxGrams,
       Value<int?> seedUpdatedAt,
       Value<int> rowid,
     });
@@ -10715,6 +10780,11 @@ class $$ExercisesTableFilterComposer
 
   ColumnFilters<String> get warmupRuleset => $composableBuilder(
     column: $table.warmupRuleset,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get trainingMaxGrams => $composableBuilder(
+    column: $table.trainingMaxGrams,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10961,6 +11031,11 @@ class $$ExercisesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get trainingMaxGrams => $composableBuilder(
+    column: $table.trainingMaxGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get seedUpdatedAt => $composableBuilder(
     column: $table.seedUpdatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -11112,6 +11187,11 @@ class $$ExercisesTableAnnotationComposer
 
   GeneratedColumn<String> get warmupRuleset => $composableBuilder(
     column: $table.warmupRuleset,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get trainingMaxGrams => $composableBuilder(
+    column: $table.trainingMaxGrams,
     builder: (column) => column,
   );
 
@@ -11279,6 +11359,7 @@ class $$ExercisesTableTableManager
                 Value<int?> stackStepGrams = const Value.absent(),
                 Value<int?> stackHalfStepGrams = const Value.absent(),
                 Value<String?> warmupRuleset = const Value.absent(),
+                Value<int?> trainingMaxGrams = const Value.absent(),
                 Value<int?> seedUpdatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExercisesCompanion(
@@ -11309,6 +11390,7 @@ class $$ExercisesTableTableManager
                 stackStepGrams: stackStepGrams,
                 stackHalfStepGrams: stackHalfStepGrams,
                 warmupRuleset: warmupRuleset,
+                trainingMaxGrams: trainingMaxGrams,
                 seedUpdatedAt: seedUpdatedAt,
                 rowid: rowid,
               ),
@@ -11341,6 +11423,7 @@ class $$ExercisesTableTableManager
                 Value<int?> stackStepGrams = const Value.absent(),
                 Value<int?> stackHalfStepGrams = const Value.absent(),
                 Value<String?> warmupRuleset = const Value.absent(),
+                Value<int?> trainingMaxGrams = const Value.absent(),
                 Value<int?> seedUpdatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExercisesCompanion.insert(
@@ -11371,6 +11454,7 @@ class $$ExercisesTableTableManager
                 stackStepGrams: stackStepGrams,
                 stackHalfStepGrams: stackHalfStepGrams,
                 warmupRuleset: warmupRuleset,
+                trainingMaxGrams: trainingMaxGrams,
                 seedUpdatedAt: seedUpdatedAt,
                 rowid: rowid,
               ),

@@ -12,6 +12,7 @@ import '../../../data/db/database_provider.dart';
 import '../../../data/db/tables/enums.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/weight_steps.dart';
+import '../../../domain/progression/training_max.dart';
 import '../../../domain/timing/rest_defaults.dart';
 import '../../settings/application/plate_providers.dart';
 import '../../settings/application/unit_preferences_provider.dart';
@@ -48,6 +49,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
   final TextEditingController _stackStep = TextEditingController();
   final TextEditingController _stackHalfStep = TextEditingController();
   final TextEditingController _bodyweightCoefficient = TextEditingController();
+  final TextEditingController _trainingMax = TextEditingController();
 
   List<String> _aliases = <String>[];
 
@@ -100,6 +102,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
     _stackStep.dispose();
     _stackHalfStep.dispose();
     _bodyweightCoefficient.dispose();
+    _trainingMax.dispose();
     super.dispose();
   }
 
@@ -155,7 +158,38 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         if (row.bodyweightCoefficient case final coefficient?) {
           _bodyweightCoefficient.text = (coefficient * 100).round().toString();
         }
+        if (row.trainingMaxGrams case final grams?) {
+          _trainingMax.text = formatter.massValueOnly(Mass.grams(grams), unit);
+        }
       }
+    });
+  }
+
+  /// ~90% of the exercise's cached best e1RM (`F-PRG-010` §1) — fills the
+  /// field, doesn't save it; the user still confirms with the screen's own
+  /// Save action, same as every other field here.
+  Future<void> _deriveTrainingMax() async {
+    final id = widget.exerciseId;
+    if (id == null) return;
+    final bestE1rm = await ref
+        .read(personalRecordRepositoryProvider)
+        .bestE1rmGrams(id);
+    if (!mounted) return;
+    if (bestE1rm == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No logged history for this exercise yet.'),
+        ),
+      );
+      return;
+    }
+    final unit = ref.read(unitPreferencesProvider).load;
+    final formatter = ref.read(quantityFormatterProvider);
+    setState(() {
+      _trainingMax.text = formatter.massValueOnly(
+        Mass.grams(deriveTrainingMaxGrams(bestE1rm)),
+        unit,
+      );
     });
   }
 
@@ -239,6 +273,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
       final percent = int.tryParse(_bodyweightCoefficient.text.trim());
       if (percent != null) bodyweightCoefficient = percent / 100;
     }
+    final trainingMaxGrams = _parseMassField(_trainingMax);
 
     if (widget.isNew) {
       // The id is generated here rather than by the database so it exists
@@ -262,6 +297,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         stackStepGrams: stackStepGrams,
         stackHalfStepGrams: stackHalfStepGrams,
         bodyweightCoefficient: bodyweightCoefficient,
+        trainingMaxGrams: trainingMaxGrams,
       );
     } else {
       await repo.update(
@@ -284,6 +320,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
           stackStepGrams: Value(stackStepGrams),
           stackHalfStepGrams: Value(stackHalfStepGrams),
           bodyweightCoefficient: Value(bodyweightCoefficient),
+          trainingMaxGrams: Value(trainingMaxGrams),
         ),
       );
     }
@@ -691,6 +728,34 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
                     border: const OutlineInputBorder(),
                     suffixText: unit.symbol,
                     helperText: 'Blank uses the default, $defaultLabel.',
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            // The anchor for percentage-based progression (`F-PRG-010`) —
+            // optional, and only useful once a `% of TM` routine target is
+            // assigned to this exercise (`F-PRG-004`).
+            Builder(
+              builder: (context) {
+                final unit = ref.watch(unitPreferencesProvider).load;
+                return TextField(
+                  controller: _trainingMax,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Training max',
+                    border: const OutlineInputBorder(),
+                    suffixText: unit.symbol,
+                    helperText: 'Used by percentage-based progression.',
+                    suffixIcon: widget.isNew
+                        ? null
+                        : IconButton(
+                            tooltip: 'Derive from best e1RM (~90%)',
+                            icon: const Icon(Icons.auto_awesome),
+                            onPressed: () => unawaited(_deriveTrainingMax()),
+                          ),
                   ),
                 );
               },

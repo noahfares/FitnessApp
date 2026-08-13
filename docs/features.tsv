@@ -81,13 +81,13 @@ F-ANA-018	—	idea	P3	Exercise comparison			40-ANALYTICS-SPEC, 21-DATA-MODEL#set
 F-PRG-001	4	in-progress	P1	Progression engine core	F-ROU-003, F-ROU-010, F-LOG-004	F-PRG-002 … F-PRG-006	40-ANALYTICS-SPEC, 20-ARCHITECTURE#the-one-hard-rule, 22-UNITS
 F-PRG-002	4	done	P1	Linear progression	F-PRG-001		40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-003	4	done	P1	Double progression	F-PRG-001		40-ANALYTICS-SPEC, 22-UNITS
-F-PRG-004	4	planned	P2	Percentage / training-max based	F-PRG-010		40-ANALYTICS-SPEC, 22-UNITS
+F-PRG-004	4	done	P2	Percentage / training-max based	F-PRG-010		40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-005	4	done	P2	RPE-autoregulated	F-LOG-014		40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-006	4	done	P1	Manual carry-forward			40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-007	4	done	P1	Rule assignment			40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-008	4	done	P1	Target explanation	F-PRG-001		40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-009	4	done	P1	Failure and deload handling	F-PRG-002		40-ANALYTICS-SPEC, 22-UNITS
-F-PRG-010	4	planned	P2	Training max management		F-PRG-004	40-ANALYTICS-SPEC, 22-UNITS
+F-PRG-010	4	done	P2	Training max management		F-PRG-004	40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-011	4	done	P2	Deload suggestion	F-ANA-009, F-ANA-010		40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-012	4	done	P1	Plate-aware rounding	F-PLT-001		22-UNITS, 40-ANALYTICS-SPEC
 F-BOD-001	1	done	P0	Bodyweight log		F-LOG-019, F-BOD-003	21-DATA-MODEL#body_measurements, 22-UNITS

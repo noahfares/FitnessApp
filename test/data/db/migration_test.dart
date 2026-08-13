@@ -45,6 +45,12 @@ void main() {
     final raw = NativeDatabase(file);
     await raw.ensureOpen(_NoopUser());
 
+    if (version < 6) {
+      // v6 added exercises.training_max_grams (`F-PRG-010`).
+      await raw.runCustom(
+        'ALTER TABLE exercises DROP COLUMN training_max_grams',
+      );
+    }
     if (version < 5) {
       // v5 added exercises.warmup_ruleset (`F-LOG-020`).
       await raw.runCustom('ALTER TABLE exercises DROP COLUMN warmup_ruleset');
@@ -285,11 +291,47 @@ void main() {
     );
   });
 
+  group('v5 -> v6: exercises training max', () {
+    test(
+      'adds the column, leaving existing rows with no training max set',
+      () async {
+        await buildHistoricalDatabase(
+          5,
+          then: [
+            '''
+          INSERT INTO exercises
+            (id, created_at, updated_at, name, primary_muscle, equipment,
+             tracking_type)
+          VALUES
+            ('ex-1', 100, 200, 'Bench Press', 'chest', 'barbell', 'weightReps')
+          ''',
+          ],
+        );
+
+        final db = await reopen();
+        expect(
+          await columnsOf(db, 'exercises'),
+          contains('training_max_grams'),
+        );
+
+        final row = await (db.select(
+          db.exercises,
+        )..where((e) => e.id.equals('ex-1'))).getSingle();
+
+        // Null for existing rows — a percentage-based rule can't be assigned
+        // to an exercise without one anyway, so nothing behaves differently
+        // before this column is ever set.
+        expect(row.trainingMaxGrams, isNull);
+        expect(row.name, 'Bench Press');
+      },
+    );
+  });
+
   test('a fresh database is created at the current version', () async {
     final db = await reopen();
-    expect(db.schemaVersion, 5);
+    expect(db.schemaVersion, 6);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.read<int>('user_version'), 5);
+    expect(version.read<int>('user_version'), 6);
   });
 }
 

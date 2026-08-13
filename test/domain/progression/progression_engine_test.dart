@@ -321,4 +321,66 @@ void main() {
       expect(result.reps, 3);
     });
   });
+
+  // Batch 4.2's second pass — `F-PRG-004`, `F-PRG-010`. Reuses the
+  // `trainingMaxProgression` fixture (`docs/40-ANALYTICS-SPEC.md` §12).
+  group('percentage of training max', () {
+    const rule = PercentageProgressionRule(
+      config: PercentageProgressionConfig(percent: 0.85),
+    );
+    const percentageContext = ProgressionContext(
+      staticWeightGrams: 100000,
+      staticReps: 5,
+      staticSets: 1,
+      trainingMaxGrams: 108000,
+    );
+
+    test('ignores logged history — always the flat percentage', () {
+      final result = computeTargets(
+        rule: rule,
+        exerciseHistory: [
+          // A session that would trigger a deload under any other rule —
+          // percentage-based must not react to it at all.
+          session([(50, 1), (50, 1), (50, 1)]),
+        ],
+        context: percentageContext,
+      );
+
+      expect(result.weightGrams, 91800); // round(108 * 0.85) = 91.8 kg
+      expect(result.reps, 5);
+      expect(result.sets, 1);
+      expect(
+        result.rationale.outcome,
+        ProgressionOutcome.percentageOfTrainingMax,
+      );
+      expect(result.rationale.trainingMaxGrams, 108000);
+      expect(result.rationale.percent, 0.85);
+    });
+
+    test('no prior session either — same flat percentage', () {
+      final result = computeTargets(
+        rule: rule,
+        exerciseHistory: const [],
+        context: percentageContext,
+      );
+
+      expect(result.weightGrams, 91800);
+      expect(
+        result.rationale.outcome,
+        ProgressionOutcome.percentageOfTrainingMax,
+      );
+    });
+
+    test('no training max configured falls back to the static target', () {
+      final result = computeTargets(
+        rule: rule,
+        exerciseHistory: const [],
+        context: context, // no trainingMaxGrams
+      );
+
+      expect(result.weightGrams, 100000);
+      expect(result.reps, 5);
+      expect(result.rationale.outcome, ProgressionOutcome.firstRun);
+    });
+  });
 }

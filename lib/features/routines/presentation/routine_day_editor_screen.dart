@@ -542,6 +542,7 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
   late final TextEditingController _repsMax;
   late final TextEditingController _weight;
   late final TextEditingController _increment;
+  late final TextEditingController _percent;
   int? _restSeconds;
   late ProgressionRuleType _ruleType;
   double? _targetRpe;
@@ -577,6 +578,11 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
     _increment = TextEditingController(
       text: formatter.massValueOnly(Mass.grams(incrementGrams), prefs.load),
     );
+    final percent = switch (rule) {
+      PercentageProgressionRule(config: final config) => config.percent * 100,
+      _ => 85.0,
+    };
+    _percent = TextEditingController(text: percent.round().toString());
   }
 
   @override
@@ -586,6 +592,7 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
     _repsMax.dispose();
     _weight.dispose();
     _increment.dispose();
+    _percent.dispose();
     super.dispose();
   }
 
@@ -593,6 +600,7 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final prefs = ref.watch(unitPreferencesProvider);
+    final formatter = ref.watch(quantityFormatterProvider);
 
     return SafeArea(
       child: Padding(
@@ -700,6 +708,10 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                     value: ProgressionRuleType.rpeAutoregulation,
                     label: Text('Match effort (RPE)'),
                   ),
+                  ButtonSegment(
+                    value: ProgressionRuleType.percentageOfTrainingMax,
+                    label: Text('% of TM'),
+                  ),
                 ],
                 selected: {_ruleType},
                 onSelectionChanged: (selection) =>
@@ -772,6 +784,26 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                   ),
                 ),
               ],
+              if (_ruleType == ProgressionRuleType.percentageOfTrainingMax) ...[
+                const SizedBox(height: AppSpacing.sm),
+                TextField(
+                  controller: _percent,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Percent of training max',
+                    border: const OutlineInputBorder(),
+                    suffixText: '%',
+                    helperText: widget.row.trainingMaxGrams == null
+                        ? 'No training max set on this exercise yet — set '
+                              "one on the exercise's own editor first."
+                        : 'Training max: '
+                              '${formatter.massValueOnly(Mass.grams(widget.row.trainingMaxGrams!), prefs.load)} '
+                              '${prefs.load.symbol}. Recomputed every time '
+                              'this day is started — no week/cycle variation '
+                              'yet.',
+                  ),
+                ),
+              ],
               const SizedBox(height: AppSpacing.lg),
               FilledButton(
                 onPressed: () => unawaited(_save(context)),
@@ -825,6 +857,11 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
           incrementGrams:
               parser.parseMass(_increment.text, prefs.load)?.grams ??
               defaultIncrementGrams(widget.row.primaryMuscle),
+        ),
+      ),
+      ProgressionRuleType.percentageOfTrainingMax => PercentageProgressionRule(
+        config: PercentageProgressionConfig(
+          percent: (int.tryParse(_percent.text.trim()) ?? 85) / 100,
         ),
       ),
     };

@@ -1019,6 +1019,41 @@ run a plain one-shot query instead, which is both the fix and the more
 correct shape for what was always meant to be a single read; no other
 caller of either method needed to change.
 
+**Phase 4 batch 4.2, second pass — training max & percentage-based
+progression (v0.42.0).** `F-PRG-010` and `F-PRG-004` both done, closing out
+batch 4.2 (`F-PRG-003`/`F-PRG-005` landed in the first pass). Schema v6
+adds `exercises.training_max_grams` (nullable, null on every existing row —
+a percentage-based rule can't be assigned without one anyway, so nothing
+behaves differently until it's set). `domain/progression/training_max.dart`'s
+`deriveTrainingMaxGrams` is `floor(bestE1rm × 0.9)` — floored rather than
+rounded, since a training max is a conservative anchor meant to err light;
+`PersonalRecordRepository.bestE1rmGrams` reads the cached `bestE1rm` record
+(`F-LOG-013`) a new "Derive from e1RM" button on the exercise editor uses to
+fill the field, same as every other field there, without saving until the
+user hits the screen's own Save. `PercentageProgressionRule`
+(`domain/progression/progression_rule.dart`) is the one rule in
+`computeTargets` that ignores logged history entirely — `nextWeight =
+round(trainingMax × percent)`, decided before the engine's own first-run
+check even runs (extracted to `_computePercentageTarget`, called both from
+the early branch and from the switch's now-required exhaustive case) —
+because the training max is what's supposed to move, never the weight
+itself reacting to a session's success or failure the way every other rule
+here does. No training max configured falls back to the routine's static
+target unchanged, the same "nothing to compute from yet" shape `firstRun`
+already used for missing history, reused rather than given a second outcome
+value. Deliberately not full 5/3/1-style fidelity: this is a flat
+percentage, not a multi-week wave — `F-ROU-013` (week/cycle structure)
+still isn't scheduled, so there is nothing yet for the percentage to vary
+against week to week, exactly the caveat batch 4.2's own first-pass status
+note left open. Reached from a fifth "% of TM" segment on the day editor's
+target sheet's `SegmentedButton`, which stayed within one row across all
+five phone-width segments in the existing widget tests without needing the
+chip-row treatment `F-ANA-015`'s date range selector used for six longer
+labels. `docs/40-ANALYTICS-SPEC.md` §12 gained both the training-max
+derivation formula and the percentage rule, plus a `trainingMaxProgression`
+fixture (`docs/fixtures/analytics.json`) covering the percentage case and
+the no-training-max fallback.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

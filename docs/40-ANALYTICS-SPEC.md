@@ -450,8 +450,8 @@ total                       = 1065 s  (~18 min)
 
 ## 12. Progression rules
 
-Used by: `F-PRG-001`, `F-PRG-002`, `F-PRG-003`, `F-PRG-005`, `F-PRG-006`,
-`F-PRG-009`.
+Used by: `F-PRG-001`, `F-PRG-002`, `F-PRG-003`, `F-PRG-004`, `F-PRG-005`,
+`F-PRG-006`, `F-PRG-009`, `F-PRG-010`.
 
 `computeTargets(rule, exerciseHistory, context) -> TargetSet` proposes the
 next session's target weight and reps for one exercise, given its own
@@ -558,6 +558,59 @@ The null rule: `nextWeight`/`nextReps` = the previous session's actual
 values verbatim, with no success/partial/failure evaluation at all. This is
 the default for every routine exercise until a rule is explicitly assigned
 (`F-PRG-007`).
+
+### Training max (`F-PRG-010`)
+
+Not a progression rule itself — a per-exercise anchor
+(`exercises.training_max_grams`) that [percentage-of-training-max](#percentage-of-training-max-f-prg-004)
+reads. Set by hand, or derived from the exercise's best cached e1RM
+(`F-LOG-013`):
+
+```
+trainingMax = floor(bestE1rm × 0.90)
+```
+
+Floored, not rounded, deliberately: a training max is a conservative anchor
+percentage-based sets are built on top of, so erring light is the safer
+direction. No automated "prompt to increase it at cycle boundaries" exists
+— there is no cycle concept yet (`F-ROU-013`, not scheduled), so the max
+only ever moves by the user's own hand or a fresh "derive from e1RM" pull.
+
+### Percentage of training max (`F-PRG-004`)
+
+```
+nextWeight = round(trainingMax × percent)
+```
+
+Ignores logged history entirely — unlike every other rule above, the
+weight doesn't respond to what happened last session, because the training
+max itself is what's supposed to move, and only ever by hand or by
+re-deriving from e1RM. No training max configured on the exercise → falls
+back to the routine's own static target unchanged, the same shape every
+other rule's first-run case uses, for the same reason: nothing to compute
+a proposal from yet. This is a flat percentage, not a multi-week wave
+(5/3/1's own 3-week percentage schedule needs `F-ROU-013`'s week/cycle
+structure, not scheduled) — recomputed off the *current* training max every
+time a routine day using it is started.
+
+### Fixture — `trainingMaxProgression`
+
+Bench Press, best cached e1RM `120 kg` → training max `floor(120 × 0.90) =
+108 kg`. Routine target `1×5` at `85%` of training max.
+
+```
+derive           bestE1rm 120 kg               → training max 108 kg
+percentage       trainingMax 108 kg, 85%        → next 91.8 kg (round(108 × 0.85))
+                                                   — regardless of what was
+                                                   logged last session
+no training max  trainingMax not set            → falls back to the
+                                                   routine's static target
+                                                   unchanged
+```
+
+The "regardless of what was logged last session" line is the one a naive
+implementation gets wrong by reusing the linear/double-progression
+success/partial/failure machinery here — this rule has no such verdict.
 
 ### Fixture — `linearProgression`
 

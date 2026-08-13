@@ -77,6 +77,22 @@ void main() {
   Future<List<PersonalRecord>> live() =>
       (db.select(db.personalRecords)..where((p) => p.deletedAt.isNull())).get();
 
+  group('bestE1rmGrams (F-PRG-010 §1)', () {
+    test('null for an exercise with no cached record yet', () async {
+      await makeExercise('bench');
+      expect(await records.bestE1rmGrams('bench'), isNull);
+    });
+
+    test('reads the cached bestE1rm record after it exists', () async {
+      await makeExercise('bench');
+      final setId = await logSet('bench', weightGrams: 100000, reps: 5);
+      await records.evaluateSet(setId);
+
+      // Epley e1RM for 100kg x 5 = 100000 * (1 + 5/30) = 116666.67 -> 116667.
+      expect(await records.bestE1rmGrams('bench'), 116667);
+    });
+  });
+
   group('evaluateSet (F-LOG-013 §1)', () {
     test('the first-ever set is recorded silently, on every kind', () async {
       await makeExercise('bench');

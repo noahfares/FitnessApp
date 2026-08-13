@@ -174,6 +174,39 @@ void main() {
     );
   });
 
+  group('training max (F-PRG-010)', () {
+    test('is null by default and round-trips once set', () async {
+      final created = await makeCustom();
+      expect(created.trainingMaxGrams, isNull);
+
+      await repo.setTrainingMax('ex-1', 108000);
+
+      final updated = await repo.findById('ex-1');
+      expect(updated!.trainingMaxGrams, 108000);
+    });
+
+    test('can be cleared back to null', () async {
+      await makeCustom();
+      await repo.setTrainingMax('ex-1', 108000);
+
+      await repo.setTrainingMax('ex-1', null);
+
+      expect((await repo.findById('ex-1'))!.trainingMaxGrams, isNull);
+    });
+
+    test('createCustom can set it directly', () async {
+      final created = await repo.createCustom(
+        id: 'ex-2',
+        name: 'Bench Press',
+        primaryMuscle: Muscle.chest,
+        equipment: Equipment.barbell,
+        trackingType: TrackingType.weightReps,
+        trainingMaxGrams: 108000,
+      );
+      expect(created.trainingMaxGrams, 108000);
+    });
+  });
+
   group('soft delete is enforced by the repository', () {
     test('deleted rows vanish from reads but survive in the table', () async {
       await makeCustom();

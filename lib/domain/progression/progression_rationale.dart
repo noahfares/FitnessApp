@@ -9,7 +9,10 @@ library;
 
 enum ProgressionOutcome {
   /// No prior session exists for this exercise — the routine's own static
-  /// target is used unchanged (`F-PRG-001` §5).
+  /// target is used unchanged (`F-PRG-001` §5). Also reused by
+  /// [ProgressionOutcome.percentageOfTrainingMax]'s own rule when no
+  /// training max is configured yet — the same "nothing to compute from"
+  /// shape, a different missing input.
   firstRun,
 
   /// The rule has no opinion — carries the last session's own values
@@ -38,6 +41,10 @@ enum ProgressionOutcome {
   /// exceeds the rule's increment (`F-PRG-012` §3). Weight is held; a rep is
   /// added instead.
   plateRoundingHeld,
+
+  /// Computed as a percentage of the exercise's training max
+  /// (`F-PRG-004`) — session history plays no part.
+  percentageOfTrainingMax,
 }
 
 class ProgressionRationale {
@@ -49,6 +56,8 @@ class ProgressionRationale {
     this.deltaGrams = 0,
     this.consecutiveFailures = 0,
     this.rawWeightGrams,
+    this.trainingMaxGrams,
+    this.percent,
   });
 
   final ProgressionOutcome outcome;
@@ -74,6 +83,14 @@ class ProgressionRationale {
   /// wanted before rounding erased it entirely.
   final int? rawWeightGrams;
 
+  /// The training max the proposal was computed from, only set for
+  /// [ProgressionOutcome.percentageOfTrainingMax].
+  final int? trainingMaxGrams;
+
+  /// The fraction of [trainingMaxGrams] used, only set for
+  /// [ProgressionOutcome.percentageOfTrainingMax].
+  final double? percent;
+
   /// Persisted as a nested object inside `workout_exercises.target_snapshot`
   /// (`F-PRG-008` §3) — alongside the proposed numbers themselves rather
   /// than as a separate column, since it is only ever read back for the one
@@ -86,6 +103,8 @@ class ProgressionRationale {
     'deltaGrams': deltaGrams,
     'consecutiveFailures': consecutiveFailures,
     'rawWeightGrams': rawWeightGrams,
+    'trainingMaxGrams': trainingMaxGrams,
+    'percent': percent,
   };
 
   static ProgressionRationale? fromJson(Object? json) {
@@ -108,6 +127,8 @@ class ProgressionRationale {
       deltaGrams: map['deltaGrams'] as int? ?? 0,
       consecutiveFailures: map['consecutiveFailures'] as int? ?? 0,
       rawWeightGrams: map['rawWeightGrams'] as int?,
+      trainingMaxGrams: map['trainingMaxGrams'] as int?,
+      percent: (map['percent'] as num?)?.toDouble(),
     );
   }
 }
