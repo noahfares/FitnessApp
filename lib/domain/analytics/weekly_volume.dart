@@ -98,6 +98,43 @@ List<({DateTime date, int volumeGrams})> dailyVolume(
   return [for (final date in dates) (date: date, volumeGrams: totals[date]!)];
 }
 
+/// [weeklyVolume] for every muscle that appears in [records] at all, in one
+/// pass — what the weekly insight cards (`F-ANA-013`) need to scan every
+/// muscle for a notable change without re-scanning the full record list once
+/// per muscle. A muscle never trained has no key, the same "never appeared
+/// vs. appeared with zero" distinction `setsPerMuscleByWeek` already makes.
+Map<String, List<WeeklyVolumePoint>> weeklyVolumeAllMuscles(
+  List<AnalyticsSetRecord> records, {
+  required WeekStart weekStart,
+}) {
+  final totals = <String, Map<DateTime, int>>{};
+  for (final record in records) {
+    if (!isCountedSet(
+      setType: record.setType,
+      isCompleted: record.isCompleted,
+    )) {
+      continue;
+    }
+    final volume = _setVolumeGrams(record);
+    if (volume == null) continue;
+
+    final week = weekStart.weekStartFor(record.date);
+    final byWeek = totals.putIfAbsent(record.primaryMuscle, () => {});
+    byWeek[week] = (byWeek[week] ?? 0) + volume;
+  }
+
+  return {
+    for (final muscle in totals.keys)
+      muscle: [
+        for (final week in totals[muscle]!.keys.toList()..sort())
+          WeeklyVolumePoint(
+            weekStart: week,
+            volumeGrams: totals[muscle]![week]!,
+          ),
+      ],
+  };
+}
+
 /// The per-exercise volume chart (`F-ANA-004`) on `ExerciseDetailScreen`:
 /// [sessions] are already scoped to one exercise, so this sums each
 /// session's own `volumeGrams` (`F-ANA-002`) by week rather than

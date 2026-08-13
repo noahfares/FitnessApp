@@ -70,6 +70,10 @@ void main() {
     await pumpScreen(tester, const InsightsScreen(), db: db, now: clock);
 
     expect(find.text('No sessions yet'), findsNothing);
+    // The muscle-balance and training-load sections above push this well
+    // past the initial viewport.
+    await tester.ensureVisible(find.text('Overall weekly volume'));
+    await tester.pumpAndSettle();
     expect(find.text('Overall weekly volume'), findsOneWidget);
     expect(find.byType(WeeklyBarChart), findsWidgets);
     // The dropdown's non-selected menu items render offstage for sizing.
@@ -116,6 +120,73 @@ void main() {
       // No prior session for this exercise, so it has no e1RM baseline yet —
       // the single logged set is excluded, not bucketed as zero (§10 rule 2).
       expect(find.text('Intensity (RPE)'), findsNothing);
+    },
+  );
+
+  Future<void> logAndFinishOneSet(WidgetTester tester) async {
+    await makeExercise('bench');
+    final workout = await workouts.start();
+    await workouts.addExercises(workout.id, ['bench']);
+    final we = (await workouts.watchExercises(workout.id).first)
+        .single
+        .workoutExerciseId;
+    final set = (await sets.getSets(we)).single;
+    await sets.complete(
+      set.id,
+      weightGrams: const Value(100000),
+      reps: const Value(5),
+    );
+    await workouts.finish(workout.id);
+  }
+
+  testWidgets('duration/rest compliance section renders, collapsed by default '
+      '(F-ANA-012)', (tester) async {
+    await logAndFinishOneSet(tester);
+
+    await pumpScreen(tester, const InsightsScreen(), db: db, now: clock);
+
+    final scrollable = find.byType(Scrollable).first;
+    // Collapsed by default (`F-ROU-011`'s own starvation fix, same
+    // reasoning here) — the header is always present, the chart only
+    // after expanding.
+    await tester.scrollUntilVisible(
+      find.text('Duration & rest'),
+      500,
+      scrollable: scrollable,
+    );
+    expect(find.text('Duration & rest'), findsOneWidget);
+    // No rest was recorded on a session's very first set.
+    expect(find.text('not enough logged rest yet'), findsOneWidget);
+
+    await tester.tap(find.text('Duration & rest'));
+    await tester.pumpAndSettle();
+    expect(find.text('Session duration'), findsOneWidget);
+  });
+
+  testWidgets(
+    'muscle heat map section renders, collapsed by default (F-ANA-014)',
+    (tester) async {
+      await logAndFinishOneSet(tester);
+
+      await pumpScreen(tester, const InsightsScreen(), db: db, now: clock);
+
+      final scrollable = find.byType(Scrollable).first;
+      await tester.scrollUntilVisible(
+        find.text('Muscle heat map'),
+        500,
+        scrollable: scrollable,
+      );
+      expect(find.text('Muscle heat map'), findsOneWidget);
+
+      await tester.tap(find.text('Muscle heat map'));
+      await tester.pumpAndSettle();
+      expect(find.text('Front'), findsOneWidget);
+      expect(find.text('Back'), findsOneWidget);
+
+      await tester.tap(find.text('Back'));
+      await tester.pumpAndSettle();
+      // No exception thrown switching views — the painter redraws cleanly.
+      expect(find.text('Muscle heat map'), findsOneWidget);
     },
   );
 }

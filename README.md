@@ -16,7 +16,7 @@ and the rest of the insights engine. The design is documented in full under
 
 | | |
 |---|---|
-| Version | `0.42.0` — canonical in [`VERSION`](VERSION); scheme in [versioning](docs/63-VERSIONING.md) |
+| Version | `0.43.0` — canonical in [`VERSION`](VERSION); scheme in [versioning](docs/63-VERSIONING.md) |
 | Stack | Flutter + Dart ([ADR-0001](docs/70-decisions/ADR-0001-flutter.md)) |
 | Platforms | Android first, distributed as an APK via GitHub Releases; iOS and app-store releases planned |
 | Data | Local SQLite (Drift), no backend ([ADR-0002](docs/70-decisions/ADR-0002-local-first.md)) |

@@ -281,6 +281,97 @@
     ],
     "expectedSeconds": 1065
   },
+  "weeklyInsights": {
+    "spec": "40-ANALYTICS-SPEC#14-weekly-insight-cards",
+    "volumeChangeThreshold": 0.2,
+    "e1rmChangeThreshold": 0.03,
+    "minimumWeeksOfHistory": 3,
+    "cases": [
+      {
+        "name": "chest volume change",
+        "weeklyKg": [
+          18,
+          19,
+          21,
+          22,
+          28
+        ],
+        "baselineKg": 20,
+        "currentKg": 28,
+        "percentChange": 0.4,
+        "shown": true
+      },
+      {
+        "name": "squat e1RM new high",
+        "weeklyE1rmKg": [
+          140,
+          142.5,
+          141,
+          143,
+          148
+        ],
+        "priorMaxKg": 143,
+        "currentKg": 148,
+        "percentChange": 0.035,
+        "shown": true
+      },
+      {
+        "name": "rear delts sets last week",
+        "sets": 4,
+        "shown": true
+      },
+      {
+        "name": "biceps volume change (under threshold)",
+        "weeklyKg": [
+          10,
+          10.2,
+          9.9,
+          10.1,
+          10.3
+        ],
+        "baselineKg": 10.05,
+        "currentKg": 10.3,
+        "percentChange": 0.0249,
+        "shown": false
+      }
+    ]
+  },
+  "restCompliance": {
+    "spec": "40-ANALYTICS-SPEC#15-duration-and-rest-compliance",
+    "prescribedSeconds": 120,
+    "cases": [
+      {
+        "name": "exact compliance",
+        "actualSeconds": [
+          100,
+          110,
+          130,
+          140
+        ],
+        "expectedRatio": 1.0
+      },
+      {
+        "name": "under-resting",
+        "actualSeconds": [
+          100,
+          110,
+          130
+        ],
+        "expectedRatio": 0.9444
+      }
+    ]
+  },
+  "muscleHeat": {
+    "spec": "40-ANALYTICS-SPEC#16-body-map-regions",
+    "volumeGramsByMuscle": {
+      "chest": 1000000,
+      "quads": 500000
+    },
+    "expectedIntensity": {
+      "chest": 1.0,
+      "quads": 0.5
+    }
+  },
   "linearProgression": {
     "spec": "40-ANALYTICS-SPEC#12-progression-rules",
     "exercise": {

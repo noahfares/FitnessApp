@@ -1054,6 +1054,74 @@ derivation formula and the percentage rule, plus a `trainingMaxProgression`
 fixture (`docs/fixtures/analytics.json`) covering the percentage case and
 the no-training-max fallback.
 
+**Phase 4 closing pass — duration/rest compliance, weekly insight cards,
+body map (v0.43.0).** `F-ANA-012`, `F-ANA-013`, `F-ANA-014` all done — the
+last three features scheduled for Phase 4, closing out batch 4.5 and the
+phase itself. No schema change. Duration and rest compliance (`F-ANA-012`):
+`domain/analytics/duration_compliance.dart`'s `sessionDurationTrend` is
+`endedAt − startedAt` per finished session; `averageRestComplianceRatio`
+averages actual-vs-prescribed rest across every completed, non-warm-up set
+with a recorded `rest_taken_seconds` (`F-TIM-007`), "prescribed" resolved
+through the exercise's *current* configuration (`resolveRestSeconds`) since
+no per-set historical snapshot exists — a documented approximation, not a
+gap. Weekly insight cards (`F-ANA-013`): `domain/analytics/
+weekly_insights.dart`'s `generateWeeklyInsights` composes three existing
+signals (per-muscle volume, per-exercise e1RM via `epley1Rm`, hard sets per
+muscle) into a ranked, capped list, gated by a hard "at least 3 distinct
+weeks of history" rule that closes the acceptance criterion directly — two
+sessions land inside one or two calendar weeks, so nothing is generated for
+them at all. Each signal has its own significance-threshold, and a plain
+"sets last week" fact is deliberately scaled below any real comparison's
+significance so a busy muscle's raw count can never crowd out a genuine
+change — a bug the first draft of the ranking had, caught by its own
+fixture test. Reached on the **dashboard**, per the feature's own spec
+(not Insights) — `WeeklyInsightsSection` renders nothing at all while
+loading, on error, or with insufficient history, never a placeholder; each
+card links to the chart behind it, precisely for the e1RM kind (the specific
+exercise's detail screen) and generally for the two muscle-scoped kinds
+(the Insights tab, since its muscle picker is local widget state, not a
+route parameter — a documented simplification). Body map heat overlay
+(`F-ANA-014`): resolves batch 4.5's own "needs a licence-clean SVG this
+session couldn't responsibly source" blocker by not needing an SVG at all —
+`BodyMapHeatOverlay` draws an original, non-anatomical silhouette with
+`CustomPaint`, simple rounded rectangles per muscle region, nothing traced
+or sourced from anywhere. `domain/analytics/muscle_heat.dart`'s
+`muscleHeatIntensity` is relative to the hottest-trained muscle in the
+window, not absolute. Closes `F-CAT-013` §2 as a side effect:
+`domain/catalog/muscle_taxonomy.dart`'s new `bodyMapViewOf` maps every
+categorised muscle to a front/back region, `neck`/`fullBody` to neither,
+the same "decide explicitly" precedent `categoryOf` already set. Both new
+`InsightsScreen` sections ship collapsed behind an `ExpansionTile` by
+default — `F-ROU-011`'s own starvation fix, needed again here: an
+uncollapsed first draft of `BodyMapHeatOverlay` (an unbounded-width 100:220
+portrait shape) pushed "Overall weekly volume" and its chart out of the
+initial render/cache extent, caught by this batch's own widget test rather
+than shipped.
+
+**Phase 4 audited and declared complete (v0.43.0)**, mirroring Phases 2 and
+3's own audit batches. All four roadmap exit criteria are met:
+starting a routine day pre-fills targets that are correct, explained, and
+always assemblable — proven end-to-end by an existing batch 4.3 repository
+test that actually calls `startFromRoutineDay` through a real plate
+inventory and asserts the `plateRoundingHeld` rationale, not just the
+domain-level rounding function in isolation; the plate calculator never
+proposes plates the user doesn't own, same test plus `F-PLT-004`'s own
+fixture; every progression rule has fixture tests for success, partial,
+failure and first-run — true for linear, double-progression and
+RPE-autoregulation, with one deliberate, documented exception:
+percentage-of-training-max has no success/partial/failure verdict *by
+design* (`F-PRG-004`'s own spec — the training max moves by hand, not by
+session performance), so its fixture instead covers the percentage
+computation and the no-training-max fallback, the shape that actually
+applies to it; and insight cards say nothing at all when data is
+insufficient, proven both at the domain level (`weekly_insights_test.dart`)
+and through the real `DashboardScreen` (`weekly_insights_section_test.dart`
+asserts no "This week" section renders with too little history) — the
+widget-level proof Phases 2 and 3's own audits established as the standard,
+not just a domain fixture. Every feature `F-PRG-*`, `F-PLT-*`, `F-BOD-*`,
+`F-ANA-*` and `F-LOG-019`/`F-LOG-020`/`F-TIM-009` scheduled for Phase 4 is
+`done`.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

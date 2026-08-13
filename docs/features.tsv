@@ -11,7 +11,7 @@ F-CAT-009	2	done	P1	Archive and hide			21-DATA-MODEL#exercises
 F-CAT-010	—	idea	P2	Merge duplicate exercises			21-DATA-MODEL#exercises
 F-CAT-011	—	idea	P3	Exercise media			21-DATA-MODEL#exercises
 F-CAT-012	—	idea	P2	Substitution suggestions	F-CAT-013		21-DATA-MODEL#exercises
-F-CAT-013	3	in-progress	P1	Muscle taxonomy and body map data		F-ANA-005, F-ANA-008, F-ANA-014	21-DATA-MODEL#exercises, 40-ANALYTICS-SPEC#3-hard-sets-per-muscle-group-per-week
+F-CAT-013	3	done	P1	Muscle taxonomy and body map data		F-ANA-005, F-ANA-008, F-ANA-014	21-DATA-MODEL#exercises, 40-ANALYTICS-SPEC#3-hard-sets-per-muscle-group-per-week
 F-CAT-014	—	idea	P3	Exercise variants and modifiers			21-DATA-MODEL#exercises
 F-ROU-001	2	done	P0	Routine CRUD		F-ROU-002, F-ROU-010	21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-002	2	done	P0	Routine days	F-ROU-001		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
@@ -71,9 +71,9 @@ F-ANA-008	3	in-progress	P2	Muscle balance	F-CAT-013		40-ANALYTICS-SPEC, 21-DATA-
 F-ANA-009	4	done	P2	Stall detection	F-ANA-003		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-010	4	done	P2	Acute-to-chronic workload ratio			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-011	4	done	P2	Rep range and intensity distribution	F-LOG-014		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-012	4	planned	P3	Duration and rest compliance	F-TIM-007		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-013	4	planned	P2	Weekly insight cards	F-ANA-003, F-ANA-004, F-ANA-005, F-ANA-009		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-014	4	planned	P3	Body map heat overlay	F-CAT-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-012	4	done	P3	Duration and rest compliance	F-TIM-007		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-013	4	done	P2	Weekly insight cards	F-ANA-003, F-ANA-004, F-ANA-005, F-ANA-009		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-014	4	done	P3	Body map heat overlay	F-CAT-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-015	3	in-progress	P1	Date range and filter controls			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-016	3	done	P2	Chart interaction			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-017	—	idea	P3	Year in review			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets

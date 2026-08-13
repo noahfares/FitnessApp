@@ -31,7 +31,7 @@
 | [F-CAT-010](CAT/F-CAT-010.md) | Merge duplicate exercises | — | P2 | idea |
 | [F-CAT-011](CAT/F-CAT-011.md) | Exercise media | — | P3 | idea |
 | [F-CAT-012](CAT/F-CAT-012.md) | Substitution suggestions | — | P2 | idea |
-| [F-CAT-013](CAT/F-CAT-013.md) | Muscle taxonomy and body map data | 3 | P1 | in-progress |
+| [F-CAT-013](CAT/F-CAT-013.md) | Muscle taxonomy and body map data | 3 | P1 | done |
 | [F-CAT-014](CAT/F-CAT-014.md) | Exercise variants and modifiers | — | P3 | idea |
 
 ## `ROU` — Routines & programs
@@ -111,9 +111,9 @@
 | [F-ANA-009](ANA/F-ANA-009.md) | Stall detection | 4 | P2 | done |
 | [F-ANA-010](ANA/F-ANA-010.md) | Acute-to-chronic workload ratio | 4 | P2 | done |
 | [F-ANA-011](ANA/F-ANA-011.md) | Rep range and intensity distribution | 4 | P2 | done |
-| [F-ANA-012](ANA/F-ANA-012.md) | Duration and rest compliance | 4 | P3 | planned |
-| [F-ANA-013](ANA/F-ANA-013.md) | Weekly insight cards | 4 | P2 | planned |
-| [F-ANA-014](ANA/F-ANA-014.md) | Body map heat overlay | 4 | P3 | planned |
+| [F-ANA-012](ANA/F-ANA-012.md) | Duration and rest compliance | 4 | P3 | done |
+| [F-ANA-013](ANA/F-ANA-013.md) | Weekly insight cards | 4 | P2 | done |
+| [F-ANA-014](ANA/F-ANA-014.md) | Body map heat overlay | 4 | P3 | done |
 | [F-ANA-015](ANA/F-ANA-015.md) | Date range and filter controls | 3 | P1 | in-progress |
 | [F-ANA-016](ANA/F-ANA-016.md) | Chart interaction | 3 | P2 | done |
 | [F-ANA-017](ANA/F-ANA-017.md) | Year in review | — | P3 | idea |

@@ -769,6 +769,142 @@ instead, not left thinking the exercise stalled.
 
 ---
 
+## 14. Weekly insight cards
+
+Used by: `F-ANA-013`.
+
+Three signals, each with its own "genuinely notable" threshold (rule 2 —
+never a plain week-to-week wobble):
+
+1. **Muscle volume change** — current week's volume for a muscle vs. the
+   trailing average of the (up to 4) prior weeks that have data for it.
+   Shown, up or down, only when `|percentChange| >= 20%`, and only once
+   that muscle has at least 2 prior weeks of data to average.
+2. **Exercise e1RM new high** — this week's best e1RM for an exercise vs.
+   the *max* of prior weeks' bests (never an average — an e1RM insight is a
+   fresh high, matching the spec's own "up 7.5 kg" framing, never a decline
+   a single missed session would otherwise report as backsliding). Shown
+   only when the new best clears the prior max by `>= 3%`, and only once
+   the exercise has at least 2 prior weeks of e1RM data.
+3. **Hard sets last week** — a plain fact, no comparison needed: a muscle's
+   current-week set count, whenever it's greater than zero.
+
+### Rules
+
+1. **Global gate**: the whole history must span at least 3 distinct weeks
+   with any counted set before a single card is shown, full stop — the rule
+   behind "a new user with two sessions sees no spurious insights." Two
+   sessions land inside one or two calendar weeks, so under this gate
+   nothing is generated for them at all, not even the "plain fact" kind.
+2. Thresholds above are deliberately conservative — the goal is a small set
+   of cards, not an exhaustive report.
+3. Cards are ranked by significance — `|percentChange|` for the two
+   comparison kinds, the raw set count for the fact kind — and capped, most
+   significant first.
+4. Never fabricated: any signal missing its own minimum history is skipped
+   entirely for that muscle/exercise, not shown with a caveat.
+
+### Fixture — `weeklyInsights`
+
+Five weeks of history (`W1`–`W5`, `W5` current). Chest trained every week
+(baseline from `W1`–`W4`, average 20 kg·reps); Squat logged every week.
+
+```
+chest volume:  W1 18000  W2 19000  W3 21000  W4 22000  W5 28000
+  → baseline (avg W1-W4) = 20000, current 28000, change +40%
+    → shown: muscleVolumeChange, chest, +40%
+
+squat e1RM:    W1 140000 W2 142500 W3 141000 W4 143000 W5 148000
+  → prior max (W1-W4) = 143000, current 148000, change +3.5%
+    → shown: exerciseE1rmNewHigh, squat, +3.5%
+
+rear delts sets last week (W5): 4
+  → shown: muscleSetsLastWeek, rearDelts, 4
+
+biceps volume: W1 10000 W2 10200 W3 9900 W4 10100 W5 10300
+  → baseline 10050, current 10300, change +2.5% (< 20% threshold)
+    → not shown
+
+only two weeks of history (W4, W5), any muscle
+    → not shown (global gate — fewer than 3 distinct weeks trained)
+```
+
+---
+
+## 15. Duration and rest compliance
+
+Used by: `F-ANA-012`.
+
+### Session duration trend
+
+```
+durationSeconds = endedAt - startedAt
+```
+
+Per finished session — the in-progress session (`endedAt` null) is excluded,
+matching every other metric's "counted set" boundary discipline extended to
+whole sessions. Plotted oldest to newest, same shape every other trend chart
+uses.
+
+### Rest compliance
+
+```
+complianceRatio = actualRestSeconds / prescribedRestSeconds
+```
+
+Per completed, non-warm-up set with a recorded `rest_taken_seconds`
+(`F-TIM-007`) — a session's first completion has no preceding rest and is
+excluded, the same as `F-TIM-007`'s own recording rule. `prescribedRestSeconds`
+is the exercise's *currently configured* resolved rest (its own default, or
+the global default) — not a historical snapshot, since none is stored per
+set. This is a known approximation: a rest default changed after a set was
+logged makes that set's compliance figure reflect the new default, not the
+one that actually applied at the time. Averaged across the sample window to
+one ratio; `1.0` is exact compliance, `<1.0` under-resting, `>1.0` over-resting.
+
+### Fixture — `restCompliance`
+
+Four completed sets with recorded rest against a 120 s prescribed rest:
+`100s, 110s, 130s, 140s` → average `120s` → ratio `1.0` exactly. Drop the
+last set entirely (three sets: `100s, 110s, 130s`) → average `113.33s` →
+ratio `0.944` (~5.6% under-resting).
+
+---
+
+## 16. Body map regions
+
+Used by: `F-ANA-014`.
+
+Each of the 19 muscles with a defined push/pull/legs/core category
+(`F-CAT-013` §3 — everything except `neck` and `fullBody`, excluded here for
+the same "decide explicitly, don't force a placement" reason) maps to
+exactly one of two views:
+
+**Front**: `chest`, `frontDelts`, `sideDelts`, `biceps`, `forearms`, `abs`,
+`obliques`, `adductors`, `quads`.
+
+**Back**: `traps`, `rearDelts`, `lats`, `upperBack`, `lowerBack`, `triceps`,
+`glutes`, `hamstrings`, `calves`, `abductors`.
+
+### Heat intensity
+
+```
+intensity(muscle) = volume(muscle) / max(volume(m) for m in all trained muscles)
+```
+
+Relative, not absolute — the hottest-trained muscle in the window is always
+`1.0`, everything else scaled against it, so the map stays legible whether
+someone trains twice a week or six times. A muscle with no volume in the
+window has no defined intensity (excluded, not zero) — same "unknown vs.
+zero" distinction as every other metric here (Implementation note 5).
+
+The silhouette itself is an original geometric diagram — simple shapes, not
+a traced anatomical illustration — the same "licence-clean or don't ship it"
+discipline `F-CAT-001`'s exercise thumbnails already follow, satisfied here
+by drawing nothing sourced from anywhere.
+
+---
+
 ## Implementation notes
 
 1. Every function above is pure: plain inputs, plain outputs, no clock, no
