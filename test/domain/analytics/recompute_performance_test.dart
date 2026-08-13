@@ -51,6 +51,7 @@ void main() {
               setType: 'working',
               isCompleted: true,
               trackingType: 'weightReps',
+              exerciseId: name,
               exerciseName: name,
               primaryMuscle: primary,
               secondaryMuscles: secondary,

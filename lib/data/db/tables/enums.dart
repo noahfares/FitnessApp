@@ -101,3 +101,21 @@ enum MeasurementType {
 
 /// Personal-record kinds (docs/40-ANALYTICS-SPEC.md §4).
 enum PrKind { maxWeight, maxRepsAtWeight, bestE1rm, maxSessionVolume }
+
+/// Where an exercise's load actually comes from (`F-PLT-005`).
+///
+/// Decides what the plate calculator shows and what `F-PRG-012`'s
+/// plate-aware rounding snaps a proposed weight to — a barbell assembles
+/// arbitrary plate combinations, a dumbbell rack only offers whatever
+/// discrete weights it stocks, and a stack machine only offers whatever the
+/// pin (plus an optional add-on magnet) can reach.
+enum WeightSource { plateLoaded, fixedIncrement, stack }
+
+/// The sensible default weight source for a newly created exercise of
+/// [equipment] — the same "reasonable guess, always overridable" shape as
+/// [defaultWeightEntryModeFor].
+WeightSource defaultWeightSourceFor(Equipment equipment) => switch (equipment) {
+  Equipment.dumbbell || Equipment.kettlebell => WeightSource.fixedIncrement,
+  Equipment.machine || Equipment.cable => WeightSource.stack,
+  _ => WeightSource.plateLoaded,
+};

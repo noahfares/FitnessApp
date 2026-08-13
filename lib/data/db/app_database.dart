@@ -46,7 +46,7 @@ class AppDatabase extends _$AppDatabase {
   /// asserts on the *data*, not merely that nothing threw
   /// (docs/60-ENGINEERING.md §schema changes).
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -81,6 +81,17 @@ class AppDatabase extends _$AppDatabase {
                     LIMIT 1
                  )
         ''');
+      }
+      if (from < 4) {
+        // Per-exercise weight source — plate-loaded, fixed dumbbells, or a
+        // weight stack (`F-PLT-005`). Existing rows default to `plateLoaded`,
+        // which is exactly how every exercise behaved before this column
+        // existed, so no backfill is needed.
+        await m.addColumn(exercises, exercises.weightSource);
+        await m.addColumn(exercises, exercises.fixedIncrementsGrams);
+        await m.addColumn(exercises, exercises.stackBaseGrams);
+        await m.addColumn(exercises, exercises.stackStepGrams);
+        await m.addColumn(exercises, exercises.stackHalfStepGrams);
       }
       await _createIndexes();
     },

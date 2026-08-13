@@ -71,6 +71,35 @@ void main() {
   });
 
   testWidgets(
+    'a muted secondary scatter renders without crashing (F-BOD-003)',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          home: Scaffold(
+            body: TrendChart(
+              points: const [
+                TrendChartPoint(x: 0, y: 100, label: 'Jan 1'),
+                TrendChartPoint(x: 1, y: 102, label: 'Jan 8'),
+                TrendChartPoint(x: 2, y: 104, label: 'Jan 15'),
+              ],
+              secondaryPoints: const [
+                TrendChartPoint(x: 0, y: 99, label: ''),
+                TrendChartPoint(x: 1, y: 106, label: ''),
+                TrendChartPoint(x: 2, y: 101, label: ''),
+              ],
+              valueLabel: (v) => v.toStringAsFixed(1),
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Not enough data yet'), findsNothing);
+    },
+  );
+
+  testWidgets(
     'renders with a tap-through callback and zoom disabled (F-ANA-016)',
     (tester) async {
       await tester.pumpWidget(

@@ -6,14 +6,18 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../data/db/tables/enums.dart';
 import '../../../domain/plates/plate_calculator.dart';
+import '../../../domain/plates/weight_source_calculator.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import '../../shell/widgets/plate_stack_visualization.dart';
 
-/// The plate calculator, one tap from any weight field (`F-PLT-001` §4).
+/// The load calculator, one tap from any weight field (`F-PLT-001` §4).
 ///
-/// Non-barbell exercises — fixed dumbbells, machine stacks — are out of
-/// scope here; that per-exercise weight-source distinction is `F-PLT-005`,
-/// not yet built.
+/// Which exercise this is for decides everything shown: plate-loaded exercises
+/// get the full plate solve and to-scale drawing (`F-PLT-003`); fixed
+/// dumbbells and weight stacks get the closest-achievable weight from their
+/// own configured stock (`F-PLT-005`).
 Future<void> showPlateCalculatorSheet(
   BuildContext context, {
   required String exerciseId,
@@ -21,10 +25,8 @@ Future<void> showPlateCalculatorSheet(
 }) {
   return showModalBottomSheet<void>(
     context: context,
-    builder: (context) => PlateCalculatorSheet(
-      exerciseId: exerciseId,
-      targetGrams: targetGrams,
-    ),
+    builder: (context) =>
+        PlateCalculatorSheet(exerciseId: exerciseId, targetGrams: targetGrams),
   );
 }
 
@@ -52,11 +54,13 @@ class PlateCalculatorSheet extends ConsumerWidget {
             final exercise = await ref
                 .read(exerciseRepositoryProvider)
                 .findById(exerciseId);
-            final bar = await plateRepository.resolveBar(
-              exercise?.defaultBarId,
-            );
+            if (exercise == null ||
+                exercise.weightSource != WeightSource.plateLoaded) {
+              return (exercise: exercise, bar: null, inventory: null);
+            }
+            final bar = await plateRepository.resolveBar(exercise.defaultBarId);
             final inventory = await plateRepository.getUsablePlates();
-            return (bar: bar, inventory: inventory);
+            return (exercise: exercise, bar: bar, inventory: inventory);
           }(),
           builder: (context, snapshot) {
             final data = snapshot.data;
@@ -66,28 +70,31 @@ class PlateCalculatorSheet extends ConsumerWidget {
                 child: Center(child: CircularProgressIndicator.adaptive()),
               );
             }
-            final bar = data.bar;
-            if (bar == null) {
-              return const _Message(
-                'No bar configured yet — add one in Settings › Bars & '
-                'plates.',
-              );
+            final exercise = data.exercise;
+            if (exercise == null) {
+              return const _Message('This exercise no longer exists.');
             }
-            final specs = [
-              for (final p in data.inventory)
-                PlateSpec(weightGrams: p.weightGrams, pairsAvailable: p.countAvailable),
-            ];
-            final result = solvePlateLoad(
-              targetGrams: targetGrams,
-              barWeightGrams: bar.weightGrams,
-              inventory: specs,
-            );
-            return _ResultView(
-              bar: bar,
-              result: result,
-              unit: unit,
-              formatter: formatter,
-            );
+            return switch (exercise.weightSource) {
+              WeightSource.plateLoaded => _PlateLoadedView(
+                bar: data.bar,
+                inventory: data.inventory,
+                targetGrams: targetGrams,
+                unit: unit,
+                formatter: formatter,
+              ),
+              WeightSource.fixedIncrement => _FixedIncrementView(
+                exercise: exercise,
+                targetGrams: targetGrams,
+                unit: unit,
+                formatter: formatter,
+              ),
+              WeightSource.stack => _StackView(
+                exercise: exercise,
+                targetGrams: targetGrams,
+                unit: unit,
+                formatter: formatter,
+              ),
+            };
           },
         ),
       ),
@@ -105,25 +112,41 @@ class _Message extends StatelessWidget {
       Text(text, style: Theme.of(context).textTheme.bodyMedium);
 }
 
-class _ResultView extends StatelessWidget {
-  const _ResultView({
+class _PlateLoadedView extends StatelessWidget {
+  const _PlateLoadedView({
     required this.bar,
-    required this.result,
+    required this.inventory,
+    required this.targetGrams,
     required this.unit,
     required this.formatter,
   });
 
-  final Bar bar;
-  final PlateSolveResult result;
+  final Bar? bar;
+  final List<Plate>? inventory;
+  final int targetGrams;
   final MassUnit unit;
   final QuantityFormatter formatter;
 
-  String _weight(int grams) =>
-      formatter.massValueOnly(Mass.grams(grams), unit);
+  String _weight(int grams) => formatter.massValueOnly(Mass.grams(grams), unit);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final bar = this.bar;
+    if (bar == null) {
+      return const _Message(
+        'No bar configured yet — add one in Settings › Bars & plates.',
+      );
+    }
+    final specs = [
+      for (final p in inventory ?? const <Plate>[])
+        PlateSpec(weightGrams: p.weightGrams, pairsAvailable: p.countAvailable),
+    ];
+    final result = solvePlateLoad(
+      targetGrams: targetGrams,
+      barWeightGrams: bar.weightGrams,
+      inventory: specs,
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -134,7 +157,7 @@ class _ResultView extends StatelessWidget {
         Text('${bar.name} · ${_weight(bar.weightGrams)} ${unit.symbol}'),
         const SizedBox(height: AppSpacing.md),
         switch (result.status) {
-          PlateSolveStatus.exact => _PlateList(
+          PlateSolveStatus.exact => _PlateResult(
             plates: result.plates,
             weight: _weight,
             unit: unit,
@@ -160,7 +183,7 @@ class _ResultView extends StatelessWidget {
               if (result.closestAboveGrams case final above?)
                 Text('Closest above: ${_weight(above)} ${unit.symbol}'),
               const SizedBox(height: AppSpacing.sm),
-              _PlateList(plates: result.plates, weight: _weight, unit: unit),
+              _PlateResult(plates: result.plates, weight: _weight, unit: unit),
             ],
           ),
         },
@@ -169,8 +192,9 @@ class _ResultView extends StatelessWidget {
   }
 }
 
-class _PlateList extends StatelessWidget {
-  const _PlateList({
+/// The per-side plate list plus its to-scale drawing (`F-PLT-003`).
+class _PlateResult extends StatelessWidget {
+  const _PlateResult({
     required this.plates,
     required this.weight,
     required this.unit,
@@ -185,9 +209,137 @@ class _PlateList extends StatelessWidget {
     if (plates.isEmpty) {
       return const Text('Bar only — no plates needed.');
     }
-    return Text(
-      'Per side: '
-      '${plates.map((p) => '${p.pairs} × ${weight(p.weightGrams)} ${unit.symbol}').join(', ')}',
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        PlateStackVisualization(plates: plates),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          'Per side: '
+          '${plates.map((p) => '${p.pairs} × ${weight(p.weightGrams)} ${unit.symbol}').join(', ')}',
+        ),
+      ],
+    );
+  }
+}
+
+class _FixedIncrementView extends StatelessWidget {
+  const _FixedIncrementView({
+    required this.exercise,
+    required this.targetGrams,
+    required this.unit,
+    required this.formatter,
+  });
+
+  final Exercise exercise;
+  final int targetGrams;
+  final MassUnit unit;
+  final QuantityFormatter formatter;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final available = exercise.fixedIncrementsGrams;
+    if (available.isEmpty) {
+      return const _Message(
+        'No available weights configured yet — add them on this exercise\'s '
+        'editor.',
+      );
+    }
+    final below = closestAchievableFixedIncrement(
+      targetGrams: targetGrams,
+      availableGrams: available,
+    );
+    final above = closestAchievableFixedIncrement(
+      targetGrams: targetGrams,
+      availableGrams: available,
+      direction: RoundingDirection.up,
+    );
+    String w(int g) =>
+        '${formatter.massValueOnly(Mass.grams(g), unit)} ${unit.symbol}';
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Available weights', style: theme.textTheme.titleMedium),
+        const SizedBox(height: AppSpacing.sm),
+        Text(available.map(w).join(', ')),
+        const SizedBox(height: AppSpacing.md),
+        if (below == targetGrams)
+          Text('Exact match: ${w(targetGrams)}')
+        else ...[
+          if (below != null) Text('Closest below: ${w(below)}'),
+          if (above != null && above != below)
+            Text('Closest above: ${w(above)}'),
+        ],
+      ],
+    );
+  }
+}
+
+class _StackView extends StatelessWidget {
+  const _StackView({
+    required this.exercise,
+    required this.targetGrams,
+    required this.unit,
+    required this.formatter,
+  });
+
+  final Exercise exercise;
+  final int targetGrams;
+  final MassUnit unit;
+  final QuantityFormatter formatter;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final base = exercise.stackBaseGrams;
+    final step = exercise.stackStepGrams;
+    if (base == null || step == null) {
+      return const _Message(
+        'No stack configured yet — add its base and step weight on this '
+        "exercise's editor.",
+      );
+    }
+    final halfStep = exercise.stackHalfStepGrams;
+    final below = closestAchievableStack(
+      targetGrams: targetGrams,
+      baseGrams: base,
+      stepGrams: step,
+      halfStepGrams: halfStep,
+    );
+    final above = closestAchievableStack(
+      targetGrams: targetGrams,
+      baseGrams: base,
+      stepGrams: step,
+      halfStepGrams: halfStep,
+      direction: RoundingDirection.up,
+    );
+    String w(int g) =>
+        '${formatter.massValueOnly(Mass.grams(g), unit)} ${unit.symbol}';
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Weight stack', style: theme.textTheme.titleMedium),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          'Base ${w(base)}, step ${w(step)}'
+          '${halfStep != null ? ', half step ${w(halfStep)}' : ''}',
+        ),
+        const SizedBox(height: AppSpacing.md),
+        if (below == targetGrams)
+          Text('Exact match: ${w(targetGrams)}')
+        else if (below == null && above == null)
+          const Text('Target is below the stack\'s own minimum.')
+        else ...[
+          if (below != null) Text('Closest below: ${w(below)}'),
+          if (above != null && above != below)
+            Text('Closest above: ${w(above)}'),
+        ],
+      ],
     );
   }
 }

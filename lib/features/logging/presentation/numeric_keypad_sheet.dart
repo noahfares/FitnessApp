@@ -176,9 +176,10 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
                   ),
                   const SizedBox(width: AppSpacing.sm),
                 ],
-                if (_field == SetField.weight &&
-                    widget.exerciseId != null &&
-                    widget.equipment == 'barbell')
+                // Gated on `exerciseId` alone — which weight source applies
+                // (plate-loaded, fixed dumbbells, a stack) is resolved inside
+                // the sheet itself from the exercise row (`F-PLT-005`).
+                if (_field == SetField.weight && widget.exerciseId != null)
                   IconButton(
                     tooltip: 'Plate calculator',
                     icon: const Icon(Icons.calculate_outlined),

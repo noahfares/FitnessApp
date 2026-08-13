@@ -874,16 +874,10 @@ void main() {
         weightGrams: 20000,
         isDefault: true,
       );
-      await (db.update(
-        db.exercises,
-      )..where((e) => e.id.equals('bench'))).write(
+      await (db.update(db.exercises)..where((e) => e.id.equals('bench'))).write(
         ExercisesCompanion(defaultBarId: Value(barId)),
       );
-      for (final (grams, pairs) in const [
-        (20000, 4),
-        (10000, 2),
-        (5000, 2),
-      ]) {
+      for (final (grams, pairs) in const [(20000, 4), (10000, 2), (5000, 2)]) {
         await plates.createPlate(
           id: 'plate$grams',
           weightGrams: grams,
@@ -917,9 +911,7 @@ void main() {
 
         final first = await repo.startFromRoutineDay(day.id);
         final [firstExercise] = await repo.watchExercises(first.id).first;
-        for (final set in await sets.getSets(
-          firstExercise.workoutExerciseId,
-        )) {
+        for (final set in await sets.getSets(firstExercise.workoutExerciseId)) {
           await sets.complete(
             set.id,
             weightGrams: const Value(100000),
@@ -981,6 +973,111 @@ void main() {
       final [secondExercise] = await repo.watchExercises(second.id).first;
 
       expect(secondExercise.target!.weightGrams, 102500);
+      expect(
+        secondExercise.target!.rationale!.outcome,
+        ProgressionOutcome.success,
+      );
+    });
+
+    test('a fixed-increment exercise rounds to the nearest weight actually '
+        'stocked (F-PLT-005)', () async {
+      await makeExercise('bench', 'DB Press');
+      await (db.update(db.exercises)..where((e) => e.id.equals('bench'))).write(
+        const ExercisesCompanion(
+          weightSource: Value(WeightSource.fixedIncrement),
+          fixedIncrementsGrams: Value([10000, 15000, 20000]),
+        ),
+      );
+      final routine = await routines.create(name: 'Push');
+      final day = await routines.addDay(routine.id, name: 'Push');
+      await routines.addExercises(day.id, ['bench']);
+      final [detail] = await routines.watchExercises(day.id).first;
+      await routines.setTargets(
+        detail.routineExerciseId,
+        targetSets: const Value(3),
+        targetRepsMin: const Value(5),
+        targetRepsMax: const Value(5),
+        targetWeightGrams: const Value(10000),
+      );
+      await routines.setProgressionRule(
+        detail.routineExerciseId,
+        const LinearProgressionRule(
+          config: LinearProgressionConfig(incrementGrams: 2500),
+        ),
+      );
+
+      final first = await repo.startFromRoutineDay(day.id);
+      final [firstExercise] = await repo.watchExercises(first.id).first;
+      for (final set in await sets.getSets(firstExercise.workoutExerciseId)) {
+        await sets.complete(
+          set.id,
+          weightGrams: const Value(10000),
+          reps: const Value(5),
+        );
+      }
+      await repo.finish(first.id);
+      clock = clock.add(const Duration(days: 2));
+
+      // Raw proposal is 12.5 kg — not stocked on this rack — so it rounds
+      // down to the 10 kg dumbbells, which erases the whole increment.
+      final second = await repo.startFromRoutineDay(day.id);
+      final [secondExercise] = await repo.watchExercises(second.id).first;
+
+      expect(secondExercise.target!.weightGrams, 10000);
+      expect(secondExercise.target!.repsMin, 6);
+      expect(
+        secondExercise.target!.rationale!.outcome,
+        ProgressionOutcome.plateRoundingHeld,
+      );
+    });
+
+    test('a stack exercise rounds to the nearest pin, half-step included '
+        '(F-PLT-005)', () async {
+      await makeExercise('cable', 'Cable Row');
+      await (db.update(db.exercises)..where((e) => e.id.equals('cable'))).write(
+        const ExercisesCompanion(
+          weightSource: Value(WeightSource.stack),
+          stackBaseGrams: Value(10000),
+          stackStepGrams: Value(10000),
+          stackHalfStepGrams: Value(2500),
+        ),
+      );
+      final routine = await routines.create(name: 'Pull');
+      final day = await routines.addDay(routine.id, name: 'Pull');
+      await routines.addExercises(day.id, ['cable']);
+      final [detail] = await routines.watchExercises(day.id).first;
+      await routines.setTargets(
+        detail.routineExerciseId,
+        targetSets: const Value(3),
+        targetRepsMin: const Value(8),
+        targetRepsMax: const Value(8),
+        targetWeightGrams: const Value(30000),
+      );
+      await routines.setProgressionRule(
+        detail.routineExerciseId,
+        const LinearProgressionRule(
+          config: LinearProgressionConfig(incrementGrams: 2500),
+        ),
+      );
+
+      final first = await repo.startFromRoutineDay(day.id);
+      final [firstExercise] = await repo.watchExercises(first.id).first;
+      for (final set in await sets.getSets(firstExercise.workoutExerciseId)) {
+        await sets.complete(
+          set.id,
+          weightGrams: const Value(30000),
+          reps: const Value(8),
+        );
+      }
+      await repo.finish(first.id);
+      clock = clock.add(const Duration(days: 2));
+
+      // Raw proposal is 32.5 kg, exactly reachable with the half-step
+      // magnet — assembles exactly, so it is proposed unchanged.
+      final second = await repo.startFromRoutineDay(day.id);
+      final [secondExercise] = await repo.watchExercises(second.id).first;
+
+      expect(secondExercise.target!.weightGrams, 32500);
       expect(
         secondExercise.target!.rationale!.outcome,
         ProgressionOutcome.success,

@@ -770,6 +770,58 @@ class $ExercisesTable extends Exercises
         type: DriftSqlType.double,
         requiredDuringInsert: false,
       );
+  @override
+  late final GeneratedColumnWithTypeConverter<WeightSource, String>
+  weightSource = GeneratedColumn<String>(
+    'weight_source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('plateLoaded'),
+  ).withConverter<WeightSource>($ExercisesTable.$converterweightSource);
+  @override
+  late final GeneratedColumnWithTypeConverter<List<int>, String>
+  fixedIncrementsGrams = GeneratedColumn<String>(
+    'fixed_increments_grams',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  ).withConverter<List<int>>($ExercisesTable.$converterfixedIncrementsGrams);
+  static const VerificationMeta _stackBaseGramsMeta = const VerificationMeta(
+    'stackBaseGrams',
+  );
+  @override
+  late final GeneratedColumn<int> stackBaseGrams = GeneratedColumn<int>(
+    'stack_base_grams',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _stackStepGramsMeta = const VerificationMeta(
+    'stackStepGrams',
+  );
+  @override
+  late final GeneratedColumn<int> stackStepGrams = GeneratedColumn<int>(
+    'stack_step_grams',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _stackHalfStepGramsMeta =
+      const VerificationMeta('stackHalfStepGrams');
+  @override
+  late final GeneratedColumn<int> stackHalfStepGrams = GeneratedColumn<int>(
+    'stack_half_step_grams',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _seedUpdatedAtMeta = const VerificationMeta(
     'seedUpdatedAt',
   );
@@ -804,6 +856,11 @@ class $ExercisesTable extends Exercises
     weightEntryMode,
     incrementGrams,
     bodyweightCoefficient,
+    weightSource,
+    fixedIncrementsGrams,
+    stackBaseGrams,
+    stackStepGrams,
+    stackHalfStepGrams,
     seedUpdatedAt,
   ];
   @override
@@ -925,6 +982,33 @@ class $ExercisesTable extends Exercises
         ),
       );
     }
+    if (data.containsKey('stack_base_grams')) {
+      context.handle(
+        _stackBaseGramsMeta,
+        stackBaseGrams.isAcceptableOrUnknown(
+          data['stack_base_grams']!,
+          _stackBaseGramsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('stack_step_grams')) {
+      context.handle(
+        _stackStepGramsMeta,
+        stackStepGrams.isAcceptableOrUnknown(
+          data['stack_step_grams']!,
+          _stackStepGramsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('stack_half_step_grams')) {
+      context.handle(
+        _stackHalfStepGramsMeta,
+        stackHalfStepGrams.isAcceptableOrUnknown(
+          data['stack_half_step_grams']!,
+          _stackHalfStepGramsMeta,
+        ),
+      );
+    }
     if (data.containsKey('seed_updated_at')) {
       context.handle(
         _seedUpdatedAtMeta,
@@ -1039,6 +1123,31 @@ class $ExercisesTable extends Exercises
         DriftSqlType.double,
         data['${effectivePrefix}bodyweight_coefficient'],
       ),
+      weightSource: $ExercisesTable.$converterweightSource.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}weight_source'],
+        )!,
+      ),
+      fixedIncrementsGrams: $ExercisesTable.$converterfixedIncrementsGrams
+          .fromSql(
+            attachedDatabase.typeMapping.read(
+              DriftSqlType.string,
+              data['${effectivePrefix}fixed_increments_grams'],
+            )!,
+          ),
+      stackBaseGrams: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}stack_base_grams'],
+      ),
+      stackStepGrams: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}stack_step_grams'],
+      ),
+      stackHalfStepGrams: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}stack_half_step_grams'],
+      ),
       seedUpdatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}seed_updated_at'],
@@ -1067,6 +1176,12 @@ class $ExercisesTable extends Exercises
   $converterweightEntryMode = const EnumNameConverter<WeightEntryMode>(
     WeightEntryMode.values,
   );
+  static JsonTypeConverter2<WeightSource, String, String>
+  $converterweightSource = const EnumNameConverter<WeightSource>(
+    WeightSource.values,
+  );
+  static TypeConverter<List<int>, String> $converterfixedIncrementsGrams =
+      const IntListConverter();
 }
 
 class Exercise extends DataClass implements Insertable<Exercise> {
@@ -1131,6 +1246,27 @@ class Exercise extends DataClass implements Insertable<Exercise> {
   /// Fraction of bodyweight loaded, for `bodyweightReps` (`F-LOG-019`).
   final double? bodyweightCoefficient;
 
+  /// Plate-loaded, fixed dumbbells, or a weight stack (`F-PLT-005`). Decides
+  /// what the plate calculator shows and what the progression engine's
+  /// plate-aware rounding (`F-PRG-012`) snaps a proposal to.
+  final WeightSource weightSource;
+
+  /// The discrete total weights this exercise's rack actually stocks, for
+  /// [WeightSource.fixedIncrement] — real dumbbell racks are not always
+  /// evenly spaced, so this is an explicit list rather than a step size.
+  /// Canonical grams, storage-is-always-total (`F-LOG-017` §1).
+  final List<int> fixedIncrementsGrams;
+
+  /// [WeightSource.stack]'s minimum pin weight, canonical grams.
+  final int? stackBaseGrams;
+
+  /// [WeightSource.stack]'s jump between pin positions, canonical grams.
+  final int? stackStepGrams;
+
+  /// [WeightSource.stack]'s optional add-on magnet, canonical grams — half a
+  /// [stackStepGrams] on most machines, but not assumed to be.
+  final int? stackHalfStepGrams;
+
   /// `updatedAt` as of the last time **seeding** wrote this row.
   ///
   /// Resolves the open question in `F-CAT-001`: a seeded row counts as
@@ -1163,6 +1299,11 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     required this.weightEntryMode,
     this.incrementGrams,
     this.bodyweightCoefficient,
+    required this.weightSource,
+    required this.fixedIncrementsGrams,
+    this.stackBaseGrams,
+    this.stackStepGrams,
+    this.stackHalfStepGrams,
     this.seedUpdatedAt,
   });
   @override
@@ -1229,6 +1370,27 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     if (!nullToAbsent || bodyweightCoefficient != null) {
       map['bodyweight_coefficient'] = Variable<double>(bodyweightCoefficient);
     }
+    {
+      map['weight_source'] = Variable<String>(
+        $ExercisesTable.$converterweightSource.toSql(weightSource),
+      );
+    }
+    {
+      map['fixed_increments_grams'] = Variable<String>(
+        $ExercisesTable.$converterfixedIncrementsGrams.toSql(
+          fixedIncrementsGrams,
+        ),
+      );
+    }
+    if (!nullToAbsent || stackBaseGrams != null) {
+      map['stack_base_grams'] = Variable<int>(stackBaseGrams);
+    }
+    if (!nullToAbsent || stackStepGrams != null) {
+      map['stack_step_grams'] = Variable<int>(stackStepGrams);
+    }
+    if (!nullToAbsent || stackHalfStepGrams != null) {
+      map['stack_half_step_grams'] = Variable<int>(stackHalfStepGrams);
+    }
     if (!nullToAbsent || seedUpdatedAt != null) {
       map['seed_updated_at'] = Variable<int>(seedUpdatedAt);
     }
@@ -1274,6 +1436,17 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       bodyweightCoefficient: bodyweightCoefficient == null && nullToAbsent
           ? const Value.absent()
           : Value(bodyweightCoefficient),
+      weightSource: Value(weightSource),
+      fixedIncrementsGrams: Value(fixedIncrementsGrams),
+      stackBaseGrams: stackBaseGrams == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stackBaseGrams),
+      stackStepGrams: stackStepGrams == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stackStepGrams),
+      stackHalfStepGrams: stackHalfStepGrams == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stackHalfStepGrams),
       seedUpdatedAt: seedUpdatedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(seedUpdatedAt),
@@ -1321,6 +1494,15 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       bodyweightCoefficient: serializer.fromJson<double?>(
         json['bodyweightCoefficient'],
       ),
+      weightSource: $ExercisesTable.$converterweightSource.fromJson(
+        serializer.fromJson<String>(json['weightSource']),
+      ),
+      fixedIncrementsGrams: serializer.fromJson<List<int>>(
+        json['fixedIncrementsGrams'],
+      ),
+      stackBaseGrams: serializer.fromJson<int?>(json['stackBaseGrams']),
+      stackStepGrams: serializer.fromJson<int?>(json['stackStepGrams']),
+      stackHalfStepGrams: serializer.fromJson<int?>(json['stackHalfStepGrams']),
       seedUpdatedAt: serializer.fromJson<int?>(json['seedUpdatedAt']),
     );
   }
@@ -1363,6 +1545,15 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       'bodyweightCoefficient': serializer.toJson<double?>(
         bodyweightCoefficient,
       ),
+      'weightSource': serializer.toJson<String>(
+        $ExercisesTable.$converterweightSource.toJson(weightSource),
+      ),
+      'fixedIncrementsGrams': serializer.toJson<List<int>>(
+        fixedIncrementsGrams,
+      ),
+      'stackBaseGrams': serializer.toJson<int?>(stackBaseGrams),
+      'stackStepGrams': serializer.toJson<int?>(stackStepGrams),
+      'stackHalfStepGrams': serializer.toJson<int?>(stackHalfStepGrams),
       'seedUpdatedAt': serializer.toJson<int?>(seedUpdatedAt),
     };
   }
@@ -1389,6 +1580,11 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     WeightEntryMode? weightEntryMode,
     Value<int?> incrementGrams = const Value.absent(),
     Value<double?> bodyweightCoefficient = const Value.absent(),
+    WeightSource? weightSource,
+    List<int>? fixedIncrementsGrams,
+    Value<int?> stackBaseGrams = const Value.absent(),
+    Value<int?> stackStepGrams = const Value.absent(),
+    Value<int?> stackHalfStepGrams = const Value.absent(),
     Value<int?> seedUpdatedAt = const Value.absent(),
   }) => Exercise(
     id: id ?? this.id,
@@ -1418,6 +1614,17 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     bodyweightCoefficient: bodyweightCoefficient.present
         ? bodyweightCoefficient.value
         : this.bodyweightCoefficient,
+    weightSource: weightSource ?? this.weightSource,
+    fixedIncrementsGrams: fixedIncrementsGrams ?? this.fixedIncrementsGrams,
+    stackBaseGrams: stackBaseGrams.present
+        ? stackBaseGrams.value
+        : this.stackBaseGrams,
+    stackStepGrams: stackStepGrams.present
+        ? stackStepGrams.value
+        : this.stackStepGrams,
+    stackHalfStepGrams: stackHalfStepGrams.present
+        ? stackHalfStepGrams.value
+        : this.stackHalfStepGrams,
     seedUpdatedAt: seedUpdatedAt.present
         ? seedUpdatedAt.value
         : this.seedUpdatedAt,
@@ -1467,6 +1674,21 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       bodyweightCoefficient: data.bodyweightCoefficient.present
           ? data.bodyweightCoefficient.value
           : this.bodyweightCoefficient,
+      weightSource: data.weightSource.present
+          ? data.weightSource.value
+          : this.weightSource,
+      fixedIncrementsGrams: data.fixedIncrementsGrams.present
+          ? data.fixedIncrementsGrams.value
+          : this.fixedIncrementsGrams,
+      stackBaseGrams: data.stackBaseGrams.present
+          ? data.stackBaseGrams.value
+          : this.stackBaseGrams,
+      stackStepGrams: data.stackStepGrams.present
+          ? data.stackStepGrams.value
+          : this.stackStepGrams,
+      stackHalfStepGrams: data.stackHalfStepGrams.present
+          ? data.stackHalfStepGrams.value
+          : this.stackHalfStepGrams,
       seedUpdatedAt: data.seedUpdatedAt.present
           ? data.seedUpdatedAt.value
           : this.seedUpdatedAt,
@@ -1497,6 +1719,11 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           ..write('weightEntryMode: $weightEntryMode, ')
           ..write('incrementGrams: $incrementGrams, ')
           ..write('bodyweightCoefficient: $bodyweightCoefficient, ')
+          ..write('weightSource: $weightSource, ')
+          ..write('fixedIncrementsGrams: $fixedIncrementsGrams, ')
+          ..write('stackBaseGrams: $stackBaseGrams, ')
+          ..write('stackStepGrams: $stackStepGrams, ')
+          ..write('stackHalfStepGrams: $stackHalfStepGrams, ')
           ..write('seedUpdatedAt: $seedUpdatedAt')
           ..write(')'))
         .toString();
@@ -1525,6 +1752,11 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     weightEntryMode,
     incrementGrams,
     bodyweightCoefficient,
+    weightSource,
+    fixedIncrementsGrams,
+    stackBaseGrams,
+    stackStepGrams,
+    stackHalfStepGrams,
     seedUpdatedAt,
   ]);
   @override
@@ -1552,6 +1784,11 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           other.weightEntryMode == this.weightEntryMode &&
           other.incrementGrams == this.incrementGrams &&
           other.bodyweightCoefficient == this.bodyweightCoefficient &&
+          other.weightSource == this.weightSource &&
+          other.fixedIncrementsGrams == this.fixedIncrementsGrams &&
+          other.stackBaseGrams == this.stackBaseGrams &&
+          other.stackStepGrams == this.stackStepGrams &&
+          other.stackHalfStepGrams == this.stackHalfStepGrams &&
           other.seedUpdatedAt == this.seedUpdatedAt);
 }
 
@@ -1577,6 +1814,11 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
   final Value<WeightEntryMode> weightEntryMode;
   final Value<int?> incrementGrams;
   final Value<double?> bodyweightCoefficient;
+  final Value<WeightSource> weightSource;
+  final Value<List<int>> fixedIncrementsGrams;
+  final Value<int?> stackBaseGrams;
+  final Value<int?> stackStepGrams;
+  final Value<int?> stackHalfStepGrams;
   final Value<int?> seedUpdatedAt;
   final Value<int> rowid;
   const ExercisesCompanion({
@@ -1601,6 +1843,11 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     this.weightEntryMode = const Value.absent(),
     this.incrementGrams = const Value.absent(),
     this.bodyweightCoefficient = const Value.absent(),
+    this.weightSource = const Value.absent(),
+    this.fixedIncrementsGrams = const Value.absent(),
+    this.stackBaseGrams = const Value.absent(),
+    this.stackStepGrams = const Value.absent(),
+    this.stackHalfStepGrams = const Value.absent(),
     this.seedUpdatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1626,6 +1873,11 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     this.weightEntryMode = const Value.absent(),
     this.incrementGrams = const Value.absent(),
     this.bodyweightCoefficient = const Value.absent(),
+    this.weightSource = const Value.absent(),
+    this.fixedIncrementsGrams = const Value.absent(),
+    this.stackBaseGrams = const Value.absent(),
+    this.stackStepGrams = const Value.absent(),
+    this.stackHalfStepGrams = const Value.absent(),
     this.seedUpdatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -1657,6 +1909,11 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     Expression<String>? weightEntryMode,
     Expression<int>? incrementGrams,
     Expression<double>? bodyweightCoefficient,
+    Expression<String>? weightSource,
+    Expression<String>? fixedIncrementsGrams,
+    Expression<int>? stackBaseGrams,
+    Expression<int>? stackStepGrams,
+    Expression<int>? stackHalfStepGrams,
     Expression<int>? seedUpdatedAt,
     Expression<int>? rowid,
   }) {
@@ -1684,6 +1941,13 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       if (incrementGrams != null) 'increment_grams': incrementGrams,
       if (bodyweightCoefficient != null)
         'bodyweight_coefficient': bodyweightCoefficient,
+      if (weightSource != null) 'weight_source': weightSource,
+      if (fixedIncrementsGrams != null)
+        'fixed_increments_grams': fixedIncrementsGrams,
+      if (stackBaseGrams != null) 'stack_base_grams': stackBaseGrams,
+      if (stackStepGrams != null) 'stack_step_grams': stackStepGrams,
+      if (stackHalfStepGrams != null)
+        'stack_half_step_grams': stackHalfStepGrams,
       if (seedUpdatedAt != null) 'seed_updated_at': seedUpdatedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1711,6 +1975,11 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     Value<WeightEntryMode>? weightEntryMode,
     Value<int?>? incrementGrams,
     Value<double?>? bodyweightCoefficient,
+    Value<WeightSource>? weightSource,
+    Value<List<int>>? fixedIncrementsGrams,
+    Value<int?>? stackBaseGrams,
+    Value<int?>? stackStepGrams,
+    Value<int?>? stackHalfStepGrams,
     Value<int?>? seedUpdatedAt,
     Value<int>? rowid,
   }) {
@@ -1737,6 +2006,11 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       incrementGrams: incrementGrams ?? this.incrementGrams,
       bodyweightCoefficient:
           bodyweightCoefficient ?? this.bodyweightCoefficient,
+      weightSource: weightSource ?? this.weightSource,
+      fixedIncrementsGrams: fixedIncrementsGrams ?? this.fixedIncrementsGrams,
+      stackBaseGrams: stackBaseGrams ?? this.stackBaseGrams,
+      stackStepGrams: stackStepGrams ?? this.stackStepGrams,
+      stackHalfStepGrams: stackHalfStepGrams ?? this.stackHalfStepGrams,
       seedUpdatedAt: seedUpdatedAt ?? this.seedUpdatedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -1824,6 +2098,27 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
         bodyweightCoefficient.value,
       );
     }
+    if (weightSource.present) {
+      map['weight_source'] = Variable<String>(
+        $ExercisesTable.$converterweightSource.toSql(weightSource.value),
+      );
+    }
+    if (fixedIncrementsGrams.present) {
+      map['fixed_increments_grams'] = Variable<String>(
+        $ExercisesTable.$converterfixedIncrementsGrams.toSql(
+          fixedIncrementsGrams.value,
+        ),
+      );
+    }
+    if (stackBaseGrams.present) {
+      map['stack_base_grams'] = Variable<int>(stackBaseGrams.value);
+    }
+    if (stackStepGrams.present) {
+      map['stack_step_grams'] = Variable<int>(stackStepGrams.value);
+    }
+    if (stackHalfStepGrams.present) {
+      map['stack_half_step_grams'] = Variable<int>(stackHalfStepGrams.value);
+    }
     if (seedUpdatedAt.present) {
       map['seed_updated_at'] = Variable<int>(seedUpdatedAt.value);
     }
@@ -1857,6 +2152,11 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
           ..write('weightEntryMode: $weightEntryMode, ')
           ..write('incrementGrams: $incrementGrams, ')
           ..write('bodyweightCoefficient: $bodyweightCoefficient, ')
+          ..write('weightSource: $weightSource, ')
+          ..write('fixedIncrementsGrams: $fixedIncrementsGrams, ')
+          ..write('stackBaseGrams: $stackBaseGrams, ')
+          ..write('stackStepGrams: $stackStepGrams, ')
+          ..write('stackHalfStepGrams: $stackHalfStepGrams, ')
           ..write('seedUpdatedAt: $seedUpdatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -10088,6 +10388,11 @@ typedef $$ExercisesTableCreateCompanionBuilder =
       Value<WeightEntryMode> weightEntryMode,
       Value<int?> incrementGrams,
       Value<double?> bodyweightCoefficient,
+      Value<WeightSource> weightSource,
+      Value<List<int>> fixedIncrementsGrams,
+      Value<int?> stackBaseGrams,
+      Value<int?> stackStepGrams,
+      Value<int?> stackHalfStepGrams,
       Value<int?> seedUpdatedAt,
       Value<int> rowid,
     });
@@ -10114,6 +10419,11 @@ typedef $$ExercisesTableUpdateCompanionBuilder =
       Value<WeightEntryMode> weightEntryMode,
       Value<int?> incrementGrams,
       Value<double?> bodyweightCoefficient,
+      Value<WeightSource> weightSource,
+      Value<List<int>> fixedIncrementsGrams,
+      Value<int?> stackBaseGrams,
+      Value<int?> stackStepGrams,
+      Value<int?> stackHalfStepGrams,
       Value<int?> seedUpdatedAt,
       Value<int> rowid,
     });
@@ -10312,6 +10622,33 @@ class $$ExercisesTableFilterComposer
 
   ColumnFilters<double> get bodyweightCoefficient => $composableBuilder(
     column: $table.bodyweightCoefficient,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<WeightSource, WeightSource, String>
+  get weightSource => $composableBuilder(
+    column: $table.weightSource,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<List<int>, List<int>, String>
+  get fixedIncrementsGrams => $composableBuilder(
+    column: $table.fixedIncrementsGrams,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get stackBaseGrams => $composableBuilder(
+    column: $table.stackBaseGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get stackStepGrams => $composableBuilder(
+    column: $table.stackStepGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get stackHalfStepGrams => $composableBuilder(
+    column: $table.stackHalfStepGrams,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10528,6 +10865,31 @@ class $$ExercisesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get weightSource => $composableBuilder(
+    column: $table.weightSource,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fixedIncrementsGrams => $composableBuilder(
+    column: $table.fixedIncrementsGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get stackBaseGrams => $composableBuilder(
+    column: $table.stackBaseGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get stackStepGrams => $composableBuilder(
+    column: $table.stackStepGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get stackHalfStepGrams => $composableBuilder(
+    column: $table.stackHalfStepGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get seedUpdatedAt => $composableBuilder(
     column: $table.seedUpdatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -10647,6 +11009,33 @@ class $$ExercisesTableAnnotationComposer
 
   GeneratedColumn<double> get bodyweightCoefficient => $composableBuilder(
     column: $table.bodyweightCoefficient,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<WeightSource, String> get weightSource =>
+      $composableBuilder(
+        column: $table.weightSource,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<List<int>, String>
+  get fixedIncrementsGrams => $composableBuilder(
+    column: $table.fixedIncrementsGrams,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get stackBaseGrams => $composableBuilder(
+    column: $table.stackBaseGrams,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get stackStepGrams => $composableBuilder(
+    column: $table.stackStepGrams,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get stackHalfStepGrams => $composableBuilder(
+    column: $table.stackHalfStepGrams,
     builder: (column) => column,
   );
 
@@ -10808,6 +11197,11 @@ class $$ExercisesTableTableManager
                 Value<WeightEntryMode> weightEntryMode = const Value.absent(),
                 Value<int?> incrementGrams = const Value.absent(),
                 Value<double?> bodyweightCoefficient = const Value.absent(),
+                Value<WeightSource> weightSource = const Value.absent(),
+                Value<List<int>> fixedIncrementsGrams = const Value.absent(),
+                Value<int?> stackBaseGrams = const Value.absent(),
+                Value<int?> stackStepGrams = const Value.absent(),
+                Value<int?> stackHalfStepGrams = const Value.absent(),
                 Value<int?> seedUpdatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExercisesCompanion(
@@ -10832,6 +11226,11 @@ class $$ExercisesTableTableManager
                 weightEntryMode: weightEntryMode,
                 incrementGrams: incrementGrams,
                 bodyweightCoefficient: bodyweightCoefficient,
+                weightSource: weightSource,
+                fixedIncrementsGrams: fixedIncrementsGrams,
+                stackBaseGrams: stackBaseGrams,
+                stackStepGrams: stackStepGrams,
+                stackHalfStepGrams: stackHalfStepGrams,
                 seedUpdatedAt: seedUpdatedAt,
                 rowid: rowid,
               ),
@@ -10858,6 +11257,11 @@ class $$ExercisesTableTableManager
                 Value<WeightEntryMode> weightEntryMode = const Value.absent(),
                 Value<int?> incrementGrams = const Value.absent(),
                 Value<double?> bodyweightCoefficient = const Value.absent(),
+                Value<WeightSource> weightSource = const Value.absent(),
+                Value<List<int>> fixedIncrementsGrams = const Value.absent(),
+                Value<int?> stackBaseGrams = const Value.absent(),
+                Value<int?> stackStepGrams = const Value.absent(),
+                Value<int?> stackHalfStepGrams = const Value.absent(),
                 Value<int?> seedUpdatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExercisesCompanion.insert(
@@ -10882,6 +11286,11 @@ class $$ExercisesTableTableManager
                 weightEntryMode: weightEntryMode,
                 incrementGrams: incrementGrams,
                 bodyweightCoefficient: bodyweightCoefficient,
+                weightSource: weightSource,
+                fixedIncrementsGrams: fixedIncrementsGrams,
+                stackBaseGrams: stackBaseGrams,
+                stackStepGrams: stackStepGrams,
+                stackHalfStepGrams: stackHalfStepGrams,
                 seedUpdatedAt: seedUpdatedAt,
                 rowid: rowid,
               ),

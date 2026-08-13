@@ -43,6 +43,10 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
   final TextEditingController _notes = TextEditingController();
   final TextEditingController _aliasInput = TextEditingController();
   final TextEditingController _increment = TextEditingController();
+  final TextEditingController _fixedIncrements = TextEditingController();
+  final TextEditingController _stackBase = TextEditingController();
+  final TextEditingController _stackStep = TextEditingController();
+  final TextEditingController _stackHalfStep = TextEditingController();
 
   List<String> _aliases = <String>[];
 
@@ -50,6 +54,10 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
   Set<Muscle> _secondaryMuscles = <Muscle>{};
   Equipment _equipment = Equipment.barbell;
   TrackingType _trackingType = TrackingType.weightReps;
+
+  /// Null until the equipment picks a sensible default (`F-PLT-005`),
+  /// resolved in [_save] the same way [_weightEntryMode] is.
+  WeightSource? _weightSource;
 
   /// Null for a new exercise until the equipment picks a sensible default
   /// (`F-LOG-017` §2) — resolved in [_save], not here, so changing equipment
@@ -86,6 +94,10 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
     _notes.dispose();
     _aliasInput.dispose();
     _increment.dispose();
+    _fixedIncrements.dispose();
+    _stackBase.dispose();
+    _stackStep.dispose();
+    _stackHalfStep.dispose();
     super.dispose();
   }
 
@@ -113,16 +125,55 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         _defaultRestSeconds = row.defaultRestSeconds;
         _defaultBarId = row.defaultBarId;
         _weightEntryMode = row.weightEntryMode;
+        _weightSource = row.weightSource;
         _notes.text = row.notes ?? '';
         _aliases = List<String>.of(row.aliases);
+        final unit = ref.read(unitPreferencesProvider).load;
+        final formatter = ref.read(quantityFormatterProvider);
         if (row.incrementGrams case final grams?) {
-          final unit = ref.read(unitPreferencesProvider).load;
-          _increment.text = ref
-              .read(quantityFormatterProvider)
-              .massValueOnly(Mass.grams(grams), unit);
+          _increment.text = formatter.massValueOnly(Mass.grams(grams), unit);
+        }
+        if (row.fixedIncrementsGrams.isNotEmpty) {
+          _fixedIncrements.text = row.fixedIncrementsGrams
+              .map((g) => formatter.massValueOnly(Mass.grams(g), unit))
+              .join(', ');
+        }
+        if (row.stackBaseGrams case final grams?) {
+          _stackBase.text = formatter.massValueOnly(Mass.grams(grams), unit);
+        }
+        if (row.stackStepGrams case final grams?) {
+          _stackStep.text = formatter.massValueOnly(Mass.grams(grams), unit);
+        }
+        if (row.stackHalfStepGrams case final grams?) {
+          _stackHalfStep.text = formatter.massValueOnly(
+            Mass.grams(grams),
+            unit,
+          );
         }
       }
     });
+  }
+
+  /// Parses a comma-separated list of weights in the display unit into
+  /// sorted, de-duplicated canonical grams. Blank entries are ignored rather
+  /// than rejected — a trailing comma while typing shouldn't error.
+  List<int> _parseFixedIncrements() {
+    final unit = ref.read(unitPreferencesProvider).load;
+    final parser = ref.read(quantityParserProvider);
+    final grams = <int>{
+      for (final part in _fixedIncrements.text.split(','))
+        if (parser.parseMass(part.trim(), unit) case final mass?) mass.grams,
+    }.toList();
+    grams.sort();
+    return grams;
+  }
+
+  int? _parseMassField(TextEditingController controller) {
+    final unit = ref.read(unitPreferencesProvider).load;
+    return ref
+        .read(quantityParserProvider)
+        .parseMass(controller.text, unit)
+        ?.grams;
   }
 
   /// Null for a name this build does not know — a row written by a newer
@@ -163,6 +214,19 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         .read(quantityParserProvider)
         .parseMass(_increment.text, ref.read(unitPreferencesProvider).load)
         ?.grams;
+    final weightSource = _weightSource ?? defaultWeightSourceFor(_equipment);
+    final fixedIncrementsGrams = weightSource == WeightSource.fixedIncrement
+        ? _parseFixedIncrements()
+        : const <int>[];
+    final stackBaseGrams = weightSource == WeightSource.stack
+        ? _parseMassField(_stackBase)
+        : null;
+    final stackStepGrams = weightSource == WeightSource.stack
+        ? _parseMassField(_stackStep)
+        : null;
+    final stackHalfStepGrams = weightSource == WeightSource.stack
+        ? _parseMassField(_stackHalfStep)
+        : null;
 
     if (widget.isNew) {
       // The id is generated here rather than by the database so it exists
@@ -180,6 +244,11 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         defaultBarId: _defaultBarId,
         weightEntryMode: weightEntryMode,
         incrementGrams: incrementGrams,
+        weightSource: weightSource,
+        fixedIncrementsGrams: fixedIncrementsGrams,
+        stackBaseGrams: stackBaseGrams,
+        stackStepGrams: stackStepGrams,
+        stackHalfStepGrams: stackHalfStepGrams,
       );
     } else {
       await repo.update(
@@ -196,6 +265,11 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
           defaultBarId: Value(_defaultBarId),
           weightEntryMode: Value(weightEntryMode),
           incrementGrams: Value(incrementGrams),
+          weightSource: Value(weightSource),
+          fixedIncrementsGrams: Value(fixedIncrementsGrams),
+          stackBaseGrams: Value(stackBaseGrams),
+          stackStepGrams: Value(stackStepGrams),
+          stackHalfStepGrams: Value(stackHalfStepGrams),
         ),
       );
     }
@@ -429,7 +503,36 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
               () => _defaultRestSeconds = (seconds ?? 0) == 0 ? null : seconds,
             ),
           ),
-          if (_equipment == Equipment.barbell) ...[
+          if (setFieldsFor(_trackingType.name).contains(SetField.weight)) ...[
+            const SizedBox(height: AppSpacing.lg),
+            // Decides what the plate calculator shows and what the
+            // progression engine's plate-aware rounding snaps a proposed
+            // weight to (`F-PLT-005`).
+            DropdownButtonFormField<WeightSource>(
+              initialValue: _weightSource ?? defaultWeightSourceFor(_equipment),
+              decoration: const InputDecoration(
+                labelText: 'Weight source',
+                border: OutlineInputBorder(),
+              ),
+              items: const [
+                DropdownMenuItem(
+                  value: WeightSource.plateLoaded,
+                  child: Text('Plate-loaded'),
+                ),
+                DropdownMenuItem(
+                  value: WeightSource.fixedIncrement,
+                  child: Text('Fixed dumbbells'),
+                ),
+                DropdownMenuItem(
+                  value: WeightSource.stack,
+                  child: Text('Weight stack'),
+                ),
+              ],
+              onChanged: (source) => setState(() => _weightSource = source),
+            ),
+          ],
+          if ((_weightSource ?? defaultWeightSourceFor(_equipment)) ==
+              WeightSource.plateLoaded) ...[
             const SizedBox(height: AppSpacing.lg),
             // The plate calculator and plate-aware rounding load this
             // exercise on whichever bar is picked here, falling back to the
@@ -444,7 +547,8 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Bar',
                     border: OutlineInputBorder(),
-                    helperText: "Left as Default, uses the inventory's own "
+                    helperText:
+                        "Left as Default, uses the inventory's own "
                         'default bar (Settings › Bars & plates).',
                   ),
                   items: [
@@ -453,6 +557,80 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
                       DropdownMenuItem(value: bar.id, child: Text(bar.name)),
                   ],
                   onChanged: (id) => setState(() => _defaultBarId = id),
+                );
+              },
+            ),
+          ] else if ((_weightSource ?? defaultWeightSourceFor(_equipment)) ==
+              WeightSource.fixedIncrement) ...[
+            const SizedBox(height: AppSpacing.lg),
+            Builder(
+              builder: (context) {
+                final unit = ref.watch(unitPreferencesProvider).load;
+                return TextField(
+                  controller: _fixedIncrements,
+                  decoration: InputDecoration(
+                    labelText: 'Available weights',
+                    border: const OutlineInputBorder(),
+                    suffixText: unit.symbol,
+                    helperText:
+                        'Comma-separated, e.g. "5, 10, 15, 20" — '
+                        'exactly what the rack stocks.',
+                    helperMaxLines: 2,
+                  ),
+                );
+              },
+            ),
+          ] else if ((_weightSource ?? defaultWeightSourceFor(_equipment)) ==
+              WeightSource.stack) ...[
+            const SizedBox(height: AppSpacing.lg),
+            Builder(
+              builder: (context) {
+                final unit = ref.watch(unitPreferencesProvider).load;
+                return Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _stackBase,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: 'Base',
+                          border: const OutlineInputBorder(),
+                          suffixText: unit.symbol,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: TextField(
+                        controller: _stackStep,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: 'Step',
+                          border: const OutlineInputBorder(),
+                          suffixText: unit.symbol,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: TextField(
+                        controller: _stackHalfStep,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: 'Half step',
+                          border: const OutlineInputBorder(),
+                          suffixText: unit.symbol,
+                          helperText: 'Optional',
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               },
             ),

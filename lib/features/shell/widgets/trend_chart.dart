@@ -54,9 +54,16 @@ class TrendChart extends StatelessWidget {
     this.showRegression = false,
     this.onPointTap,
     this.zoomEnabled = true,
+    this.secondaryPoints,
   });
 
   final List<TrendChartPoint> points;
+
+  /// A muted scatter drawn behind [points] — no connecting line, since it
+  /// exists to show noise the dominant series has already smoothed away
+  /// (`F-BOD-003` §1–§2: raw bodyweight points behind the EMA). Null draws
+  /// nothing extra.
+  final List<TrendChartPoint>? secondaryPoints;
 
   /// Formats a y value for the axis and tooltip, e.g. `'120.3 kg'`.
   final String Function(double value) valueLabel;
@@ -87,7 +94,10 @@ class TrendChart extends StatelessWidget {
       );
     }
 
-    final ys = points.map((p) => p.y).toList();
+    final ys = [
+      ...points.map((p) => p.y),
+      ...?secondaryPoints?.map((p) => p.y),
+    ];
     final minY = ys.reduce((a, b) => a < b ? a : b);
     final maxY = ys.reduce((a, b) => a > b ? a : b);
     // Never zero-based (`docs/24-DESIGN-SYSTEM.md` §Charts) — a small real
@@ -219,6 +229,24 @@ class TrendChart extends StatelessWidget {
                     },
                   ),
                 ),
+                if (secondaryPoints != null)
+                  LineChartBarData(
+                    spots: [for (final p in secondaryPoints!) FlSpot(p.x, p.y)],
+                    isCurved: false,
+                    // No connecting line — a muted scatter only, so it reads
+                    // as noise the dominant series has already smoothed away.
+                    color: Colors.transparent,
+                    barWidth: 0,
+                    dotData: FlDotData(
+                      getDotPainter: (spot, percent, bar, index) =>
+                          FlDotCirclePainter(
+                            radius: 2.5,
+                            color: theme.colorScheme.onSurfaceVariant
+                                .withValues(alpha: 0.5),
+                            strokeWidth: 0,
+                          ),
+                    ),
+                  ),
                 if (regression != null)
                   LineChartBarData(
                     spots: [

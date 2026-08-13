@@ -10,11 +10,13 @@ class AnalyticsSetRecord {
     required this.setType,
     required this.isCompleted,
     required this.trackingType,
+    required this.exerciseId,
     required this.exerciseName,
     required this.primaryMuscle,
     required this.secondaryMuscles,
     this.weightGrams,
     this.reps,
+    this.rpe,
   });
 
   /// The local calendar date of the session this set belongs to.
@@ -24,10 +26,19 @@ class AnalyticsSetRecord {
   final bool isCompleted;
   final String trackingType;
 
+  /// Groups sets by exercise correctly even if two exercises share a name
+  /// (`F-CAT-003` §4 allows that) — `exerciseName` alone is not a safe key
+  /// for `F-ANA-011`'s per-exercise e1RM baseline.
+  final String exerciseId;
+
   /// For the "which exercises contributed" drill-down (`F-ANA-005` §3).
   final String exerciseName;
   final String primaryMuscle;
   final List<String> secondaryMuscles;
   final int? weightGrams;
   final int? reps;
+
+  /// Set for `weightReps` sets logged with RPE (`F-LOG-014`) — the honest
+  /// intensity measure `F-ANA-011` §"Rules" 3 prefers over an e1RM estimate.
+  final double? rpe;
 }

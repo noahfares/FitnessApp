@@ -817,11 +817,8 @@ structure), which doesn't exist yet, so it can't reach full fidelity
 regardless of what `F-PRG-010` decides — the two remaining items in this
 batch, in dependency order.
 
-**Batch 4.3 — plate maths (partial, v0.37.0).** `F-PLT-002`, `F-PLT-004` and
-`F-PRG-012` done; `F-PLT-001` `in-progress` (its own status note has the
-detail — §5's non-barbell cases wait on `F-PLT-005`); `F-PLT-003` (loading
-visualisation) and `F-PLT-005` (machine/stack increments), both P2, not
-attempted — this batch is not closed. Schema unchanged — `bars` and
+**Batch 4.3 — plate maths.** `F-PLT-002`, `F-PLT-004` and
+`F-PRG-012` done. Schema unchanged — `bars` and
 `plates` have existed since schema v3, unpopulated until now; this batch is
 the first to read or write either. `docs/40-ANALYTICS-SPEC.md` gained §13
 (plate solve, closest achievable, plate-aware rounding) with a single
@@ -859,10 +856,116 @@ provider isn't constructed yet this early in startup. New surfaces: Settings
 counts on plates); a "Bar" dropdown on the exercise editor for barbell
 exercises only (§4); and `PlateCalculatorSheet`, one tap from the weight
 field on the numeric keypad for any barbell exercise (§4 of `F-PLT-001`).
-Not built: `F-PLT-003`'s to-scale coloured-plate drawing and `F-PLT-005`'s
-fixed-dumbbell/machine-stack weight sources — both P2, deliberately deferred
-rather than attempted partially, same reasoning prior batches gave their
-own P2 deferrals.
+`F-PLT-001` was left `in-progress` at the end of that first pass — §5's
+non-barbell cases waited on `F-PLT-005`, not yet built.
+
+**Batch 4.3 closed (v0.38.0).** `F-PLT-003` and `F-PLT-005` done, both P2,
+closing out the batch. Schema v4 adds `exercises.weight_source`
+(`WeightSource`: `plateLoaded`, `fixedIncrement`, `stack`) plus its
+per-source config columns (`fixed_increments_grams`, `stack_base_grams`,
+`stack_step_grams`, `stack_half_step_grams`) — existing rows default to
+`plateLoaded`, exactly how every exercise behaved before this column
+existed, so no backfill beyond the default column value was needed.
+`defaultWeightSourceFor` mirrors `defaultWeightEntryModeFor`'s per-equipment
+guess (`F-LOG-017`): dumbbell/kettlebell → fixed increment, machine/cable →
+stack, everything else → plate-loaded, always overridable on the exercise
+editor's new "Weight source" field, which swaps in the bar picker, an
+available-weights list, or base/step/half-step fields depending on the
+choice. `domain/plates/weight_source_calculator.dart` mirrors
+`closestAchievableGrams`'s direction semantics for the other two sources:
+`closestAchievableFixedIncrement` looks up the nearest value actually in
+the configured list — a real dumbbell rack is not evenly spaced, which is
+why this is an explicit list rather than a step size — and
+`closestAchievableStack` enumerates `base + n·step` and, when a half step
+is configured, `base + n·step + halfStep`.
+`domain/progression/plate_aware_rounding.dart` gained
+`applyFixedIncrementRounding`/`applyStackRounding` alongside the existing
+`applyPlateRounding`, refactored to share one hold-or-round decision
+(`_applyRounding`) so `F-PRG-012` §3's "the rounding erased the whole
+proposed increase" case works identically across all three sources.
+`WorkoutRepository.startFromRoutineDay` now dispatches on the exercise's
+own `weight_source` rather than assuming plate-loaded, closing the gap
+`F-PLT-001`'s status note left open; `PlateCalculatorSheet` does the same
+dispatch to decide what it shows — the plate solve and its to-scale
+drawing, the closest stocked dumbbell weight, or the closest reachable
+stack pin. `features/shell/widgets/plate_stack_visualization.dart`'s
+`PlateStackVisualization` (`F-PLT-003`) draws one side, heaviest plate
+nearest the bar sleeve (how a bar is actually loaded), height scaling with
+plate size within a fixed band so a 1.25 kg change plate never draws
+taller than a 25 kg one; colours are bucketed by canonical kilograms
+regardless of the display unit, since the IPF convention itself is defined
+in kg and a pound-configured inventory still uses these same physical
+plate sizes.
+
+**Phase 4 batch 4.4 — body tracking (v0.39.0, partial).** `F-BOD-002` done;
+`F-BOD-003` `in-progress` (§4's optional goal line waits on `F-BOD-005`, not
+attempted). No schema change — every `MeasurementType` value and
+`body_measurements` itself have existed since schema v1/v3; this batch is
+the first to read or write any type but `bodyweight`.
+`BodyMeasurementRepository` gained generic `watchHistory`/`watchLatest`/
+`logMeasurement`/`updateMeasurement`/`deleteMeasurement`, deliberately
+separate from `F-BOD-001`'s bodyweight-specific methods — only bodyweight
+triggers the workout-bodyweight recompute, and routing every type through
+that path would run it needlessly for a waist measurement.
+`trackedMeasurementTypesProvider` (`SharedPreferences`, same shape as
+`weekStartProvider`) persists which of the twelve non-bodyweight types
+someone has opted into, empty by default per `F-BOD-002`'s own "showing all
+thirteen is clutter." `domain/analytics/bodyweight_trend.dart`'s
+`bodyweightTrendEma` matches §6's `ema` fixture exactly, and
+`weeklyRateOfChangeGrams` reuses `linear_regression.dart` for the
+slope-of-a-series-against-elapsed-time computation that module's own doc
+comment had already earmarked for a second consumer. `TrendChart` gained an
+optional `secondaryPoints` — a muted, line-less scatter drawn behind the
+dominant series — so the raw bodyweight points render behind the EMA
+without a second chart widget existing. The body screen (renamed from
+bodyweight-only) gained a "Measurements to track" sheet from its app bar,
+a trend section (EMA chart plus weekly rate of change) above the bodyweight
+history, and one section per tracked type below it, each backed by
+`LogMeasurementSheet` — a single sheet dispatching on shape: `Length`
+(millimetres, cm/in display) for the eleven circumferences, or a bare
+percentage (basis points, new `QuantityFormatter.percent`/
+`QuantityParser.parsePercentBasisPoints`) for `bodyFatPercent` — the same
+"one screen, dispatch on shape" reasoning `F-PLT-005`'s weight-source
+fields used a batch earlier.
+
+**Phase 4 batch 4.5 — advanced analytics & deload (v0.40.0, partial).**
+`F-ANA-009`, `F-ANA-010`, `F-ANA-011` and `F-PRG-011` done; `F-ANA-012`
+(duration/rest compliance, P3) and `F-ANA-014` (body map heat overlay, P3 —
+needs a licence-clean SVG asset this session couldn't responsibly source)
+not attempted; `F-ANA-013` (weekly insight cards) not attempted either —
+it depends on all four `F-ANA-*` metrics done here plus `F-ANA-004`/
+`F-ANA-005`, and composing a significance-ranked, never-fabricated card
+generator on top of them is its own batch-sized piece of work, so this
+batch closes with the underlying signals built rather than half-building
+their dashboard consumer. No schema change. `domain/analytics/
+stall_detection.dart`'s `detectStall` matches §7's `slope` fixture exactly
+— silence under 5 sessions, the trailing-8-session window, and the
+slope-and-3-week-span condition together (the open question in
+`F-ANA-009`'s own doc — real-history-tuned thresholds — stays open, same
+waiver shape as Phase 1/3's own no-real-history criteria).
+`domain/analytics/acwr.dart`'s `computeAcwr` matches §8's `acwr` fixture,
+built on a new `dailyVolume` helper alongside the existing `weeklyVolume`
+in `weekly_volume.dart`. `domain/analytics/intensity_distribution.dart`
+buckets sets by rep range and by percentage of e1RM — using each
+exercise's own best e1RM *as of the session before it*, so a set from an
+exercise's first-ever session has no baseline and is excluded rather than
+bucketed as zero (§10 rules 1–2) — plus an RPE-based reading shown
+alongside wherever RPE was logged (§10 rule 3). `AnalyticsSetRecord`
+(the shared whole-catalogue stream `F-ANA-004`/`F-ANA-005` already used)
+gained `exerciseId` and `rpe` columns for this — grouping by exercise
+*name* alone was never safe (`F-CAT-003` §4 allows duplicate names).
+`domain/progression/deload_suggestion.dart`'s `suggestDeload` is a pure
+composition of the two: suggested only when *both* signals fire (`F-PRG-011`'s
+own spec), each with its own plain-English reason, never an automatic
+program change. New surfaces: `InsightsScreen` gained a "Training load"
+ACWR info tile (explicitly labelled information, never a warning — §8
+rule 4, the same "rough guide, not a prescription" framing already used
+for muscle balance) and rep-range/intensity/RPE histograms, reusing
+`WeeklyBarChart` for a non-weekly categorical axis since the widget only
+ever needed `(value, label)` pairs; `ExerciseDetailScreen` gained a stall
+banner — plain English, not a chart annotation (§7 rule 5), rendering
+nothing at all when there's no verdict or it isn't stalled — that also
+shows the deload suggestion when `F-ANA-010`'s workload signal agrees.
 
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,

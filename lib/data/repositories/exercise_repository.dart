@@ -65,6 +65,11 @@ class ExerciseRepository {
     String? defaultBarId,
     WeightEntryMode? weightEntryMode,
     int? incrementGrams,
+    WeightSource? weightSource,
+    List<int> fixedIncrementsGrams = const [],
+    int? stackBaseGrams,
+    int? stackStepGrams,
+    int? stackHalfStepGrams,
   }) async {
     final timestamp = _now;
     await _db
@@ -87,6 +92,13 @@ class ExerciseRepository {
             // Null falls through to the equipment default (`F-SET-007`,
             // `domain/logging/weight_steps.dart`), never zero.
             incrementGrams: Value(incrementGrams),
+            weightSource: Value(
+              weightSource ?? defaultWeightSourceFor(equipment),
+            ),
+            fixedIncrementsGrams: Value(fixedIncrementsGrams),
+            stackBaseGrams: Value(stackBaseGrams),
+            stackStepGrams: Value(stackStepGrams),
+            stackHalfStepGrams: Value(stackHalfStepGrams),
             isCustom: const Value(true),
             createdAt: timestamp,
             updatedAt: timestamp,

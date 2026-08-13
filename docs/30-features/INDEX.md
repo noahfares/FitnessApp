@@ -108,9 +108,9 @@
 | [F-ANA-006](ANA/F-ANA-006.md) | Consistency | 3 | P1 | in-progress |
 | [F-ANA-007](ANA/F-ANA-007.md) | PR timeline | 3 | P1 | done |
 | [F-ANA-008](ANA/F-ANA-008.md) | Muscle balance | 3 | P2 | in-progress |
-| [F-ANA-009](ANA/F-ANA-009.md) | Stall detection | 4 | P2 | planned |
-| [F-ANA-010](ANA/F-ANA-010.md) | Acute-to-chronic workload ratio | 4 | P2 | planned |
-| [F-ANA-011](ANA/F-ANA-011.md) | Rep range and intensity distribution | 4 | P2 | planned |
+| [F-ANA-009](ANA/F-ANA-009.md) | Stall detection | 4 | P2 | done |
+| [F-ANA-010](ANA/F-ANA-010.md) | Acute-to-chronic workload ratio | 4 | P2 | done |
+| [F-ANA-011](ANA/F-ANA-011.md) | Rep range and intensity distribution | 4 | P2 | done |
 | [F-ANA-012](ANA/F-ANA-012.md) | Duration and rest compliance | 4 | P3 | planned |
 | [F-ANA-013](ANA/F-ANA-013.md) | Weekly insight cards | 4 | P2 | planned |
 | [F-ANA-014](ANA/F-ANA-014.md) | Body map heat overlay | 4 | P3 | planned |
@@ -133,7 +133,7 @@
 | [F-PRG-008](PRG/F-PRG-008.md) | Target explanation | 4 | P1 | done |
 | [F-PRG-009](PRG/F-PRG-009.md) | Failure and deload handling | 4 | P1 | done |
 | [F-PRG-010](PRG/F-PRG-010.md) | Training max management | 4 | P2 | planned |
-| [F-PRG-011](PRG/F-PRG-011.md) | Deload suggestion | 4 | P2 | planned |
+| [F-PRG-011](PRG/F-PRG-011.md) | Deload suggestion | 4 | P2 | done |
 | [F-PRG-012](PRG/F-PRG-012.md) | Plate-aware rounding | 4 | P1 | done |
 
 ## `BOD` — Body metrics
@@ -141,8 +141,8 @@
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
 | [F-BOD-001](BOD/F-BOD-001.md) | Bodyweight log | 1 | P0 | done |
-| [F-BOD-002](BOD/F-BOD-002.md) | Circumference measurements | 4 | P2 | planned |
-| [F-BOD-003](BOD/F-BOD-003.md) | Trend charts with smoothing | 4 | P1 | planned |
+| [F-BOD-002](BOD/F-BOD-002.md) | Circumference measurements | 4 | P2 | done |
+| [F-BOD-003](BOD/F-BOD-003.md) | Trend charts with smoothing | 4 | P1 | in-progress |
 | [F-BOD-004](BOD/F-BOD-004.md) | Progress photos | 5 | P2 | planned |
 | [F-BOD-005](BOD/F-BOD-005.md) | Goals | — | P3 | idea |
 | [F-BOD-006](BOD/F-BOD-006.md) | Measurement reminders | — | P3 | idea |
@@ -183,11 +183,11 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-PLT-001](PLT/F-PLT-001.md) | Plate calculator | 4 | P1 | in-progress |
+| [F-PLT-001](PLT/F-PLT-001.md) | Plate calculator | 4 | P1 | done |
 | [F-PLT-002](PLT/F-PLT-002.md) | Bar and plate inventory | 4 | P1 | done |
-| [F-PLT-003](PLT/F-PLT-003.md) | Loading visualisation | 4 | P2 | planned |
+| [F-PLT-003](PLT/F-PLT-003.md) | Loading visualisation | 4 | P2 | done |
 | [F-PLT-004](PLT/F-PLT-004.md) | Closest achievable weight | 4 | P1 | done |
-| [F-PLT-005](PLT/F-PLT-005.md) | Machine and stack increments | 4 | P2 | planned |
+| [F-PLT-005](PLT/F-PLT-005.md) | Machine and stack increments | 4 | P2 | done |
 
 ## `NAV` — App shell & navigation
 

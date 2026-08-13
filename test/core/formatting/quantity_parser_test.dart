@@ -102,6 +102,14 @@ void main() {
     });
   });
 
+  group('parsePercentBasisPoints (F-BOD-002)', () {
+    test('converts a typed percentage to basis points', () {
+      expect(us.parsePercentBasisPoints('18.5'), 1850);
+      expect(us.parsePercentBasisPoints('18'), 1800);
+      expect(us.parsePercentBasisPoints('nonsense'), isNull);
+    });
+  });
+
   group('formatter/parser round-trip', () {
     test('an edited value survives a display round-trip unchanged', () {
       // The trap in docs/22-UNITS.md: formatting then reparsing must not drift.

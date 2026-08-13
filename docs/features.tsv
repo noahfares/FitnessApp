@@ -68,9 +68,9 @@ F-ANA-005	3	in-progress	P1	Sets per muscle group per week	F-CAT-013	F-ROU-011	40
 F-ANA-006	3	in-progress	P1	Consistency			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-007	3	done	P1	PR timeline	F-LOG-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-008	3	in-progress	P2	Muscle balance	F-CAT-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-009	4	planned	P2	Stall detection	F-ANA-003		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-010	4	planned	P2	Acute-to-chronic workload ratio			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-011	4	planned	P2	Rep range and intensity distribution	F-LOG-014		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-009	4	done	P2	Stall detection	F-ANA-003		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-010	4	done	P2	Acute-to-chronic workload ratio			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-011	4	done	P2	Rep range and intensity distribution	F-LOG-014		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-012	4	planned	P3	Duration and rest compliance	F-TIM-007		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-013	4	planned	P2	Weekly insight cards	F-ANA-003, F-ANA-004, F-ANA-005, F-ANA-009		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-014	4	planned	P3	Body map heat overlay	F-CAT-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
@@ -88,11 +88,11 @@ F-PRG-007	4	done	P1	Rule assignment			40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-008	4	done	P1	Target explanation	F-PRG-001		40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-009	4	done	P1	Failure and deload handling	F-PRG-002		40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-010	4	planned	P2	Training max management		F-PRG-004	40-ANALYTICS-SPEC, 22-UNITS
-F-PRG-011	4	planned	P2	Deload suggestion	F-ANA-009, F-ANA-010		40-ANALYTICS-SPEC, 22-UNITS
+F-PRG-011	4	done	P2	Deload suggestion	F-ANA-009, F-ANA-010		40-ANALYTICS-SPEC, 22-UNITS
 F-PRG-012	4	done	P1	Plate-aware rounding	F-PLT-001		22-UNITS, 40-ANALYTICS-SPEC
 F-BOD-001	1	done	P0	Bodyweight log		F-LOG-019, F-BOD-003	21-DATA-MODEL#body_measurements, 22-UNITS
-F-BOD-002	4	planned	P2	Circumference measurements			21-DATA-MODEL#body_measurements, 22-UNITS
-F-BOD-003	4	planned	P1	Trend charts with smoothing	F-BOD-001, F-ANA-001		21-DATA-MODEL#body_measurements, 22-UNITS
+F-BOD-002	4	done	P2	Circumference measurements			21-DATA-MODEL#body_measurements, 22-UNITS
+F-BOD-003	4	in-progress	P1	Trend charts with smoothing	F-BOD-001, F-ANA-001		21-DATA-MODEL#body_measurements, 22-UNITS
 F-BOD-004	5	planned	P2	Progress photos			21-DATA-MODEL#body_measurements, 22-UNITS
 F-BOD-005	—	idea	P3	Goals			21-DATA-MODEL#body_measurements, 22-UNITS
 F-BOD-006	—	idea	P3	Measurement reminders			21-DATA-MODEL#body_measurements, 22-UNITS
@@ -118,11 +118,11 @@ F-SET-008	2	planned	P2	Notification preferences	F-TIM-003		22-UNITS
 F-SET-009	1	done	P1	About			22-UNITS
 F-SET-010	5	planned	P3	App lock	F-BOD-004		22-UNITS
 F-SET-011	6	planned	P2	Onboarding			22-UNITS
-F-PLT-001	4	in-progress	P1	Plate calculator	F-PLT-002	F-PRG-012, F-LOG-020	22-UNITS, 21-DATA-MODEL#bars-and-plates
+F-PLT-001	4	done	P1	Plate calculator	F-PLT-002	F-PRG-012, F-LOG-020	22-UNITS, 21-DATA-MODEL#bars-and-plates
 F-PLT-002	4	done	P1	Bar and plate inventory		F-PLT-001	22-UNITS, 21-DATA-MODEL#bars-and-plates
-F-PLT-003	4	planned	P2	Loading visualisation	F-PLT-001		22-UNITS, 21-DATA-MODEL#bars-and-plates
+F-PLT-003	4	done	P2	Loading visualisation	F-PLT-001		22-UNITS, 21-DATA-MODEL#bars-and-plates
 F-PLT-004	4	done	P1	Closest achievable weight	F-PLT-001, F-PLT-002	F-PRG-012	22-UNITS, 21-DATA-MODEL#bars-and-plates
-F-PLT-005	4	planned	P2	Machine and stack increments			22-UNITS, 21-DATA-MODEL#bars-and-plates
+F-PLT-005	4	done	P2	Machine and stack increments			22-UNITS, 21-DATA-MODEL#bars-and-plates
 F-NAV-001	0	done	P0	App shell and bottom navigation		F-NAV-002, F-NAV-003	23-NAVIGATION
 F-NAV-002	0	done	P0	Routing and deep links	F-NAV-001		23-NAVIGATION
 F-NAV-003	1	done	P0	Active-workout banner	F-LOG-001		23-NAVIGATION

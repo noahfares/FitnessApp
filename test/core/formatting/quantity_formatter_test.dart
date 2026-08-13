@@ -109,4 +109,15 @@ void main() {
       expect(metricDE.massValueOnly(Mass.kg(1000), MassUnit.kg), '1000');
     });
   });
+
+  group('percent — 1 decimal, basis points (F-BOD-002)', () {
+    test('formats basis points as a percentage', () {
+      expect(metricUS.percent(1850), '18.5%');
+      expect(metricUS.percent(1800), '18%');
+    });
+
+    test('showUnit false omits the sign', () {
+      expect(metricUS.percent(1850, showUnit: false), '18.5');
+    });
+  });
 }

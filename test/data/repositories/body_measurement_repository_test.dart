@@ -1,7 +1,9 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:fitness_app/data/db/app_database.dart';
+import 'package:fitness_app/data/db/tables/enums.dart';
 import 'package:fitness_app/data/repositories/body_measurement_repository.dart';
 import 'package:fitness_app/data/repositories/workout_repository.dart';
 
@@ -143,5 +145,109 @@ void main() {
       final unaffected = await workouts.findById(workout.id);
       expect(unaffected!.bodyweightGrams, 80000);
     });
+  });
+
+  group('generic measurements (F-BOD-002)', () {
+    test('logs and reads back a circumference entry', () async {
+      final id = await repo.logMeasurement(
+        type: MeasurementType.waist,
+        valueCanonical: 800, // 80.0 cm in millimetres
+        notes: '  after breakfast  ',
+      );
+
+      final entry =
+          (await repo.watchHistory(MeasurementType.waist).first).single;
+      expect(entry.id, id);
+      expect(entry.type, MeasurementType.waist);
+      expect(entry.valueCanonical, 800);
+      expect(entry.notes, 'after breakfast');
+    });
+
+    test('watchHistory and watchLatest are scoped to their own type', () async {
+      await repo.logMeasurement(
+        type: MeasurementType.waist,
+        valueCanonical: 800,
+      );
+      await repo.logMeasurement(
+        type: MeasurementType.chest,
+        valueCanonical: 1000,
+      );
+
+      expect(
+        await repo.watchHistory(MeasurementType.waist).first,
+        hasLength(1),
+      );
+      final latestChest = await repo.watchLatest(MeasurementType.chest).first;
+      expect(latestChest!.valueCanonical, 1000);
+    });
+
+    test(
+      'watchLatest reflects the most recently measured, not most recently logged',
+      () async {
+        await repo.logMeasurement(
+          type: MeasurementType.waist,
+          valueCanonical: 810,
+          measuredAt: DateTime(2026, 8, 5),
+        );
+        await repo.logMeasurement(
+          type: MeasurementType.waist,
+          valueCanonical: 800,
+          measuredAt: DateTime(2026, 8, 1),
+        );
+
+        final latest = await repo.watchLatest(MeasurementType.waist).first;
+        expect(latest!.valueCanonical, 810);
+      },
+    );
+
+    test('updateMeasurement edits value, date and notes', () async {
+      final id = await repo.logMeasurement(
+        type: MeasurementType.bodyFatPercent,
+        valueCanonical: 1850,
+      );
+
+      await repo.updateMeasurement(
+        id,
+        valueCanonical: 1800,
+        measuredAt: DateTime(2026, 8, 1),
+        notes: const Value('leaner'),
+      );
+
+      final entry =
+          (await repo.watchHistory(MeasurementType.bodyFatPercent).first)
+              .single;
+      expect(entry.valueCanonical, 1800);
+      expect(entry.measuredAt, DateTime(2026, 8, 1).millisecondsSinceEpoch);
+      expect(entry.notes, 'leaner');
+    });
+
+    test('deleteMeasurement tombstones rather than removing the row', () async {
+      final id = await repo.logMeasurement(
+        type: MeasurementType.hips,
+        valueCanonical: 950,
+      );
+
+      await repo.deleteMeasurement(id);
+
+      expect(await repo.watchHistory(MeasurementType.hips).first, isEmpty);
+    });
+
+    test(
+      'deleting or editing a non-bodyweight entry never touches workouts',
+      () async {
+        final workout = await workouts.start();
+        final before = (await workouts.findById(workout.id))!.bodyweightGrams;
+
+        final id = await repo.logMeasurement(
+          type: MeasurementType.waist,
+          valueCanonical: 800,
+        );
+        await repo.updateMeasurement(id, valueCanonical: 810);
+        await repo.deleteMeasurement(id);
+
+        final after = (await workouts.findById(workout.id))!.bodyweightGrams;
+        expect(after, before);
+      },
+    );
   });
 }

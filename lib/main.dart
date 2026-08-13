@@ -38,9 +38,8 @@ Future<void> main() async {
   // default mirrors `UnitPreferencesNotifier.build`'s own first-run inference,
   // since that provider isn't constructed yet at this point in startup.
   final storedLoadUnit = sharedPreferences.getString('units.load');
-  final loadUnit = MassUnit.values
-      .where((u) => u.name == storedLoadUnit)
-      .firstOrNull ??
+  final loadUnit =
+      MassUnit.values.where((u) => u.name == storedLoadUnit).firstOrNull ??
       UnitPreferences.forCountry(
         PlatformDispatcher.instance.locale.countryCode,
       ).load;

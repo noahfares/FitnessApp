@@ -465,6 +465,8 @@ class SetRepository {
            s.is_completed                  AS is_completed,
            s.weight_grams                  AS weight_grams,
            s.reps                          AS reps,
+           s.rpe                           AS rpe,
+           e.id                            AS exercise_id,
            e.tracking_type                 AS tracking_type,
            e.name                          AS exercise_name,
            e.primary_muscle                AS primary_muscle,
@@ -493,6 +495,7 @@ class SetRepository {
         setType: row.read<String>('set_type'),
         isCompleted: row.read<bool>('is_completed'),
         trackingType: row.read<String>('tracking_type'),
+        exerciseId: row.read<String>('exercise_id'),
         exerciseName: row.read<String>('exercise_name'),
         primaryMuscle: row.read<String>('primary_muscle'),
         secondaryMuscles: _secondaryMusclesConverter.fromSql(
@@ -500,6 +503,7 @@ class SetRepository {
         ),
         weightGrams: row.read<int?>('weight_grams'),
         reps: row.read<int?>('reps'),
+        rpe: row.read<double?>('rpe'),
       ),
   ];
 

@@ -48,6 +48,31 @@ List<WeeklyVolumePoint> weeklyVolume(
   ];
 }
 
+/// Oldest-to-newest **daily** totals — `F-ANA-010`'s ACWR needs day
+/// granularity, unlike the weekly charts above.
+List<({DateTime date, int volumeGrams})> dailyVolume(
+  List<AnalyticsSetRecord> records,
+) {
+  final totals = <DateTime, int>{};
+  for (final record in records) {
+    if (!isCountedSet(
+      setType: record.setType,
+      isCompleted: record.isCompleted,
+    )) {
+      continue;
+    }
+    if (!isVolumeEligible(record.trackingType)) continue;
+    final weight = record.weightGrams;
+    final reps = record.reps;
+    if (weight == null || reps == null) continue;
+
+    totals[record.date] = (totals[record.date] ?? 0) + weight * reps;
+  }
+
+  final dates = totals.keys.toList()..sort();
+  return [for (final date in dates) (date: date, volumeGrams: totals[date]!)];
+}
+
 /// The per-exercise volume chart (`F-ANA-004`) on `ExerciseDetailScreen`:
 /// [sessions] are already scoped to one exercise, so this sums each
 /// session's own `volumeGrams` (`F-ANA-002`) by week rather than

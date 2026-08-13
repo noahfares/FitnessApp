@@ -62,6 +62,35 @@ class Exercises extends Table with SyncColumns {
   RealColumn get bodyweightCoefficient =>
       real().named('bodyweight_coefficient').nullable()();
 
+  /// Plate-loaded, fixed dumbbells, or a weight stack (`F-PLT-005`). Decides
+  /// what the plate calculator shows and what the progression engine's
+  /// plate-aware rounding (`F-PRG-012`) snaps a proposal to.
+  TextColumn get weightSource => textEnum<WeightSource>()
+      .named('weight_source')
+      .withDefault(const Constant('plateLoaded'))();
+
+  /// The discrete total weights this exercise's rack actually stocks, for
+  /// [WeightSource.fixedIncrement] — real dumbbell racks are not always
+  /// evenly spaced, so this is an explicit list rather than a step size.
+  /// Canonical grams, storage-is-always-total (`F-LOG-017` §1).
+  TextColumn get fixedIncrementsGrams => text()
+      .named('fixed_increments_grams')
+      .map(const IntListConverter())
+      .withDefault(const Constant(''))();
+
+  /// [WeightSource.stack]'s minimum pin weight, canonical grams.
+  IntColumn get stackBaseGrams =>
+      integer().named('stack_base_grams').nullable()();
+
+  /// [WeightSource.stack]'s jump between pin positions, canonical grams.
+  IntColumn get stackStepGrams =>
+      integer().named('stack_step_grams').nullable()();
+
+  /// [WeightSource.stack]'s optional add-on magnet, canonical grams — half a
+  /// [stackStepGrams] on most machines, but not assumed to be.
+  IntColumn get stackHalfStepGrams =>
+      integer().named('stack_half_step_grams').nullable()();
+
   /// `updatedAt` as of the last time **seeding** wrote this row.
   ///
   /// Resolves the open question in `F-CAT-001`: a seeded row counts as
