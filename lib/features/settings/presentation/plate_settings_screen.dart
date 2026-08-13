@@ -72,7 +72,11 @@ class PlateSettingsScreen extends ConsumerWidget {
                 : Column(
                     children: [
                       for (final plate in rows)
-                        _PlateRow(plate: plate, unit: unit, formatter: formatter),
+                        _PlateRow(
+                          plate: plate,
+                          unit: unit,
+                          formatter: formatter,
+                        ),
                     ],
                   ),
           ),
@@ -168,9 +172,8 @@ class _PlateRow extends ConsumerWidget {
       subtitle: Text('${plate.countAvailable} pair(s) available'),
       leading: Switch(
         value: plate.isEnabled,
-        onChanged: (value) => unawaited(
-          repo.setPlateEnabled(plate.id, isEnabled: value),
-        ),
+        onChanged: (value) =>
+            unawaited(repo.setPlateEnabled(plate.id, isEnabled: value)),
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

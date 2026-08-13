@@ -183,11 +183,11 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-PLT-001](PLT/F-PLT-001.md) | Plate calculator | 4 | P1 | in-progress |
+| [F-PLT-001](PLT/F-PLT-001.md) | Plate calculator | 4 | P1 | done |
 | [F-PLT-002](PLT/F-PLT-002.md) | Bar and plate inventory | 4 | P1 | done |
-| [F-PLT-003](PLT/F-PLT-003.md) | Loading visualisation | 4 | P2 | planned |
+| [F-PLT-003](PLT/F-PLT-003.md) | Loading visualisation | 4 | P2 | done |
 | [F-PLT-004](PLT/F-PLT-004.md) | Closest achievable weight | 4 | P1 | done |
-| [F-PLT-005](PLT/F-PLT-005.md) | Machine and stack increments | 4 | P2 | planned |
+| [F-PLT-005](PLT/F-PLT-005.md) | Machine and stack increments | 4 | P2 | done |
 
 ## `NAV` — App shell & navigation
 

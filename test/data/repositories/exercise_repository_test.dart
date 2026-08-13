@@ -87,6 +87,69 @@ void main() {
     });
   });
 
+  group('weight source (F-PLT-005)', () {
+    test('defaults per equipment when not given', () async {
+      final barbell = await repo.createCustom(
+        id: 'bb',
+        name: 'BB Curl',
+        primaryMuscle: Muscle.biceps,
+        equipment: Equipment.barbell,
+        trackingType: TrackingType.weightReps,
+      );
+      final dumbbell = await repo.createCustom(
+        id: 'db',
+        name: 'DB Curl',
+        primaryMuscle: Muscle.biceps,
+        equipment: Equipment.dumbbell,
+        trackingType: TrackingType.weightReps,
+      );
+      final cable = await repo.createCustom(
+        id: 'cable',
+        name: 'Cable Curl',
+        primaryMuscle: Muscle.biceps,
+        equipment: Equipment.cable,
+        trackingType: TrackingType.weightReps,
+      );
+
+      expect(barbell.weightSource, WeightSource.plateLoaded);
+      expect(dumbbell.weightSource, WeightSource.fixedIncrement);
+      expect(cable.weightSource, WeightSource.stack);
+    });
+
+    test('an explicit source and its config are stored', () async {
+      final created = await repo.createCustom(
+        id: 'db',
+        name: 'DB Curl',
+        primaryMuscle: Muscle.biceps,
+        equipment: Equipment.dumbbell,
+        trackingType: TrackingType.weightReps,
+        weightSource: WeightSource.fixedIncrement,
+        fixedIncrementsGrams: const [5000, 10000, 15000],
+      );
+
+      expect(created.weightSource, WeightSource.fixedIncrement);
+      expect(created.fixedIncrementsGrams, [5000, 10000, 15000]);
+    });
+
+    test('stack config round-trips', () async {
+      final created = await repo.createCustom(
+        id: 'cable',
+        name: 'Cable Row',
+        primaryMuscle: Muscle.lats,
+        equipment: Equipment.cable,
+        trackingType: TrackingType.weightReps,
+        weightSource: WeightSource.stack,
+        stackBaseGrams: 10000,
+        stackStepGrams: 10000,
+        stackHalfStepGrams: 2500,
+      );
+
+      expect(created.stackBaseGrams, 10000);
+      expect(created.stackStepGrams, 10000);
+      expect(created.stackHalfStepGrams, 2500);
+    });
+  });
+
   group('soft delete is enforced by the repository', () {
     test('deleted rows vanish from reads but survive in the table', () async {
       await makeCustom();

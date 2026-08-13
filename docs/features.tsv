@@ -118,11 +118,11 @@ F-SET-008	2	planned	P2	Notification preferences	F-TIM-003		22-UNITS
 F-SET-009	1	done	P1	About			22-UNITS
 F-SET-010	5	planned	P3	App lock	F-BOD-004		22-UNITS
 F-SET-011	6	planned	P2	Onboarding			22-UNITS
-F-PLT-001	4	in-progress	P1	Plate calculator	F-PLT-002	F-PRG-012, F-LOG-020	22-UNITS, 21-DATA-MODEL#bars-and-plates
+F-PLT-001	4	done	P1	Plate calculator	F-PLT-002	F-PRG-012, F-LOG-020	22-UNITS, 21-DATA-MODEL#bars-and-plates
 F-PLT-002	4	done	P1	Bar and plate inventory		F-PLT-001	22-UNITS, 21-DATA-MODEL#bars-and-plates
-F-PLT-003	4	planned	P2	Loading visualisation	F-PLT-001		22-UNITS, 21-DATA-MODEL#bars-and-plates
+F-PLT-003	4	done	P2	Loading visualisation	F-PLT-001		22-UNITS, 21-DATA-MODEL#bars-and-plates
 F-PLT-004	4	done	P1	Closest achievable weight	F-PLT-001, F-PLT-002	F-PRG-012	22-UNITS, 21-DATA-MODEL#bars-and-plates
-F-PLT-005	4	planned	P2	Machine and stack increments			22-UNITS, 21-DATA-MODEL#bars-and-plates
+F-PLT-005	4	done	P2	Machine and stack increments			22-UNITS, 21-DATA-MODEL#bars-and-plates
 F-NAV-001	0	done	P0	App shell and bottom navigation		F-NAV-002, F-NAV-003	23-NAVIGATION
 F-NAV-002	0	done	P0	Routing and deep links	F-NAV-001		23-NAVIGATION
 F-NAV-003	1	done	P0	Active-workout banner	F-LOG-001		23-NAVIGATION

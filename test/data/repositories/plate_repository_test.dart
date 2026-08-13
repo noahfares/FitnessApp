@@ -82,11 +82,7 @@ void main() {
 
     test('usable plates exclude disabled and zero-count rows', () async {
       await repo.createPlate(id: 'p-20', weightGrams: 20000, countAvailable: 2);
-      await repo.createPlate(
-        id: 'p-10',
-        weightGrams: 10000,
-        countAvailable: 0,
-      );
+      await repo.createPlate(id: 'p-10', weightGrams: 10000, countAvailable: 0);
       await repo.createPlate(
         id: 'p-5',
         weightGrams: 5000,
@@ -120,25 +116,31 @@ void main() {
       );
     });
 
-    test('runs once — a second call is a no-op even for a different unit', () async {
-      await repo.seedDefaultsIfNeeded(MassUnit.kg);
-      final afterFirst = await repo.getBars();
+    test(
+      'runs once — a second call is a no-op even for a different unit',
+      () async {
+        await repo.seedDefaultsIfNeeded(MassUnit.kg);
+        final afterFirst = await repo.getBars();
 
-      await repo.seedDefaultsIfNeeded(MassUnit.lb);
-      final afterSecond = await repo.getBars();
+        await repo.seedDefaultsIfNeeded(MassUnit.lb);
+        final afterSecond = await repo.getBars();
 
-      expect(afterSecond.length, afterFirst.length);
-      expect(afterSecond.map((b) => b.id), afterFirst.map((b) => b.id));
-    });
+        expect(afterSecond.length, afterFirst.length);
+        expect(afterSecond.map((b) => b.id), afterFirst.map((b) => b.id));
+      },
+    );
 
-    test('never re-seeds over a curated inventory the user has edited', () async {
-      await repo.seedDefaultsIfNeeded(MassUnit.kg);
-      await repo.deleteBar((await repo.getBars()).first.id);
-      final afterEdit = await repo.getBars();
+    test(
+      'never re-seeds over a curated inventory the user has edited',
+      () async {
+        await repo.seedDefaultsIfNeeded(MassUnit.kg);
+        await repo.deleteBar((await repo.getBars()).first.id);
+        final afterEdit = await repo.getBars();
 
-      await repo.seedDefaultsIfNeeded(MassUnit.kg);
+        await repo.seedDefaultsIfNeeded(MassUnit.kg);
 
-      expect(await repo.getBars(), afterEdit);
-    });
+        expect(await repo.getBars(), afterEdit);
+      },
+    );
   });
 }

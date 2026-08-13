@@ -5,6 +5,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:fitness_app/data/db/app_database.dart';
+import 'package:fitness_app/data/db/tables/enums.dart';
 
 /// Migration tests (docs/60-ENGINEERING.md §schema changes).
 ///
@@ -44,6 +45,19 @@ void main() {
     final raw = NativeDatabase(file);
     await raw.ensureOpen(_NoopUser());
 
+    if (version < 4) {
+      // v4 added exercises.weight_source and its four weight-source-specific
+      // columns (`F-PLT-005`).
+      await raw.runCustom('ALTER TABLE exercises DROP COLUMN weight_source');
+      await raw.runCustom(
+        'ALTER TABLE exercises DROP COLUMN fixed_increments_grams',
+      );
+      await raw.runCustom('ALTER TABLE exercises DROP COLUMN stack_base_grams');
+      await raw.runCustom('ALTER TABLE exercises DROP COLUMN stack_step_grams');
+      await raw.runCustom(
+        'ALTER TABLE exercises DROP COLUMN stack_half_step_grams',
+      );
+    }
     if (version < 3) {
       // v3 added only this index.
       await raw.runCustom(
@@ -195,11 +209,50 @@ void main() {
     });
   });
 
+  group('v3 -> v4: exercises weight source', () {
+    test(
+      'adds the columns, defaulting existing rows to plate-loaded',
+      () async {
+        await buildHistoricalDatabase(
+          3,
+          then: [
+            '''
+          INSERT INTO exercises
+            (id, created_at, updated_at, name, primary_muscle, equipment,
+             tracking_type)
+          VALUES
+            ('ex-1', 100, 200, 'Bench Press', 'chest', 'barbell', 'weightReps')
+          ''',
+          ],
+        );
+
+        final db = await reopen();
+        final columns = await columnsOf(db, 'exercises');
+        expect(columns, contains('weight_source'));
+        expect(columns, contains('fixed_increments_grams'));
+        expect(columns, contains('stack_base_grams'));
+        expect(columns, contains('stack_step_grams'));
+        expect(columns, contains('stack_half_step_grams'));
+
+        final row = await (db.select(
+          db.exercises,
+        )..where((e) => e.id.equals('ex-1'))).getSingle();
+
+        // Every exercise behaved as plate-loaded before this column existed —
+        // the default preserves that behaviour for existing rows exactly.
+        expect(row.weightSource, WeightSource.plateLoaded);
+        expect(row.fixedIncrementsGrams, isEmpty);
+        expect(row.stackBaseGrams, isNull);
+        expect(row.name, 'Bench Press');
+      },
+    );
+  });
+
   test('a fresh database is created at the current version', () async {
     final db = await reopen();
-    expect(db.schemaVersion, 3);
+    expect(db.schemaVersion, 4);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.read<int>('user_version'), 3);
+    expect(version.read<int>('user_version'), 4);
   });
 }
 

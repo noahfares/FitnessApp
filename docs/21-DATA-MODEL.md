@@ -102,6 +102,11 @@ The catalogue. Seeded rows and user-created rows live in the same table.
 | `weight_entry_mode` | text enum | `total` or `perSide` (`F-LOG-017`) |
 | `increment_grams` | int? | Smallest sensible jump for this exercise (`F-SET-007`) |
 | `bodyweight_coefficient` | real? | Fraction of bodyweight loaded, for `bodyweightReps` (`F-LOG-019`) |
+| `weight_source` | text enum | `plateLoaded`, `fixedIncrement`, or `stack` (`F-PLT-005`). Decides what the plate calculator shows and what plate-aware rounding (`F-PRG-012`) snaps a proposal to |
+| `fixed_increments_grams` | text | JSON array of canonical grams — the discrete weights a `fixedIncrement` exercise's rack actually stocks |
+| `stack_base_grams` | int? | A `stack` exercise's minimum pin weight |
+| `stack_step_grams` | int? | A `stack` exercise's jump between pin positions |
+| `stack_half_step_grams` | int? | A `stack` exercise's optional add-on magnet |
 
 **Muscle taxonomy** (`F-CAT-013`) is a fixed enum, not free text, because
 sets-per-muscle-group (`F-ANA-005`) and muscle balance (`F-ANA-008`) depend on

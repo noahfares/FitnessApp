@@ -12,6 +12,7 @@ import '../../domain/progression/progression_rationale.dart';
 import '../../domain/progression/progression_rule.dart';
 import '../db/app_database.dart';
 import '../db/tables/enums.dart';
+import '../db/tables/shared.dart';
 import 'plate_repository.dart';
 import 'set_repository.dart';
 
@@ -438,7 +439,9 @@ class WorkoutRepository {
           SELECT re.id, re.exercise_id, re.position, re.group_id,
                  re.target_sets, re.target_reps_min, re.target_reps_max,
                  re.target_weight_grams, re.target_rpe, re.rest_seconds,
-                 re.progression_rule, e.default_bar_id
+                 re.progression_rule, e.default_bar_id, e.weight_source,
+                 e.fixed_increments_grams, e.stack_base_grams,
+                 e.stack_step_grams, e.stack_half_step_grams
             FROM routine_exercises re
             JOIN exercises e ON e.id = re.exercise_id
            WHERE re.routine_day_id = ? AND re.deleted_at IS NULL
@@ -482,21 +485,52 @@ class WorkoutRepository {
         ),
       );
 
-      // Plate-aware rounding (`F-PRG-012`) — applied after `computeTargets`,
-      // never before (§13). Skipped entirely with no bar or empty inventory
-      // configured, so a fresh install with no plates set up yet behaves
-      // exactly as it did before this batch.
-      if (target.weightGrams != null && inventory.isNotEmpty) {
-        final bar = await plateRepository.resolveBar(
-          row.read<String?>('default_bar_id'),
+      // Weight-source-aware rounding (`F-PRG-012`, `F-PLT-005`) — applied
+      // after `computeTargets`, never before (§13). Skipped entirely with
+      // nothing configured for this exercise's source, so a fresh install
+      // behaves exactly as it did before this batch.
+      if (target.weightGrams != null) {
+        final weightSource = WeightSource.values.byName(
+          row.read<String>('weight_source'),
         );
-        if (bar != null) {
-          target = applyPlateRounding(
-            target: target,
-            barWeightGrams: bar.weightGrams,
-            inventory: inventory,
-            previousWeightGrams: target.rationale.previousWeightGrams,
-          );
+        switch (weightSource) {
+          case WeightSource.plateLoaded:
+            if (inventory.isNotEmpty) {
+              final bar = await plateRepository.resolveBar(
+                row.read<String?>('default_bar_id'),
+              );
+              if (bar != null) {
+                target = applyPlateRounding(
+                  target: target,
+                  barWeightGrams: bar.weightGrams,
+                  inventory: inventory,
+                  previousWeightGrams: target.rationale.previousWeightGrams,
+                );
+              }
+            }
+          case WeightSource.fixedIncrement:
+            final available = const IntListConverter().fromSql(
+              row.read<String>('fixed_increments_grams'),
+            );
+            if (available.isNotEmpty) {
+              target = applyFixedIncrementRounding(
+                target: target,
+                availableGrams: available,
+                previousWeightGrams: target.rationale.previousWeightGrams,
+              );
+            }
+          case WeightSource.stack:
+            final base = row.read<int?>('stack_base_grams');
+            final step = row.read<int?>('stack_step_grams');
+            if (base != null && step != null) {
+              target = applyStackRounding(
+                target: target,
+                baseGrams: base,
+                stepGrams: step,
+                halfStepGrams: row.read<int?>('stack_half_step_grams'),
+                previousWeightGrams: target.rationale.previousWeightGrams,
+              );
+            }
         }
       }
       proposals.add(target);

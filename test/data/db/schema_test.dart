@@ -25,7 +25,7 @@ void main() {
       await db.customSelect('SELECT 1').get(); // force open
 
       // Migrations from earlier versions are covered in migration_test.dart.
-      expect(db.schemaVersion, 3);
+      expect(db.schemaVersion, 4);
       expect(allTables(), hasLength(13));
 
       final names = allTables().map((t) => t.actualTableName).toSet();

@@ -817,11 +817,8 @@ structure), which doesn't exist yet, so it can't reach full fidelity
 regardless of what `F-PRG-010` decides — the two remaining items in this
 batch, in dependency order.
 
-**Batch 4.3 — plate maths (partial, v0.37.0).** `F-PLT-002`, `F-PLT-004` and
-`F-PRG-012` done; `F-PLT-001` `in-progress` (its own status note has the
-detail — §5's non-barbell cases wait on `F-PLT-005`); `F-PLT-003` (loading
-visualisation) and `F-PLT-005` (machine/stack increments), both P2, not
-attempted — this batch is not closed. Schema unchanged — `bars` and
+**Batch 4.3 — plate maths.** `F-PLT-002`, `F-PLT-004` and
+`F-PRG-012` done. Schema unchanged — `bars` and
 `plates` have existed since schema v3, unpopulated until now; this batch is
 the first to read or write either. `docs/40-ANALYTICS-SPEC.md` gained §13
 (plate solve, closest achievable, plate-aware rounding) with a single
@@ -859,10 +856,46 @@ provider isn't constructed yet this early in startup. New surfaces: Settings
 counts on plates); a "Bar" dropdown on the exercise editor for barbell
 exercises only (§4); and `PlateCalculatorSheet`, one tap from the weight
 field on the numeric keypad for any barbell exercise (§4 of `F-PLT-001`).
-Not built: `F-PLT-003`'s to-scale coloured-plate drawing and `F-PLT-005`'s
-fixed-dumbbell/machine-stack weight sources — both P2, deliberately deferred
-rather than attempted partially, same reasoning prior batches gave their
-own P2 deferrals.
+`F-PLT-001` was left `in-progress` at the end of that first pass — §5's
+non-barbell cases waited on `F-PLT-005`, not yet built.
+
+**Batch 4.3 closed (v0.38.0).** `F-PLT-003` and `F-PLT-005` done, both P2,
+closing out the batch. Schema v4 adds `exercises.weight_source`
+(`WeightSource`: `plateLoaded`, `fixedIncrement`, `stack`) plus its
+per-source config columns (`fixed_increments_grams`, `stack_base_grams`,
+`stack_step_grams`, `stack_half_step_grams`) — existing rows default to
+`plateLoaded`, exactly how every exercise behaved before this column
+existed, so no backfill beyond the default column value was needed.
+`defaultWeightSourceFor` mirrors `defaultWeightEntryModeFor`'s per-equipment
+guess (`F-LOG-017`): dumbbell/kettlebell → fixed increment, machine/cable →
+stack, everything else → plate-loaded, always overridable on the exercise
+editor's new "Weight source" field, which swaps in the bar picker, an
+available-weights list, or base/step/half-step fields depending on the
+choice. `domain/plates/weight_source_calculator.dart` mirrors
+`closestAchievableGrams`'s direction semantics for the other two sources:
+`closestAchievableFixedIncrement` looks up the nearest value actually in
+the configured list — a real dumbbell rack is not evenly spaced, which is
+why this is an explicit list rather than a step size — and
+`closestAchievableStack` enumerates `base + n·step` and, when a half step
+is configured, `base + n·step + halfStep`.
+`domain/progression/plate_aware_rounding.dart` gained
+`applyFixedIncrementRounding`/`applyStackRounding` alongside the existing
+`applyPlateRounding`, refactored to share one hold-or-round decision
+(`_applyRounding`) so `F-PRG-012` §3's "the rounding erased the whole
+proposed increase" case works identically across all three sources.
+`WorkoutRepository.startFromRoutineDay` now dispatches on the exercise's
+own `weight_source` rather than assuming plate-loaded, closing the gap
+`F-PLT-001`'s status note left open; `PlateCalculatorSheet` does the same
+dispatch to decide what it shows — the plate solve and its to-scale
+drawing, the closest stocked dumbbell weight, or the closest reachable
+stack pin. `features/shell/widgets/plate_stack_visualization.dart`'s
+`PlateStackVisualization` (`F-PLT-003`) draws one side, heaviest plate
+nearest the bar sleeve (how a bar is actually loaded), height scaling with
+plate size within a fixed band so a 1.25 kg change plate never draws
+taller than a 25 kg one; colours are bucketed by canonical kilograms
+regardless of the display unit, since the IPF convention itself is defined
+in kg and a pound-configured inventory still uses these same physical
+plate sizes.
 
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,

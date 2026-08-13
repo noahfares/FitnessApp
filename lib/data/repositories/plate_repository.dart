@@ -30,10 +30,11 @@ class PlateRepository {
 
   Future<List<Bar>> getBars() => watchBars().first;
 
-  Future<Bar?> findBarById(String id) => (_db.select(_db.bars)
-        ..where((b) => b.id.equals(id))
-        ..where((b) => b.deletedAt.isNull()))
-      .getSingleOrNull();
+  Future<Bar?> findBarById(String id) =>
+      (_db.select(_db.bars)
+            ..where((b) => b.id.equals(id))
+            ..where((b) => b.deletedAt.isNull()))
+          .getSingleOrNull();
 
   /// The exercise's own bar if it still exists, otherwise the inventory's
   /// default bar, otherwise the heaviest bar available — never throws just
@@ -45,10 +46,7 @@ class PlateRepository {
     }
     final bars = await getBars();
     if (bars.isEmpty) return null;
-    return bars.firstWhere(
-      (b) => b.isDefault,
-      orElse: () => bars.first,
-    );
+    return bars.firstWhere((b) => b.isDefault, orElse: () => bars.first);
   }
 
   Future<String> createBar({
@@ -112,7 +110,9 @@ class PlateRepository {
     if (!includeDisabled) {
       query.where((p) => p.isEnabled.equals(true));
     }
-    query.orderBy([(p) => OrderingTerm(expression: p.weightGrams, mode: OrderingMode.desc)]);
+    query.orderBy([
+      (p) => OrderingTerm(expression: p.weightGrams, mode: OrderingMode.desc),
+    ]);
     return query.watch();
   }
 
@@ -181,10 +181,11 @@ class PlateRepository {
   /// later change to the load unit preference, which would otherwise
   /// silently rewrite a curated inventory out from under whoever set it up.
   Future<void> seedDefaultsIfNeeded(MassUnit unit) async {
-    final marker = await (_db.select(_db.appSettings)
-          ..where((s) => s.key.equals(_seededKey))
-          ..where((s) => s.deletedAt.isNull()))
-        .getSingleOrNull();
+    final marker =
+        await (_db.select(_db.appSettings)
+              ..where((s) => s.key.equals(_seededKey))
+              ..where((s) => s.deletedAt.isNull()))
+            .getSingleOrNull();
     if (marker != null) return;
 
     final timestamp = _now;
