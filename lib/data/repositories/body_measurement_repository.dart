@@ -108,6 +108,111 @@ class BodyMeasurementRepository {
     await _recomputeWorkoutBodyweights();
   }
 
+  /// Every entry of [type], most recent first (`F-BOD-002`).
+  ///
+  /// [type] must not be [MeasurementType.bodyweight] — that has its own
+  /// dedicated methods above, since only it triggers a workout-bodyweight
+  /// recompute.
+  Stream<List<BodyMeasurement>> watchHistory(MeasurementType type) =>
+      (_db.select(_db.bodyMeasurements)
+            ..where((m) => m.type.equalsValue(type))
+            ..where((m) => m.deletedAt.isNull())
+            ..orderBy([
+              (m) => OrderingTerm(
+                expression: m.measuredAt,
+                mode: OrderingMode.desc,
+              ),
+            ]))
+          .watch();
+
+  /// The single most recent entry of [type], for a summary tile.
+  Stream<BodyMeasurement?> watchLatest(MeasurementType type) =>
+      (_db.select(_db.bodyMeasurements)
+            ..where((m) => m.type.equalsValue(type))
+            ..where((m) => m.deletedAt.isNull())
+            ..orderBy([
+              (m) => OrderingTerm(
+                expression: m.measuredAt,
+                mode: OrderingMode.desc,
+              ),
+            ])
+            ..limit(1))
+          .watchSingleOrNull();
+
+  /// Logs a measurement of any non-bodyweight [type] (`F-BOD-002`).
+  /// [valueCanonical] is millimetres for circumferences, basis points for
+  /// body-fat percentage.
+  Future<String> logMeasurement({
+    required MeasurementType type,
+    required int valueCanonical,
+    DateTime? measuredAt,
+    String? notes,
+  }) async {
+    final at = measuredAt ?? _clock();
+    final id = newUuidV4();
+    final timestamp = _now;
+    final trimmedNotes = notes?.trim();
+
+    await _db
+        .into(_db.bodyMeasurements)
+        .insert(
+          BodyMeasurementsCompanion.insert(
+            id: id,
+            measuredAt: at.millisecondsSinceEpoch,
+            measuredAtTzOffsetMinutes: at.timeZoneOffset.inMinutes,
+            type: type,
+            valueCanonical: valueCanonical,
+            notes: Value(
+              trimmedNotes == null || trimmedNotes.isEmpty
+                  ? null
+                  : trimmedNotes,
+            ),
+            createdAt: timestamp,
+            updatedAt: timestamp,
+          ),
+        );
+    return id;
+  }
+
+  /// Edits a non-bodyweight measurement entry (`F-BOD-002`).
+  Future<void> updateMeasurement(
+    String id, {
+    int? valueCanonical,
+    DateTime? measuredAt,
+    Value<String?> notes = const Value.absent(),
+  }) async {
+    await (_db.update(
+      _db.bodyMeasurements,
+    )..where((m) => m.id.equals(id))).write(
+      BodyMeasurementsCompanion(
+        valueCanonical: valueCanonical == null
+            ? const Value.absent()
+            : Value(valueCanonical),
+        measuredAt: measuredAt == null
+            ? const Value.absent()
+            : Value(measuredAt.millisecondsSinceEpoch),
+        measuredAtTzOffsetMinutes: measuredAt == null
+            ? const Value.absent()
+            : Value(measuredAt.timeZoneOffset.inMinutes),
+        notes: notes,
+        updatedAt: Value(_now),
+      ),
+    );
+  }
+
+  /// Tombstones a non-bodyweight measurement entry (ADR-0008).
+  Future<void> deleteMeasurement(String id) async {
+    final timestamp = _now;
+    await (_db.update(
+      _db.bodyMeasurements,
+    )..where((m) => m.id.equals(id))).write(
+      BodyMeasurementsCompanion(
+        deletedAt: Value(timestamp),
+        updatedAt: Value(timestamp),
+      ),
+    );
+  }
+
   /// Re-derives every workout's `bodyweight_grams` from the bodyweight log.
   ///
   /// Run after every write here, not just new ones: backfilling or correcting

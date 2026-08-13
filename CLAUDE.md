@@ -897,6 +897,37 @@ regardless of the display unit, since the IPF convention itself is defined
 in kg and a pound-configured inventory still uses these same physical
 plate sizes.
 
+**Phase 4 batch 4.4 — body tracking (v0.39.0, partial).** `F-BOD-002` done;
+`F-BOD-003` `in-progress` (§4's optional goal line waits on `F-BOD-005`, not
+attempted). No schema change — every `MeasurementType` value and
+`body_measurements` itself have existed since schema v1/v3; this batch is
+the first to read or write any type but `bodyweight`.
+`BodyMeasurementRepository` gained generic `watchHistory`/`watchLatest`/
+`logMeasurement`/`updateMeasurement`/`deleteMeasurement`, deliberately
+separate from `F-BOD-001`'s bodyweight-specific methods — only bodyweight
+triggers the workout-bodyweight recompute, and routing every type through
+that path would run it needlessly for a waist measurement.
+`trackedMeasurementTypesProvider` (`SharedPreferences`, same shape as
+`weekStartProvider`) persists which of the twelve non-bodyweight types
+someone has opted into, empty by default per `F-BOD-002`'s own "showing all
+thirteen is clutter." `domain/analytics/bodyweight_trend.dart`'s
+`bodyweightTrendEma` matches §6's `ema` fixture exactly, and
+`weeklyRateOfChangeGrams` reuses `linear_regression.dart` for the
+slope-of-a-series-against-elapsed-time computation that module's own doc
+comment had already earmarked for a second consumer. `TrendChart` gained an
+optional `secondaryPoints` — a muted, line-less scatter drawn behind the
+dominant series — so the raw bodyweight points render behind the EMA
+without a second chart widget existing. The body screen (renamed from
+bodyweight-only) gained a "Measurements to track" sheet from its app bar,
+a trend section (EMA chart plus weekly rate of change) above the bodyweight
+history, and one section per tracked type below it, each backed by
+`LogMeasurementSheet` — a single sheet dispatching on shape: `Length`
+(millimetres, cm/in display) for the eleven circumferences, or a bare
+percentage (basis points, new `QuantityFormatter.percent`/
+`QuantityParser.parsePercentBasisPoints`) for `bodyFatPercent` — the same
+"one screen, dispatch on shape" reasoning `F-PLT-005`'s weight-source
+fields used a batch earlier.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

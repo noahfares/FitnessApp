@@ -79,6 +79,13 @@ class QuantityFormatter {
     return showUnit ? '$text ${prefs.length.symbol}' : text;
   }
 
+  /// A percentage stored as basis points (`docs/22-UNITS.md`) — one decimal,
+  /// e.g. body-fat `1850` basis points formats as `18.5%`.
+  String percent(int basisPoints, {bool showUnit = true}) {
+    final text = _number(basisPoints / 100, maxDecimals: 1, grouped: false);
+    return showUnit ? '$text%' : text;
+  }
+
   /// Travelled distance: two decimals.
   String distance(Distance distance, {bool showUnit = true}) {
     final text = _number(

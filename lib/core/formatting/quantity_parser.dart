@@ -144,4 +144,10 @@ class QuantityParser {
     final value = parseNumber(input);
     return value == null ? null : Distance.inUnit(value, unit);
   }
+
+  /// Parses a percentage typed as e.g. `18.5` into basis points (`1850`).
+  int? parsePercentBasisPoints(String input) {
+    final value = parseNumber(input);
+    return value == null ? null : (value * 100).round();
+  }
 }
