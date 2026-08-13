@@ -967,6 +967,58 @@ banner — plain English, not a chart annotation (§7 rule 5), rendering
 nothing at all when there's no verdict or it isn't stalled — that also
 shows the deload suggestion when `F-ANA-010`'s workload signal agrees.
 
+**Phase 4 batch 4.6 — logging extras (v0.41.0).** `F-LOG-019`, `F-LOG-020`
+and `F-TIM-009` all done — the last scheduled batch of Phase 4, though the
+phase itself is not yet audited complete (`F-PRG-004`/`F-PRG-010` from
+batch 4.2 and `F-ANA-013` from batch 4.5 remain `planned`/not attempted,
+so the roadmap's own exit criteria aren't all met). Schema v5 adds
+`exercises.warmup_ruleset` (nullable JSON, null = the app-wide default
+ramp) — every other column this batch touches (`bodyweight_coefficient`,
+`sets.rpe` used only for stopwatch's own duration field) already existed.
+Bodyweight-loaded exercises (`F-LOG-019`): `domain/logging/
+bodyweight_load.dart`'s `effectiveLoadGrams` is the pure §1 formula
+(bodyweight × coefficient + added weight); `set_fields.dart`'s
+`bodyweightReps` case gained `SetField.weight` so the set row can log
+*added* weight (a push-up leaves it blank, a weighted pull-up doesn't) —
+storage was always meant to be added-only, this is what actually renders
+the field. The per-exercise coefficient (`exercises.bodyweight_coefficient`,
+existed since schema v3) is a plain percentage field on the exercise editor
+shown only for that tracking type, defaulting to unset (full bodyweight).
+§2's "nearest measurement, falling back to most recent" needed no new code
+— `WorkoutRepository._backfillBodyweight` (`F-BOD-001`) already resolves
+`workouts.bodyweight_grams` that way at session start. §4 (analytics use
+effective load) reaches only `weekly_volume.dart`'s `weeklyVolume`/
+`dailyVolume` this batch, via a new `_setVolumeGrams` helper and two new
+fields on `AnalyticsSetRecord` (`workoutBodyweightGrams`,
+`bodyweightCoefficient`); `personal_records.dart` and
+`exercise_history.dart` still key off raw weight, left alone for the same
+reason batch 3.1 left PR detection's own filter alone. Warm-up generator
+(`F-LOG-020`): `domain/logging/warmup_generator.dart`'s
+`generateWarmupSets` rounds each step through the caller's own
+weight-source-aware function (`F-PLT-005`) then clamps to
+`[minWeightGrams, workingWeightGrams]`; `SetRepository.insertWarmupSets`
+shifts whatever's already logged to make room and inserts the generated
+`warmup` sets ahead of it in one transaction; `WarmupGeneratorSheet`
+(reached from the active workout screen's per-exercise menu) resolves
+rounding with the same plate/fixed-increment/stack dispatch
+`PlateCalculatorSheet` uses, and saves the edited ruleset back to the
+exercise on generate. Stopwatch (`F-TIM-009`): `domain/timing/
+stopwatch.dart`'s `LogStopwatch` is `RestTimer`'s own "value, not a ticking
+object" shape — elapsed time derived from a stored start timestamp against
+"now", immune to background drift — wired into `NumericKeypadSheet` as a
+start/stop toggle shown only for the duration field, redrawn once a second
+by a `Timer.periodic` that is the sheet's own state, not a new provider.
+Found and fixed along the way, via this batch's own new widget test:
+`PlateRepository.getBars`/`getPlates` (`F-PLT-002`) read through
+`watchBars().first`/`watchPlates().first`, a stream-based one-shot read
+that needs more real asynchronous hops than `pumpAndSettle` reliably
+drives forward in a widget test — `WarmupGeneratorSheet` was the first
+caller to hit this off the stream path, surfacing as the sheet silently
+never closing after "Generate" with no exception thrown. Both getters now
+run a plain one-shot query instead, which is both the fix and the more
+correct shape for what was always meant to be a single read; no other
+caller of either method needed to change.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

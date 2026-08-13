@@ -46,8 +46,8 @@ F-LOG-015	2	in-progress	P1	Supersets in the logger	F-ROU-005		21-DATA-MODEL#sets
 F-LOG-016	2	done	P1	Repeat a previous session			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-017	2	done	P1	Per-side versus total weight			22-UNITS, 21-DATA-MODEL#sets
 F-LOG-018	1	done	P1	Session summary	F-LOG-001		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
-F-LOG-019	4	planned	P2	Bodyweight-loaded exercises	F-BOD-001		40-ANALYTICS-SPEC#2-volume-load, 21-DATA-MODEL#exercises
-F-LOG-020	4	planned	P2	Warm-up set generator	F-PLT-001, F-LOG-005		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-019	4	done	P2	Bodyweight-loaded exercises	F-BOD-001		40-ANALYTICS-SPEC#2-volume-load, 21-DATA-MODEL#exercises
+F-LOG-020	4	done	P2	Warm-up set generator	F-PLT-001, F-LOG-005		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-021	—	idea	P2	Live session metrics			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-022	2	done	P1	Undo and mis-tap protection			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-023	1	done	P1	Per-set notes	F-LOG-003		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
@@ -59,7 +59,7 @@ F-TIM-005	1	done	P1	Default rest durations			20-ARCHITECTURE#cross-platform-disc
 F-TIM-006	1	done	P1	Alert style			20-ARCHITECTURE#cross-platform-discipline
 F-TIM-007	2	done	P2	Rest-taken recording			20-ARCHITECTURE#cross-platform-discipline
 F-TIM-008	—	idea	P3	Interval / EMOM timer			20-ARCHITECTURE#cross-platform-discipline
-F-TIM-009	4	planned	P2	Stopwatch for timed exercises	F-CAT-002		20-ARCHITECTURE#cross-platform-discipline
+F-TIM-009	4	done	P2	Stopwatch for timed exercises	F-CAT-002		20-ARCHITECTURE#cross-platform-discipline
 F-ANA-001	3	in-progress	P0	Analytics engine		F-ANA-002 … F-ANA-014	40-ANALYTICS-SPEC, 20-ARCHITECTURE#the-one-hard-rule
 F-ANA-002	3	done	P0	Per-exercise history			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-003	3	done	P1	Estimated 1RM trend	F-ANA-001		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets

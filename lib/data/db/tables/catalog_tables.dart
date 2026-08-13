@@ -91,6 +91,10 @@ class Exercises extends Table with SyncColumns {
   IntColumn get stackHalfStepGrams =>
       integer().named('stack_half_step_grams').nullable()();
 
+  /// User-editable, per-exercise warm-up ramp (`F-LOG-020`) — JSON array of
+  /// `{percent, reps}` steps. Null uses the app-wide default ramp.
+  TextColumn get warmupRuleset => text().named('warmup_ruleset').nullable()();
+
   /// `updatedAt` as of the last time **seeding** wrote this row.
   ///
   /// Resolves the open question in `F-CAT-001`: a seeded row counts as

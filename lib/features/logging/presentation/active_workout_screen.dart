@@ -32,6 +32,7 @@ import 'exercise_picker_sheet.dart';
 import 'progression_rationale_text.dart';
 import 'set_row.dart';
 import 'set_value_format.dart';
+import 'warmup_generator_sheet.dart';
 
 /// The session in progress (`F-LOG-001`, `F-LOG-002`, `F-LOG-007`).
 ///
@@ -517,6 +518,14 @@ class _SessionExerciseTile extends ConsumerWidget {
                   unawaited(_remove(context, ref));
                 case 'note':
                   unawaited(_editNote(context, ref));
+                case 'warmups':
+                  unawaited(
+                    showWarmupGeneratorSheet(
+                      context,
+                      exerciseId: exercise.exerciseId,
+                      workoutExerciseId: exercise.workoutExerciseId,
+                    ),
+                  );
               }
             },
             itemBuilder: (context) => [
@@ -526,6 +535,15 @@ class _SessionExerciseTile extends ConsumerWidget {
                   exercise.exerciseNotes == null ? 'Add note' : 'Edit note',
                 ),
               ),
+              // Only exercises with a weight field have a working weight to
+              // ramp into (`F-LOG-020`).
+              if (setFieldsFor(
+                exercise.trackingType.name,
+              ).contains(SetField.weight))
+                const PopupMenuItem(
+                  value: 'warmups',
+                  child: Text('Generate warm-ups'),
+                ),
               const PopupMenuItem(value: 'swap', child: Text('Swap exercise')),
               const PopupMenuItem(value: 'remove', child: Text('Remove')),
             ],

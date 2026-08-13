@@ -45,6 +45,10 @@ void main() {
     final raw = NativeDatabase(file);
     await raw.ensureOpen(_NoopUser());
 
+    if (version < 5) {
+      // v5 added exercises.warmup_ruleset (`F-LOG-020`).
+      await raw.runCustom('ALTER TABLE exercises DROP COLUMN warmup_ruleset');
+    }
     if (version < 4) {
       // v4 added exercises.weight_source and its four weight-source-specific
       // columns (`F-PLT-005`).
@@ -248,11 +252,44 @@ void main() {
     );
   });
 
+  group('v4 -> v5: exercises warmup ruleset', () {
+    test(
+      'adds the column, defaulting existing rows to the app-wide ramp',
+      () async {
+        await buildHistoricalDatabase(
+          4,
+          then: [
+            '''
+          INSERT INTO exercises
+            (id, created_at, updated_at, name, primary_muscle, equipment,
+             tracking_type)
+          VALUES
+            ('ex-1', 100, 200, 'Bench Press', 'chest', 'barbell', 'weightReps')
+          ''',
+          ],
+        );
+
+        final db = await reopen();
+        expect(await columnsOf(db, 'exercises'), contains('warmup_ruleset'));
+
+        final row = await (db.select(
+          db.exercises,
+        )..where((e) => e.id.equals('ex-1'))).getSingle();
+
+        // Null for existing rows — exactly what falls through to the app-wide
+        // default ramp, so no exercise behaves differently after this column
+        // existed until someone actually edits it.
+        expect(row.warmupRuleset, isNull);
+        expect(row.name, 'Bench Press');
+      },
+    );
+  });
+
   test('a fresh database is created at the current version', () async {
     final db = await reopen();
-    expect(db.schemaVersion, 4);
+    expect(db.schemaVersion, 5);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.read<int>('user_version'), 4);
+    expect(version.read<int>('user_version'), 5);
   });
 }
 

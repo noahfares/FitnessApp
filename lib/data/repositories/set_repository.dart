@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../core/ids/uuid.dart';
 import '../../domain/analytics/analytics_set_record.dart';
 import '../../domain/analytics/exercise_history.dart';
+import '../../domain/logging/warmup_generator.dart';
 import '../db/app_database.dart';
 import '../db/tables/enums.dart';
 import '../db/tables/shared.dart';
@@ -116,6 +117,43 @@ class SetRepository {
           ),
         );
     return id;
+  }
+
+  /// Inserts [steps] as new warm-up sets before whatever is already logged
+  /// for this exercise, shifting existing positions to make room
+  /// (`F-LOG-020`).
+  Future<void> insertWarmupSets(
+    String workoutExerciseId,
+    List<GeneratedWarmupSet> steps,
+  ) async {
+    if (steps.isEmpty) return;
+    final timestamp = _now;
+    final existing = await getSets(workoutExerciseId);
+
+    await _db.transaction(() async {
+      for (final set in existing) {
+        await (_db.update(_db.sets)..where((s) => s.id.equals(set.id))).write(
+          SetsCompanion(position: Value(set.position + steps.length)),
+        );
+      }
+      for (var i = 0; i < steps.length; i++) {
+        final step = steps[i];
+        await _db
+            .into(_db.sets)
+            .insert(
+              SetsCompanion.insert(
+                id: newUuidV4(),
+                workoutExerciseId: workoutExerciseId,
+                position: i,
+                setType: const Value(SetType.warmup),
+                weightGrams: Value(step.weightGrams),
+                reps: Value(step.reps),
+                createdAt: timestamp,
+                updatedAt: timestamp,
+              ),
+            );
+      }
+    });
   }
 
   /// Writes one or more measured values. Absent arguments are left alone;
@@ -461,6 +499,7 @@ class SetRepository {
     '''
     SELECT w.started_at                    AS started_at,
            w.started_at_tz_offset_minutes  AS tz_offset,
+           w.bodyweight_grams              AS workout_bodyweight_grams,
            s.set_type                      AS set_type,
            s.is_completed                  AS is_completed,
            s.weight_grams                  AS weight_grams,
@@ -470,7 +509,8 @@ class SetRepository {
            e.tracking_type                 AS tracking_type,
            e.name                          AS exercise_name,
            e.primary_muscle                AS primary_muscle,
-           e.secondary_muscles             AS secondary_muscles
+           e.secondary_muscles             AS secondary_muscles,
+           e.bodyweight_coefficient        AS bodyweight_coefficient
       FROM sets s
       JOIN workout_exercises we ON we.id = s.workout_exercise_id
       JOIN workouts w           ON w.id  = we.workout_id
@@ -504,6 +544,8 @@ class SetRepository {
         weightGrams: row.read<int?>('weight_grams'),
         reps: row.read<int?>('reps'),
         rpe: row.read<double?>('rpe'),
+        workoutBodyweightGrams: row.read<int?>('workout_bodyweight_grams'),
+        bodyweightCoefficient: row.read<double?>('bodyweight_coefficient'),
       ),
   ];
 

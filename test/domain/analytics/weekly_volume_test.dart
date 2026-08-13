@@ -28,7 +28,58 @@ void main() {
     reps: reps,
   );
 
+  AnalyticsSetRecord bodyweightRecordOn(
+    DateTime date, {
+    required int reps,
+    int addedGrams = 0,
+    int? workoutBodyweightGrams,
+    double? bodyweightCoefficient,
+  }) => AnalyticsSetRecord(
+    date: date,
+    setType: 'working',
+    isCompleted: true,
+    trackingType: 'bodyweightReps',
+    exerciseId: 'ex-1',
+    exerciseName: 'Pull-up',
+    primaryMuscle: 'back',
+    secondaryMuscles: const [],
+    weightGrams: addedGrams,
+    reps: reps,
+    workoutBodyweightGrams: workoutBodyweightGrams,
+    bodyweightCoefficient: bodyweightCoefficient,
+  );
+
   group('weeklyVolume', () {
+    test(
+      'bodyweightReps uses effective load (`F-LOG-019`), not added weight alone',
+      () {
+        final monday = DateTime(2026, 8, 3);
+        final points = weeklyVolume([
+          bodyweightRecordOn(
+            monday,
+            reps: 5,
+            addedGrams: 10000,
+            workoutBodyweightGrams: 80000,
+          ),
+        ], weekStart: WeekStart.monday);
+
+        // (80 kg bodyweight + 10 kg added) x 5 reps.
+        expect(points.single.volumeGrams, 450000);
+      },
+    );
+
+    test(
+      'bodyweightReps with no captured bodyweight falls back to added weight alone',
+      () {
+        final monday = DateTime(2026, 8, 3);
+        final points = weeklyVolume([
+          bodyweightRecordOn(monday, reps: 5, addedGrams: 10000),
+        ], weekStart: WeekStart.monday);
+
+        expect(points.single.volumeGrams, 50000);
+      },
+    );
+
     test('fixture `volumeLoad` — warm-up excluded, total 1760 kg', () {
       final monday = DateTime(2026, 8, 3);
       final records = [

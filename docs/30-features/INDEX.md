@@ -76,8 +76,8 @@
 | [F-LOG-016](LOG/F-LOG-016.md) | Repeat a previous session | 2 | P1 | done |
 | [F-LOG-017](LOG/F-LOG-017.md) | Per-side versus total weight | 2 | P1 | done |
 | [F-LOG-018](LOG/F-LOG-018.md) | Session summary | 1 | P1 | done |
-| [F-LOG-019](LOG/F-LOG-019.md) | Bodyweight-loaded exercises | 4 | P2 | planned |
-| [F-LOG-020](LOG/F-LOG-020.md) | Warm-up set generator | 4 | P2 | planned |
+| [F-LOG-019](LOG/F-LOG-019.md) | Bodyweight-loaded exercises | 4 | P2 | done |
+| [F-LOG-020](LOG/F-LOG-020.md) | Warm-up set generator | 4 | P2 | done |
 | [F-LOG-021](LOG/F-LOG-021.md) | Live session metrics | — | P2 | idea |
 | [F-LOG-022](LOG/F-LOG-022.md) | Undo and mis-tap protection | 2 | P1 | done |
 | [F-LOG-023](LOG/F-LOG-023.md) | Per-set notes | 1 | P1 | done |
@@ -94,7 +94,7 @@
 | [F-TIM-006](TIM/F-TIM-006.md) | Alert style | 1 | P1 | done |
 | [F-TIM-007](TIM/F-TIM-007.md) | Rest-taken recording | 2 | P2 | done |
 | [F-TIM-008](TIM/F-TIM-008.md) | Interval / EMOM timer | — | P3 | idea |
-| [F-TIM-009](TIM/F-TIM-009.md) | Stopwatch for timed exercises | 4 | P2 | planned |
+| [F-TIM-009](TIM/F-TIM-009.md) | Stopwatch for timed exercises | 4 | P2 | done |
 
 ## `ANA` — Analytics & charts
 

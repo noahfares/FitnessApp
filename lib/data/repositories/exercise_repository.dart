@@ -70,6 +70,7 @@ class ExerciseRepository {
     int? stackBaseGrams,
     int? stackStepGrams,
     int? stackHalfStepGrams,
+    double? bodyweightCoefficient,
   }) async {
     final timestamp = _now;
     await _db
@@ -86,6 +87,7 @@ class ExerciseRepository {
             notes: Value(notes),
             defaultRestSeconds: Value(defaultRestSeconds),
             defaultBarId: Value(defaultBarId),
+            bodyweightCoefficient: Value(bodyweightCoefficient),
             weightEntryMode: Value(
               weightEntryMode ?? defaultWeightEntryModeFor(equipment),
             ),
@@ -133,6 +135,11 @@ class ExerciseRepository {
 
   Future<void> setFavorite(String id, {required bool isFavorite}) =>
       update(id, ExercisesCompanion(isFavorite: Value(isFavorite)));
+
+  /// The per-exercise warm-up ramp override (`F-LOG-020`). Null restores the
+  /// app-wide default ramp.
+  Future<void> setWarmupRuleset(String id, String? json) =>
+      update(id, ExercisesCompanion(warmupRuleset: Value(json)));
 
   /// Hides from pickers without touching history (`F-CAT-009`).
   ///

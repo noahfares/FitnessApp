@@ -47,6 +47,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
   final TextEditingController _stackBase = TextEditingController();
   final TextEditingController _stackStep = TextEditingController();
   final TextEditingController _stackHalfStep = TextEditingController();
+  final TextEditingController _bodyweightCoefficient = TextEditingController();
 
   List<String> _aliases = <String>[];
 
@@ -98,6 +99,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
     _stackBase.dispose();
     _stackStep.dispose();
     _stackHalfStep.dispose();
+    _bodyweightCoefficient.dispose();
     super.dispose();
   }
 
@@ -149,6 +151,9 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
             Mass.grams(grams),
             unit,
           );
+        }
+        if (row.bodyweightCoefficient case final coefficient?) {
+          _bodyweightCoefficient.text = (coefficient * 100).round().toString();
         }
       }
     });
@@ -227,6 +232,13 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
     final stackHalfStepGrams = weightSource == WeightSource.stack
         ? _parseMassField(_stackHalfStep)
         : null;
+    // A blank or unparseable field means "full bodyweight" (`F-LOG-019` §3),
+    // the same "no override" reading `_defaultRestSeconds` uses.
+    double? bodyweightCoefficient;
+    if (_trackingType == TrackingType.bodyweightReps) {
+      final percent = int.tryParse(_bodyweightCoefficient.text.trim());
+      if (percent != null) bodyweightCoefficient = percent / 100;
+    }
 
     if (widget.isNew) {
       // The id is generated here rather than by the database so it exists
@@ -249,6 +261,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
         stackBaseGrams: stackBaseGrams,
         stackStepGrams: stackStepGrams,
         stackHalfStepGrams: stackHalfStepGrams,
+        bodyweightCoefficient: bodyweightCoefficient,
       );
     } else {
       await repo.update(
@@ -270,6 +283,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
           stackBaseGrams: Value(stackBaseGrams),
           stackStepGrams: Value(stackStepGrams),
           stackHalfStepGrams: Value(stackHalfStepGrams),
+          bodyweightCoefficient: Value(bodyweightCoefficient),
         ),
       );
     }
@@ -453,6 +467,23 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
               if (type != null) setState(() => _trackingType = type);
             },
           ),
+          if (_trackingType == TrackingType.bodyweightReps) ...[
+            const SizedBox(height: AppSpacing.lg),
+            // Full bodyweight by default — a ring dip loads all of it, an
+            // assisted-pulldown machine loads a fraction (`F-LOG-019` §3).
+            // The set row still logs *added* weight only; this is the rest
+            // of the effective load, resolved at analytics time.
+            TextField(
+              controller: _bodyweightCoefficient,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Bodyweight loaded',
+                border: OutlineInputBorder(),
+                suffixText: '%',
+                helperText: 'Blank uses 100% — the full bodyweight.',
+              ),
+            ),
+          ],
           if (setFieldsFor(_trackingType.name).contains(SetField.weight)) ...[
             const SizedBox(height: AppSpacing.lg),
             // Storage is always total (`F-LOG-017` §1) — this only decides how
