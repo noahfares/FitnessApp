@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart' show Value;
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:fitness_app/data/db/app_database.dart';
@@ -100,5 +101,69 @@ void main() {
     expect(find.byType(TrendChart), findsOneWidget);
     expect(find.text('e1RM trend'), findsOneWidget);
     expect(find.text('Formula: Epley'), findsOneWidget);
+  });
+
+  group('stall detection (F-ANA-009, batch 4.5)', () {
+    testWidgets('a flat e1RM over 5+ weekly sessions shows the stall banner', (
+      tester,
+    ) async {
+      await makeExercise('bench');
+      for (var i = 0; i < 5; i++) {
+        clock = DateTime(2026, 7, 1).add(Duration(days: i * 7));
+        await loggedSession('bench', 100000);
+      }
+
+      await pumpScreen(
+        tester,
+        const ExerciseDetailScreen(exerciseId: 'bench'),
+        db: db,
+        now: clock,
+      );
+
+      await tester.scrollUntilVisible(
+        find.textContaining("hasn't moved in a while"),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.textContaining("hasn't moved in a while"), findsOneWidget);
+    });
+
+    testWidgets('a clearly progressing exercise shows no stall banner', (
+      tester,
+    ) async {
+      await makeExercise('bench');
+      for (var i = 0; i < 5; i++) {
+        clock = DateTime(2026, 7, 1).add(Duration(days: i * 7));
+        await loggedSession('bench', 100000 + i * 5000);
+      }
+
+      await pumpScreen(
+        tester,
+        const ExerciseDetailScreen(exerciseId: 'bench'),
+        db: db,
+        now: clock,
+      );
+
+      expect(find.textContaining("hasn't moved in a while"), findsNothing);
+    });
+
+    testWidgets('fewer than 5 sessions shows no stall banner either way', (
+      tester,
+    ) async {
+      await makeExercise('bench');
+      clock = DateTime(2026, 7, 1);
+      await loggedSession('bench', 100000);
+      clock = DateTime(2026, 7, 22);
+      await loggedSession('bench', 100000);
+
+      await pumpScreen(
+        tester,
+        const ExerciseDetailScreen(exerciseId: 'bench'),
+        db: db,
+        now: clock,
+      );
+
+      expect(find.textContaining("hasn't moved in a while"), findsNothing);
+    });
   });
 }

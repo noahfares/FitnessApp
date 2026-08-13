@@ -11,7 +11,9 @@ import '../../../domain/analytics/date_range.dart';
 import '../../../domain/analytics/e1rm.dart';
 import '../../../domain/analytics/e1rm_trend.dart';
 import '../../../domain/analytics/exercise_history.dart';
+import '../../../domain/analytics/stall_detection.dart';
 import '../../../domain/analytics/weekly_volume.dart';
+import '../../../domain/progression/deload_suggestion.dart';
 import '../../settings/application/e1rm_formula_provider.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../settings/application/week_start_provider.dart';
@@ -20,6 +22,7 @@ import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/empty_state.dart';
 import '../../shell/widgets/trend_chart.dart';
 import '../../shell/widgets/weekly_bar_chart.dart';
+import '../application/acwr_provider.dart';
 import '../application/analytics_clock_provider.dart';
 import '../application/date_range_provider.dart';
 import '../application/exercise_history_providers.dart';
@@ -57,16 +60,23 @@ class ExerciseDetailScreen extends ConsumerWidget {
                 title: 'No sessions yet',
                 message: 'Log this exercise in a workout to see it here.',
               )
-            : _ExerciseDetailBody(sessions: sessions),
+            : _ExerciseDetailBody(
+                sessions: sessions,
+                exerciseName: exercise.value?.name ?? 'This exercise',
+              ),
       ),
     );
   }
 }
 
 class _ExerciseDetailBody extends ConsumerWidget {
-  const _ExerciseDetailBody({required this.sessions});
+  const _ExerciseDetailBody({
+    required this.sessions,
+    required this.exerciseName,
+  });
 
   final List<ExerciseHistorySession> sessions;
+  final String exerciseName;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -75,7 +85,12 @@ class _ExerciseDetailBody extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.screen),
       itemCount: sessions.length + 1,
       itemBuilder: (context, i) {
-        if (i == 0) return _AnalyticsHeader(sessions: sessions);
+        if (i == 0) {
+          return _AnalyticsHeader(
+            sessions: sessions,
+            exerciseName: exerciseName,
+          );
+        }
         final session = sessions[i - 1];
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
@@ -90,9 +105,10 @@ class _ExerciseDetailBody extends ConsumerWidget {
 /// charts that read it — the e1RM trend (`F-ANA-003`) and weekly volume
 /// (`F-ANA-004`) — above the session list `F-ANA-002` already built.
 class _AnalyticsHeader extends StatelessWidget {
-  const _AnalyticsHeader({required this.sessions});
+  const _AnalyticsHeader({required this.sessions, required this.exerciseName});
 
   final List<ExerciseHistorySession> sessions;
+  final String exerciseName;
 
   @override
   Widget build(BuildContext context) {
@@ -103,9 +119,96 @@ class _AnalyticsHeader extends StatelessWidget {
         const SizedBox(height: AppSpacing.sm),
         _TrendSection(sessions: sessions),
         const SizedBox(height: AppSpacing.md),
+        _StallSection(sessions: sessions, exerciseName: exerciseName),
+        const SizedBox(height: AppSpacing.md),
         _VolumeSection(sessions: sessions),
         const Divider(height: AppSpacing.xl),
       ],
+    );
+  }
+}
+
+/// Stall detection (`F-ANA-009`) and the deload suggestion it feeds
+/// (`F-PRG-011`) — plain English, not a chart annotation (§7 rule 5), and
+/// nothing at all when there's no verdict or the verdict isn't stalled
+/// (`docs/50-ROADMAP.md` Phase 4 exit criterion: insight cards say nothing
+/// when data is insufficient).
+class _StallSection extends ConsumerWidget {
+  const _StallSection({required this.sessions, required this.exerciseName});
+
+  final List<ExerciseHistorySession> sessions;
+  final String exerciseName;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+
+    // The repository orders sessions newest-first; stall detection reads
+    // oldest-first, over whichever sessions have a computable e1RM.
+    final withE1rm = [
+      for (final session in sessions.reversed)
+        if (session.bestE1rmGrams case final e1rm?)
+          SessionE1rm(date: session.localDate, e1rmGrams: e1rm),
+    ];
+    final verdict = detectStall(withE1rm);
+    if (verdict == null || !verdict.stalled) return const SizedBox.shrink();
+
+    final acwr = ref.watch(acwrProvider).value;
+    final suggestion = suggestDeload(stall: verdict, acwr: acwr);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.trending_flat,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    "$exerciseName hasn't moved in a while",
+                    style: theme.textTheme.titleSmall,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              'e1RM has been flat over the last ${verdict.windowSize} '
+              'sessions. Consider a deload, a rep-range change, or an '
+              'exercise variation.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            if (suggestion.suggested) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                'Deload suggested — not automatic, this is your call:',
+                style: theme.textTheme.bodyMedium,
+              ),
+              for (final reason in suggestion.reasons)
+                Text(
+                  '•  $reason',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

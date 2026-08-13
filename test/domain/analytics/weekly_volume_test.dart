@@ -20,6 +20,7 @@ void main() {
     setType: setType,
     isCompleted: true,
     trackingType: trackingType,
+    exerciseId: 'ex-1',
     exerciseName: 'Exercise',
     primaryMuscle: primaryMuscle,
     secondaryMuscles: const [],
@@ -102,6 +103,38 @@ void main() {
 
     test('empty input returns an empty result, never throws', () {
       expect(weeklyVolume(const [], weekStart: WeekStart.monday), isEmpty);
+    });
+  });
+
+  group('dailyVolume (F-ANA-010)', () {
+    test('sums same-day sets and excludes warm-ups', () {
+      final day = DateTime(2026, 8, 3);
+      final records = [
+        recordOn(day, setType: 'warmup', weightGrams: 60000, reps: 10),
+        recordOn(day, setType: 'working', weightGrams: 100000, reps: 5),
+        recordOn(day, setType: 'working', weightGrams: 100000, reps: 5),
+      ];
+
+      final points = dailyVolume(records);
+
+      expect(points, hasLength(1));
+      expect(points.single.date, day);
+      expect(points.single.volumeGrams, 1000000);
+    });
+
+    test('keeps separate days apart, oldest to newest', () {
+      final day1 = DateTime(2026, 8, 3);
+      final day2 = DateTime(2026, 8, 4);
+      final points = dailyVolume([
+        recordOn(day2, setType: 'working', weightGrams: 100000, reps: 5),
+        recordOn(day1, setType: 'working', weightGrams: 80000, reps: 5),
+      ]);
+
+      expect(points.map((p) => p.date), [day1, day2]);
+    });
+
+    test('empty input returns an empty result', () {
+      expect(dailyVolume(const []), isEmpty);
     });
   });
 

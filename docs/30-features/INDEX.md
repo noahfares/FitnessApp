@@ -108,9 +108,9 @@
 | [F-ANA-006](ANA/F-ANA-006.md) | Consistency | 3 | P1 | in-progress |
 | [F-ANA-007](ANA/F-ANA-007.md) | PR timeline | 3 | P1 | done |
 | [F-ANA-008](ANA/F-ANA-008.md) | Muscle balance | 3 | P2 | in-progress |
-| [F-ANA-009](ANA/F-ANA-009.md) | Stall detection | 4 | P2 | planned |
-| [F-ANA-010](ANA/F-ANA-010.md) | Acute-to-chronic workload ratio | 4 | P2 | planned |
-| [F-ANA-011](ANA/F-ANA-011.md) | Rep range and intensity distribution | 4 | P2 | planned |
+| [F-ANA-009](ANA/F-ANA-009.md) | Stall detection | 4 | P2 | done |
+| [F-ANA-010](ANA/F-ANA-010.md) | Acute-to-chronic workload ratio | 4 | P2 | done |
+| [F-ANA-011](ANA/F-ANA-011.md) | Rep range and intensity distribution | 4 | P2 | done |
 | [F-ANA-012](ANA/F-ANA-012.md) | Duration and rest compliance | 4 | P3 | planned |
 | [F-ANA-013](ANA/F-ANA-013.md) | Weekly insight cards | 4 | P2 | planned |
 | [F-ANA-014](ANA/F-ANA-014.md) | Body map heat overlay | 4 | P3 | planned |
@@ -133,7 +133,7 @@
 | [F-PRG-008](PRG/F-PRG-008.md) | Target explanation | 4 | P1 | done |
 | [F-PRG-009](PRG/F-PRG-009.md) | Failure and deload handling | 4 | P1 | done |
 | [F-PRG-010](PRG/F-PRG-010.md) | Training max management | 4 | P2 | planned |
-| [F-PRG-011](PRG/F-PRG-011.md) | Deload suggestion | 4 | P2 | planned |
+| [F-PRG-011](PRG/F-PRG-011.md) | Deload suggestion | 4 | P2 | done |
 | [F-PRG-012](PRG/F-PRG-012.md) | Plate-aware rounding | 4 | P1 | done |
 
 ## `BOD` — Body metrics

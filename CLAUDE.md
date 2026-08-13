@@ -928,6 +928,45 @@ percentage (basis points, new `QuantityFormatter.percent`/
 "one screen, dispatch on shape" reasoning `F-PLT-005`'s weight-source
 fields used a batch earlier.
 
+**Phase 4 batch 4.5 — advanced analytics & deload (v0.40.0, partial).**
+`F-ANA-009`, `F-ANA-010`, `F-ANA-011` and `F-PRG-011` done; `F-ANA-012`
+(duration/rest compliance, P3) and `F-ANA-014` (body map heat overlay, P3 —
+needs a licence-clean SVG asset this session couldn't responsibly source)
+not attempted; `F-ANA-013` (weekly insight cards) not attempted either —
+it depends on all four `F-ANA-*` metrics done here plus `F-ANA-004`/
+`F-ANA-005`, and composing a significance-ranked, never-fabricated card
+generator on top of them is its own batch-sized piece of work, so this
+batch closes with the underlying signals built rather than half-building
+their dashboard consumer. No schema change. `domain/analytics/
+stall_detection.dart`'s `detectStall` matches §7's `slope` fixture exactly
+— silence under 5 sessions, the trailing-8-session window, and the
+slope-and-3-week-span condition together (the open question in
+`F-ANA-009`'s own doc — real-history-tuned thresholds — stays open, same
+waiver shape as Phase 1/3's own no-real-history criteria).
+`domain/analytics/acwr.dart`'s `computeAcwr` matches §8's `acwr` fixture,
+built on a new `dailyVolume` helper alongside the existing `weeklyVolume`
+in `weekly_volume.dart`. `domain/analytics/intensity_distribution.dart`
+buckets sets by rep range and by percentage of e1RM — using each
+exercise's own best e1RM *as of the session before it*, so a set from an
+exercise's first-ever session has no baseline and is excluded rather than
+bucketed as zero (§10 rules 1–2) — plus an RPE-based reading shown
+alongside wherever RPE was logged (§10 rule 3). `AnalyticsSetRecord`
+(the shared whole-catalogue stream `F-ANA-004`/`F-ANA-005` already used)
+gained `exerciseId` and `rpe` columns for this — grouping by exercise
+*name* alone was never safe (`F-CAT-003` §4 allows duplicate names).
+`domain/progression/deload_suggestion.dart`'s `suggestDeload` is a pure
+composition of the two: suggested only when *both* signals fire (`F-PRG-011`'s
+own spec), each with its own plain-English reason, never an automatic
+program change. New surfaces: `InsightsScreen` gained a "Training load"
+ACWR info tile (explicitly labelled information, never a warning — §8
+rule 4, the same "rough guide, not a prescription" framing already used
+for muscle balance) and rep-range/intensity/RPE histograms, reusing
+`WeeklyBarChart` for a non-weekly categorical axis since the widget only
+ever needed `(value, label)` pairs; `ExerciseDetailScreen` gained a stall
+banner — plain English, not a chart annotation (§7 rule 5), rendering
+nothing at all when there's no verdict or it isn't stalled — that also
+shows the deload suggestion when `F-ANA-010`'s workload signal agrees.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`
