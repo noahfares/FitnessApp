@@ -970,6 +970,22 @@ this one was never trying, so nothing needed fixing. Every screen in the
 app is now migrated except `AppShell`'s nav labels, the shared logging
 widgets, and `OnboardingScreen`.
 
+**Batch 6.2, twelfth pass — AppShell's nav labels.** `F-I18N-001` still
+`in-progress`. `AppShell.destinations`, a `static const` that couldn't
+call `AppLocalizations` (const evaluation has no `BuildContext`), became
+`static List<ShellDestination> destinationsFor(AppLocalizations l10n)`,
+the same shape the sixth pass's `weekdayAbbreviations(l10n)` used for an
+identical problem. Four of the five labels reuse another screen's exact
+title (`routinesTitle`, `startWorkoutTitle`, `historyTitle`,
+`insightsTitle`) rather than duplicate it — a tab and the screen it opens
+are the same name; the fifth, "Home", is a new key (`shellHomeLabel`)
+since the dashboard's own app bar shows the FitnessApp brand instead.
+`navigation_test.dart`'s "shows five destinations" test — the reason this
+was deferred — now resolves `AppLocalizations` from a pumped widget's
+context and calls `destinationsFor` directly; every other assertion in
+the test was already generic over `destination.label`. Only the shared
+logging widgets and `OnboardingScreen` remain.
+
 **Batch 6.3 — onboarding.** `F-SET-011` done — the last item Phase 6
 scheduled ahead of release/health. No schema change.
 `OnboardingScreen` (`lib/features/onboarding/presentation/`) is a

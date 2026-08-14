@@ -1704,4 +1704,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get plateSettingsPairsAvailableFieldLabel => 'Pairs available';
+
+  @override
+  String get shellHomeLabel => 'Home';
 }

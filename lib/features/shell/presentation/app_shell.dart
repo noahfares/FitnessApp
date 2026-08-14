@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/generated/app_localizations.dart';
 import '../../logging/presentation/start_workout_screen.dart';
 import '../widgets/active_workout_banner.dart';
 
@@ -19,21 +20,40 @@ class AppShell extends StatelessWidget {
 
   final StatefulNavigationShell navigationShell;
 
-  static const List<ShellDestination> destinations = [
-    ShellDestination('Home', Icons.home_outlined, Icons.home),
-    ShellDestination('Routines', Icons.list_alt_outlined, Icons.list_alt),
-    // The centre slot is the primary action, deliberately unmissable.
-    ShellDestination('Start', Icons.add_circle_outline, Icons.add_circle),
+  /// The five bottom-navigation slots, localized — a function rather than a
+  /// compile-time constant, since a label can't be resolved from
+  /// [AppLocalizations] without a [BuildContext]. Public because tests
+  /// assert against it, the same reason the destinations themselves were
+  /// public before this became a function.
+  static List<ShellDestination> destinationsFor(AppLocalizations l10n) => [
+    ShellDestination(l10n.shellHomeLabel, Icons.home_outlined, Icons.home),
     ShellDestination(
-      'History',
+      l10n.routinesTitle,
+      Icons.list_alt_outlined,
+      Icons.list_alt,
+    ),
+    // The centre slot is the primary action, deliberately unmissable.
+    ShellDestination(
+      l10n.startWorkoutTitle,
+      Icons.add_circle_outline,
+      Icons.add_circle,
+    ),
+    ShellDestination(
+      l10n.historyTitle,
       Icons.calendar_month_outlined,
       Icons.calendar_month,
     ),
-    ShellDestination('Insights', Icons.insights_outlined, Icons.insights),
+    ShellDestination(
+      l10n.insightsTitle,
+      Icons.insights_outlined,
+      Icons.insights,
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final destinations = destinationsFor(l10n);
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: Column(

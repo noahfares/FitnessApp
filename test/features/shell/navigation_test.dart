@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fitness_app/core/routing/app_router.dart';
 import 'package:fitness_app/core/routing/app_routes.dart';
 import 'package:fitness_app/features/shell/presentation/app_shell.dart';
+import 'package:fitness_app/l10n/generated/app_localizations.dart';
 
 import '../../support/harness.dart';
 
@@ -15,8 +16,12 @@ void main() {
       await pumpApp(tester, db: testDatabase());
 
       expect(find.byType(NavigationBar), findsOneWidget);
-      expect(AppShell.destinations.length, 5);
-      for (final destination in AppShell.destinations) {
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(NavigationBar)),
+      )!;
+      final destinations = AppShell.destinationsFor(l10n);
+      expect(destinations.length, 5);
+      for (final destination in destinations) {
         expect(
           find.text(destination.label),
           findsWidgets,

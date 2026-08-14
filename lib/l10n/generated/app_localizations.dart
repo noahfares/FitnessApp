@@ -2973,6 +2973,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pairs available'**
   String get plateSettingsPairsAvailableFieldLabel;
+
+  /// Bottom-navigation label for the dashboard tab — the dashboard's own app bar shows the FitnessApp brand instead, so this is the one place "Home" itself appears.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get shellHomeLabel;
 }
 
 class _AppLocalizationsDelegate

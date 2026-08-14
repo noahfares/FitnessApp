@@ -1171,5 +1171,8 @@
   "plateSettingsNewPlateTitle": "New plate",
   "@plateSettingsNewPlateTitle": {"description": "Add-plate sheet title."},
   "plateSettingsPairsAvailableFieldLabel": "Pairs available",
-  "@plateSettingsPairsAvailableFieldLabel": {"description": "Pair-count field label on the add-plate sheet."}
+  "@plateSettingsPairsAvailableFieldLabel": {"description": "Pair-count field label on the add-plate sheet."},
+
+  "shellHomeLabel": "Home",
+  "@shellHomeLabel": {"description": "Bottom-navigation label for the dashboard tab — the dashboard's own app bar shows the FitnessApp brand instead, so this is the one place \"Home\" itself appears."}
 }
