@@ -93,4 +93,24 @@ void main() {
     expect(find.text('Get started'), findsOneWidget);
     expect(find.text('Continue'), findsNothing);
   });
+
+  testWidgets('every page renders at 200% with no overflow (F-A11Y-002)', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      db: db,
+      startAt: AppRoutes.onboarding,
+      textScale: 2.0,
+    );
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
 }

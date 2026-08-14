@@ -81,13 +81,18 @@ class AppearanceScreen extends ConsumerWidget {
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: AppSpacing.xs),
-                Row(
+                // `Wrap`, not `Row`: at large text scales the two strings
+                // together are wider than a phone screen, and a `Row` would
+                // overflow rather than drop the ghost value to its own line
+                // (F-A11Y-002).
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: AppSpacing.md,
                   children: [
                     Text(
                       '100 kg × 8',
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
-                    const SizedBox(width: AppSpacing.md),
                     Text(
                       'last time: 97.5 kg × 8',
                       style: Theme.of(

@@ -714,6 +714,23 @@ to the normal platform transition otherwise. Closes the one clause the
 first pass of this batch deliberately left open. `F-A11Y-002` (the
 200%-scale screen audit) is untouched and stays `in-progress`.
 
+**Batch 6.1, third pass — the rest of the 200%-scale audit.** `F-A11Y-002`
+now `done`, closing batch 6.1 entirely. Every reachable screen left
+unaudited after the first pass (`ActiveWorkoutScreen`,
+`ExerciseDetailScreen`) now has its own 200%-scale render test —
+`DashboardScreen`; the three history screens; the four routine screens;
+both catalogue screens; the three remaining analytics screens; the two
+body screens; the two remaining logging screens; `OnboardingScreen`; and
+all nine Settings screens. `PlaceholderScreen` is the one screen file left
+untested — dead code with no call site anywhere in `lib/`, not an
+unaudited live one. The audit found two real overflow bugs and fixed both:
+`AppearanceScreen`'s ghost-value preview `Row` overflows horizontally at
+200% (now a `Wrap`, matching the swatch row directly above it that already
+used one); `OnboardingScreen`'s welcome page — built in batch 6.3, days
+before this audit — centred its content in a fixed `Column` that overflows
+vertically at 200% (now a `SingleChildScrollView`, matching its other two
+pages, both already `ListView`s).
+
 **Batch 6.2 — localisation & branding, partial.** `F-I18N-001`
 `in-progress`; `F-THM-006` not attempted, left `planned`. No schema change.
 `F-THM-006` (icon, adaptive icon, splash): deliberately deferred rather than
@@ -802,7 +819,14 @@ since Phase 1 has carried — checked instead by reading the Gradle
 signing-config scoping directly and a plain YAML syntax check.
 
 **Exit criteria**
-- [ ] Full app usable with a screen reader and at 200% text scale.
+- [ ] Full app usable with a screen reader and at 200% text scale. Automated
+      coverage is now complete for both halves — every screen carries
+      semantic labels where `Semantics` matters (`F-A11Y-001`) and has its
+      own 200%-scale render test with no overflow (`F-A11Y-002`) — but
+      "usable" is an on-device claim a render test can't make on its own:
+      real TalkBack/VoiceOver navigation order and announcement clarity
+      still need a physical device this session doesn't have, the same
+      class of gap Phase 1/3's own on-device-only criteria left open.
 - [ ] Privacy policy and data-safety declarations match actual behaviour, with
       "no network calls" verified rather than asserted.
 - [ ] Play internal testing track live, then production.

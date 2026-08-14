@@ -139,10 +139,13 @@ class _WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Padding(
+    // `SingleChildScrollView`, not a bare centred `Column`: at large text
+    // scales the icon plus three text blocks are taller than the page, and
+    // a fixed `Column` would overflow rather than let it scroll
+    // (F-A11Y-002).
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.screen),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
