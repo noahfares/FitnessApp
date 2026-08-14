@@ -33,6 +33,7 @@ part 'app_database.g.dart';
     BodyMeasurements,
     PersonalRecords,
     AppSettings,
+    ProgressPhotos,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -46,7 +47,7 @@ class AppDatabase extends _$AppDatabase {
   /// asserts on the *data*, not merely that nothing threw
   /// (docs/60-ENGINEERING.md §schema changes).
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -105,6 +106,10 @@ class AppDatabase extends _$AppDatabase {
         // to an exercise without one anyway, so nothing behaves differently
         // before this column is ever set.
         await m.addColumn(exercises, exercises.trainingMaxGrams);
+      }
+      if (from < 7) {
+        // Progress photos (`F-BOD-004`) — a new table, nothing to backfill.
+        await m.createTable(progressPhotos);
       }
       await _createIndexes();
     },

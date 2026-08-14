@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/settings/application/theme_provider.dart';
+import 'features/shell/widgets/app_lock_gate.dart';
 
 /// Root widget.
 class FitnessApp extends ConsumerWidget {
@@ -32,6 +33,9 @@ class FitnessApp extends ConsumerWidget {
           // Applies instantly, no restart (F-SET-002).
           themeMode: ref.watch(themeModeProvider),
           routerConfig: ref.watch(routerProvider),
+          // A no-op when no PIN is configured (`F-SET-010`) — see
+          // `AppLockGate`'s own doc.
+          builder: (context, child) => AppLockGate(child: child!),
         );
       },
     );

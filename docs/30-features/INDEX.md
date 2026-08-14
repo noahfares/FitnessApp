@@ -143,7 +143,7 @@
 | [F-BOD-001](BOD/F-BOD-001.md) | Bodyweight log | 1 | P0 | done |
 | [F-BOD-002](BOD/F-BOD-002.md) | Circumference measurements | 4 | P2 | done |
 | [F-BOD-003](BOD/F-BOD-003.md) | Trend charts with smoothing | 4 | P1 | in-progress |
-| [F-BOD-004](BOD/F-BOD-004.md) | Progress photos | 5 | P2 | planned |
+| [F-BOD-004](BOD/F-BOD-004.md) | Progress photos | 5 | P2 | done |
 | [F-BOD-005](BOD/F-BOD-005.md) | Goals | — | P3 | idea |
 | [F-BOD-006](BOD/F-BOD-006.md) | Measurement reminders | — | P3 | idea |
 
@@ -176,7 +176,7 @@
 | [F-SET-007](SET/F-SET-007.md) | Increment steps | 2 | P1 | done |
 | [F-SET-008](SET/F-SET-008.md) | Notification preferences | 2 | P2 | planned |
 | [F-SET-009](SET/F-SET-009.md) | About | 1 | P1 | done |
-| [F-SET-010](SET/F-SET-010.md) | App lock | 5 | P3 | planned |
+| [F-SET-010](SET/F-SET-010.md) | App lock | 5 | P3 | done |
 | [F-SET-011](SET/F-SET-011.md) | Onboarding | 6 | P2 | planned |
 
 ## `PLT` — Plate mathematics

@@ -25,8 +25,8 @@ void main() {
       await db.customSelect('SELECT 1').get(); // force open
 
       // Migrations from earlier versions are covered in migration_test.dart.
-      expect(db.schemaVersion, 6);
-      expect(allTables(), hasLength(13));
+      expect(db.schemaVersion, 7);
+      expect(allTables(), hasLength(14));
 
       final names = allTables().map((t) => t.actualTableName).toSet();
       expect(
@@ -45,6 +45,7 @@ void main() {
           'body_measurements',
           'personal_records',
           'app_settings',
+          'progress_photos',
         ]),
       );
     });

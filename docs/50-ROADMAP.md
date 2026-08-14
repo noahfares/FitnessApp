@@ -577,13 +577,64 @@ time, the same best-effort choice `app_database.dart`'s own `from < 3`
 migration already made once — both documented in `F-DAT-005`'s own status
 note.
 
+**Batch 5.4 done — the last scheduled batch of Phase 5.** `F-BOD-004`,
+`F-SET-010` both done. Schema v7 adds `progress_photos`
+(`id`/`taken_at`/`taken_at_tz_offset_minutes`/`file_path`/`notes`, plus the
+universal `SyncColumns`) — the first schema change since v6
+(`F-PRG-010`). `ProgressPhotoRepository` copies a picked file into an
+app-private `photos/` subdirectory; the row only ever holds a relative path,
+which is what makes photos excluded from a JSON backup **by construction**
+(`JsonExportService`/`JsonDumpService` dump DB tables only) rather than by a
+filter that could be forgotten — satisfying spec §3's default directly. The
+opt-in half of §3 (bundling photos into a backup on request) is not built:
+today's backup is one JSON file, and base64-encoding photo bytes into it
+would defeat `F-DAT-001`'s own streaming acceptance criterion — a real
+archive format is the honest way to do this and is deferred, not silently
+dropped, alongside the documented consequence that a restore onto a fresh
+device leaves photo rows with dangling file paths. Deleting a photo
+tombstones the row *and* deletes the file, the second deliberate exception
+to "nothing is ever hard-deleted" this codebase has made (alongside
+`F-DAT-010`'s wipe). `F-SET-010`'s app lock is PIN only, off by default:
+`PinHasher` (`core/security/pin_hasher.dart`) stores a salted SHA-256 hash
+via `SharedPreferences`, never the PIN itself; `AppLockGate` wraps
+`MaterialApp.router`'s `builder` and is a genuine no-op with no PIN
+configured — verified by re-running the full widget suite after adding it,
+not assumed — and re-locks on every return from the background, not just
+cold start. Biometric unlock is not built: `local_auth` needs platform
+manifest/entitlement work this session's toolchain (no Android SDK, no
+device) can't responsibly add without verifying it, the same class of
+deferral as `F-TIM-003`'s background notification. Both features' own status
+notes are explicit that neither is encryption at rest — a PIN and an
+excluded-by-construction photo path gate casual access, nothing more.
+
+**Phase 5 is not yet declared complete.** Batches 5.1–5.4 are all done, but
+one exit criterion is unmet and cannot be resolved from this session: *"a
+real Strong export imports with correct dates, weights, and set types"*
+needs an actual Strong CSV export to test against, which wasn't available
+(`F-DAT-005` stays `in-progress` for exactly this reason — see its own
+status note). Per this repo's own rule, declaring a phase complete with an
+unmet exit criterion is **ask first**, not a call this session makes
+unilaterally. The other three exit criteria are met: the round-trip
+(`test/data/db/table_snapshot_io_test.dart`), ambiguous-unit handling and
+warm-up preservation (`test/domain/import/csv_import_adapter_test.dart`),
+a failed restore leaving the database untouched
+(`test/data/io/restore_service_test.dart`), and photos excluded from
+backups by construction (provable directly: `JsonExportService`'s own
+per-table loop has no path to a photo's bytes).
+
 **Exit criteria**
-- [ ] Export → wipe → import reproduces the database exactly, verified table by
-      table.
+- [x] Export → wipe → import reproduces the database exactly, verified table by
+      table. `test/data/db/table_snapshot_io_test.dart`.
 - [ ] A real Strong export imports with correct dates, weights, and set types,
-      and refuses to guess when units are ambiguous.
-- [ ] A restore that fails partway leaves the existing database untouched.
-- [ ] Progress photos are excluded from backups unless explicitly opted in.
+      and refuses to guess when units are ambiguous. **Unverified this
+      session** — no real Strong export file was available; ambiguous-unit
+      refusal itself is proven (`test/domain/import/csv_import_adapter_test.dart`),
+      but not against real data. See `F-DAT-005`'s own status note.
+- [x] A restore that fails partway leaves the existing database untouched.
+      `test/data/io/restore_service_test.dart`.
+- [x] Progress photos are excluded from backups unless explicitly opted in.
+      By construction — `JsonExportService`/`JsonDumpService` dump DB tables
+      only, so a photo's bytes have no path into either.
 
 ---
 

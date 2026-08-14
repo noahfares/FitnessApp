@@ -154,6 +154,12 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push(AppRoutes.settingsPlates),
           ),
+          ListTile(
+            leading: const Icon(Icons.lock_outline),
+            title: const Text('App lock'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRoutes.settingsAppLock),
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.info_outline),

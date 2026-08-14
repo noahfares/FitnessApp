@@ -10,6 +10,7 @@ import '../repositories/body_measurement_repository.dart';
 import '../repositories/exercise_repository.dart';
 import '../repositories/personal_record_repository.dart';
 import '../repositories/plate_repository.dart';
+import '../repositories/progress_photo_repository.dart';
 import '../repositories/routine_repository.dart';
 import '../repositories/set_repository.dart';
 import '../repositories/workout_repository.dart';
@@ -120,4 +121,9 @@ final importServiceProvider = Provider<ImportService>(
     ref.watch(exerciseRepositoryProvider),
     ref.watch(personalRecordRepositoryProvider),
   ),
+);
+
+/// Progress photos (`F-BOD-004`).
+final progressPhotoRepositoryProvider = Provider<ProgressPhotoRepository>(
+  (ref) => ProgressPhotoRepository(ref.watch(databaseProvider)),
 );

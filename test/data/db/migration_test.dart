@@ -45,6 +45,10 @@ void main() {
     final raw = NativeDatabase(file);
     await raw.ensureOpen(_NoopUser());
 
+    if (version < 7) {
+      // v7 added the progress_photos table (`F-BOD-004`).
+      await raw.runCustom('DROP TABLE progress_photos');
+    }
     if (version < 6) {
       // v6 added exercises.training_max_grams (`F-PRG-010`).
       await raw.runCustom(
@@ -327,11 +331,40 @@ void main() {
     );
   });
 
+  group('v6 -> v7: progress_photos', () {
+    test('creates the table, usable immediately', () async {
+      await buildHistoricalDatabase(6);
+
+      final db = await reopen();
+      expect(
+        await columnsOf(db, 'progress_photos'),
+        containsAll(['id', 'taken_at', 'file_path', 'deleted_at']),
+      );
+
+      await db
+          .into(db.progressPhotos)
+          .insert(
+            ProgressPhotosCompanion.insert(
+              id: 'photo-1',
+              takenAt: 100,
+              takenAtTzOffsetMinutes: 0,
+              filePath: 'photos/photo-1.jpg',
+              createdAt: 100,
+              updatedAt: 100,
+            ),
+          );
+      final row = await (db.select(
+        db.progressPhotos,
+      )..where((p) => p.id.equals('photo-1'))).getSingle();
+      expect(row.filePath, 'photos/photo-1.jpg');
+    });
+  });
+
   test('a fresh database is created at the current version', () async {
     final db = await reopen();
-    expect(db.schemaVersion, 6);
+    expect(db.schemaVersion, 7);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.read<int>('user_version'), 6);
+    expect(version.read<int>('user_version'), 7);
   });
 }
 

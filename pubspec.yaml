@@ -7,7 +7,7 @@ publish_to: none
 # Canonical source is the VERSION file at the repo root; CI fails if they
 # disagree. See docs/63-VERSIONING.md. The +N build number is set by the
 # release workflow (F-REL-005), not by hand.
-version: 0.47.0
+version: 0.48.0
 
 environment:
   sdk: ^3.11.0
@@ -69,6 +69,10 @@ dependencies:
   # hand-rolled `split(',')` would silently mis-parse exactly the kind of
   # file this feature exists to read correctly.
   csv: ^6.0.0
+
+  # Salted PIN hashing for the app lock (F-SET-010). Dart-team maintained;
+  # never hand-roll hashing for anything gating access, even a UI-only gate.
+  crypto: ^3.0.6
 
 dev_dependencies:
   flutter_test:

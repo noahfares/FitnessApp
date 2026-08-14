@@ -72,6 +72,9 @@ abstract final class AppRoutes {
   /// Strong/Hevy CSV import (`F-DAT-005`, `F-DAT-006`, `F-DAT-007`).
   static const String settingsDataImport = '/settings/data/import';
 
+  /// App lock PIN (`F-SET-010`).
+  static const String settingsAppLock = '/settings/app-lock';
+
   /// Bars and the plate inventory (`F-PLT-002`).
   static const String settingsPlates = '/settings/plates';
   static const String settingsAbout = '/settings/about';
@@ -80,4 +83,7 @@ abstract final class AppRoutes {
   /// metrics is a Phase 4 destination, but this one screen of it moved up
   /// with the feature that owns it.
   static const String body = '/body';
+
+  /// Progress photos (`F-BOD-004`).
+  static const String bodyPhotos = '/body/photos';
 }

@@ -7,6 +7,7 @@ import '../../features/analytics/presentation/exercise_detail_screen.dart';
 import '../../features/analytics/presentation/insights_screen.dart';
 import '../../features/analytics/presentation/pr_timeline_screen.dart';
 import '../../features/body/presentation/body_weight_screen.dart';
+import '../../features/body/presentation/progress_photos_screen.dart';
 import '../../features/catalog/presentation/exercise_catalog_screen.dart';
 import '../../features/catalog/presentation/exercise_editor_screen.dart';
 import '../../features/history/presentation/edit_past_workout_screen.dart';
@@ -22,6 +23,7 @@ import '../../features/routines/presentation/routine_list_screen.dart';
 import '../../features/routines/presentation/starter_program_gallery_screen.dart';
 import '../../features/settings/presentation/about_screen.dart';
 import '../../features/settings/presentation/appearance_screen.dart';
+import '../../features/settings/presentation/app_lock_screen.dart';
 import '../../features/settings/presentation/data_screen.dart';
 import '../../features/settings/presentation/import_screen.dart';
 import '../../features/settings/presentation/plate_settings_screen.dart';
@@ -243,6 +245,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const PlateSettingsScreen(),
           ),
           GoRoute(
+            path: 'app-lock',
+            parentNavigatorKey: _rootNavigatorKey,
+            builder: (context, state) => const AppLockScreen(),
+          ),
+          GoRoute(
             path: 'about',
             parentNavigatorKey: _rootNavigatorKey,
             builder: (context, state) => const AboutScreen(),
@@ -257,6 +264,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.body,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const BodyWeightScreen(),
+        routes: [
+          GoRoute(
+            path: 'photos',
+            parentNavigatorKey: _rootNavigatorKey,
+            builder: (context, state) => const ProgressPhotosScreen(),
+          ),
+        ],
       ),
     ],
     errorBuilder: (context, state) => UnknownRouteScreen(uri: state.uri),

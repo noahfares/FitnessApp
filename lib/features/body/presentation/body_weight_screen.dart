@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:go_router/go_router.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/length.dart';
@@ -38,6 +41,11 @@ class BodyWeightScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Body'),
         actions: [
+          IconButton(
+            tooltip: 'Progress photos',
+            icon: const Icon(Icons.photo_camera_outlined),
+            onPressed: () => context.push(AppRoutes.bodyPhotos),
+          ),
           IconButton(
             tooltip: 'Measurements to track',
             icon: const Icon(Icons.tune),

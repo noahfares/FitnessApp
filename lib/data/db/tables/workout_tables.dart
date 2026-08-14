@@ -142,6 +142,27 @@ class BodyMeasurements extends Table with SyncColumns {
   TextColumn get notes => text().nullable()();
 }
 
+/// Date-tagged progress photos (`F-BOD-004`).
+///
+/// The file itself lives in app-private storage, never in this row and
+/// never in the database — [filePath] is the only link, and a JSON export
+/// (`F-DAT-001`) dumps DB tables only, so a photo is excluded from a backup
+/// by construction, not by a filter that could be forgotten (spec §3's
+/// "default to excluding them").
+class ProgressPhotos extends Table with SyncColumns {
+  IntColumn get takenAt => integer().named('taken_at')();
+
+  IntColumn get takenAtTzOffsetMinutes =>
+      integer().named('taken_at_tz_offset_minutes')();
+
+  /// Relative to the app's own photo storage directory — never an absolute
+  /// path, which would break the moment the OS moves app storage between
+  /// installs.
+  TextColumn get filePath => text().named('file_path')();
+
+  TextColumn get notes => text().nullable()();
+}
+
 /// A **cache**, never a source of truth.
 ///
 /// Rebuildable from `sets` at any time, and a maintenance action to do so must
