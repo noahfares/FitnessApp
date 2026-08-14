@@ -95,6 +95,17 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(AppSpacing.sm),
         ),
       ),
+      // Route pushes/pops are the one animated surface `TrendChart`/
+      // `WeeklyBarChart`/`PrBadge`'s own `disableAnimations` gating can't
+      // reach on their own (F-A11Y-005) — wrap each platform's normal
+      // builder so reduce motion skips it entirely instead of just
+      // speeding it up.
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          for (final entry in const PageTransitionsTheme().builders.entries)
+            entry.key: ReducedMotionPageTransitionsBuilder(entry.value),
+        },
+      ),
     );
   }
 
@@ -121,4 +132,33 @@ abstract final class AppTheme {
   static const List<FontFeature> tabularFigures = [
     FontFeature.tabularFigures(),
   ];
+}
+
+/// Skips [delegate]'s transition entirely — no fade, no slide, no scale —
+/// when the system reduce-motion setting is on; delegates unchanged
+/// otherwise (F-A11Y-005).
+class ReducedMotionPageTransitionsBuilder extends PageTransitionsBuilder {
+  const ReducedMotionPageTransitionsBuilder(this.delegate);
+
+  final PageTransitionsBuilder delegate;
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    if (MediaQuery.of(context).disableAnimations) {
+      return child;
+    }
+    return delegate.buildTransitions(
+      route,
+      context,
+      animation,
+      secondaryAnimation,
+      child,
+    );
+  }
 }

@@ -193,4 +193,76 @@ void main() {
       expect(size?.height, greaterThanOrEqualTo(48));
     });
   });
+
+  group('reduce motion (F-A11Y-005)', () {
+    test('every platform builder is wrapped', () {
+      for (final theme in [light, dark]) {
+        final builders = theme.pageTransitionsTheme.builders;
+        expect(builders, isNotEmpty);
+        for (final builder in builders.values) {
+          expect(builder, isA<ReducedMotionPageTransitionsBuilder>());
+        }
+      }
+    });
+
+    testWidgets('returns the child untouched when disabled', (tester) async {
+      const builder = ReducedMotionPageTransitionsBuilder(
+        ZoomPageTransitionsBuilder(),
+      );
+      const child = Text('page');
+      late Widget result;
+
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(disableAnimations: true),
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) {
+                result = builder.buildTransitions<void>(
+                  MaterialPageRoute<void>(builder: (_) => child),
+                  context,
+                  const AlwaysStoppedAnimation(1),
+                  const AlwaysStoppedAnimation(0),
+                  child,
+                );
+                return result;
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(identical(result, child), isTrue);
+    });
+
+    testWidgets('delegates to the wrapped builder otherwise', (tester) async {
+      const builder = ReducedMotionPageTransitionsBuilder(
+        ZoomPageTransitionsBuilder(),
+      );
+      const child = Text('page');
+      late Widget result;
+
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(disableAnimations: false),
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) {
+                result = builder.buildTransitions<void>(
+                  MaterialPageRoute<void>(builder: (_) => child),
+                  context,
+                  const AlwaysStoppedAnimation(1),
+                  const AlwaysStoppedAnimation(0),
+                  child,
+                );
+                return result;
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(identical(result, child), isFalse);
+    });
+  });
 }

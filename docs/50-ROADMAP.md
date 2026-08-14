@@ -704,6 +704,16 @@ view rather than inheriting an ancestor one). Every other screen in the app
 200%; auditing all of them was judged too large for one batch and is left
 for a future accessibility pass, not silently claimed done.
 
+**Batch 6.1, second pass — reduce-motion page transitions.** `F-A11Y-005`
+now `done`. `ReducedMotionPageTransitionsBuilder`
+(`lib/core/theme/app_theme.dart`) wraps each platform's default
+`PageTransitionsBuilder` in `AppTheme`'s new `pageTransitionsTheme`,
+returning the incoming child untouched — no fade, no slide, no scale —
+whenever `MediaQuery.of(context).disableAnimations` is true, and delegating
+to the normal platform transition otherwise. Closes the one clause the
+first pass of this batch deliberately left open. `F-A11Y-002` (the
+200%-scale screen audit) is untouched and stays `in-progress`.
+
 **Batch 6.2 — localisation & branding, partial.** `F-I18N-001`
 `in-progress`; `F-THM-006` not attempted, left `planned`. No schema change.
 `F-THM-006` (icon, adaptive icon, splash): deliberately deferred rather than

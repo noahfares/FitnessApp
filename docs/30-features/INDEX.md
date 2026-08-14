@@ -221,7 +221,7 @@
 | [F-A11Y-002](A11Y/F-A11Y-002.md) | Dynamic type | 6 | P1 | in-progress |
 | [F-A11Y-003](A11Y/F-A11Y-003.md) | Contrast and colour independence | 6 | P1 | done |
 | [F-A11Y-004](A11Y/F-A11Y-004.md) | Touch targets and reach | 1 | P1 | done |
-| [F-A11Y-005](A11Y/F-A11Y-005.md) | Reduce motion | 6 | P2 | in-progress |
+| [F-A11Y-005](A11Y/F-A11Y-005.md) | Reduce motion | 6 | P2 | done |
 
 ## `I18N` — Localisation
 
