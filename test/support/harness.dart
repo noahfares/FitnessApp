@@ -220,6 +220,7 @@ Future<ProviderContainer> pumpApp(
   String? startAt,
   DateTime? now,
   String? country,
+  double textScale = 1,
   Map<String, Object> prefs = const {},
   List<Override> overrides = const [],
 }) async {
@@ -233,6 +234,16 @@ Future<ProviderContainer> pumpApp(
       ...overrides,
     ],
   );
+
+  // `FitnessApp` is `MaterialApp.router`, which builds its own root
+  // `MediaQuery` from the platform view rather than inheriting one from an
+  // ancestor — wrapping it in `MediaQuery` here (`pumpScreen`'s trick) would
+  // be shadowed. Driving the view's own reported scale factor is what
+  // actually reaches it.
+  if (textScale != 1) {
+    tester.platformDispatcher.textScaleFactorTestValue = textScale;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+  }
 
   await tester.pumpWidget(
     UncontrolledProviderScope(container: container, child: const FitnessApp()),

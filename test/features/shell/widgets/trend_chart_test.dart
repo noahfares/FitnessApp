@@ -123,4 +123,46 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('carries a text summary for screen readers (F-A11Y-001)', (
+    tester,
+  ) async {
+    await pump(tester, const [
+      TrendChartPoint(x: 0, y: 100, label: 'Jan 1'),
+      TrendChartPoint(x: 1, y: 105, label: 'Jan 8'),
+      TrendChartPoint(x: 2, y: 110, label: 'Jan 15'),
+    ]);
+
+    expect(
+      find.bySemanticsLabel(
+        RegExp('Chart, 3 points from Jan 1 to Jan 15.*trending up'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('reduce motion does not crash rendering (F-A11Y-005)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(disableAnimations: true),
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: Scaffold(
+            body: TrendChart(
+              points: const [
+                TrendChartPoint(x: 0, y: 100, label: 'Jan 1'),
+                TrendChartPoint(x: 1, y: 105, label: 'Jan 8'),
+                TrendChartPoint(x: 2, y: 110, label: 'Jan 15'),
+              ],
+              valueLabel: (v) => v.toStringAsFixed(1),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+  });
 }

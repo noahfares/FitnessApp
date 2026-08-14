@@ -142,6 +142,17 @@ void main() {
       }
     });
 
+    test('interactive boundaries meet 3:1 against surface (F-A11Y-003)', () {
+      // The outline colour is what borders every input field, chip and
+      // segmented button — Material 3's own seeded scheme, not a literal.
+      for (final theme in [light, dark]) {
+        expect(
+          contrastRatio(theme.colorScheme.outline, theme.colorScheme.surface),
+          greaterThanOrEqualTo(3.0),
+        );
+      }
+    });
+
     test('chart palettes have enough distinct series', () {
       for (final colors in [AppColors.light, AppColors.dark]) {
         expect(colors.chartSeries.length, greaterThanOrEqualTo(6));

@@ -1134,6 +1134,62 @@ present in a release build. Exists so the analytics screens (weekly
 insights, stall detection, ACWR, muscle balance, the body map) have
 something to look at without hand-logging weeks of sessions first.
 
+**Phase 5 — Data (v0.44.0–v0.48.3).** This "Current state" narrative fell out
+of sync with `docs/50-ROADMAP.md` during Phase 5 — none of its five commits
+touched this file. Recorded here after the fact, from the roadmap's own
+Phase 5 section (the authoritative record) rather than re-derived: batch
+5.1 (`F-DAT-001`, `F-DAT-003`, `F-DAT-004`, `F-DAT-010`) built the real
+JSON export/backup/restore/wipe round trip on top of `F-DAT-011`'s
+Phase-1 rescue-dump escape hatch; 5.2 (`F-DAT-002`, `F-DAT-008`) added CSV
+export and automatic backups; 5.3 (`F-DAT-005`, `F-DAT-006`, `F-DAT-007`)
+added Strong/Hevy CSV import, `F-DAT-005`'s own real-file verification
+later waived by the project owner; 5.4 (`F-BOD-004`, `F-SET-010`) added
+progress photos (excluded from JSON backup by construction — file paths
+only, no bytes in the export) and a PIN-only app lock, no biometrics. Phase
+5 declared complete at v0.48.3 with the round-trip exit criterion proven
+table-by-table in `test/data/db/table_snapshot_io_test.dart`. Full detail:
+`docs/50-ROADMAP.md` §Phase 5.
+
+**Phase 6 started (v0.49.0) — batched into 6.1–6.5** in
+`docs/50-ROADMAP.md`, the same way Phases 3–5 were.
+
+**Batch 6.1 — accessibility, partial.** `F-A11Y-001` and `F-A11Y-003` done;
+`F-A11Y-002` and `F-A11Y-005` `in-progress`. No schema change.
+`docs/24-DESIGN-SYSTEM.md` §130 claims accessibility "is not a Phase 6
+retrofit," and that was largely true — `SetRow` (`F-LOG-003`) already
+carried a semantic label, a text-scale stacking threshold, and
+colour-plus-letter set-type encoding, and `app_theme_test.dart` already
+held `AppColors` to 4.5:1. Auditing the rest of the app found the real gap:
+only 3 files used `Semantics`, 1 read `MediaQuery.textScal*`, and none
+checked `disableAnimations`. `TrendChart` and `WeeklyBarChart` are
+`fl_chart` canvas painting, not semantic, so a screen reader got nothing
+from either (`F-A11Y-001`'s own spec names charts explicitly) — both now
+wrap the chart in `Semantics(label: ...)` over an `ExcludeSemantics`-wrapped
+chart, the label built from the same points/value-formatter the chart
+already renders. Both also gate their `fl_chart` swap-animation `duration`
+on `MediaQuery.disableAnimations`, as does `PrBadge`'s 350 ms entrance
+`TweenAnimationBuilder` (`F-A11Y-005`); `CalendarHeatmap` has no animation
+of its own and needed no change. `F-A11Y-003`'s untested half — 3:1 for
+interactive boundaries — is now one line in `app_theme_test.dart` asserting
+`ColorScheme.outline` against `surface` in both themes, passing by
+construction from Material 3's own seeded scheme; "no colour alone" was
+already true and needed no code. Left `in-progress`: `F-A11Y-005`'s
+"instant transitions" also covers page-route transitions
+(`PageTransitionsTheme`), not touched this batch — an app-wide change out
+of scope for a chart-focused fix. `F-A11Y-002` stays `in-progress` because
+`SetRow`'s stacking behaviour is now proven at the screen level (new
+200%-scale `ActiveWorkoutScreen` and `ExerciseDetailScreen` render tests,
+`pumpApp` gaining `textScale` support alongside `pumpScreen`'s existing
+one — `pumpApp` needed `tester.platformDispatcher.textScaleFactorTestValue`
+rather than `pumpScreen`'s `MediaQuery`-wrapping trick, since
+`MaterialApp.router` builds its own root `MediaQuery` from the platform
+view rather than inheriting an ancestor one) but every other screen —
+catalogue, history, routines, insights, settings — remains unverified at
+200%, left for a future accessibility pass rather than claimed done.
+Batches 6.2–6.5 (localisation/branding, onboarding, release, Health
+Connect) not started; `F-HLT-001`/`F-HLT-002` are blocked on this
+session's toolchain having no Android SDK or device regardless.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

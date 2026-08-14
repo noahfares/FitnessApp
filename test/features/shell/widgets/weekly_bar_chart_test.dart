@@ -77,4 +77,42 @@ void main() {
 
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('carries a text summary for screen readers (F-A11Y-001)', (
+    tester,
+  ) async {
+    await pump(tester, const [
+      WeeklyBarPoint(value: 1000, label: 'Aug 3'),
+      WeeklyBarPoint(value: 1200, label: 'Aug 10'),
+    ]);
+
+    expect(
+      find.bySemanticsLabel(RegExp('Bar chart, 2 bars.*Highest: Aug 10')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('reduce motion does not crash rendering (F-A11Y-005)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(disableAnimations: true),
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: Scaffold(
+            body: WeeklyBarChart(
+              points: const [
+                WeeklyBarPoint(value: 1000, label: 'Aug 3'),
+                WeeklyBarPoint(value: 1200, label: 'Aug 10'),
+              ],
+              valueLabel: (v) => v.toStringAsFixed(0),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+  });
 }

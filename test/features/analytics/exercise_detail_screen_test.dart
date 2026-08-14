@@ -103,6 +103,28 @@ void main() {
     expect(find.text('Formula: Epley'), findsOneWidget);
   });
 
+  testWidgets('renders at 200% text scale with no overflow (F-A11Y-002)', (
+    tester,
+  ) async {
+    await makeExercise('bench');
+    clock = DateTime(2026, 7, 1);
+    await loggedSession('bench', 100000);
+    clock = DateTime(2026, 7, 10);
+    await loggedSession('bench', 102500);
+    clock = DateTime(2026, 7, 20);
+    await loggedSession('bench', 105000);
+
+    await pumpScreen(
+      tester,
+      const ExerciseDetailScreen(exerciseId: 'bench'),
+      db: db,
+      now: clock,
+      textScale: 2.0,
+    );
+
+    expect(tester.takeException(), isNull);
+  });
+
   group('stall detection (F-ANA-009, batch 4.5)', () {
     testWidgets('a flat e1RM over 5+ weekly sessions shows the stall banner', (
       tester,

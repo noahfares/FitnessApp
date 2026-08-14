@@ -636,15 +636,73 @@ the project owner (see below).**
 
 Everything required to hand the app to strangers.
 
-**Accessibility** `F-A11Y-001` `F-A11Y-002` `F-A11Y-003` `F-A11Y-005`
+| Batch | Features | Reads |
+|---|---|---|
+| **6.1** Accessibility | `F-A11Y-001` `F-A11Y-002` `F-A11Y-003` `F-A11Y-005` | `24-DESIGN-SYSTEM#accessibility-baseline` |
+| **6.2** Localisation & branding | `F-I18N-001` `F-THM-006` | `22-UNITS` `24-DESIGN-SYSTEM` |
+| **6.3** Onboarding | `F-SET-011` | `22-UNITS` |
+| **6.4** Release | `F-REL-004` `F-REL-006` `F-REL-007` | `62-RELEASE` `61-CI-CD` `10-VISION#non-goals` |
+| **6.5** Health | `F-HLT-001` `F-HLT-002` | `20-ARCHITECTURE#cross-platform-discipline` |
 
-**Localisation & branding** `F-I18N-001` `F-THM-006`
+Ordering rationale: **6.1** first — every other Phase 6 batch adds new
+screens or flows that would otherwise ship without the accessibility
+baseline `24-DESIGN-SYSTEM` §128 already claims every feature carries, and
+the phase's own first exit criterion names it directly. `24-DESIGN-SYSTEM`
+itself groups I18N and branding, so **6.2** stays paired; `F-REL-006`
+(store listing) depends on `F-THM-006` (app icon), which is why branding
+sits ahead of release rather than trailing with the rest of `REL`.
+**6.3** (onboarding) is small and self-contained. **6.4** groups every
+store-facing release feature. **6.5** (Health Connect) is last: `F-HLT-002`
+depends on `F-BOD-001` (done, Phase 1), needs nothing from the rest of the
+phase, and is the one batch this session's toolchain — no Android SDK, no
+device — cannot build or verify at all, so it is deliberately not attempted
+here.
 
-**Onboarding** `F-SET-011`
-
-**Release** `F-REL-004` `F-REL-006` `F-REL-007`
-
-**Health** `F-HLT-001` `F-HLT-002`
+**Batch 6.1 — accessibility, partial.** `F-A11Y-001` and `F-A11Y-003` done;
+`F-A11Y-002` and `F-A11Y-005` `in-progress` (each for its own documented
+reason below). No schema change. `24-DESIGN-SYSTEM` §130 states accessibility
+"is not a Phase 6 retrofit" — true in part: `SetRow` (`F-LOG-003`) already
+carried a full semantic label, a >22sp text-scale stacking threshold, and
+colour-plus-letter set-type encoding since it was built, and
+`app_theme_test.dart` already held `AppColors`' semantic-role pairs to
+4.5:1. What this batch found genuinely missing on auditing the rest of the
+app: only 3 files used `Semantics` at all, 1 read `MediaQuery.textScal*`,
+and none checked `disableAnimations` — the same gap `F-ANA-016`'s own status
+note had already flagged for charts specifically. `F-A11Y-001`: `TrendChart`
+and `WeeklyBarChart` are canvas-painted by `fl_chart`, not semantic, so a
+screen reader got nothing from either — both now wrap their chart in
+`Semantics(label: ...)` over an `ExcludeSemantics`-wrapped chart, the label
+built from the same `points`/`valueLabel` the chart already renders (count,
+range, first/last, trend direction for the line chart; count and the
+highest bar for the bar chart) — a summary standing in for the chart, not a
+transcription of every point. `F-A11Y-003`: the existing 4.5:1 test covers
+every `AppColors` semantic pair; the spec's other named figure, 3:1 for
+interactive boundaries, was untested — one line added asserting
+`ColorScheme.outline` against `surface` in both themes, which passes by
+construction from Material 3's own seeded scheme. "No colour alone" was
+already true (set-type letters, chart-series-as-single-series, `PrBadge`'s
+icon) and needed no new code. `F-A11Y-005`: `TrendChart` and
+`WeeklyBarChart` now pass `duration: Duration.zero` to their underlying
+`fl_chart` widgets when `MediaQuery.disableAnimations` is set, and
+`PrBadge`'s 350 ms entrance `TweenAnimationBuilder` does the same;
+`CalendarHeatmap` has no animation of its own and needed no change. Left
+`in-progress`, not `done`: `F-A11Y-005`'s own "instant transitions" clause
+also covers page-route transitions, which this batch did not touch —
+gating `MaterialApp.router`'s `PageTransitionsTheme` is an app-wide change
+this batch's chart-scoped fix deliberately did not expand into. `F-A11Y-002`
+stays `in-progress` for the same reason `24-DESIGN-SYSTEM` §130's claim is
+only partly true: `SetRow`'s own stacking behaviour is now proven at the
+screen level, not just the widget level, by a new 200%-scale
+`ActiveWorkoutScreen` render test and a new 200%-scale `ExerciseDetailScreen`
+render test (the app's other genuinely dense, chart-bearing screen) — both
+added `pumpApp`/`pumpScreen` `textScale` support (`pumpScreen` already had
+it; `pumpApp` did not, and needed `tester.platformDispatcher
+.textScaleFactorTestValue` rather than `pumpScreen`'s `MediaQuery`-wrapping
+trick, since `MaterialApp.router` builds its own root `MediaQuery` from the
+view rather than inheriting an ancestor one). Every other screen in the app
+— catalogue, history, routines, insights, settings — remains unverified at
+200%; auditing all of them was judged too large for one batch and is left
+for a future accessibility pass, not silently claimed done.
 
 **Exit criteria**
 - [ ] Full app usable with a screen reader and at 200% text scale.

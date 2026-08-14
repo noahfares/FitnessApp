@@ -54,6 +54,7 @@ class WeeklyBarChart extends StatelessWidget {
 
     final maxValue = points.map((p) => p.value).reduce((a, b) => a > b ? a : b);
     final barColor = context.appColors.chartSeries.first;
+    final reduceMotion = MediaQuery.of(context).disableAnimations;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,93 +69,112 @@ class WeeklyBarChart extends StatelessWidget {
               ),
             ),
           ),
-        SizedBox(
-          height: 200,
-          child: BarChart(
-            BarChartData(
-              minY: 0,
-              maxY: maxValue == 0 ? 1 : maxValue * 1.15,
-              gridData: FlGridData(
-                drawVerticalLine: false,
-                getDrawingHorizontalLine: (value) =>
-                    FlLine(color: theme.dividerColor, strokeWidth: 0.5),
-              ),
-              borderData: FlBorderData(show: false),
-              titlesData: FlTitlesData(
-                topTitles: const AxisTitles(),
-                rightTitles: const AxisTitles(),
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 48,
-                    getTitlesWidget: (value, meta) => Text(
-                      valueLabel(value),
-                      style: theme.textTheme.bodySmall,
+        // Painted, not semantic, otherwise (`F-A11Y-001`) — same reasoning as
+        // `TrendChart`.
+        Semantics(
+          label: _summary(),
+          child: ExcludeSemantics(
+            child: SizedBox(
+              height: 200,
+              child: BarChart(
+                duration: reduceMotion
+                    ? Duration.zero
+                    : const Duration(milliseconds: 150),
+                BarChartData(
+                  minY: 0,
+                  maxY: maxValue == 0 ? 1 : maxValue * 1.15,
+                  gridData: FlGridData(
+                    drawVerticalLine: false,
+                    getDrawingHorizontalLine: (value) =>
+                        FlLine(color: theme.dividerColor, strokeWidth: 0.5),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  titlesData: FlTitlesData(
+                    topTitles: const AxisTitles(),
+                    rightTitles: const AxisTitles(),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 48,
+                        getTitlesWidget: (value, meta) => Text(
+                          valueLabel(value),
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 28,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.round();
+                          if (index < 0 || index >= points.length) {
+                            return const SizedBox.shrink();
+                          }
+                          if (index != 0 &&
+                              index != points.length - 1 &&
+                              points.length > 2) {
+                            return const SizedBox.shrink();
+                          }
+                          return Text(
+                            points[index].label,
+                            style: theme.textTheme.bodySmall,
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 28,
-                    getTitlesWidget: (value, meta) {
-                      final index = value.round();
-                      if (index < 0 || index >= points.length) {
-                        return const SizedBox.shrink();
-                      }
-                      if (index != 0 &&
-                          index != points.length - 1 &&
-                          points.length > 2) {
-                        return const SizedBox.shrink();
-                      }
-                      return Text(
-                        points[index].label,
-                        style: theme.textTheme.bodySmall,
-                      );
-                    },
+                  barTouchData: BarTouchData(
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) =>
+                          BarTooltipItem(
+                            '${points[group.x].label}\n${valueLabel(rod.toY)}',
+                            theme.textTheme.bodySmall!.copyWith(
+                              color: theme.colorScheme.onInverseSurface,
+                            ),
+                          ),
+                    ),
+                    touchCallback: onBarTap == null
+                        ? null
+                        : (event, response) {
+                            if (event is! FlTapUpEvent) return;
+                            final spot = response?.spot;
+                            if (spot == null) return;
+                            final index = spot.touchedBarGroupIndex;
+                            onBarTap!(index, points[index]);
+                          },
                   ),
+                  barGroups: [
+                    for (var i = 0; i < points.length; i++)
+                      BarChartGroupData(
+                        x: i,
+                        barRods: [
+                          BarChartRodData(
+                            toY: points[i].value,
+                            color: barColor,
+                            width: 14,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(3),
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
                 ),
               ),
-              barTouchData: BarTouchData(
-                touchTooltipData: BarTouchTooltipData(
-                  getTooltipItem: (group, groupIndex, rod, rodIndex) =>
-                      BarTooltipItem(
-                        '${points[group.x].label}\n${valueLabel(rod.toY)}',
-                        theme.textTheme.bodySmall!.copyWith(
-                          color: theme.colorScheme.onInverseSurface,
-                        ),
-                      ),
-                ),
-                touchCallback: onBarTap == null
-                    ? null
-                    : (event, response) {
-                        if (event is! FlTapUpEvent) return;
-                        final spot = response?.spot;
-                        if (spot == null) return;
-                        final index = spot.touchedBarGroupIndex;
-                        onBarTap!(index, points[index]);
-                      },
-              ),
-              barGroups: [
-                for (var i = 0; i < points.length; i++)
-                  BarChartGroupData(
-                    x: i,
-                    barRods: [
-                      BarChartRodData(
-                        toY: points[i].value,
-                        color: barColor,
-                        width: 14,
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(3),
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
             ),
           ),
         ),
       ],
     );
+  }
+
+  /// The screen-reader stand-in for the whole chart (`F-A11Y-001`).
+  String _summary() {
+    final maxValue = points.map((p) => p.value).reduce((a, b) => a > b ? a : b);
+    final maxIndex = points.indexWhere((p) => p.value == maxValue);
+    return 'Bar chart, ${points.length} bars from ${points.first.label} to '
+        '${points.last.label}. Highest: ${points[maxIndex].label} '
+        '${valueLabel(maxValue)}.';
   }
 }
