@@ -2979,6 +2979,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Home'**
   String get shellHomeLabel;
+
+  /// Advances to the next onboarding page.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get onboardingContinueAction;
+
+  /// Finishes onboarding from the last page — replaces onboardingContinueAction there.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get onboardingGetStartedAction;
+
+  /// Heading on the first onboarding page.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to FitnessApp'**
+  String get onboardingWelcomeTitle;
+
+  /// Subheading on the first onboarding page.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited routines, real analytics and progression — free, and yours alone.'**
+  String get onboardingWelcomeTagline;
+
+  /// Privacy note on the first onboarding page.
+  ///
+  /// In en, this message translates to:
+  /// **'No account. No server. No telemetry. Your data stays on this device unless you personally choose to share it.'**
+  String get onboardingPrivacyNote;
+
+  /// Heading on the units/theme onboarding page.
+  ///
+  /// In en, this message translates to:
+  /// **'Make it yours'**
+  String get onboardingMakeItYoursTitle;
+
+  /// Subheading on the units/theme onboarding page.
+  ///
+  /// In en, this message translates to:
+  /// **'A starting point — every one of these is in Settings later too.'**
+  String get onboardingMakeItYoursSubtitle;
+
+  /// Section label above the weight-unit segmented button.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight unit'**
+  String get onboardingWeightUnitLabel;
+
+  /// Section label above the theme-mode segmented button.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get onboardingThemeLabel;
+
+  /// Heading on the starter-program onboarding page.
+  ///
+  /// In en, this message translates to:
+  /// **'Want a starting point?'**
+  String get onboardingStarterTitle;
+
+  /// Subheading on the starter-program onboarding page.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional — add a built-in program, or skip and build your own routine later.'**
+  String get onboardingStarterSubtitle;
+
+  /// Imports a starter program and finishes onboarding into it.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this'**
+  String get onboardingUseThisAction;
 }
 
 class _AppLocalizationsDelegate

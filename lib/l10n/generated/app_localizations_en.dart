@@ -1707,4 +1707,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellHomeLabel => 'Home';
+
+  @override
+  String get onboardingContinueAction => 'Continue';
+
+  @override
+  String get onboardingGetStartedAction => 'Get started';
+
+  @override
+  String get onboardingWelcomeTitle => 'Welcome to FitnessApp';
+
+  @override
+  String get onboardingWelcomeTagline =>
+      'Unlimited routines, real analytics and progression — free, and yours alone.';
+
+  @override
+  String get onboardingPrivacyNote =>
+      'No account. No server. No telemetry. Your data stays on this device unless you personally choose to share it.';
+
+  @override
+  String get onboardingMakeItYoursTitle => 'Make it yours';
+
+  @override
+  String get onboardingMakeItYoursSubtitle =>
+      'A starting point — every one of these is in Settings later too.';
+
+  @override
+  String get onboardingWeightUnitLabel => 'Weight unit';
+
+  @override
+  String get onboardingThemeLabel => 'Theme';
+
+  @override
+  String get onboardingStarterTitle => 'Want a starting point?';
+
+  @override
+  String get onboardingStarterSubtitle =>
+      'Optional — add a built-in program, or skip and build your own routine later.';
+
+  @override
+  String get onboardingUseThisAction => 'Use this';
 }

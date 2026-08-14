@@ -9,6 +9,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../domain/routines/starter_programs.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/application/theme_provider.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../application/onboarding_provider.dart';
@@ -64,6 +65,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -74,7 +76,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 padding: const EdgeInsets.all(AppSpacing.sm),
                 child: TextButton(
                   onPressed: () => unawaited(_finish()),
-                  child: const Text('Skip'),
+                  child: Text(l10n.importSkipAction),
                 ),
               ),
             ),
@@ -121,7 +123,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 child: FilledButton(
                   onPressed: _next,
                   child: Text(
-                    _page >= _pageCount - 1 ? 'Get started' : 'Continue',
+                    _page >= _pageCount - 1
+                        ? l10n.onboardingGetStartedAction
+                        : l10n.onboardingContinueAction,
                   ),
                 ),
               ),
@@ -138,6 +142,7 @@ class _WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     // `SingleChildScrollView`, not a bare centred `Column`: at large text
     // scales the icon plus three text blocks are taller than the page, and
@@ -154,17 +159,15 @@ class _WelcomePage extends StatelessWidget {
             color: theme.colorScheme.primary,
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text('Welcome to FitnessApp', style: theme.textTheme.headlineSmall),
-          const SizedBox(height: AppSpacing.md),
           Text(
-            'Unlimited routines, real analytics and progression — free, '
-            'and yours alone.',
-            style: theme.textTheme.bodyLarge,
+            l10n.onboardingWelcomeTitle,
+            style: theme.textTheme.headlineSmall,
           ),
+          const SizedBox(height: AppSpacing.md),
+          Text(l10n.onboardingWelcomeTagline, style: theme.textTheme.bodyLarge),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            'No account. No server. No telemetry. Your data stays on this '
-            'device unless you personally choose to share it.',
+            l10n.onboardingPrivacyNote,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -180,6 +183,7 @@ class _UnitsAndThemePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final units = ref.watch(unitPreferencesProvider);
     final mode = ref.watch(themeModeProvider);
@@ -187,14 +191,20 @@ class _UnitsAndThemePage extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.screen),
       children: [
-        Text('Make it yours', style: theme.textTheme.headlineSmall),
+        Text(
+          l10n.onboardingMakeItYoursTitle,
+          style: theme.textTheme.headlineSmall,
+        ),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          'A starting point — every one of these is in Settings later too.',
+          l10n.onboardingMakeItYoursSubtitle,
           style: theme.textTheme.bodySmall,
         ),
         const SizedBox(height: AppSpacing.lg),
-        Text('Weight unit', style: theme.textTheme.titleMedium),
+        Text(
+          l10n.onboardingWeightUnitLabel,
+          style: theme.textTheme.titleMedium,
+        ),
         const SizedBox(height: AppSpacing.sm),
         SegmentedButton<MassUnit>(
           segments: [
@@ -208,7 +218,7 @@ class _UnitsAndThemePage extends ConsumerWidget {
               .setLoad(selection.first),
         ),
         const SizedBox(height: AppSpacing.xl),
-        Text('Theme', style: theme.textTheme.titleMedium),
+        Text(l10n.onboardingThemeLabel, style: theme.textTheme.titleMedium),
         const SizedBox(height: AppSpacing.sm),
         SegmentedButton<ThemeMode>(
           segments: [
@@ -232,18 +242,15 @@ class _StarterRoutinePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.screen),
       children: [
-        Text('Want a starting point?', style: theme.textTheme.headlineSmall),
+        Text(l10n.onboardingStarterTitle, style: theme.textTheme.headlineSmall),
         const SizedBox(height: AppSpacing.xs),
-        Text(
-          'Optional — add a built-in program, or skip and build your own '
-          'routine later.',
-          style: theme.textTheme.bodySmall,
-        ),
+        Text(l10n.onboardingStarterSubtitle, style: theme.textTheme.bodySmall),
         const SizedBox(height: AppSpacing.lg),
         for (final program in starterPrograms)
           Card(
@@ -258,7 +265,7 @@ class _StarterRoutinePage extends ConsumerWidget {
                       .importStarterProgram(program);
                   onImported(result.routineId);
                 },
-                child: const Text('Use this'),
+                child: Text(l10n.onboardingUseThisAction),
               ),
             ),
           ),

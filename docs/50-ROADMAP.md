@@ -986,6 +986,20 @@ context and calls `destinationsFor` directly; every other assertion in
 the test was already generic over `destination.label`. Only the shared
 logging widgets and `OnboardingScreen` remain.
 
+**Batch 6.2, thirteenth pass — OnboardingScreen.** `F-I18N-001` still
+`in-progress`. All three onboarding pages are migrated, plus the
+Skip/Continue/Get-started controls around them; `Skip` reuses
+`importSkipAction` rather than a new key, the same generic-verb reuse
+established for "Remove"/"Cancel"/"Save" in earlier passes. Left as
+literals: `program.name`/`program.summary` from `starterPrograms` — data
+content in this codebase's own words, not UI chrome, the same treatment
+exercise names get everywhere else. `onboarding_screen_test.dart` needed
+no changes — its `find.text('Skip')`-style assertions match
+`AppLocalizations`'s English value exactly, the same true for every other
+screen's tests throughout this file. Only the shared logging widgets
+(`SetRow`/`AddSetButton`/`RestTimerBar`/`fieldHeader()`) remain — the one
+unit deferred since the very first `F-I18N-001` batch, still not started.
+
 **Batch 6.3 — onboarding.** `F-SET-011` done — the last item Phase 6
 scheduled ahead of release/health. No schema change.
 `OnboardingScreen` (`lib/features/onboarding/presentation/`) is a

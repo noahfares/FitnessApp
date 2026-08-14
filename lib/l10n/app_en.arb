@@ -1174,5 +1174,30 @@
   "@plateSettingsPairsAvailableFieldLabel": {"description": "Pair-count field label on the add-plate sheet."},
 
   "shellHomeLabel": "Home",
-  "@shellHomeLabel": {"description": "Bottom-navigation label for the dashboard tab — the dashboard's own app bar shows the FitnessApp brand instead, so this is the one place \"Home\" itself appears."}
+  "@shellHomeLabel": {"description": "Bottom-navigation label for the dashboard tab — the dashboard's own app bar shows the FitnessApp brand instead, so this is the one place \"Home\" itself appears."},
+
+  "onboardingContinueAction": "Continue",
+  "@onboardingContinueAction": {"description": "Advances to the next onboarding page."},
+  "onboardingGetStartedAction": "Get started",
+  "@onboardingGetStartedAction": {"description": "Finishes onboarding from the last page — replaces onboardingContinueAction there."},
+  "onboardingWelcomeTitle": "Welcome to FitnessApp",
+  "@onboardingWelcomeTitle": {"description": "Heading on the first onboarding page."},
+  "onboardingWelcomeTagline": "Unlimited routines, real analytics and progression — free, and yours alone.",
+  "@onboardingWelcomeTagline": {"description": "Subheading on the first onboarding page."},
+  "onboardingPrivacyNote": "No account. No server. No telemetry. Your data stays on this device unless you personally choose to share it.",
+  "@onboardingPrivacyNote": {"description": "Privacy note on the first onboarding page."},
+  "onboardingMakeItYoursTitle": "Make it yours",
+  "@onboardingMakeItYoursTitle": {"description": "Heading on the units/theme onboarding page."},
+  "onboardingMakeItYoursSubtitle": "A starting point — every one of these is in Settings later too.",
+  "@onboardingMakeItYoursSubtitle": {"description": "Subheading on the units/theme onboarding page."},
+  "onboardingWeightUnitLabel": "Weight unit",
+  "@onboardingWeightUnitLabel": {"description": "Section label above the weight-unit segmented button."},
+  "onboardingThemeLabel": "Theme",
+  "@onboardingThemeLabel": {"description": "Section label above the theme-mode segmented button."},
+  "onboardingStarterTitle": "Want a starting point?",
+  "@onboardingStarterTitle": {"description": "Heading on the starter-program onboarding page."},
+  "onboardingStarterSubtitle": "Optional — add a built-in program, or skip and build your own routine later.",
+  "@onboardingStarterSubtitle": {"description": "Subheading on the starter-program onboarding page."},
+  "onboardingUseThisAction": "Use this",
+  "@onboardingUseThisAction": {"description": "Imports a starter program and finishes onboarding into it."}
 }
