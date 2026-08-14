@@ -893,6 +893,24 @@ English literals: body, `ConsistencyScreen`/`PrTimelineScreen`, every
 Settings sub-screen beyond the root, `AppShell`'s nav labels, the shared
 logging widgets, and onboarding.
 
+**Batch 6.2, eighth pass — the body feature.** `F-I18N-001` still
+`in-progress`. `BodyWeightScreen`, `LogBodyweightSheet`,
+`LogMeasurementSheet`, `ProgressPhotosScreen`, and
+`TrackedMeasurementsSheet` are now fully migrated; `measurement_labels.dart`
+stays untouched, the same enum-label exclusion `exercise_labels.dart` has
+had since the catalogue pass. `bodyPhotosTitle` and
+`bodyMeasurementsToTrackAction` are each reused across two call sites
+(an app-bar tooltip and the screen/sheet the tooltip opens, sharing exact
+text); `bodyLogAction` ("Log {type}") covers the one real repeated
+pattern — a per-measurement add tooltip and a log sheet's create-mode
+title both saying "Log " plus the same label — while the edit-mode titles
+stayed separate keys rather than being forced through the same
+placeholder, since bodyweight's own phrasing ("Edit bodyweight") isn't
+shaped like the generic "Edit {label}" the other measurements use. Still
+English literals: `ConsistencyScreen`/`PrTimelineScreen`, every Settings
+sub-screen beyond the root, `AppShell`'s nav labels, the shared logging
+widgets, and onboarding.
+
 **Batch 6.3 — onboarding.** `F-SET-011` done — the last item Phase 6
 scheduled ahead of release/health. No schema change.
 `OnboardingScreen` (`lib/features/onboarding/presentation/`) is a

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/application/tracked_measurements_provider.dart';
 import 'measurement_labels.dart';
 
@@ -24,6 +25,7 @@ class TrackedMeasurementsSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final tracked = ref.watch(trackedMeasurementTypesProvider);
 
@@ -35,11 +37,13 @@ class TrackedMeasurementsSheet extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Measurements to track', style: theme.textTheme.titleMedium),
+              Text(
+                l10n.bodyMeasurementsToTrackAction,
+                style: theme.textTheme.titleMedium,
+              ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Bodyweight is always logged. Turn on whichever of these you '
-                'also want to track.',
+                l10n.bodyTrackedDescription,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),

@@ -1839,6 +1839,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{minutes} min'**
   String historyLogPastDurationMinutes(num minutes);
+
+  /// Body screen app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Body'**
+  String get bodyTitle;
+
+  /// Used as both the app-bar tooltip and the tracked-measurements sheet's own heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurements to track'**
+  String get bodyMeasurementsToTrackAction;
+
+  /// Error title if the bodyweight history query fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Bodyweight history could not be read'**
+  String get bodyReadError;
+
+  /// Empty state before any bodyweight has been logged.
+  ///
+  /// In en, this message translates to:
+  /// **'No bodyweight logged yet'**
+  String get bodyEmptyTitle;
+
+  /// Empty state message before any bodyweight has been logged.
+  ///
+  /// In en, this message translates to:
+  /// **'Log your weight to track it alongside your lifts.'**
+  String get bodyEmptyMessage;
+
+  /// Used as the empty-state action, the FAB label, and the log sheet's own title when creating a new entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Log bodyweight'**
+  String get bodyLogBodyweightAction;
+
+  /// Heading above the bodyweight EMA trend chart.
+  ///
+  /// In en, this message translates to:
+  /// **'Trend'**
+  String get bodyTrendLabel;
+
+  /// Weekly rate-of-change reading below the trend chart. value already carries its own +/- sign.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} {unit}/week'**
+  String bodyWeeklyRateLabel(String value, String unit);
+
+  /// Confirm-swipe title before deleting a bodyweight or measurement entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this entry?'**
+  String get bodyDeleteEntryConfirmTitle;
+
+  /// Confirm-swipe message before deleting a bodyweight entry.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}\'s bodyweight entry will be removed.'**
+  String bodyDeleteBodyweightConfirmMessage(String date);
+
+  /// Confirm-swipe message before deleting a non-bodyweight measurement entry.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}\'s {measurement} entry will be removed.'**
+  String bodyDeleteMeasurementConfirmMessage(String date, String measurement);
+
+  /// Used as both the per-measurement-section add tooltip and the log sheet's own title when creating a new entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Log {type}'**
+  String bodyLogAction(String type);
+
+  /// Shown under a tracked measurement's heading before any value has been logged.
+  ///
+  /// In en, this message translates to:
+  /// **'Not logged yet.'**
+  String get bodyNotLoggedYet;
+
+  /// Log-bodyweight sheet title when editing an existing entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit bodyweight'**
+  String get bodyLogWeightEditTitle;
+
+  /// The weight value field label on the log-bodyweight sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get bodyLogWeightFieldLabel;
+
+  /// Opens the date picker on the log-bodyweight sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get bodyLogWeightDateLabel;
+
+  /// Note field label on the log-bodyweight sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get bodyLogWeightNoteLabel;
+
+  /// Validation error when the weight field is empty or non-positive.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a weight'**
+  String get bodyLogWeightRequiredError;
+
+  /// Log-measurement sheet title when editing an existing entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit {label}'**
+  String bodyLogMeasurementEditTitle(String label);
+
+  /// Opens the date picker on the log-measurement sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get bodyLogMeasurementDateLabel;
+
+  /// Note field label on the log-measurement sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get bodyLogMeasurementNoteLabel;
+
+  /// Validation error when the measurement field is empty or negative.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a value'**
+  String get bodyLogMeasurementRequiredError;
+
+  /// Used as both the body screen's app-bar tooltip and the progress-photos screen's own title.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress photos'**
+  String get bodyPhotosTitle;
+
+  /// Exits compare-selection mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel compare'**
+  String get bodyPhotosCancelCompareTooltip;
+
+  /// Enters compare-selection mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare two photos'**
+  String get bodyPhotosCompareTwoTooltip;
+
+  /// Shown if the photo list fails to load.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load photos.'**
+  String get bodyPhotosLoadError;
+
+  /// Empty state before any progress photo has been added.
+  ///
+  /// In en, this message translates to:
+  /// **'No progress photos yet'**
+  String get bodyPhotosEmptyTitle;
+
+  /// Empty state message before any progress photo has been added.
+  ///
+  /// In en, this message translates to:
+  /// **'Add one to start a date-tagged record.'**
+  String get bodyPhotosEmptyMessage;
+
+  /// FAB label opening the two-photo comparison dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get bodyPhotosCompareAction;
+
+  /// Confirm sheet title before permanently deleting a progress photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this photo?'**
+  String get bodyPhotosDeleteConfirmTitle;
+
+  /// Confirm sheet message before permanently deleting a progress photo — no undo, unlike a soft delete.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently removes the photo from this device.'**
+  String get bodyPhotosDeleteConfirmMessage;
+
+  /// Subtitle on the tracked-measurements sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Bodyweight is always logged. Turn on whichever of these you also want to track.'**
+  String get bodyTrackedDescription;
 }
 
 class _AppLocalizationsDelegate

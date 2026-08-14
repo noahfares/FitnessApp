@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import '../../shell/widgets/empty_state.dart';
 
@@ -31,13 +32,16 @@ class _ProgressPhotosScreenState extends ConsumerState<ProgressPhotosScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final photosAsync = ref.watch(_progressPhotosStreamProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Progress photos'),
+        title: Text(l10n.bodyPhotosTitle),
         actions: [
           IconButton(
-            tooltip: _compareMode ? 'Cancel compare' : 'Compare two photos',
+            tooltip: _compareMode
+                ? l10n.bodyPhotosCancelCompareTooltip
+                : l10n.bodyPhotosCompareTwoTooltip,
             icon: Icon(_compareMode ? Icons.close : Icons.compare),
             onPressed: () => setState(() {
               _compareMode = !_compareMode;
@@ -48,13 +52,13 @@ class _ProgressPhotosScreenState extends ConsumerState<ProgressPhotosScreen> {
       ),
       body: photosAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => const Center(child: Text('Could not load photos.')),
+        error: (_, _) => Center(child: Text(l10n.bodyPhotosLoadError)),
         data: (photos) {
           if (photos.isEmpty) {
-            return const EmptyState(
+            return EmptyState(
               icon: Icons.photo_camera_outlined,
-              title: 'No progress photos yet',
-              message: 'Add one to start a date-tagged record.',
+              title: l10n.bodyPhotosEmptyTitle,
+              message: l10n.bodyPhotosEmptyMessage,
             );
           }
           return GridView.builder(
@@ -83,7 +87,7 @@ class _ProgressPhotosScreenState extends ConsumerState<ProgressPhotosScreen> {
           ? FloatingActionButton.extended(
               onPressed: () => unawaited(_showComparison()),
               icon: const Icon(Icons.compare),
-              label: const Text('Compare'),
+              label: Text(l10n.bodyPhotosCompareAction),
             )
           : FloatingActionButton(
               onPressed: _compareMode ? null : () => unawaited(_addPhoto()),
@@ -114,6 +118,7 @@ class _ProgressPhotosScreenState extends ConsumerState<ProgressPhotosScreen> {
         .read(progressPhotoRepositoryProvider)
         .resolveFile(photo.filePath);
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     await showDialog<void>(
       context: context,
       builder: (context) => Dialog(
@@ -129,7 +134,7 @@ class _ProgressPhotosScreenState extends ConsumerState<ProgressPhotosScreen> {
                   Text(_dateLabel(photo)),
                   TextButton(
                     onPressed: () => unawaited(_confirmDelete(photo)),
-                    child: const Text('Delete'),
+                    child: Text(l10n.routinesDeleteAction),
                   ),
                 ],
               ),
@@ -141,10 +146,11 @@ class _ProgressPhotosScreenState extends ConsumerState<ProgressPhotosScreen> {
   }
 
   Future<void> _confirmDelete(ProgressPhoto photo) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showConfirmSheet(
       context,
-      title: 'Delete this photo?',
-      message: 'This permanently removes the photo from this device.',
+      title: l10n.bodyPhotosDeleteConfirmTitle,
+      message: l10n.bodyPhotosDeleteConfirmMessage,
     );
     if (!confirmed) return;
     await ref.read(progressPhotoRepositoryProvider).deletePhoto(photo.id);

@@ -14,6 +14,7 @@ import '../../../core/units/mass.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/db/tables/enums.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/application/tracked_measurements_provider.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/async_view.dart';
@@ -34,36 +35,37 @@ class BodyWeightScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final history = ref.watch(bodyweightHistoryProvider);
     final tracked = ref.watch(trackedMeasurementTypesProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Body'),
+        title: Text(l10n.bodyTitle),
         actions: [
           IconButton(
-            tooltip: 'Progress photos',
+            tooltip: l10n.bodyPhotosTitle,
             icon: const Icon(Icons.photo_camera_outlined),
             onPressed: () => context.push(AppRoutes.bodyPhotos),
           ),
           IconButton(
-            tooltip: 'Measurements to track',
+            tooltip: l10n.bodyMeasurementsToTrackAction,
             icon: const Icon(Icons.tune),
             onPressed: () => unawaited(showTrackedMeasurementsSheet(context)),
           ),
         ],
       ),
       body: history.view(
-        errorTitle: 'Bodyweight history could not be read',
+        errorTitle: l10n.bodyReadError,
         (entries) => ListView(
           padding: const EdgeInsets.only(bottom: 88),
           children: [
             if (entries.isEmpty)
               EmptyState(
                 icon: Icons.monitor_weight_outlined,
-                title: 'No bodyweight logged yet',
-                message: 'Log your weight to track it alongside your lifts.',
-                actionLabel: 'Log bodyweight',
+                title: l10n.bodyEmptyTitle,
+                message: l10n.bodyEmptyMessage,
+                actionLabel: l10n.bodyLogBodyweightAction,
                 onAction: () => unawaited(showLogBodyweightSheet(context)),
               )
             else ...[
@@ -79,7 +81,7 @@ class BodyWeightScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => unawaited(showLogBodyweightSheet(context)),
         icon: const Icon(Icons.add),
-        label: const Text('Log bodyweight'),
+        label: Text(l10n.bodyLogBodyweightAction),
       ),
     );
   }
@@ -90,6 +92,7 @@ class _BodyweightTrendSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final trendAsync = ref.watch(bodyweightTrendProvider);
     final unit = ref.watch(unitPreferencesProvider).body;
@@ -128,7 +131,7 @@ class _BodyweightTrendSection extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Trend', style: theme.textTheme.titleSmall),
+            Text(l10n.bodyTrendLabel, style: theme.textTheme.titleSmall),
             const SizedBox(height: AppSpacing.sm),
             TrendChart(
               points: points,
@@ -140,9 +143,11 @@ class _BodyweightTrendSection extends ConsumerWidget {
             if (rate != null) ...[
               const SizedBox(height: AppSpacing.sm),
               Text(
-                '${rate >= 0 ? '+' : ''}'
-                '${formatter.massValueOnly(Mass.grams(rate.round()), unit)} '
-                '${unit.symbol}/week',
+                l10n.bodyWeeklyRateLabel(
+                  '${rate >= 0 ? '+' : ''}'
+                  '${formatter.massValueOnly(Mass.grams(rate.round()), unit)}',
+                  unit.symbol,
+                ),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -162,6 +167,7 @@ class _BodyweightTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final formatter = ref.watch(quantityFormatterProvider);
     final date = DateTime.fromMillisecondsSinceEpoch(entry.measuredAt);
 
@@ -170,10 +176,10 @@ class _BodyweightTile extends ConsumerWidget {
       direction: DismissDirection.endToStart,
       confirmDismiss: (_) => showConfirmSheet(
         context,
-        title: 'Delete this entry?',
-        message:
-            '${DateFormat.yMMMd().format(date)}\'s bodyweight entry will '
-            'be removed.',
+        title: l10n.bodyDeleteEntryConfirmTitle,
+        message: l10n.bodyDeleteBodyweightConfirmMessage(
+          DateFormat.yMMMd().format(date),
+        ),
       ),
       onDismissed: (_) => unawaited(
         ref.read(bodyMeasurementRepositoryProvider).deleteBodyweight(entry.id),
@@ -207,6 +213,7 @@ class _MeasurementSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final history = ref.watch(measurementHistoryProvider(type));
 
@@ -222,7 +229,7 @@ class _MeasurementSection extends ConsumerWidget {
               children: [
                 Text(type.label, style: theme.textTheme.titleSmall),
                 IconButton(
-                  tooltip: 'Log ${type.label}',
+                  tooltip: l10n.bodyLogAction(type.label),
                   icon: const Icon(Icons.add, size: 20),
                   onPressed: () =>
                       unawaited(showLogMeasurementSheet(context, type: type)),
@@ -237,7 +244,7 @@ class _MeasurementSection extends ConsumerWidget {
                       horizontal: AppSpacing.screen,
                     ),
                     child: Text(
-                      'Not logged yet.',
+                      l10n.bodyNotLoggedYet,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -264,6 +271,7 @@ class _MeasurementTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final formatter = ref.watch(quantityFormatterProvider);
     final date = DateTime.fromMillisecondsSinceEpoch(entry.measuredAt);
     final value = type.isPercent
@@ -275,10 +283,11 @@ class _MeasurementTile extends ConsumerWidget {
       direction: DismissDirection.endToStart,
       confirmDismiss: (_) => showConfirmSheet(
         context,
-        title: 'Delete this entry?',
-        message:
-            "${DateFormat.yMMMd().format(date)}'s ${type.label.toLowerCase()} "
-            'entry will be removed.',
+        title: l10n.bodyDeleteEntryConfirmTitle,
+        message: l10n.bodyDeleteMeasurementConfirmMessage(
+          DateFormat.yMMMd().format(date),
+          type.label.toLowerCase(),
+        ),
       ),
       onDismissed: (_) => unawaited(
         ref.read(bodyMeasurementRepositoryProvider).deleteMeasurement(entry.id),

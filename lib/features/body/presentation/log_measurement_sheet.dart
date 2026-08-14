@@ -8,6 +8,7 @@ import '../../../core/units/length.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/db/tables/enums.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import 'measurement_labels.dart';
 
@@ -70,6 +71,7 @@ class _LogMeasurementSheetState extends ConsumerState<LogMeasurementSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final prefs = ref.watch(unitPreferencesProvider);
     final label = widget.type.label;
@@ -86,7 +88,9 @@ class _LogMeasurementSheetState extends ConsumerState<LogMeasurementSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            widget.editing == null ? 'Log $label' : 'Edit $label',
+            widget.editing == null
+                ? l10n.bodyLogAction(label)
+                : l10n.bodyLogMeasurementEditTitle(label),
             style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -104,20 +108,23 @@ class _LogMeasurementSheetState extends ConsumerState<LogMeasurementSheet> {
           const SizedBox(height: AppSpacing.md),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Date'),
+            title: Text(l10n.bodyLogMeasurementDateLabel),
             subtitle: Text(DateFormat.yMMMd().format(_date)),
             onTap: _pickDate,
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: _notes,
-            decoration: const InputDecoration(
-              labelText: 'Note (optional)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.bodyLogMeasurementNoteLabel,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          FilledButton(onPressed: _submit, child: const Text('Save')),
+          FilledButton(
+            onPressed: _submit,
+            child: Text(l10n.routineNameDialogSave),
+          ),
         ],
       ),
     );
@@ -144,7 +151,8 @@ class _LogMeasurementSheetState extends ConsumerState<LogMeasurementSheet> {
           ?.millimetres;
     }
     if (canonical == null || canonical < 0) {
-      setState(() => _error = 'Enter a value');
+      final l10n = AppLocalizations.of(context)!;
+      setState(() => _error = l10n.bodyLogMeasurementRequiredError);
       return;
     }
 

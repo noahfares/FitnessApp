@@ -720,5 +720,89 @@
   "@historyLogPastDurationMinutes": {
     "description": "Estimated duration in minutes, shown next to and on the duration slider.",
     "placeholders": {"minutes": {"type": "num"}}
-  }
+  },
+
+  "bodyTitle": "Body",
+  "@bodyTitle": {"description": "Body screen app bar title."},
+  "bodyMeasurementsToTrackAction": "Measurements to track",
+  "@bodyMeasurementsToTrackAction": {"description": "Used as both the app-bar tooltip and the tracked-measurements sheet's own heading."},
+  "bodyReadError": "Bodyweight history could not be read",
+  "@bodyReadError": {"description": "Error title if the bodyweight history query fails."},
+  "bodyEmptyTitle": "No bodyweight logged yet",
+  "@bodyEmptyTitle": {"description": "Empty state before any bodyweight has been logged."},
+  "bodyEmptyMessage": "Log your weight to track it alongside your lifts.",
+  "@bodyEmptyMessage": {"description": "Empty state message before any bodyweight has been logged."},
+  "bodyLogBodyweightAction": "Log bodyweight",
+  "@bodyLogBodyweightAction": {"description": "Used as the empty-state action, the FAB label, and the log sheet's own title when creating a new entry."},
+  "bodyTrendLabel": "Trend",
+  "@bodyTrendLabel": {"description": "Heading above the bodyweight EMA trend chart."},
+  "bodyWeeklyRateLabel": "{value} {unit}/week",
+  "@bodyWeeklyRateLabel": {
+    "description": "Weekly rate-of-change reading below the trend chart. value already carries its own +/- sign.",
+    "placeholders": {"value": {"type": "String"}, "unit": {"type": "String"}}
+  },
+  "bodyDeleteEntryConfirmTitle": "Delete this entry?",
+  "@bodyDeleteEntryConfirmTitle": {"description": "Confirm-swipe title before deleting a bodyweight or measurement entry."},
+  "bodyDeleteBodyweightConfirmMessage": "{date}'s bodyweight entry will be removed.",
+  "@bodyDeleteBodyweightConfirmMessage": {
+    "description": "Confirm-swipe message before deleting a bodyweight entry.",
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "bodyDeleteMeasurementConfirmMessage": "{date}'s {measurement} entry will be removed.",
+  "@bodyDeleteMeasurementConfirmMessage": {
+    "description": "Confirm-swipe message before deleting a non-bodyweight measurement entry.",
+    "placeholders": {"date": {"type": "String"}, "measurement": {"type": "String"}}
+  },
+  "bodyLogAction": "Log {type}",
+  "@bodyLogAction": {
+    "description": "Used as both the per-measurement-section add tooltip and the log sheet's own title when creating a new entry.",
+    "placeholders": {"type": {"type": "String"}}
+  },
+  "bodyNotLoggedYet": "Not logged yet.",
+  "@bodyNotLoggedYet": {"description": "Shown under a tracked measurement's heading before any value has been logged."},
+
+  "bodyLogWeightEditTitle": "Edit bodyweight",
+  "@bodyLogWeightEditTitle": {"description": "Log-bodyweight sheet title when editing an existing entry."},
+  "bodyLogWeightFieldLabel": "Weight",
+  "@bodyLogWeightFieldLabel": {"description": "The weight value field label on the log-bodyweight sheet."},
+  "bodyLogWeightDateLabel": "Date",
+  "@bodyLogWeightDateLabel": {"description": "Opens the date picker on the log-bodyweight sheet."},
+  "bodyLogWeightNoteLabel": "Note (optional)",
+  "@bodyLogWeightNoteLabel": {"description": "Note field label on the log-bodyweight sheet."},
+  "bodyLogWeightRequiredError": "Enter a weight",
+  "@bodyLogWeightRequiredError": {"description": "Validation error when the weight field is empty or non-positive."},
+
+  "bodyLogMeasurementEditTitle": "Edit {label}",
+  "@bodyLogMeasurementEditTitle": {
+    "description": "Log-measurement sheet title when editing an existing entry.",
+    "placeholders": {"label": {"type": "String"}}
+  },
+  "bodyLogMeasurementDateLabel": "Date",
+  "@bodyLogMeasurementDateLabel": {"description": "Opens the date picker on the log-measurement sheet."},
+  "bodyLogMeasurementNoteLabel": "Note (optional)",
+  "@bodyLogMeasurementNoteLabel": {"description": "Note field label on the log-measurement sheet."},
+  "bodyLogMeasurementRequiredError": "Enter a value",
+  "@bodyLogMeasurementRequiredError": {"description": "Validation error when the measurement field is empty or negative."},
+
+  "bodyPhotosTitle": "Progress photos",
+  "@bodyPhotosTitle": {"description": "Used as both the body screen's app-bar tooltip and the progress-photos screen's own title."},
+  "bodyPhotosCancelCompareTooltip": "Cancel compare",
+  "@bodyPhotosCancelCompareTooltip": {"description": "Exits compare-selection mode."},
+  "bodyPhotosCompareTwoTooltip": "Compare two photos",
+  "@bodyPhotosCompareTwoTooltip": {"description": "Enters compare-selection mode."},
+  "bodyPhotosLoadError": "Could not load photos.",
+  "@bodyPhotosLoadError": {"description": "Shown if the photo list fails to load."},
+  "bodyPhotosEmptyTitle": "No progress photos yet",
+  "@bodyPhotosEmptyTitle": {"description": "Empty state before any progress photo has been added."},
+  "bodyPhotosEmptyMessage": "Add one to start a date-tagged record.",
+  "@bodyPhotosEmptyMessage": {"description": "Empty state message before any progress photo has been added."},
+  "bodyPhotosCompareAction": "Compare",
+  "@bodyPhotosCompareAction": {"description": "FAB label opening the two-photo comparison dialog."},
+  "bodyPhotosDeleteConfirmTitle": "Delete this photo?",
+  "@bodyPhotosDeleteConfirmTitle": {"description": "Confirm sheet title before permanently deleting a progress photo."},
+  "bodyPhotosDeleteConfirmMessage": "This permanently removes the photo from this device.",
+  "@bodyPhotosDeleteConfirmMessage": {"description": "Confirm sheet message before permanently deleting a progress photo — no undo, unlike a soft delete."},
+
+  "bodyTrackedDescription": "Bodyweight is always logged. Turn on whichever of these you also want to track.",
+  "@bodyTrackedDescription": {"description": "Subtitle on the tracked-measurements sheet."}
 }

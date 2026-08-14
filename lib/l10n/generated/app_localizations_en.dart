@@ -1056,4 +1056,113 @@ class AppLocalizationsEn extends AppLocalizations {
   String historyLogPastDurationMinutes(num minutes) {
     return '$minutes min';
   }
+
+  @override
+  String get bodyTitle => 'Body';
+
+  @override
+  String get bodyMeasurementsToTrackAction => 'Measurements to track';
+
+  @override
+  String get bodyReadError => 'Bodyweight history could not be read';
+
+  @override
+  String get bodyEmptyTitle => 'No bodyweight logged yet';
+
+  @override
+  String get bodyEmptyMessage =>
+      'Log your weight to track it alongside your lifts.';
+
+  @override
+  String get bodyLogBodyweightAction => 'Log bodyweight';
+
+  @override
+  String get bodyTrendLabel => 'Trend';
+
+  @override
+  String bodyWeeklyRateLabel(String value, String unit) {
+    return '$value $unit/week';
+  }
+
+  @override
+  String get bodyDeleteEntryConfirmTitle => 'Delete this entry?';
+
+  @override
+  String bodyDeleteBodyweightConfirmMessage(String date) {
+    return '$date\'s bodyweight entry will be removed.';
+  }
+
+  @override
+  String bodyDeleteMeasurementConfirmMessage(String date, String measurement) {
+    return '$date\'s $measurement entry will be removed.';
+  }
+
+  @override
+  String bodyLogAction(String type) {
+    return 'Log $type';
+  }
+
+  @override
+  String get bodyNotLoggedYet => 'Not logged yet.';
+
+  @override
+  String get bodyLogWeightEditTitle => 'Edit bodyweight';
+
+  @override
+  String get bodyLogWeightFieldLabel => 'Weight';
+
+  @override
+  String get bodyLogWeightDateLabel => 'Date';
+
+  @override
+  String get bodyLogWeightNoteLabel => 'Note (optional)';
+
+  @override
+  String get bodyLogWeightRequiredError => 'Enter a weight';
+
+  @override
+  String bodyLogMeasurementEditTitle(String label) {
+    return 'Edit $label';
+  }
+
+  @override
+  String get bodyLogMeasurementDateLabel => 'Date';
+
+  @override
+  String get bodyLogMeasurementNoteLabel => 'Note (optional)';
+
+  @override
+  String get bodyLogMeasurementRequiredError => 'Enter a value';
+
+  @override
+  String get bodyPhotosTitle => 'Progress photos';
+
+  @override
+  String get bodyPhotosCancelCompareTooltip => 'Cancel compare';
+
+  @override
+  String get bodyPhotosCompareTwoTooltip => 'Compare two photos';
+
+  @override
+  String get bodyPhotosLoadError => 'Could not load photos.';
+
+  @override
+  String get bodyPhotosEmptyTitle => 'No progress photos yet';
+
+  @override
+  String get bodyPhotosEmptyMessage => 'Add one to start a date-tagged record.';
+
+  @override
+  String get bodyPhotosCompareAction => 'Compare';
+
+  @override
+  String get bodyPhotosDeleteConfirmTitle => 'Delete this photo?';
+
+  @override
+  String get bodyPhotosDeleteConfirmMessage =>
+      'This permanently removes the photo from this device.';
+
+  @override
+  String get bodyTrackedDescription =>
+      'Bodyweight is always logged. Turn on whichever of these you also want to track.';
 }
