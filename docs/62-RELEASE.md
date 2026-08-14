@@ -113,8 +113,11 @@ decisions.
 - [ ] Content rating questionnaire.
 - [ ] **Data Safety form.** Unusually easy here: no collection, no sharing, no
       account. It must match reality exactly, verified by confirming the app
-      makes no network calls at all.
-- [ ] Privacy policy, published and checked into the repository.
+      makes no network calls at all — see [`PRIVACY.md`](../PRIVACY.md) for
+      how that's checked. Filling in the form itself needs a live Play
+      Console.
+- [x] Privacy policy, published and checked into the repository —
+      [`PRIVACY.md`](../PRIVACY.md) (`F-REL-007`).
 - [ ] Target API level meeting the current Play requirement.
 - [ ] Health Connect declarations if `F-HLT-001` ships — these carry extra
       review requirements; read the current policy first.

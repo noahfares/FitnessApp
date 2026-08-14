@@ -747,6 +747,27 @@ English-string literals — genuinely most of the app, not a rounding error —
 left for future batches now that the pipeline itself is proven rather than
 attempted as one all-at-once sweep.
 
+**Batch 6.4 — release, partial.** `F-REL-007` `in-progress`; `F-REL-004` and
+`F-REL-006` untouched, still `planned` (`F-REL-006` depends on `F-THM-006`,
+deferred in batch 6.2 for the same no-SDK/no-device reason). Taken out of
+the roadmap's own batch order — 6.3 (onboarding) hasn't started — because
+`F-REL-007` is P0, needs no toolchain this session lacks, and is otherwise
+the single highest-value thing left to do before any store submission is
+even possible. `PRIVACY.md` (repo root) is the checked-in policy §4 asks
+for: no account, no telemetry, no network calls, what's stored and where,
+that export/sharing is always user-initiated, `F-DAT-010`'s wipe as the
+deletion story, and the Health Connect case for if `F-HLT-001`/`F-HLT-002`
+ever ship. The acceptance criterion's "verified rather than asserted" is
+checked the strongest way available without a live network capture: the
+release `AndroidManifest.xml` declares no `INTERNET` permission at all
+(only the `debug`/`profile` manifests do — Flutter's own template default
+for the DevTools connection, never present in a release artefact), no
+HTTP/socket/analytics dependency exists in `pubspec.yaml`, and no
+`dart:io` `HttpClient`/`Socket`/`InternetAddress` call exists anywhere in
+`lib/`. Left `in-progress`: actually filling in and submitting the Play
+Data Safety form and App Store Privacy Nutrition Label needs a live
+developer console this session has no access to.
+
 **Exit criteria**
 - [ ] Full app usable with a screen reader and at 200% text scale.
 - [ ] Privacy policy and data-safety declarations match actual behaviour, with

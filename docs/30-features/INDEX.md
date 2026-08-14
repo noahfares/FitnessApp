@@ -251,7 +251,7 @@
 | [F-REL-004](REL/F-REL-004.md) | App bundle for Play | 6 | P1 | planned |
 | [F-REL-005](REL/F-REL-005.md) | Versioning scheme | 1 | P1 | done |
 | [F-REL-006](REL/F-REL-006.md) | Store listing assets | 6 | P2 | planned |
-| [F-REL-007](REL/F-REL-007.md) | Privacy policy and data safety | 6 | P0 | planned |
+| [F-REL-007](REL/F-REL-007.md) | Privacy policy and data safety | 6 | P0 | in-progress |
 | [F-REL-008](REL/F-REL-008.md) | Update check for sideloaded installs | — | P2 | idea |
 | [F-REL-009](REL/F-REL-009.md) | iOS build and TestFlight | — | P2 | idea |
 | [F-REL-010](REL/F-REL-010.md) | F-Droid | — | P3 | idea |
