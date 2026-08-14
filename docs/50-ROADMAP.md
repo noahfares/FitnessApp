@@ -704,6 +704,39 @@ view rather than inheriting an ancestor one). Every other screen in the app
 200%; auditing all of them was judged too large for one batch and is left
 for a future accessibility pass, not silently claimed done.
 
+**Batch 6.2 — localisation & branding, partial.** `F-I18N-001`
+`in-progress`; `F-THM-006` not attempted, left `planned`. No schema change.
+`F-THM-006` (icon, adaptive icon, splash): deliberately deferred rather than
+generated. `flutter_launcher_icons`/`flutter_native_splash` write platform
+mipmaps and mutate `AndroidManifest.xml`/`Info.plist` from a source image —
+this session's toolchain has no Android SDK and no device to render or
+verify the result against, the same class of deferral as `F-TIM-003`'s
+notification layer and `F-ANA-014`'s SVG sourcing. A source image generated
+programmatically and committed as a real brand icon without ever seeing it
+on a launcher was judged worse than leaving the feature `planned` with the
+reason on record; `F-REL-006` (store listing) depends on this and stays
+untouched too. `F-I18N-001`: the ARB pipeline is real, not stubbed —
+`flutter_localizations` (sdk), `flutter: generate: true`, `l10n.yaml` with
+`synthetic-package` omitted (deprecated, and this repo's own convention is
+committed generated code, same as drift's `.g.dart`, so `lib/l10n/generated/`
+is tracked, not gitignored) and one seed `lib/l10n/app_en.arb`.
+`AppLocalizations.delegate`/`supportedLocales` are wired into
+`MaterialApp.router` in `app.dart`; both `pumpScreen` and `pumpApp` in
+`test/support/harness.dart` carry them too — `pumpApp` needed no change
+(`FitnessApp` already provides them), but `pumpScreen`'s bare `MaterialApp`
+did, since any migrated widget calling `AppLocalizations.of(context)!`
+would otherwise null-assert in every existing test that renders it.
+`SettingsScreen` is migrated end to end (18 keys, the whole screen) as the
+one complete, verified slice — chosen because it is self-contained (no
+`pumpApp`-level navigation test asserts its exact strings) rather than for
+being small. Deliberately not routed through ARB: unit symbols
+(`docs/22-UNITS.md` owns `kg`/`lb`/etc. as canonical-unit display, not
+translatable copy) and anything `QuantityFormatter`/`intl` already format
+(numbers, dates, durations). Every other screen in the app is still
+English-string literals — genuinely most of the app, not a rounding error —
+left for future batches now that the pipeline itself is proven rather than
+attempted as one all-at-once sweep.
+
 **Exit criteria**
 - [ ] Full app usable with a screen reader and at 200% text scale.
 - [ ] Privacy policy and data-safety declarations match actual behaviour, with

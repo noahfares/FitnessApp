@@ -1186,9 +1186,23 @@ rather than `pumpScreen`'s `MediaQuery`-wrapping trick, since
 view rather than inheriting an ancestor one) but every other screen —
 catalogue, history, routines, insights, settings — remains unverified at
 200%, left for a future accessibility pass rather than claimed done.
-Batches 6.2–6.5 (localisation/branding, onboarding, release, Health
-Connect) not started; `F-HLT-001`/`F-HLT-002` are blocked on this
-session's toolchain having no Android SDK or device regardless.
+Batches 6.3–6.5 (onboarding, release, Health Connect) not started;
+`F-HLT-001`/`F-HLT-002` are blocked on this session's toolchain having no
+Android SDK or device regardless.
+
+**Batch 6.2 — localisation & branding, partial.** `F-I18N-001`
+`in-progress`; `F-THM-006` deliberately not attempted, stays `planned` —
+`flutter_launcher_icons`/`flutter_native_splash` write platform assets this
+session's toolchain (no Android SDK, no device) can't render or verify,
+same deferral class as `F-TIM-003`/`F-ANA-014`; `F-REL-006` depends on it
+and stays untouched too. `F-I18N-001`'s ARB pipeline is real: `flutter:
+generate: true`, `l10n.yaml`, `lib/l10n/app_en.arb`, `AppLocalizations`
+wired into `app.dart` and both `pumpScreen`/`pumpApp` in the test harness.
+`SettingsScreen` is the one fully migrated screen (18 keys) — chosen for
+being self-contained, not small; unit symbols and anything
+`QuantityFormatter`/`intl` already formats deliberately stay outside ARB.
+Every other screen is still English literals. Full detail:
+`docs/50-ROADMAP.md` §Phase 6 batch 6.2.
 
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,

@@ -30,6 +30,7 @@ import 'dart:io';
 
 import 'package:fitness_app/app.dart';
 import 'package:fitness_app/core/theme/app_theme.dart';
+import 'package:fitness_app/l10n/generated/app_localizations.dart';
 import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/database_provider.dart';
 import 'package:fitness_app/data/platform/app_info_service.dart';
@@ -182,6 +183,11 @@ Future<ProviderContainer> pumpScreen(
       container: container,
       child: MaterialApp(
         theme: dark ? AppTheme.dark() : AppTheme.light(),
+        // Any screen migrated to `AppLocalizations.of(context)` needs this
+        // resolvable, or it null-asserts — `pumpApp` gets it for free via
+        // the real `FitnessApp`, so only this bare `MaterialApp` needs it.
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: textScale == 1
             ? screen
             : MediaQuery(

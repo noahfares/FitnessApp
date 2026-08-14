@@ -7,13 +7,19 @@ publish_to: none
 # Canonical source is the VERSION file at the repo root; CI fails if they
 # disagree. See docs/63-VERSIONING.md. The +N build number is set by the
 # release workflow (F-REL-005), not by hand.
-version: 0.49.0
+version: 0.50.0
 
 environment:
   sdk: ^3.11.0
 
 dependencies:
   flutter:
+    sdk: flutter
+
+  # ARB-based string externalisation (F-I18N-001). English-only for now — the
+  # delegate and `supportedLocales` exist so a second locale is an ARB file
+  # away, not an app restructure.
+  flutter_localizations:
     sdk: flutter
 
   # Database — ADR-0005. drift_flutter bundles sqlite3 and path_provider.
@@ -90,6 +96,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
   assets:
     - assets/seed/
 # Dependencies deliberately not added yet — each arrives with the batch that

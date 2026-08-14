@@ -6,6 +6,7 @@ import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/settings/application/theme_provider.dart';
 import 'features/shell/widgets/app_lock_gate.dart';
+import 'l10n/generated/app_localizations.dart';
 
 /// Root widget.
 class FitnessApp extends ConsumerWidget {
@@ -24,6 +25,11 @@ class FitnessApp extends ConsumerWidget {
         return MaterialApp.router(
           title: 'FitnessApp',
           debugShowCheckedModeBanner: false,
+          // English-only so far (F-I18N-001) — the delegate and single
+          // supported locale exist so a second ARB file is what adding a
+          // language actually takes, not an app restructure.
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           theme: AppTheme.light(
             dynamicScheme: dynamicColorEnabled ? lightDynamic : null,
           ),
