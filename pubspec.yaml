@@ -7,7 +7,7 @@ publish_to: none
 # Canonical source is the VERSION file at the repo root; CI fails if they
 # disagree. See docs/63-VERSIONING.md. The +N build number is set by the
 # release workflow (F-REL-005), not by hand.
-version: 0.46.0
+version: 0.47.0
 
 environment:
   sdk: ^3.11.0
@@ -60,8 +60,15 @@ dependencies:
   # dep via drift_flutter, now used directly so it's declared, not borrowed.
   path_provider: ^2.1.5
 
-  # Picking a backup file to restore from (F-DAT-004).
+  # Picking a backup file to restore from (F-DAT-004), and a source CSV to
+  # import (F-DAT-005/006).
   file_picker: ^11.0.3
+
+  # RFC 4180 parsing for Strong/Hevy import (F-DAT-005/006) — a workout name
+  # or note legitimately contains a comma or embedded newline, so a
+  # hand-rolled `split(',')` would silently mis-parse exactly the kind of
+  # file this feature exists to read correctly.
+  csv: ^6.0.0
 
 dev_dependencies:
   flutter_test:

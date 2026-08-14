@@ -69,6 +69,9 @@ abstract final class AppRoutes {
   static const String settingsRestTimer = '/settings/rest-timer';
   static const String settingsData = '/settings/data';
 
+  /// Strong/Hevy CSV import (`F-DAT-005`, `F-DAT-006`, `F-DAT-007`).
+  static const String settingsDataImport = '/settings/data/import';
+
   /// Bars and the plate inventory (`F-PLT-002`).
   static const String settingsPlates = '/settings/plates';
   static const String settingsAbout = '/settings/about';

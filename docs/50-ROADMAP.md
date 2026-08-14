@@ -541,6 +541,42 @@ same scope already drawn for `F-TIM-003`'s background timer and for the same
 toolchain reason (no Android SDK this session, `flutter build apk` is
 CI-only). `F-DAT-005`–`F-DAT-007` remain `planned`, batch 5.3.
 
+**Batch 5.3 done.** `F-DAT-006`, `F-DAT-007` done; `F-DAT-005`
+`in-progress` — its own acceptance note has the one unmet criterion (a real
+Strong export's dates/weights/set-types, unverifiable this session with no
+real export file to test against). No schema change. One shared engine,
+`domain/import/csv_import_adapter.dart`'s `CsvImportAdapter`, driven by a
+declarative `ColumnMapping` per format — Strong and Hevy are two data values,
+not two importers, closing `F-DAT-006`'s own "third format is a mapping
+file" ask before a third format even exists. Columns are matched by header
+**name**, not position, against a per-field list of candidate spellings,
+closing `F-DAT-005`'s "support detection of multiple layouts" open question
+directly: an unrecognised layout throws naming exactly which required field
+is missing, rather than guessing. The source unit (§3) is read from the
+weight column's own header or a separate unit column; genuinely ambiguous
+throws `AmbiguousUnitException` before a single row is parsed, and
+`ImportScreen` asks rather than falling back to the app's own display
+preference — a display setting is not evidence about a file's contents.
+`domain/import/import_exercise_matcher.dart` reuses `exercise_search.dart`'s
+`foldForSearch` for exact/alias matching, deliberately not that module's own
+substring search. `data/io/import_service.dart`'s `ImportService.commit` is
+idempotent at the workout level (a workout already at the source's exact
+`started_at` is skipped, not duplicated) and runs the whole write in one
+transaction with `PRAGMA defer_foreign_keys = TRUE`, the same shape
+`TableSnapshotIo` proved out in batch 5.1; `PersonalRecordRepository
+.rebuildAll` runs afterward, since the PR cache can't find a bulk-imported
+history's best values incrementally. `domain/import/import_mapping_state.dart`'s
+`ImportMappingState` is `F-DAT-007`'s "remembers decisions" rule as a pure,
+tested reducer — one decision per distinct exercise name, applied to every
+row with that name — with `ImportScreen` as the thin UI over it, reusing
+`F-LOG-002`'s own exercise picker for "use existing" rather than building a
+second one. Not built: distance import (exactly as unit-ambiguous as weight,
+but no acceptance criterion needs cardio-distance correctness) and a CSV's
+missing UTC offset is filled with the device's current offset at import
+time, the same best-effort choice `app_database.dart`'s own `from < 3`
+migration already made once — both documented in `F-DAT-005`'s own status
+note.
+
 **Exit criteria**
 - [ ] Export → wipe → import reproduces the database exactly, verified table by
       table.

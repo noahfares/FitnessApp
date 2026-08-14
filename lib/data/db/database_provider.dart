@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../io/backup_service.dart';
 import '../io/csv_export_service.dart';
+import '../io/import_service.dart';
 import '../io/json_dump_service.dart';
 import '../io/json_export_service.dart';
 import '../io/restore_service.dart';
@@ -109,5 +110,14 @@ final csvExportServiceProvider = Provider<CsvExportService>(
     ref.watch(setRepositoryProvider),
     ref.watch(bodyMeasurementRepositoryProvider),
     ref.watch(routineRepositoryProvider),
+  ),
+);
+
+/// Strong/Hevy CSV import (`F-DAT-005`, `F-DAT-006`).
+final importServiceProvider = Provider<ImportService>(
+  (ref) => ImportService(
+    ref.watch(databaseProvider),
+    ref.watch(exerciseRepositoryProvider),
+    ref.watch(personalRecordRepositoryProvider),
   ),
 );

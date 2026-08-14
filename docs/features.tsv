@@ -100,9 +100,9 @@ F-DAT-001	5	done	P0	JSON export		F-DAT-003, F-ROU-014	22-UNITS#import-and-export
 F-DAT-002	5	done	P1	CSV export			21-DATA-MODEL, 22-UNITS#import-and-export
 F-DAT-003	5	done	P0	Backup file	F-DAT-001		21-DATA-MODEL, 22-UNITS#import-and-export
 F-DAT-004	5	done	P0	Restore	F-DAT-003		21-DATA-MODEL, 22-UNITS#import-and-export
-F-DAT-005	5	planned	P1	Strong CSV import		F-CAT-010	22-UNITS#import-and-export, 21-DATA-MODEL
-F-DAT-006	5	planned	P2	Hevy CSV import	F-DAT-005		21-DATA-MODEL, 22-UNITS#import-and-export
-F-DAT-007	5	planned	P1	Import mapping UI	F-DAT-005		21-DATA-MODEL, 22-UNITS#import-and-export
+F-DAT-005	5	in-progress	P1	Strong CSV import		F-CAT-010	22-UNITS#import-and-export, 21-DATA-MODEL
+F-DAT-006	5	done	P2	Hevy CSV import	F-DAT-005		21-DATA-MODEL, 22-UNITS#import-and-export
+F-DAT-007	5	done	P1	Import mapping UI	F-DAT-005		21-DATA-MODEL, 22-UNITS#import-and-export
 F-DAT-008	5	done	P2	Automatic local backups	F-DAT-003		21-DATA-MODEL, 22-UNITS#import-and-export
 F-DAT-009	—	idea	P2	File-based cloud sync	F-DAT-003		21-DATA-MODEL, 22-UNITS#import-and-export
 F-DAT-010	5	done	P2	Wipe all data			21-DATA-MODEL, 22-UNITS#import-and-export

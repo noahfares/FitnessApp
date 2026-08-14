@@ -23,6 +23,7 @@ import '../../features/routines/presentation/starter_program_gallery_screen.dart
 import '../../features/settings/presentation/about_screen.dart';
 import '../../features/settings/presentation/appearance_screen.dart';
 import '../../features/settings/presentation/data_screen.dart';
+import '../../features/settings/presentation/import_screen.dart';
 import '../../features/settings/presentation/plate_settings_screen.dart';
 import '../../features/settings/presentation/rest_timer_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
@@ -228,6 +229,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'data',
             parentNavigatorKey: _rootNavigatorKey,
             builder: (context, state) => const DataScreen(),
+            routes: [
+              GoRoute(
+                path: 'import',
+                parentNavigatorKey: _rootNavigatorKey,
+                builder: (context, state) => const ImportScreen(),
+              ),
+            ],
           ),
           GoRoute(
             path: 'plates',
