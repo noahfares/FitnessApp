@@ -747,10 +747,32 @@ English-string literals — genuinely most of the app, not a rounding error —
 left for future batches now that the pipeline itself is proven rather than
 attempted as one all-at-once sweep.
 
+**Batch 6.3 — onboarding.** `F-SET-011` done — the last item Phase 6
+scheduled ahead of release/health. No schema change.
+`OnboardingScreen` (`lib/features/onboarding/presentation/`) is a
+three-page `PageView` at `/onboarding` — welcome, then units/theme, then an
+optional starter-program import — with `Skip` reachable from every page,
+not just the first. `onboardingCompletedProvider` is a
+`SharedPreferences`-backed flag, the same shape `themeModeProvider` already
+used; `startupLocationFor` (`lib/features/logging/application/
+active_workout_providers.dart`) now takes it as a required param and
+returns onboarding whenever it's unset, checked ahead of even
+`F-LOG-007`'s kill-recovery redirect — a first-run device is never
+mid-workout, so the two checks can never actually conflict, but onboarding
+is still the one that wins by construction. §2's "every choice changeable
+later" holds without any explicit sync step: the units/theme page reads and
+writes `unitPreferencesProvider`/`themeModeProvider` directly, the exact
+providers Settings itself uses, so there is no separate onboarding-only
+copy of either value. The starter-routine page is a compact reuse of
+`RoutineRepository.importStarterProgram` (`F-ROU-015`), landing on the new
+routine on success exactly like the full gallery screen does. §3 ("no
+account, no email, no permission prompts") needed no code to satisfy —
+nothing in the screen asks for any of the three, so it holds by omission.
+
 **Batch 6.4 — release, partial.** `F-REL-007` `in-progress`; `F-REL-004` and
 `F-REL-006` untouched, still `planned` (`F-REL-006` depends on `F-THM-006`,
 deferred in batch 6.2 for the same no-SDK/no-device reason). Taken out of
-the roadmap's own batch order — 6.3 (onboarding) hasn't started — because
+the roadmap's own batch order — ahead of `F-REL-004`/`F-REL-006` — because
 `F-REL-007` is P0, needs no toolchain this session lacks, and is otherwise
 the single highest-value thing left to do before any store submission is
 even possible. `PRIVACY.md` (repo root) is the checked-in policy §4 asks

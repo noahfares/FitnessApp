@@ -64,13 +64,21 @@ final activeWorkoutIsStaleProvider = Provider<bool>((ref) {
   return ref.watch(elapsedProvider) > staleSessionThreshold;
 });
 
-/// Where to open, given whether a session was in progress (`F-LOG-007` §2).
+/// Where to open, given whether onboarding has run (`F-SET-011`) and whether
+/// a session was in progress (`F-LOG-007` §2).
 ///
-/// It just resumes. There is deliberately no "restore session?" prompt:
+/// Onboarding wins when neither has happened yet — a first-run device is
+/// never mid-workout. Once onboarding is behind it, resuming a session is
+/// automatic: there is deliberately no "restore session?" prompt, since
 /// prompting invites the wrong answer under stress, and the right answer is
 /// never "throw it away".
-String startupLocationFor(Workout? active) =>
-    active == null ? AppRoutes.home : AppRoutes.activeWorkout;
+String startupLocationFor({
+  required bool onboardingCompleted,
+  required Workout? active,
+}) {
+  if (!onboardingCompleted) return AppRoutes.onboarding;
+  return active == null ? AppRoutes.home : AppRoutes.activeWorkout;
+}
 
 /// Where the app opens.
 ///

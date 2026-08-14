@@ -270,9 +270,22 @@ void main() {
 
   group('kill recovery (F-LOG-007)', () {
     test('the startup location follows whether a session is open', () async {
-      expect(startupLocationFor(null), AppRoutes.home);
+      expect(
+        startupLocationFor(onboardingCompleted: true, active: null),
+        AppRoutes.home,
+      );
       final workout = await repo.start();
-      expect(startupLocationFor(workout), AppRoutes.activeWorkout);
+      expect(
+        startupLocationFor(onboardingCompleted: true, active: workout),
+        AppRoutes.activeWorkout,
+      );
+    });
+
+    test('onboarding wins over resuming a session on a first-run device', () {
+      expect(
+        startupLocationFor(onboardingCompleted: false, active: null),
+        AppRoutes.onboarding,
+      );
     });
 
     testWidgets('reopening lands in the session, with nothing lost', (
@@ -284,7 +297,10 @@ void main() {
 
       // Nothing was held in memory to begin with, so "relaunching" is just
       // building the app again against the same database.
-      await pump(tester, startAt: startupLocationFor(workout));
+      await pump(
+        tester,
+        startAt: startupLocationFor(onboardingCompleted: true, active: workout),
+      );
 
       // No "restore session?" prompt — it just resumes (`F-LOG-007` §4).
       expect(find.text('Push A'), findsOneWidget);

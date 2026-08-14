@@ -8,6 +8,11 @@
 /// The full map lives in docs/23-NAVIGATION.md. Only the routes Phase 0 needs
 /// are defined; the rest arrive with the features that own them.
 abstract final class AppRoutes {
+  /// First-run onboarding (`F-SET-011`) — units, theme, and an optional
+  /// starter routine. Shown at most once; `onboardingCompletedProvider` is
+  /// what takes it out of the startup location on every later launch.
+  static const String onboarding = '/onboarding';
+
   // Shell branches.
   static const String home = '/';
   static const String routines = '/routines';

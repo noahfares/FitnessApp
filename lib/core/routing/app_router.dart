@@ -17,6 +17,7 @@ import '../../features/logging/application/active_workout_providers.dart';
 import '../../features/logging/presentation/active_workout_screen.dart';
 import '../../features/logging/presentation/session_summary_screen.dart';
 import '../../features/logging/presentation/start_workout_screen.dart';
+import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/routines/presentation/routine_day_editor_screen.dart';
 import '../../features/routines/presentation/routine_editor_screen.dart';
 import '../../features/routines/presentation/routine_list_screen.dart';
@@ -51,6 +52,14 @@ final routerProvider = Provider<GoRouter>((ref) {
     // "restore session?" prompt and no flash of the dashboard first.
     initialLocation: ref.watch(startupLocationProvider),
     routes: [
+      // Over the shell, not inside a branch — a first-run device has no
+      // tabs to show yet (`F-SET-011`).
+      GoRoute(
+        path: AppRoutes.onboarding,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             AppShell(navigationShell: navigationShell),

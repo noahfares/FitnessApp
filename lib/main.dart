@@ -16,6 +16,7 @@ import 'data/repositories/plate_repository.dart';
 import 'data/repositories/workout_repository.dart';
 import 'data/seed/exercise_seeder.dart';
 import 'features/logging/application/active_workout_providers.dart';
+import 'features/onboarding/application/onboarding_provider.dart';
 import 'features/settings/application/unit_preferences_provider.dart';
 
 Future<void> main() async {
@@ -54,12 +55,23 @@ Future<void> main() async {
   // visible flash of the dashboard.
   final active = await WorkoutRepository(database).findActive();
 
+  // Read directly rather than through `onboardingCompletedProvider` — that
+  // provider needs a `ProviderScope` that doesn't exist yet at this point,
+  // the same reason the load-unit default above is read this way too.
+  final onboardingCompleted =
+      sharedPreferences.getBool(OnboardingCompletedNotifier.key) ?? false;
+
   runApp(
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(sharedPreferences),
         databaseProvider.overrideWithValue(database),
-        startupLocationProvider.overrideWithValue(startupLocationFor(active)),
+        startupLocationProvider.overrideWithValue(
+          startupLocationFor(
+            onboardingCompleted: onboardingCompleted,
+            active: active,
+          ),
+        ),
       ],
       child: const FitnessApp(),
     ),

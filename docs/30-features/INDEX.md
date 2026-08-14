@@ -177,7 +177,7 @@
 | [F-SET-008](SET/F-SET-008.md) | Notification preferences | 2 | P2 | planned |
 | [F-SET-009](SET/F-SET-009.md) | About | 1 | P1 | done |
 | [F-SET-010](SET/F-SET-010.md) | App lock | 5 | P3 | done |
-| [F-SET-011](SET/F-SET-011.md) | Onboarding | 6 | P2 | planned |
+| [F-SET-011](SET/F-SET-011.md) | Onboarding | 6 | P2 | done |
 
 ## `PLT` — Plate mathematics
 
