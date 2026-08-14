@@ -153,7 +153,7 @@ F-HLT-005	—	idea	P3	watchOS companion	F-HLT-004		20-ARCHITECTURE#cross-platfor
 F-REL-001	0	done	P0	CI build and checks		F-REL-002	62-RELEASE, 61-CI-CD
 F-REL-002	1	done	P0	Signed release APK	F-REL-001		62-RELEASE, 70-decisions/ADR-0007-signing
 F-REL-003	1	done	P1	GitHub Release automation	F-REL-002		62-RELEASE, 61-CI-CD
-F-REL-004	6	planned	P1	App bundle for Play	F-REL-002		62-RELEASE, 61-CI-CD
+F-REL-004	6	done	P1	App bundle for Play	F-REL-002		62-RELEASE, 61-CI-CD
 F-REL-005	1	done	P1	Versioning scheme			62-RELEASE, 61-CI-CD
 F-REL-006	6	planned	P2	Store listing assets	F-THM-006		62-RELEASE, 61-CI-CD
 F-REL-007	6	in-progress	P0	Privacy policy and data safety			62-RELEASE, 10-VISION#non-goals

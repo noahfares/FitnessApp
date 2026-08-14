@@ -769,26 +769,37 @@ routine on success exactly like the full gallery screen does. §3 ("no
 account, no email, no permission prompts") needed no code to satisfy —
 nothing in the screen asks for any of the three, so it holds by omission.
 
-**Batch 6.4 — release, partial.** `F-REL-007` `in-progress`; `F-REL-004` and
-`F-REL-006` untouched, still `planned` (`F-REL-006` depends on `F-THM-006`,
-deferred in batch 6.2 for the same no-SDK/no-device reason). Taken out of
-the roadmap's own batch order — ahead of `F-REL-004`/`F-REL-006` — because
-`F-REL-007` is P0, needs no toolchain this session lacks, and is otherwise
-the single highest-value thing left to do before any store submission is
-even possible. `PRIVACY.md` (repo root) is the checked-in policy §4 asks
-for: no account, no telemetry, no network calls, what's stored and where,
-that export/sharing is always user-initiated, `F-DAT-010`'s wipe as the
-deletion story, and the Health Connect case for if `F-HLT-001`/`F-HLT-002`
-ever ship. The acceptance criterion's "verified rather than asserted" is
-checked the strongest way available without a live network capture: the
-release `AndroidManifest.xml` declares no `INTERNET` permission at all
-(only the `debug`/`profile` manifests do — Flutter's own template default
-for the DevTools connection, never present in a release artefact), no
-HTTP/socket/analytics dependency exists in `pubspec.yaml`, and no
-`dart:io` `HttpClient`/`Socket`/`InternetAddress` call exists anywhere in
+**Batch 6.4 — release, partial.** `F-REL-004` done; `F-REL-007`
+`in-progress`; `F-REL-006` untouched, still `planned` (depends on
+`F-THM-006`, deferred in batch 6.2 for the same no-SDK/no-device reason).
+Taken out of the roadmap's own batch order — ahead of 6.3 at first, since
+`F-REL-007` is P0, needs no toolchain this session lacks, and was otherwise
+the single highest-value thing to do before any store submission is even
+possible; `F-REL-004` followed once 6.3 was done, for the same
+no-toolchain-required reason. `PRIVACY.md` (repo root) is the checked-in
+policy `F-REL-007` §4 asks for: no account, no telemetry, no network calls,
+what's stored and where, that export/sharing is always user-initiated,
+`F-DAT-010`'s wipe as the deletion story, and the Health Connect case for
+if `F-HLT-001`/`F-HLT-002` ever ship. Its acceptance criterion's "verified
+rather than asserted" is checked the strongest way available without a live
+network capture: the release `AndroidManifest.xml` declares no `INTERNET`
+permission at all (only the `debug`/`profile` manifests do — Flutter's own
+template default for the DevTools connection, never present in a release
+artefact), no HTTP/socket/analytics dependency exists in `pubspec.yaml`, and
+no `dart:io` `HttpClient`/`Socket`/`InternetAddress` call exists anywhere in
 `lib/`. Left `in-progress`: actually filling in and submitting the Play
 Data Safety form and App Store Privacy Nutrition Label needs a live
-developer console this session has no access to.
+developer console this session has no access to. `F-REL-004`:
+`.github/workflows/release.yml` now runs `flutter build appbundle --release`
+alongside the existing split-per-abi APK build, same tag, same version, same
+signing env vars — no separate signing setup needed, since Gradle ties a
+release signing config to the build variant, not the packaging task. The AAB
+and its checksum join the APKs and theirs in the GitHub Release, combined
+into one `checksums.txt` rather than two identically named files (GitHub
+release assets need unique names). Not locally build-verified — no Android
+SDK on this toolchain, the same constraint every CI-only release feature
+since Phase 1 has carried — checked instead by reading the Gradle
+signing-config scoping directly and a plain YAML syntax check.
 
 **Exit criteria**
 - [ ] Full app usable with a screen reader and at 200% text scale.

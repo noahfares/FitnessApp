@@ -81,7 +81,9 @@ Runs only on tags matching `v*`. Produces the artefacts users actually install.
    breaks upgrades forever ([ADR-0007](70-decisions/ADR-0007-signing.md)).
 4. Derive version and build number from the tag (`F-REL-005`). Never hand-edited.
 5. `flutter build apk --release --split-per-abi` and `flutter build appbundle
-   --release` (the bundle from Phase 6, `F-REL-004`).
+   --release` (`F-REL-004`) — same tag, same version, same signing config for
+   both: Gradle ties signing to the `release` build *variant*, not the
+   packaging task, so the bundle needs no signing setup of its own.
 6. Compute SHA-256 checksums for every artefact.
 7. Create a GitHub Release with generated notes, attaching the APKs, the bundle,
    and a `checksums.txt`.
