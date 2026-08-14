@@ -764,6 +764,26 @@ English-string literals — genuinely most of the app, not a rounding error —
 left for future batches now that the pipeline itself is proven rather than
 attempted as one all-at-once sweep.
 
+**Batch 6.2, second pass — four more screens.** `F-I18N-001` still
+`in-progress` — genuinely most of the app remains English literals, but
+three of the five tab-root screens are now migrated:
+`DashboardScreen`, `HistoryScreen`, `RoutineListScreen` (plus the shared
+`promptRoutineName` dialog it defines, called from every other routines
+screen), and `ConfirmSheet` — the one confirmation sheet every destructive
+action in the app routes through, whose default button labels moved from a
+literal parameter default (Dart requires those to be compile-time
+constants) to a null default resolved from `AppLocalizations` in the
+function body. ICU plurals cover exercise counts on both newly migrated
+screens' workout tiles. Deliberately not touched: `AppShell`'s bottom-nav
+labels are a `static const List<ShellDestination>` an existing test
+asserts against directly — localizing it needs a real restructure, not a
+mechanical pass, so it waits for a batch that can give it its own
+attention. Found and preserved rather than silently fixed while moving
+strings into ARB: the routine-delete confirmation carried a literal
+internal doc citation, `` (`ADR-0004`) ``, real broken-looking copy for an
+end user — kept verbatim in the ARB value, with a follow-up task filed to
+fix the copy itself separately from this migration.
+
 **Batch 6.3 — onboarding.** `F-SET-011` done — the last item Phase 6
 scheduled ahead of release/health. No schema change.
 `OnboardingScreen` (`lib/features/onboarding/presentation/`) is a

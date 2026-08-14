@@ -7,6 +7,7 @@ import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
 import '../../../domain/history/workout_history.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/empty_state.dart';
@@ -49,12 +50,13 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final months = ref.watch(historyByMonthProvider);
     final search = ref.watch(historySearchProvider);
     final history = ref.watch(historyProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('History')),
+      appBar: AppBar(title: Text(l10n.historyTitle)),
       body: Column(
         children: [
           Padding(
@@ -68,13 +70,13 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               controller: _search,
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
-                hintText: 'Search by workout or exercise',
+                hintText: l10n.historySearchHint,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: search.isEmpty
                     ? null
                     : IconButton(
                         icon: const Icon(Icons.close),
-                        tooltip: 'Clear search',
+                        tooltip: l10n.historyClearSearchTooltip,
                         onPressed: () {
                           _search.clear();
                           ref.read(historySearchProvider.notifier).setQuery('');
@@ -88,18 +90,18 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           ),
           Expanded(
             child: history.view(
-              errorTitle: 'History could not be read',
+              errorTitle: l10n.historyReadError,
               (entries) => entries.isEmpty
                   ? EmptyState(
                       icon: search.isNotEmpty
                           ? Icons.search_off
                           : Icons.calendar_month_outlined,
                       title: search.isNotEmpty
-                          ? 'No sessions match'
-                          : 'No sessions logged yet',
+                          ? l10n.historyNoResultsTitle
+                          : l10n.historyEmptyTitle,
                       message: search.isNotEmpty
-                          ? 'Try a shorter search.'
-                          : 'Finished workouts show up here.',
+                          ? l10n.historyNoResultsMessage
+                          : l10n.historyEmptyMessage,
                     )
                   : CustomScrollView(
                       controller: _scroll,
@@ -129,7 +131,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showLogPastWorkoutSheet(context, ref),
         icon: const Icon(Icons.add),
-        label: const Text('Log past workout'),
+        label: Text(l10n.historyLogPastWorkout),
       ),
     );
   }
@@ -176,6 +178,7 @@ class _WorkoutTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final formatter = ref.watch(quantityFormatterProvider);
     final date = entry.localDate;
 
@@ -183,8 +186,7 @@ class _WorkoutTile extends ConsumerWidget {
       title: Text(entry.name),
       subtitle: Text(
         '${DateFormat.MMMd().format(date)} · '
-        '${entry.exerciseCount} '
-        '${entry.exerciseCount == 1 ? 'exercise' : 'exercises'} · '
+        '${l10n.historyExerciseCount(entry.exerciseCount)} · '
         '${formatter.volume(Mass.grams(entry.totalVolumeGrams))}',
         style: theme.textTheme.bodySmall,
       ),

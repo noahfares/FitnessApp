@@ -219,6 +219,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About'**
   String get settingsAboutTitle;
+
+  /// Settings icon button tooltip on the dashboard app bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get dashboardSettingsTooltip;
+
+  /// Title on the start-a-workout card when no session is in progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to train?'**
+  String get dashboardReadyToTrain;
+
+  /// Start-a-workout button/action label, used on the card and the empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a workout'**
+  String get dashboardStartWorkout;
+
+  /// Subtitle on the resume card for a session already running.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress · {elapsed}'**
+  String dashboardInProgress(String elapsed);
+
+  /// Title of a scheduled-day card, e.g. "Today: Push".
+  ///
+  /// In en, this message translates to:
+  /// **'Today: {day}'**
+  String dashboardTodaySchedule(String day);
+
+  /// Bodyweight card title before any entry exists.
+  ///
+  /// In en, this message translates to:
+  /// **'No bodyweight logged yet'**
+  String get dashboardNoBodyweight;
+
+  /// Bodyweight card subtitle before any entry exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Log it to track alongside your lifts.'**
+  String get dashboardBodyweightHint;
+
+  /// Bodyweight card's quick-add icon button tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Log bodyweight'**
+  String get dashboardLogBodyweightTooltip;
+
+  /// Recent-workouts empty state title.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts yet'**
+  String get dashboardEmptyTitle;
+
+  /// Recent-workouts empty state message.
+  ///
+  /// In en, this message translates to:
+  /// **'Your finished sessions will show up here.'**
+  String get dashboardEmptyMessage;
+
+  /// Error title if the recent-workouts query fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent workouts could not be read'**
+  String get dashboardRecentWorkoutsError;
+
+  /// Exercise count on a recent-workout tile.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} exercise} other{{count} exercises}}'**
+  String dashboardExerciseCount(num count);
+
+  /// Shortcut button to the exercise catalogue.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercises'**
+  String get dashboardExercisesButton;
+
+  /// Shortcut button to the history tab.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get dashboardHistoryButton;
+
+  /// Section heading above the recent-workouts list.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent workouts'**
+  String get dashboardRecentWorkoutsTitle;
+
+  /// History screen app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get historyTitle;
+
+  /// History search field hint text.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by workout or exercise'**
+  String get historySearchHint;
+
+  /// Clear-search icon button tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get historyClearSearchTooltip;
+
+  /// Error title if the history query fails.
+  ///
+  /// In en, this message translates to:
+  /// **'History could not be read'**
+  String get historyReadError;
+
+  /// Empty state title when a search returns nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions match'**
+  String get historyNoResultsTitle;
+
+  /// Empty state message when a search returns nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a shorter search.'**
+  String get historyNoResultsMessage;
+
+  /// Empty state title with no search active and no history at all.
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions logged yet'**
+  String get historyEmptyTitle;
+
+  /// Empty state message with no search active and no history at all.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished workouts show up here.'**
+  String get historyEmptyMessage;
+
+  /// FAB label for retroactively logging a workout.
+  ///
+  /// In en, this message translates to:
+  /// **'Log past workout'**
+  String get historyLogPastWorkout;
+
+  /// Exercise count on a history workout tile.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} exercise} other{{count} exercises}}'**
+  String historyExerciseCount(num count);
+
+  /// ConfirmSheet's default confirm-button label, used across every destructive action in the app unless a call site names a more specific verb.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get confirmSheetDeleteLabel;
+
+  /// ConfirmSheet's default cancel-button label.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get confirmSheetKeepItLabel;
+
+  /// Routine list app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Routines'**
+  String get routinesTitle;
+
+  /// Archived-routines app bar title, and the toggle button's tooltip when showing the active list.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived routines'**
+  String get routinesArchivedTitle;
+
+  /// Toggle button tooltip when currently showing the archived list.
+  ///
+  /// In en, this message translates to:
+  /// **'Active routines'**
+  String get routinesShowActiveTooltip;
+
+  /// App bar icon button tooltip opening the starter program gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Starter programs'**
+  String get routinesStarterProgramsTooltip;
+
+  /// New-folder icon button tooltip, dialog title, and the "create a folder from here" sheet row label.
+  ///
+  /// In en, this message translates to:
+  /// **'New folder'**
+  String get routinesNewFolderAction;
+
+  /// New-routine icon button tooltip and dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'New routine'**
+  String get routinesNewRoutineAction;
+
+  /// Error title if the routine list query fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Routines could not be read'**
+  String get routinesReadError;
+
+  /// Empty state title with no routines at all.
+  ///
+  /// In en, this message translates to:
+  /// **'No routines yet'**
+  String get routinesEmptyTitle;
+
+  /// Empty state message with no routines at all.
+  ///
+  /// In en, this message translates to:
+  /// **'A routine holds days; a day is what you start a workout from. A starter program is the fastest way to get one.'**
+  String get routinesEmptyMessage;
+
+  /// Empty state action label opening the starter program gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse starter programs'**
+  String get routinesBrowseStarterPrograms;
+
+  /// Section label for unfoldered routines, and the "remove from any folder" option in the move-to-folder sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'No folder'**
+  String get routinesNoFolder;
+
+  /// Error title if the archived-routines query fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived routines could not be read'**
+  String get routinesArchivedReadError;
+
+  /// Empty state title on the archived list with nothing archived.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing archived'**
+  String get routinesNothingArchivedTitle;
+
+  /// Empty state message on the archived list with nothing archived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived routines stay startable and can be restored from here.'**
+  String get routinesNothingArchivedMessage;
+
+  /// A routine tile's subtitle before it has any days.
+  ///
+  /// In en, this message translates to:
+  /// **'No days yet'**
+  String get routinesNoDaysYet;
+
+  /// Restore-from-archive icon button tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get routinesRestoreTooltip;
+
+  /// Routine overflow-menu item.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to folder'**
+  String get routinesMoveToFolderAction;
+
+  /// Routine overflow-menu item.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate'**
+  String get routinesDuplicateAction;
+
+  /// Routine overflow-menu item.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get routinesArchiveAction;
+
+  /// Routine overflow-menu item.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get routinesDeleteAction;
+
+  /// Confirmation sheet title before deleting a routine.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String routinesDeleteConfirmTitle(String name);
+
+  /// Confirmation sheet message before deleting a routine. Carries a verbatim internal doc reference from the original copy — not something this migration should silently rewrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Its days and targets will be removed. Workouts you have already logged from it are never affected (`ADR-0004`).'**
+  String get routinesDeleteConfirmMessage;
+
+  /// Text field label in the rename/create-routine dialog, shared by every caller across the routines feature.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get routineNameFieldLabel;
+
+  /// Cancel button in the rename/create-routine dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get routineNameDialogCancel;
+
+  /// Save button in the rename/create-routine dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get routineNameDialogSave;
 }
 
 class _AppLocalizationsDelegate

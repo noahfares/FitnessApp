@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// Every destructive action names exactly what will be lost, in a sheet
 /// rather than a centred dialog — pickers and confirmations land in the thumb
@@ -10,21 +11,27 @@ import '../../../core/theme/app_spacing.dart';
 ///
 /// Returns `true` only if the confirming action was tapped; a dismissed sheet
 /// (tap outside, swipe down, back button) is the same as Cancel.
+///
+/// [confirmLabel]/[cancelLabel] default to null rather than a literal
+/// string default value — a parameter default has to be a compile-time
+/// constant, and the localized default can only be resolved once [context]
+/// is available, so it's resolved in the body instead (F-I18N-001).
 Future<bool> showConfirmSheet(
   BuildContext context, {
   required String title,
   required String message,
-  String confirmLabel = 'Delete',
-  String cancelLabel = 'Keep it',
+  String? confirmLabel,
+  String? cancelLabel,
   bool isDestructive = true,
 }) async {
+  final l10n = AppLocalizations.of(context)!;
   final result = await showModalBottomSheet<bool>(
     context: context,
     builder: (context) => ConfirmSheet(
       title: title,
       message: message,
-      confirmLabel: confirmLabel,
-      cancelLabel: cancelLabel,
+      confirmLabel: confirmLabel ?? l10n.confirmSheetDeleteLabel,
+      cancelLabel: cancelLabel ?? l10n.confirmSheetKeepItLabel,
       isDestructive: isDestructive,
     ),
   );

@@ -8,6 +8,7 @@ import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import '../../shell/widgets/empty_state.dart';
@@ -21,11 +22,14 @@ class RoutineListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final showArchived = ref.watch(routineListShowArchivedProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(showArchived ? 'Archived routines' : 'Routines'),
+        title: Text(
+          showArchived ? l10n.routinesArchivedTitle : l10n.routinesTitle,
+        ),
         actions: [
           IconButton(
             icon: Icon(
@@ -33,24 +37,26 @@ class RoutineListScreen extends ConsumerWidget {
                   ? Icons.checklist_outlined
                   : Icons.inventory_2_outlined,
             ),
-            tooltip: showArchived ? 'Active routines' : 'Archived routines',
+            tooltip: showArchived
+                ? l10n.routinesShowActiveTooltip
+                : l10n.routinesArchivedTitle,
             onPressed: () =>
                 ref.read(routineListShowArchivedProvider.notifier).toggle(),
           ),
           if (!showArchived) ...[
             IconButton(
               icon: const Icon(Icons.library_add_outlined),
-              tooltip: 'Starter programs',
+              tooltip: l10n.routinesStarterProgramsTooltip,
               onPressed: () => context.push(AppRoutes.starterPrograms),
             ),
             IconButton(
               icon: const Icon(Icons.create_new_folder_outlined),
-              tooltip: 'New folder',
+              tooltip: l10n.routinesNewFolderAction,
               onPressed: () => unawaited(_createFolder(context, ref)),
             ),
             IconButton(
               icon: const Icon(Icons.add),
-              tooltip: 'New routine',
+              tooltip: l10n.routinesNewRoutineAction,
               onPressed: () => unawaited(_createRoutine(context, ref)),
             ),
           ],
@@ -61,7 +67,11 @@ class RoutineListScreen extends ConsumerWidget {
   }
 
   Future<void> _createRoutine(BuildContext context, WidgetRef ref) async {
-    final name = await promptRoutineName(context, title: 'New routine');
+    final l10n = AppLocalizations.of(context)!;
+    final name = await promptRoutineName(
+      context,
+      title: l10n.routinesNewRoutineAction,
+    );
     if (name == null || name.trim().isEmpty) return;
     final routine = await ref
         .read(routineRepositoryProvider)
@@ -71,7 +81,11 @@ class RoutineListScreen extends ConsumerWidget {
   }
 
   Future<void> _createFolder(BuildContext context, WidgetRef ref) async {
-    final name = await promptRoutineName(context, title: 'New folder');
+    final l10n = AppLocalizations.of(context)!;
+    final name = await promptRoutineName(
+      context,
+      title: l10n.routinesNewFolderAction,
+    );
     if (name == null || name.trim().isEmpty) return;
     await ref.read(routineRepositoryProvider).createFolder(name);
   }
@@ -82,19 +96,17 @@ class _RoutineList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final routines = ref.watch(routinesProvider);
     final folders = ref.watch(routineFoldersProvider);
 
-    return routines.view(errorTitle: 'Routines could not be read', (rows) {
+    return routines.view(errorTitle: l10n.routinesReadError, (rows) {
       if (rows.isEmpty) {
         return EmptyState(
           icon: Icons.checklist_outlined,
-          title: 'No routines yet',
-          message:
-              'A routine holds days; a day is what you start a '
-              'workout from. A starter program is the fastest way to '
-              'get one.',
-          actionLabel: 'Browse starter programs',
+          title: l10n.routinesEmptyTitle,
+          message: l10n.routinesEmptyMessage,
+          actionLabel: l10n.routinesBrowseStarterPrograms,
           onAction: () => context.push(AppRoutes.starterPrograms),
         );
       }
@@ -155,6 +167,7 @@ class _FolderSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Column(
@@ -163,7 +176,7 @@ class _FolderSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
             child: Text(
-              folder?.name ?? 'No folder',
+              folder?.name ?? l10n.routinesNoFolder,
               style: theme.textTheme.titleSmall,
             ),
           ),
@@ -179,16 +192,15 @@ class _ArchivedRoutineList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final archived = ref.watch(archivedRoutinesProvider);
     return archived.view(
-      errorTitle: 'Archived routines could not be read',
+      errorTitle: l10n.routinesArchivedReadError,
       (rows) => rows.isEmpty
-          ? const EmptyState(
+          ? EmptyState(
               icon: Icons.inventory_2_outlined,
-              title: 'Nothing archived',
-              message:
-                  'Archived routines stay startable and can be '
-                  'restored from here.',
+              title: l10n.routinesNothingArchivedTitle,
+              message: l10n.routinesNothingArchivedMessage,
             )
           : ListView.builder(
               padding: const EdgeInsets.all(AppSpacing.screen),
@@ -208,13 +220,16 @@ class _RoutineTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final days = ref.watch(routineDaysProvider(routine.id));
     return Card(
       child: ListTile(
         title: Text(routine.name),
         subtitle: days.when(
           data: (rows) => Text(
-            rows.isEmpty ? 'No days yet' : rows.map((d) => d.name).join(' · '),
+            rows.isEmpty
+                ? l10n.routinesNoDaysYet
+                : rows.map((d) => d.name).join(' · '),
           ),
           loading: () => const SizedBox.shrink(),
           error: (_, _) => const SizedBox.shrink(),
@@ -222,7 +237,7 @@ class _RoutineTile extends ConsumerWidget {
         trailing: isArchived
             ? IconButton(
                 icon: const Icon(Icons.unarchive_outlined),
-                tooltip: 'Restore',
+                tooltip: l10n.routinesRestoreTooltip,
                 onPressed: () => unawaited(
                   ref
                       .read(routineRepositoryProvider)
@@ -232,22 +247,22 @@ class _RoutineTile extends ConsumerWidget {
             : PopupMenuButton<_RoutineAction>(
                 onSelected: (action) =>
                     unawaited(_handle(context, ref, action)),
-                itemBuilder: (context) => const [
+                itemBuilder: (context) => [
                   PopupMenuItem(
                     value: _RoutineAction.moveToFolder,
-                    child: Text('Move to folder'),
+                    child: Text(l10n.routinesMoveToFolderAction),
                   ),
                   PopupMenuItem(
                     value: _RoutineAction.duplicate,
-                    child: Text('Duplicate'),
+                    child: Text(l10n.routinesDuplicateAction),
                   ),
                   PopupMenuItem(
                     value: _RoutineAction.archive,
-                    child: Text('Archive'),
+                    child: Text(l10n.routinesArchiveAction),
                   ),
                   PopupMenuItem(
                     value: _RoutineAction.delete,
-                    child: Text('Delete'),
+                    child: Text(l10n.routinesDeleteAction),
                   ),
                 ],
               ),
@@ -270,12 +285,11 @@ class _RoutineTile extends ConsumerWidget {
       case _RoutineAction.archive:
         await repo.setArchived(routine.id, isArchived: true);
       case _RoutineAction.delete:
+        final l10n = AppLocalizations.of(context)!;
         final confirmed = await showConfirmSheet(
           context,
-          title: 'Delete ${routine.name}?',
-          message:
-              'Its days and targets will be removed. Workouts you have '
-              'already logged from it are never affected (`ADR-0004`).',
+          title: l10n.routinesDeleteConfirmTitle(routine.name),
+          message: l10n.routinesDeleteConfirmMessage,
         );
         if (confirmed) await repo.delete(routine.id);
     }
@@ -285,6 +299,7 @@ class _RoutineTile extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final folders = await ref.read(routineFoldersProvider.future);
     if (!context.mounted) return;
     final repo = ref.read(routineRepositoryProvider);
@@ -297,7 +312,7 @@ class _RoutineTile extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: const Text('No folder'),
+              title: Text(l10n.routinesNoFolder),
               onTap: () {
                 unawaited(repo.setFolder(routine.id, null));
                 Navigator.of(sheetContext).pop();
@@ -313,13 +328,13 @@ class _RoutineTile extends ConsumerWidget {
               ),
             ListTile(
               leading: const Icon(Icons.add),
-              title: const Text('New folder'),
+              title: Text(l10n.routinesNewFolderAction),
               onTap: () async {
                 Navigator.of(sheetContext).pop();
                 if (!context.mounted) return;
                 final name = await promptRoutineName(
                   context,
-                  title: 'New folder',
+                  title: l10n.routinesNewFolderAction,
                 );
                 if (name == null || name.trim().isEmpty) return;
                 final created = await repo.createFolder(name);
@@ -342,6 +357,7 @@ Future<String?> promptRoutineName(
   required String title,
   String initial = '',
 }) {
+  final l10n = AppLocalizations.of(context)!;
   final controller = TextEditingController(text: initial);
   return showDialog<String>(
     context: context,
@@ -351,17 +367,17 @@ Future<String?> promptRoutineName(
         controller: controller,
         autofocus: true,
         textCapitalization: TextCapitalization.words,
-        decoration: const InputDecoration(labelText: 'Name'),
+        decoration: InputDecoration(labelText: l10n.routineNameFieldLabel),
         onSubmitted: (value) => Navigator.of(context).pop(value),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(l10n.routineNameDialogCancel),
         ),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(controller.text),
-          child: const Text('Save'),
+          child: Text(l10n.routineNameDialogSave),
         ),
       ],
     ),

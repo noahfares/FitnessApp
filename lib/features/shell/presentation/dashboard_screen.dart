@@ -9,6 +9,7 @@ import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
 import '../../../domain/history/workout_history.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../body/application/body_providers.dart';
 import '../../body/presentation/log_bodyweight_sheet.dart';
 import '../../history/application/history_providers.dart';
@@ -35,15 +36,18 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final recent = ref.watch(recentWorkoutsProvider);
 
     return Scaffold(
       appBar: AppBar(
+        // The product name, not translatable copy — brand names stay as-is
+        // across locales the same way any other app's name would.
         title: const Text('FitnessApp'),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            tooltip: 'Settings',
+            tooltip: l10n.dashboardSettingsTooltip,
             onPressed: () => context.push(AppRoutes.settings),
           ),
         ],
@@ -57,15 +61,18 @@ class DashboardScreen extends ConsumerWidget {
           const SizedBox(height: AppSpacing.md),
           const _BodyweightCard(),
           const SizedBox(height: AppSpacing.xl),
-          Text('Recent workouts', style: theme.textTheme.titleMedium),
+          Text(
+            l10n.dashboardRecentWorkoutsTitle,
+            style: theme.textTheme.titleMedium,
+          ),
           const SizedBox(height: AppSpacing.sm),
           recent.view(
             (entries) => entries.isEmpty
                 ? EmptyState(
                     icon: Icons.calendar_month_outlined,
-                    title: 'No workouts yet',
-                    message: 'Your finished sessions will show up here.',
-                    actionLabel: 'Start a workout',
+                    title: l10n.dashboardEmptyTitle,
+                    message: l10n.dashboardEmptyMessage,
+                    actionLabel: l10n.dashboardStartWorkout,
                     onAction: () => unawaited(showStartWorkoutSheet(context)),
                   )
                 : Column(
@@ -74,7 +81,7 @@ class DashboardScreen extends ConsumerWidget {
                         _RecentWorkoutTile(entry: entry),
                     ],
                   ),
-            errorTitle: 'Recent workouts could not be read',
+            errorTitle: l10n.dashboardRecentWorkoutsError,
           ),
           const SizedBox(height: AppSpacing.xl),
           Row(
@@ -83,7 +90,7 @@ class DashboardScreen extends ConsumerWidget {
                 child: OutlinedButton.icon(
                   onPressed: () => context.push(AppRoutes.exercises),
                   icon: const Icon(Icons.fitness_center),
-                  label: const Text('Exercises'),
+                  label: Text(l10n.dashboardExercisesButton),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -91,7 +98,7 @@ class DashboardScreen extends ConsumerWidget {
                 child: OutlinedButton.icon(
                   onPressed: () => context.push(AppRoutes.history),
                   icon: const Icon(Icons.calendar_month_outlined),
-                  label: const Text('History'),
+                  label: Text(l10n.dashboardHistoryButton),
                 ),
               ),
             ],
@@ -111,6 +118,7 @@ class _ResumeOrStartCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final active = ref.watch(activeWorkoutProvider).value;
 
     if (active == null) {
@@ -120,12 +128,15 @@ class _ResumeOrStartCard extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Ready to train?', style: theme.textTheme.titleMedium),
+              Text(
+                l10n.dashboardReadyToTrain,
+                style: theme.textTheme.titleMedium,
+              ),
               const SizedBox(height: AppSpacing.sm),
               FilledButton.icon(
                 onPressed: () => unawaited(showStartWorkoutSheet(context)),
                 icon: const Icon(Icons.add),
-                label: const Text('Start a workout'),
+                label: Text(l10n.dashboardStartWorkout),
               ),
             ],
           ),
@@ -154,7 +165,7 @@ class _ResumeOrStartCard extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      'In progress · ${formatElapsed(elapsed)}',
+                      l10n.dashboardInProgress(formatElapsed(elapsed)),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onPrimaryContainer,
                       ),
@@ -182,6 +193,7 @@ class _TodaysScheduleCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final active = ref.watch(activeWorkoutProvider).value;
     if (active != null) return const SizedBox.shrink();
 
@@ -196,7 +208,7 @@ class _TodaysScheduleCard extends ConsumerWidget {
             Card(
               child: ListTile(
                 leading: const Icon(Icons.today_outlined),
-                title: Text('Today: ${day.dayName}'),
+                title: Text(l10n.dashboardTodaySchedule(day.dayName)),
                 subtitle: Text(day.routineName),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push(
@@ -218,6 +230,7 @@ class _BodyweightCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final latest = ref.watch(latestBodyweightProvider).value;
     final formatter = ref.watch(quantityFormatterProvider);
 
@@ -226,12 +239,12 @@ class _BodyweightCard extends ConsumerWidget {
         leading: const Icon(Icons.monitor_weight_outlined),
         title: Text(
           latest == null
-              ? 'No bodyweight logged yet'
+              ? l10n.dashboardNoBodyweight
               : formatter.bodyweight(Mass.grams(latest.valueCanonical)),
           style: theme.textTheme.titleMedium,
         ),
         subtitle: latest == null
-            ? const Text('Log it to track alongside your lifts.')
+            ? Text(l10n.dashboardBodyweightHint)
             : Text(
                 DateFormat.yMMMd().format(
                   DateTime.fromMillisecondsSinceEpoch(latest.measuredAt),
@@ -239,7 +252,7 @@ class _BodyweightCard extends ConsumerWidget {
               ),
         trailing: IconButton(
           icon: const Icon(Icons.add),
-          tooltip: 'Log bodyweight',
+          tooltip: l10n.dashboardLogBodyweightTooltip,
           onPressed: () => unawaited(showLogBodyweightSheet(context)),
         ),
         onTap: () => context.push(AppRoutes.body),
@@ -256,13 +269,13 @@ class _RecentWorkoutTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final formatter = ref.watch(quantityFormatterProvider);
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(entry.name),
       subtitle: Text(
-        '${entry.exerciseCount} '
-        '${entry.exerciseCount == 1 ? 'exercise' : 'exercises'} · '
+        '${l10n.dashboardExerciseCount(entry.exerciseCount)} · '
         '${formatter.volume(Mass.grams(entry.totalVolumeGrams))}',
         style: theme.textTheme.bodySmall,
       ),
