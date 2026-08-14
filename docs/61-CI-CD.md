@@ -2,25 +2,32 @@
 
 GitHub Actions. Features `F-REL-001` through `F-REL-005`.
 
-Two workflows, deliberately: one that runs constantly and must stay fast, and one
-that runs on tags and must be exactly right.
+Two workflows, deliberately: one that runs on demand and must stay fast, and one
+that runs on every push to `main` and must be exactly right.
 
 ---
 
-## `ci.yml` — every push
+## `ci.yml` — manual, on demand
 
-Runs on every push to any branch. Deliberately **not** also on `pull_request`:
-for a same-repo PR (the only kind this solo project has), the PR's head is a
-branch push, so a `pull_request` trigger alongside `push` would just run CI
-twice for the same commit. GitHub attaches a push-triggered run to a PR's
-checks by commit SHA regardless of which event triggered it, so push-only
-loses nothing here. Reconsider if the project ever takes fork contributions
-(`F-REL-010`), since a fork's push doesn't reach this repo — only its PR does.
+Runs only via `workflow_dispatch` — no `push` trigger. It ran on every push
+through v0.48.4; that meant a full toolchain run (Flutter setup, test suite,
+debug APK build and upload) for every commit, which burned the free tier's
+Actions minutes and pushed artifact storage past quota (93 artifacts, ~3.1 GB,
+almost entirely debug APKs uploaded with no retention limit). `tools/verify.sh`
+already runs the same checks locally before every push
+([`60-ENGINEERING.md`](60-ENGINEERING.md)), so the automatic run was mostly
+re-proving what the local one already caught.
 
-Also carries `workflow_dispatch`, so a push that GitHub never turns into a run
-(seen in practice when the account's Actions spending limit is exhausted —
-the run object is never created at all, not even queued) can be fired
-manually for the current head of any branch without an empty commit.
+Trigger it by hand — the Actions tab's "Run workflow" button, or:
+
+```bash
+gh workflow run ci.yml --ref main
+```
+
+— at the end of a phase, before on-device manual testing, or any other time
+the real CI signal (not just `tools/verify.sh`'s local approximation) is
+wanted. `tag.yml` below is unaffected by this — it still runs, and tags,
+every push to `main` regardless of whether `ci.yml` has been run.
 
 **Steps**
 
@@ -52,9 +59,10 @@ manually for the current head of any branch without an empty commit.
 
 **Requirements**
 
-- Total runtime under ~10 minutes on the free tier. If it creeps past that,
-  split the APK build onto pushes to the default branch only.
-- Red CI blocks merge.
+- Total runtime under ~10 minutes on the free tier. It's a manual, on-demand
+  run now rather than a background one, so the budget matters even more —
+  nobody should be waiting ten-plus minutes on something they explicitly
+  asked for.
 - No secrets are used by this workflow at all. It must run correctly on a fork.
 
 ---
@@ -100,11 +108,14 @@ Runs only on tags matching `v*`. Produces the artefacts users actually install.
 
 ## Branch protection
 
-On the default branch, once the project has code:
+On the default branch:
 
-- `ci.yml` must pass.
 - No force pushes.
 - Linear history.
+
+`ci.yml` is no longer a push-triggered check, so it isn't a required status
+check here — it's an on-demand run, not a gate. `tools/verify.sh` is what
+actually gates a commit, run locally before every push.
 
 ## Caching
 

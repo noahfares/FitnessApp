@@ -5,13 +5,16 @@ Blocks: F-REL-002
 Reads: 62-RELEASE, 61-CI-CD
 
 ## Spec
-1. On every push and pull request: `flutter analyze`, `flutter test`, and a debug
-   APK build.
+1. Triggered manually via `workflow_dispatch` — not automatically on every
+   push (changed in v0.48.5; ran on every push through v0.48.4, which burned
+   Actions minutes and artifact storage on every commit). Runs
+   `flutter analyze`, `flutter test`, and a debug APK build on demand: end of
+   a phase, before on-device manual testing, or whenever explicitly asked
+   for. `tools/verify.sh` covers the everyday per-commit case locally.
 2. The layer rule from [`../20-ARCHITECTURE.md`](../../20-ARCHITECTURE.md) —
    `domain/` importing nothing from Flutter — is enforced here, not by good
    intentions.
-3. Debug APK uploaded as a build artefact so any commit is installable.
-4. Red CI blocks merge.
+3. Debug APK uploaded as a build artefact so any on-demand run is installable.
 
 ## Acceptance
 - [x] A `domain/` file importing Flutter fails CI. `tools/check-layers.sh` exits

@@ -51,6 +51,21 @@ commit.** It re-runs the entire suite and full analyzer every time — cheap
 once, wasteful as a mid-development sanity check. While iterating, use the
 targeted commands below instead and save the full run for the actual gate.
 
+### Trigger a full CI run
+
+`ci.yml` is manual (`workflow_dispatch`) only — it does **not** run on push.
+`tools/verify.sh` is the everyday per-commit gate; CI is the occasional real
+signal on top of it (a clean Flutter toolchain, no local drift, a fresh debug
+APK). Trigger it explicitly:
+
+```bash
+gh workflow run ci.yml --ref main
+```
+
+Do this when closing out a phase, before a round of on-device manual testing,
+or whenever asked for — not after every commit. `tag.yml` is unaffected: it
+still tags every push to `main` regardless of whether CI has been run.
+
 ### Run the tests, and analyze, cheaply while iterating
 
 `tools/test.sh` — failures only, one line when the suite is green (254 lines of

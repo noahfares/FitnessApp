@@ -1,21 +1,22 @@
-# F-REL-001 — checks on every push.
+# F-REL-001 — checks on demand.
 #
-# Spec: docs/61-CI-CD.md. Must stay fast (target under ~10 minutes) because it
-# runs constantly. Uses no secrets, so it works correctly on a fork.
+# Spec: docs/61-CI-CD.md. Must stay fast (target under ~10 minutes) since it's
+# the real signal before a phase closes or before manual testing, not
+# something to sit and wait on for the everyday case. Uses no secrets, so it
+# works correctly on a fork.
 #
-# Push-only, deliberately: a `pull_request` trigger alongside `push` runs CI
-# twice for the same commit on any branch with an open PR, since a
-# same-repo PR's head is also a branch push. GitHub attaches any workflow
-# run against a commit's SHA to that commit's PR checks regardless of which
-# event triggered it, so pushing is sufficient here — solo project, no fork
-# contributors to accommodate. Revisit if that changes (`F-REL-010`).
+# Manual only, deliberately: this ran on every push through v0.48.4, but a
+# real toolchain run (Flutter setup, full test suite, a debug APK build and
+# upload) for every commit burned the free tier's Actions minutes and pushed
+# artifact storage past quota (93 artifacts, ~3.1 GB, almost entirely debug
+# APKs). `tools/verify.sh` already runs the same checks locally before every
+# push (docs/60-ENGINEERING.md), so the automatic run was mostly re-proving
+# what the local one already caught. Trigger it by hand instead — end of a
+# phase, before on-device manual testing, or any time the real CI signal is
+# wanted rather than the local approximation.
 name: ci
 
 on:
-  push:
-    branches: ['**']
-  # Lets a stuck or missed push-triggered run be fired manually for the
-  # current head of any branch, without an empty commit.
   workflow_dispatch:
 
 concurrency:
