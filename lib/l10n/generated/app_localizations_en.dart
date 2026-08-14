@@ -255,4 +255,260 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routineNameDialogSave => 'Save';
+
+  @override
+  String get catalogTitle => 'Exercises';
+
+  @override
+  String get catalogArchivedTitle => 'Archived exercises';
+
+  @override
+  String get catalogShowActiveTooltip => 'Active exercises';
+
+  @override
+  String get catalogArchiveByEquipment => 'Archive by equipment';
+
+  @override
+  String get catalogSearchHint => 'Search exercises';
+
+  @override
+  String get catalogClearSearchTooltip => 'Clear search';
+
+  @override
+  String get catalogReadError => 'The catalogue could not be read';
+
+  @override
+  String get catalogNewExercise => 'New exercise';
+
+  @override
+  String catalogArchiveEquipmentConfirmTitle(String equipment) {
+    return 'Archive all $equipment exercises?';
+  }
+
+  @override
+  String catalogArchiveEquipmentConfirmMessage(String equipment) {
+    return 'Every non-archived $equipment exercise is hidden from pickers and search. History is untouched, and each can be restored individually from the archived list.';
+  }
+
+  @override
+  String get catalogArchiveConfirmLabel => 'Archive';
+
+  @override
+  String catalogArchivedCount(num count, String equipment) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Archived $count $equipment exercises.',
+      one: 'Archived $count $equipment exercise.',
+      zero: 'Nothing to archive.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get catalogArchivedReadError => 'Archived exercises could not be read';
+
+  @override
+  String get catalogNothingArchivedTitle => 'Nothing archived';
+
+  @override
+  String get catalogNothingArchivedMessage =>
+      'Archived exercises stay in your history and can be restored from here.';
+
+  @override
+  String get catalogRestoreAction => 'Restore';
+
+  @override
+  String get catalogNoMatchTitle => 'No exercises match';
+
+  @override
+  String get catalogNoMatchMessage =>
+      'Try a shorter search, or clear a filter.';
+
+  @override
+  String get catalogEmptyTitle => 'The catalogue is empty';
+
+  @override
+  String get catalogEmptyMessage =>
+      'Seeding runs at startup; this should not happen.';
+
+  @override
+  String catalogFilteredCount(num shown, num total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total exercises',
+      one: '$total exercise',
+    );
+    return '$shown of $_temp0';
+  }
+
+  @override
+  String get catalogUnfavouriteTooltip => 'Unfavourite';
+
+  @override
+  String get catalogFavouriteTooltip => 'Favourite';
+
+  @override
+  String get catalogExerciseHistoryTooltip => 'History';
+
+  @override
+  String get insightsTitle => 'Insights';
+
+  @override
+  String get insightsNoSessionsTitle => 'No sessions yet';
+
+  @override
+  String get insightsNoSessionsMessage =>
+      'Log a few workouts to see volume and muscle coverage here.';
+
+  @override
+  String get insightsConsistencyButton => 'Consistency';
+
+  @override
+  String get insightsPrTimelineButton => 'PR timeline';
+
+  @override
+  String get insightsMuscleBalanceTitle => 'Muscle balance';
+
+  @override
+  String get insightsMuscleBalanceSubtitle =>
+      'Trailing 4 weeks. A rough guide, not a prescription.';
+
+  @override
+  String get insightsPushPullLabel => 'Push : pull';
+
+  @override
+  String get insightsQuadHamstringLabel => 'Quad : hamstring';
+
+  @override
+  String insightsRatioNoData(String label) {
+    return '$label — no data recorded';
+  }
+
+  @override
+  String get insightsTrainingLoadTitle => 'Training load';
+
+  @override
+  String get insightsAcwrInsufficientData =>
+      'Needs at least 28 days of logged training to show.';
+
+  @override
+  String get insightsAcwrExplanation =>
+      'Ratio of this week\'s volume to your trailing 4-week average (ACWR). 0.8–1.3 is typically described as a steady ramp rate; this is information, not a warning.';
+
+  @override
+  String get insightsDurationRestTitle => 'Duration & rest';
+
+  @override
+  String get insightsRestComplianceUnknown => 'not enough logged rest yet';
+
+  @override
+  String insightsRestCompliancePercent(num percent) {
+    return '$percent% of prescribed rest';
+  }
+
+  @override
+  String get insightsSessionDurationLabel => 'Session duration';
+
+  @override
+  String get insightsEveryFinishedSession => 'Every finished session';
+
+  @override
+  String get insightsRestComplianceExplanation =>
+      'Average actual rest vs. each exercise\'s resolved default — an approximation, not a per-set historical record.';
+
+  @override
+  String get insightsMuscleHeatTitle => 'Muscle heat map';
+
+  @override
+  String get insightsMuscleHeatSubtitle => 'Relative training volume by muscle';
+
+  @override
+  String get insightsBodyMapFront => 'Front';
+
+  @override
+  String get insightsBodyMapBack => 'Back';
+
+  @override
+  String get insightsMuscleHeatExplanation =>
+      'Relative to your hardest-trained muscle over the selected range.';
+
+  @override
+  String get insightsByMuscleTitle => 'By muscle';
+
+  @override
+  String insightsVolumeForMuscle(String muscle) {
+    return 'Volume — $muscle';
+  }
+
+  @override
+  String insightsHardSetsForMuscle(String muscle) {
+    return 'Hard sets per week — $muscle';
+  }
+
+  @override
+  String get insightsContributingExercises => 'Contributing exercises';
+
+  @override
+  String insightsContributingExercisesForWeek(String week) {
+    return 'Contributing exercises — week of $week';
+  }
+
+  @override
+  String get insightsClearAction => 'Clear';
+
+  @override
+  String insightsContributorSets(String sets) {
+    return '$sets sets';
+  }
+
+  @override
+  String get insightsOverallVolumeTitle => 'Overall weekly volume';
+
+  @override
+  String get insightsRangeFourWeeks => 'Last 4 weeks';
+
+  @override
+  String get insightsRangeThreeMonths => 'Last 3 months';
+
+  @override
+  String get insightsRangeSixMonths => 'Last 6 months';
+
+  @override
+  String get insightsRangeOneYear => 'Last year';
+
+  @override
+  String get insightsRangeAllTime => 'All time';
+
+  @override
+  String get insightsRangeCustom => 'Custom range';
+
+  @override
+  String get insightsRepRangesTitle => 'Rep ranges';
+
+  @override
+  String insightsRepRangeSubtitle(String range) {
+    return '$range · sets by rep range';
+  }
+
+  @override
+  String get insightsIntensityE1rmTitle => 'Intensity (% of e1RM)';
+
+  @override
+  String insightsIntensityE1rmSubtitle(String range) {
+    return '$range · sets with a known e1RM baseline';
+  }
+
+  @override
+  String get insightsIntensityRpeTitle => 'Intensity (RPE)';
+
+  @override
+  String get insightsIntensityRpeExplanation =>
+      'A more honest measure than an e1RM estimate, where logged.';
+
+  @override
+  String insightsIntensityRpeSubtitle(String range) {
+    return '$range · sets by RPE';
+  }
 }

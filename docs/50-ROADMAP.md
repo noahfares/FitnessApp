@@ -784,6 +784,24 @@ internal doc citation, `` (`ADR-0004`) ``, real broken-looking copy for an
 end user — kept verbatim in the ARB value, with a follow-up task filed to
 fix the copy itself separately from this migration.
 
+**Batch 6.2, third pass — the last two tab-root screens.** `F-I18N-001`
+still `in-progress`. `ExerciseCatalogScreen` and `InsightsScreen` are now
+migrated — the latter by far the largest single-screen migration yet, over
+40 keys across every section heading, empty/insufficient-data state and
+explanatory paragraph. All five tab-root screens are migrated at their top
+level now, `ExerciseCatalogScreen` makes a sixth real screen. Deliberately
+left as literals within `InsightsScreen`, same reasoning `22-UNITS.md`
+already applies to unit symbols: rep-range/intensity-zone bucket labels and
+every chart `valueLabel` formatter closure read as formatted numeric
+ranges, not translatable prose. `date_range_selector.dart`'s own chip
+labels are a separate widget this pass didn't touch, so the range-preset
+prose now exists in ARB under two different names for the two different
+places it's read from — a duplication to reconcile once that selector is
+migrated, not a bug now. Still English literals: routine/exercise
+sub-screens beyond the list, the rest of logging, the rest of history,
+body, `ConsistencyScreen`/`PrTimelineScreen`, every Settings sub-screen
+beyond the root, `AppShell`'s nav labels, and onboarding.
+
 **Batch 6.3 — onboarding.** `F-SET-011` done — the last item Phase 6
 scheduled ahead of release/health. No schema change.
 `OnboardingScreen` (`lib/features/onboarding/presentation/`) is a

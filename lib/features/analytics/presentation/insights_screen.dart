@@ -16,6 +16,7 @@ import '../../../domain/analytics/muscle_heat.dart';
 import '../../../domain/analytics/sets_per_muscle.dart';
 import '../../../domain/analytics/weekly_volume.dart';
 import '../../../domain/catalog/muscle_taxonomy.dart' show BodyMapView;
+import '../../../l10n/generated/app_localizations.dart';
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../settings/application/week_start_provider.dart';
@@ -38,10 +39,11 @@ class InsightsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final records = ref.watch(analyticsSetRecordsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Insights')),
+      appBar: AppBar(title: Text(l10n.insightsTitle)),
       body: records.view(
         (records) => records.isEmpty
             ? const _NoDataYet()
@@ -55,34 +57,37 @@ class _NoDataYet extends StatelessWidget {
   const _NoDataYet();
 
   @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(AppSpacing.xl),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.insights_outlined,
-            size: 40,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            'No sessions yet',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            'Log a few workouts to see volume and muscle coverage here.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.insights_outlined,
+              size: 40,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              l10n.insightsNoSessionsTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              l10n.insightsNoSessionsMessage,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _InsightsBody extends ConsumerStatefulWidget {
@@ -105,6 +110,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final selection = ref.watch(dateRangeSelectionProvider);
     final weekStart = ref.watch(weekStartProvider);
     final prefs = ref.watch(unitPreferencesProvider);
@@ -114,7 +120,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
     final inRange = widget.records
         .where((r) => range.contains(r.date))
         .toList();
-    final rangeLabel = _rangeLabel(selection.preset);
+    final rangeLabel = _rangeLabel(l10n, selection.preset);
     final muscleName = _selectedMuscle.name;
 
     final overallVolume = weeklyVolume(inRange, weekStart: weekStart);
@@ -156,7 +162,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
                 child: OutlinedButton.icon(
                   onPressed: () => context.push(AppRoutes.consistency),
                   icon: const Icon(Icons.calendar_month_outlined),
-                  label: const Text('Consistency'),
+                  label: Text(l10n.insightsConsistencyButton),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -164,7 +170,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
                 child: OutlinedButton.icon(
                   onPressed: () => context.push(AppRoutes.prTimeline),
                   icon: const Icon(Icons.emoji_events_outlined),
-                  label: const Text('PR timeline'),
+                  label: Text(l10n.insightsPrTimelineButton),
                 ),
               ),
             ],
@@ -173,13 +179,16 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         const SizedBox(height: AppSpacing.lg),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-          child: Text('Muscle balance', style: theme.textTheme.titleMedium),
+          child: Text(
+            l10n.insightsMuscleBalanceTitle,
+            style: theme.textTheme.titleMedium,
+          ),
         ),
         const SizedBox(height: AppSpacing.xs),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: Text(
-            'Trailing 4 weeks. A rough guide, not a prescription.',
+            l10n.insightsMuscleBalanceSubtitle,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -191,12 +200,15 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
           child: Row(
             children: [
               Expanded(
-                child: _RatioTile(label: 'Push : pull', ratio: pushPull.ratio),
+                child: _RatioTile(
+                  label: l10n.insightsPushPullLabel,
+                  ratio: pushPull.ratio,
+                ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: _RatioTile(
-                  label: 'Quad : hamstring',
+                  label: l10n.insightsQuadHamstringLabel,
                   ratio: quadHamstring.ratio,
                 ),
               ),
@@ -215,7 +227,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: Text(
-            'Overall weekly volume',
+            l10n.insightsOverallVolumeTitle,
             style: theme.textTheme.titleMedium,
           ),
         ),
@@ -240,7 +252,10 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('By muscle', style: theme.textTheme.titleMedium),
+              Text(
+                l10n.insightsByMuscleTitle,
+                style: theme.textTheme.titleMedium,
+              ),
               DropdownButton<Muscle>(
                 value: _selectedMuscle,
                 onChanged: (value) {
@@ -263,7 +278,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: Text(
-            'Volume — ${_selectedMuscle.label}',
+            l10n.insightsVolumeForMuscle(_selectedMuscle.label),
             style: theme.textTheme.bodyMedium,
           ),
         ),
@@ -286,7 +301,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: Text(
-            'Hard sets per week — ${_selectedMuscle.label}',
+            l10n.insightsHardSetsForMuscle(_selectedMuscle.label),
             style: theme.textTheme.bodyMedium,
           ),
         ),
@@ -318,15 +333,16 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
               children: [
                 Text(
                   _selectedWeek == null
-                      ? 'Contributing exercises'
-                      : 'Contributing exercises — week of '
-                            '${DateFormat.MMMd().format(_selectedWeek!)}',
+                      ? l10n.insightsContributingExercises
+                      : l10n.insightsContributingExercisesForWeek(
+                          DateFormat.MMMd().format(_selectedWeek!),
+                        ),
                   style: theme.textTheme.labelLarge,
                 ),
                 if (_selectedWeek != null)
                   TextButton(
                     onPressed: () => setState(() => _selectedWeek = null),
-                    child: const Text('Clear'),
+                    child: Text(l10n.insightsClearAction),
                   ),
               ],
             ),
@@ -336,7 +352,9 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
               dense: true,
               title: Text(contributor.exerciseName),
               trailing: Text(
-                '${contributor.sets.toStringAsFixed(1)} sets',
+                l10n.insightsContributorSets(
+                  contributor.sets.toStringAsFixed(1),
+                ),
                 style: theme.textTheme.bodySmall,
               ),
             ),
@@ -347,14 +365,15 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
     );
   }
 
-  static String _rangeLabel(RangePreset preset) => switch (preset) {
-    RangePreset.fourWeeks => 'Last 4 weeks',
-    RangePreset.threeMonths => 'Last 3 months',
-    RangePreset.sixMonths => 'Last 6 months',
-    RangePreset.oneYear => 'Last year',
-    RangePreset.allTime => 'All time',
-    RangePreset.custom => 'Custom range',
-  };
+  static String _rangeLabel(AppLocalizations l10n, RangePreset preset) =>
+      switch (preset) {
+        RangePreset.fourWeeks => l10n.insightsRangeFourWeeks,
+        RangePreset.threeMonths => l10n.insightsRangeThreeMonths,
+        RangePreset.sixMonths => l10n.insightsRangeSixMonths,
+        RangePreset.oneYear => l10n.insightsRangeOneYear,
+        RangePreset.allTime => l10n.insightsRangeAllTime,
+        RangePreset.custom => l10n.insightsRangeCustom,
+      };
 }
 
 class _RatioTile extends StatelessWidget {
@@ -368,6 +387,7 @@ class _RatioTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -376,7 +396,7 @@ class _RatioTile extends StatelessWidget {
           style: theme.textTheme.headlineSmall,
         ),
         Text(
-          ratio == null ? '$label — no data recorded' : label,
+          ratio == null ? l10n.insightsRatioNoData(label) : label,
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
@@ -397,6 +417,7 @@ class _AcwrSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final acwr = ref.watch(acwrProvider);
 
     return acwr.view(
@@ -405,11 +426,14 @@ class _AcwrSection extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Training load', style: theme.textTheme.titleMedium),
+            Text(
+              l10n.insightsTrainingLoadTitle,
+              style: theme.textTheme.titleMedium,
+            ),
             const SizedBox(height: AppSpacing.xs),
             if (result == null || result.ratio == null)
               Text(
-                'Needs at least 28 days of logged training to show.',
+                l10n.insightsAcwrInsufficientData,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -420,9 +444,7 @@ class _AcwrSection extends ConsumerWidget {
                 style: theme.textTheme.headlineSmall,
               ),
               Text(
-                'Ratio of this week\'s volume to your trailing 4-week '
-                'average (ACWR). 0.8–1.3 is typically described as a steady '
-                'ramp rate; this is information, not a warning.',
+                l10n.insightsAcwrExplanation,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -452,23 +474,30 @@ class _DurationComplianceSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final duration = ref.watch(sessionDurationTrendProvider).value ?? const [];
     final complianceRatio = ref.watch(restComplianceProvider).value;
     final complianceLabel = complianceRatio == null
-        ? 'not enough logged rest yet'
-        : '${(complianceRatio * 100).round()}% of prescribed rest';
+        ? l10n.insightsRestComplianceUnknown
+        : l10n.insightsRestCompliancePercent((complianceRatio * 100).round());
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
       child: ExpansionTile(
         initiallyExpanded: false,
         tilePadding: EdgeInsets.zero,
-        title: Text('Duration & rest', style: theme.textTheme.titleMedium),
+        title: Text(
+          l10n.insightsDurationRestTitle,
+          style: theme.textTheme.titleMedium,
+        ),
         subtitle: Text(complianceLabel),
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: Text('Session duration', style: theme.textTheme.bodyMedium),
+            child: Text(
+              l10n.insightsSessionDurationLabel,
+              style: theme.textTheme.bodyMedium,
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
           TrendChart(
@@ -481,7 +510,7 @@ class _DurationComplianceSection extends ConsumerWidget {
                 ),
             ],
             valueLabel: (v) => '${v.toStringAsFixed(0)} min',
-            subtitle: 'Every finished session',
+            subtitle: l10n.insightsEveryFinishedSession,
             zoomEnabled: false,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -489,8 +518,7 @@ class _DurationComplianceSection extends ConsumerWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Average actual rest vs. each exercise\'s resolved default — '
-                'an approximation, not a per-set historical record.',
+                l10n.insightsRestComplianceExplanation,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -521,6 +549,7 @@ class _MuscleHeatSectionState extends ConsumerState<_MuscleHeatSection> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final intensity = muscleHeatIntensity(widget.records);
 
     return Padding(
@@ -528,15 +557,24 @@ class _MuscleHeatSectionState extends ConsumerState<_MuscleHeatSection> {
       child: ExpansionTile(
         initiallyExpanded: false,
         tilePadding: EdgeInsets.zero,
-        title: Text('Muscle heat map', style: theme.textTheme.titleMedium),
-        subtitle: const Text('Relative training volume by muscle'),
+        title: Text(
+          l10n.insightsMuscleHeatTitle,
+          style: theme.textTheme.titleMedium,
+        ),
+        subtitle: Text(l10n.insightsMuscleHeatSubtitle),
         children: [
           Align(
             alignment: Alignment.centerRight,
             child: SegmentedButton<BodyMapView>(
-              segments: const [
-                ButtonSegment(value: BodyMapView.front, label: Text('Front')),
-                ButtonSegment(value: BodyMapView.back, label: Text('Back')),
+              segments: [
+                ButtonSegment(
+                  value: BodyMapView.front,
+                  label: Text(l10n.insightsBodyMapFront),
+                ),
+                ButtonSegment(
+                  value: BodyMapView.back,
+                  label: Text(l10n.insightsBodyMapBack),
+                ),
               ],
               selected: {_view},
               onSelectionChanged: (s) => setState(() => _view = s.first),
@@ -546,8 +584,7 @@ class _MuscleHeatSectionState extends ConsumerState<_MuscleHeatSection> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'Relative to your hardest-trained muscle over the selected '
-              'range.',
+              l10n.insightsMuscleHeatExplanation,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -577,6 +614,7 @@ class _TrainingPatternsSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final weightRepsSets = records.where(
       (r) =>
@@ -615,7 +653,10 @@ class _TrainingPatternsSection extends ConsumerWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-          child: Text('Rep ranges', style: theme.textTheme.titleMedium),
+          child: Text(
+            l10n.insightsRepRangesTitle,
+            style: theme.textTheme.titleMedium,
+          ),
         ),
         const SizedBox(height: AppSpacing.sm),
         Padding(
@@ -628,7 +669,7 @@ class _TrainingPatternsSection extends ConsumerWidget {
                   label: _repRangeLabel(bucket),
                 ),
             ],
-            subtitle: '$rangeLabel · sets by rep range',
+            subtitle: l10n.insightsRepRangeSubtitle(rangeLabel),
             valueLabel: (v) => v.toStringAsFixed(0),
           ),
         ),
@@ -636,7 +677,7 @@ class _TrainingPatternsSection extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: Text(
-            'Intensity (% of e1RM)',
+            l10n.insightsIntensityE1rmTitle,
             style: theme.textTheme.titleMedium,
           ),
         ),
@@ -651,7 +692,7 @@ class _TrainingPatternsSection extends ConsumerWidget {
                   label: _intensityZoneLabel(zone),
                 ),
             ],
-            subtitle: '$rangeLabel · sets with a known e1RM baseline',
+            subtitle: l10n.insightsIntensityE1rmSubtitle(rangeLabel),
             valueLabel: (v) => v.toStringAsFixed(0),
           ),
         ),
@@ -659,13 +700,16 @@ class _TrainingPatternsSection extends ConsumerWidget {
           const SizedBox(height: AppSpacing.lg),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-            child: Text('Intensity (RPE)', style: theme.textTheme.titleMedium),
+            child: Text(
+              l10n.insightsIntensityRpeTitle,
+              style: theme.textTheme.titleMedium,
+            ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
             child: Text(
-              'A more honest measure than an e1RM estimate, where logged.',
+              l10n.insightsIntensityRpeExplanation,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -682,7 +726,7 @@ class _TrainingPatternsSection extends ConsumerWidget {
                     label: rpe.toStringAsFixed(1),
                   ),
               ],
-              subtitle: '$rangeLabel · sets by RPE',
+              subtitle: l10n.insightsIntensityRpeSubtitle(rangeLabel),
               valueLabel: (v) => v.toStringAsFixed(0),
             ),
           ),

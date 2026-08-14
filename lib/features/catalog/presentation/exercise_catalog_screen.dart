@@ -10,6 +10,7 @@ import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/db/tables/enums.dart';
 import '../../../domain/catalog/exercise_search.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import '../../shell/widgets/empty_state.dart';
@@ -46,6 +47,7 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final filter = ref.watch(catalogFilterProvider);
     final results = ref.watch(filteredExercisesProvider);
     final total = ref.watch(catalogIndexProvider).value?.total ?? 0;
@@ -53,7 +55,9 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(showArchived ? 'Archived exercises' : 'Exercises'),
+        title: Text(
+          showArchived ? l10n.catalogArchivedTitle : l10n.catalogTitle,
+        ),
         actions: [
           IconButton(
             icon: Icon(
@@ -61,14 +65,16 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
                   ? Icons.checklist_outlined
                   : Icons.inventory_2_outlined,
             ),
-            tooltip: showArchived ? 'Active exercises' : 'Archived exercises',
+            tooltip: showArchived
+                ? l10n.catalogShowActiveTooltip
+                : l10n.catalogArchivedTitle,
             onPressed: () =>
                 ref.read(exerciseListShowArchivedProvider.notifier).toggle(),
           ),
           if (!showArchived)
             IconButton(
               icon: const Icon(Icons.playlist_remove),
-              tooltip: 'Archive by equipment',
+              tooltip: l10n.catalogArchiveByEquipment,
               onPressed: () => unawaited(_archiveByEquipment(context, ref)),
             ),
         ],
@@ -89,13 +95,13 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
                     autocorrect: false,
                     textInputAction: TextInputAction.search,
                     decoration: InputDecoration(
-                      hintText: 'Search exercises',
+                      hintText: l10n.catalogSearchHint,
                       prefixIcon: const Icon(Icons.search),
                       suffixIcon: filter.query.isEmpty
                           ? null
                           : IconButton(
                               icon: const Icon(Icons.close),
-                              tooltip: 'Clear search',
+                              tooltip: l10n.catalogClearSearchTooltip,
                               onPressed: () {
                                 _search.clear();
                                 ref
@@ -121,7 +127,7 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
                       total: total,
                       filter: filter,
                     ),
-                    errorTitle: 'The catalogue could not be read',
+                    errorTitle: l10n.catalogReadError,
                   ),
                 ),
               ],
@@ -131,7 +137,7 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
           : FloatingActionButton.extended(
               onPressed: () => context.push(AppRoutes.exerciseNew),
               icon: const Icon(Icons.add),
-              label: const Text('New exercise'),
+              label: Text(l10n.catalogNewExercise),
             ),
     );
   }
@@ -140,6 +146,7 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
   /// to, say, a cable machine, doing this one exercise at a time is exactly
   /// the busywork the feature exists to avoid.
   Future<void> _archiveByEquipment(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
     final available =
         ref.read(catalogIndexProvider).value?.availableEquipment ??
         Equipment.values;
@@ -150,9 +157,11 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
         child: ListView(
           shrinkWrap: true,
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-              child: Text('Archive by equipment'),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.screen,
+              ),
+              child: Text(l10n.catalogArchiveByEquipment),
             ),
             for (final item in available)
               ListTile(
@@ -167,12 +176,9 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
 
     final confirmed = await showConfirmSheet(
       context,
-      title: 'Archive all ${equipment.label} exercises?',
-      message:
-          'Every non-archived ${equipment.label} exercise is hidden from '
-          'pickers and search. History is untouched, and each can be '
-          'restored individually from the archived list.',
-      confirmLabel: 'Archive',
+      title: l10n.catalogArchiveEquipmentConfirmTitle(equipment.label),
+      message: l10n.catalogArchiveEquipmentConfirmMessage(equipment.label),
+      confirmLabel: l10n.catalogArchiveConfirmLabel,
       isDestructive: false,
     );
     if (!confirmed) return;
@@ -185,12 +191,7 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(
-            count == 0
-                ? 'Nothing to archive.'
-                : 'Archived $count ${equipment.label} exercise'
-                      '${count == 1 ? '' : 's'}.',
-          ),
+          content: Text(l10n.catalogArchivedCount(count, equipment.label)),
         ),
       );
   }
@@ -201,16 +202,15 @@ class _ArchivedExerciseList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final archived = ref.watch(archivedExercisesProvider);
     return archived.view(
-      errorTitle: 'Archived exercises could not be read',
+      errorTitle: l10n.catalogArchivedReadError,
       (rows) => rows.isEmpty
-          ? const EmptyState(
+          ? EmptyState(
               icon: Icons.inventory_2_outlined,
-              title: 'Nothing archived',
-              message:
-                  'Archived exercises stay in your history and can be '
-                  'restored from here.',
+              title: l10n.catalogNothingArchivedTitle,
+              message: l10n.catalogNothingArchivedMessage,
             )
           : ListView.builder(
               padding: const EdgeInsets.all(AppSpacing.screen),
@@ -229,7 +229,7 @@ class _ArchivedExerciseList extends ConsumerWidget {
                           .read(exerciseRepositoryProvider)
                           .setArchived(exercise.id, isArchived: false),
                     ),
-                    child: const Text('Restore'),
+                    child: Text(l10n.catalogRestoreAction),
                   ),
                 );
               },
@@ -251,15 +251,16 @@ class _ExerciseList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (exercises.isEmpty) {
       return EmptyState(
         icon: filter.isActive ? Icons.search_off : Icons.fitness_center,
         title: filter.isActive
-            ? 'No exercises match'
-            : 'The catalogue is empty',
+            ? l10n.catalogNoMatchTitle
+            : l10n.catalogEmptyTitle,
         message: filter.isActive
-            ? 'Try a shorter search, or clear a filter.'
-            : 'Seeding runs at startup; this should not happen.',
+            ? l10n.catalogNoMatchMessage
+            : l10n.catalogEmptyMessage,
       );
     }
 
@@ -275,7 +276,7 @@ class _ExerciseList extends StatelessWidget {
               vertical: AppSpacing.xs,
             ),
             child: Text(
-              '${exercises.length} of $total exercises',
+              l10n.catalogFilteredCount(exercises.length, total),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -304,6 +305,7 @@ class _ExerciseTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     return ListTile(
       leading: IconButton(
         icon: Icon(
@@ -312,7 +314,9 @@ class _ExerciseTile extends ConsumerWidget {
               ? Theme.of(context).colorScheme.tertiary
               : null,
         ),
-        tooltip: exercise.isFavorite ? 'Unfavourite' : 'Favourite',
+        tooltip: exercise.isFavorite
+            ? l10n.catalogUnfavouriteTooltip
+            : l10n.catalogFavouriteTooltip,
         onPressed: () => unawaited(
           ref
               .read(exerciseRepositoryProvider)
@@ -327,7 +331,7 @@ class _ExerciseTile extends ConsumerWidget {
       ),
       trailing: IconButton(
         icon: const Icon(Icons.show_chart),
-        tooltip: 'History',
+        tooltip: l10n.catalogExerciseHistoryTooltip,
         onPressed: () => context.push(AppRoutes.exerciseDetail(exercise.id)),
       ),
       onTap: () => context.push(AppRoutes.exerciseEdit(exercise.id)),

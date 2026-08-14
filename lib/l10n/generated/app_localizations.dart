@@ -531,6 +531,420 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get routineNameDialogSave;
+
+  /// Catalogue app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercises'**
+  String get catalogTitle;
+
+  /// Archived-exercises app bar title, and the toggle button's tooltip when showing the active list.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived exercises'**
+  String get catalogArchivedTitle;
+
+  /// Toggle button tooltip when currently showing the archived list.
+  ///
+  /// In en, this message translates to:
+  /// **'Active exercises'**
+  String get catalogShowActiveTooltip;
+
+  /// Icon button tooltip and bottom-sheet header for bulk-archiving by equipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive by equipment'**
+  String get catalogArchiveByEquipment;
+
+  /// Catalogue search field hint text.
+  ///
+  /// In en, this message translates to:
+  /// **'Search exercises'**
+  String get catalogSearchHint;
+
+  /// Clear-search icon button tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get catalogClearSearchTooltip;
+
+  /// Error title if the catalogue query fails.
+  ///
+  /// In en, this message translates to:
+  /// **'The catalogue could not be read'**
+  String get catalogReadError;
+
+  /// FAB label for creating a custom exercise.
+  ///
+  /// In en, this message translates to:
+  /// **'New exercise'**
+  String get catalogNewExercise;
+
+  /// Confirmation sheet title before bulk-archiving by equipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive all {equipment} exercises?'**
+  String catalogArchiveEquipmentConfirmTitle(String equipment);
+
+  /// Confirmation sheet message before bulk-archiving by equipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Every non-archived {equipment} exercise is hidden from pickers and search. History is untouched, and each can be restored individually from the archived list.'**
+  String catalogArchiveEquipmentConfirmMessage(String equipment);
+
+  /// Confirm-button label for the bulk-archive-by-equipment sheet (non-destructive framing, unlike the shared Delete default).
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get catalogArchiveConfirmLabel;
+
+  /// Snackbar result after bulk-archiving by equipment.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing to archive.} one{Archived {count} {equipment} exercise.} other{Archived {count} {equipment} exercises.}}'**
+  String catalogArchivedCount(num count, String equipment);
+
+  /// Error title if the archived-exercises query fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived exercises could not be read'**
+  String get catalogArchivedReadError;
+
+  /// Empty state title on the archived list with nothing archived.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing archived'**
+  String get catalogNothingArchivedTitle;
+
+  /// Empty state message on the archived list with nothing archived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived exercises stay in your history and can be restored from here.'**
+  String get catalogNothingArchivedMessage;
+
+  /// Restore button on an archived exercise row.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get catalogRestoreAction;
+
+  /// Empty state title when a search/filter returns nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No exercises match'**
+  String get catalogNoMatchTitle;
+
+  /// Empty state message when a search/filter returns nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a shorter search, or clear a filter.'**
+  String get catalogNoMatchMessage;
+
+  /// Empty state title with no filter active and genuinely no exercises (should not happen post-seed).
+  ///
+  /// In en, this message translates to:
+  /// **'The catalogue is empty'**
+  String get catalogEmptyTitle;
+
+  /// Empty state message with no filter active and genuinely no exercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Seeding runs at startup; this should not happen.'**
+  String get catalogEmptyMessage;
+
+  /// Result count shown while a search/filter narrows the list.
+  ///
+  /// In en, this message translates to:
+  /// **'{shown} of {total, plural, one{{total} exercise} other{{total} exercises}}'**
+  String catalogFilteredCount(num shown, num total);
+
+  /// Favourite-star icon button tooltip when already a favourite.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfavourite'**
+  String get catalogUnfavouriteTooltip;
+
+  /// Favourite-star icon button tooltip when not yet a favourite.
+  ///
+  /// In en, this message translates to:
+  /// **'Favourite'**
+  String get catalogFavouriteTooltip;
+
+  /// Per-exercise-row icon button tooltip opening its history/trend screen.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get catalogExerciseHistoryTooltip;
+
+  /// Insights tab app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Insights'**
+  String get insightsTitle;
+
+  /// Empty state title with no logged sessions at all.
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions yet'**
+  String get insightsNoSessionsTitle;
+
+  /// Empty state message with no logged sessions at all.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a few workouts to see volume and muscle coverage here.'**
+  String get insightsNoSessionsMessage;
+
+  /// Button opening the consistency/streak screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Consistency'**
+  String get insightsConsistencyButton;
+
+  /// Button opening the PR timeline screen.
+  ///
+  /// In en, this message translates to:
+  /// **'PR timeline'**
+  String get insightsPrTimelineButton;
+
+  /// Section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Muscle balance'**
+  String get insightsMuscleBalanceTitle;
+
+  /// Muscle balance section subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailing 4 weeks. A rough guide, not a prescription.'**
+  String get insightsMuscleBalanceSubtitle;
+
+  /// Ratio tile label.
+  ///
+  /// In en, this message translates to:
+  /// **'Push : pull'**
+  String get insightsPushPullLabel;
+
+  /// Ratio tile label.
+  ///
+  /// In en, this message translates to:
+  /// **'Quad : hamstring'**
+  String get insightsQuadHamstringLabel;
+
+  /// Ratio tile label when there is no data to compute it from.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} — no data recorded'**
+  String insightsRatioNoData(String label);
+
+  /// ACWR section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Training load'**
+  String get insightsTrainingLoadTitle;
+
+  /// ACWR section message when there isn't enough history yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs at least 28 days of logged training to show.'**
+  String get insightsAcwrInsufficientData;
+
+  /// ACWR explanatory text below the ratio.
+  ///
+  /// In en, this message translates to:
+  /// **'Ratio of this week\'s volume to your trailing 4-week average (ACWR). 0.8–1.3 is typically described as a steady ramp rate; this is information, not a warning.'**
+  String get insightsAcwrExplanation;
+
+  /// Section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration & rest'**
+  String get insightsDurationRestTitle;
+
+  /// Duration & rest section subtitle when no rest-compliance data exists yet.
+  ///
+  /// In en, this message translates to:
+  /// **'not enough logged rest yet'**
+  String get insightsRestComplianceUnknown;
+
+  /// Duration & rest section subtitle showing average rest compliance.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of prescribed rest'**
+  String insightsRestCompliancePercent(num percent);
+
+  /// Chart label above the session-duration trend.
+  ///
+  /// In en, this message translates to:
+  /// **'Session duration'**
+  String get insightsSessionDurationLabel;
+
+  /// Session-duration chart subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Every finished session'**
+  String get insightsEveryFinishedSession;
+
+  /// Explanatory text under the rest-compliance figure.
+  ///
+  /// In en, this message translates to:
+  /// **'Average actual rest vs. each exercise\'s resolved default — an approximation, not a per-set historical record.'**
+  String get insightsRestComplianceExplanation;
+
+  /// Section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Muscle heat map'**
+  String get insightsMuscleHeatTitle;
+
+  /// Muscle heat map section subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Relative training volume by muscle'**
+  String get insightsMuscleHeatSubtitle;
+
+  /// Body map view toggle segment.
+  ///
+  /// In en, this message translates to:
+  /// **'Front'**
+  String get insightsBodyMapFront;
+
+  /// Body map view toggle segment.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get insightsBodyMapBack;
+
+  /// Explanatory text under the muscle heat map.
+  ///
+  /// In en, this message translates to:
+  /// **'Relative to your hardest-trained muscle over the selected range.'**
+  String get insightsMuscleHeatExplanation;
+
+  /// Section heading above the per-muscle dropdown.
+  ///
+  /// In en, this message translates to:
+  /// **'By muscle'**
+  String get insightsByMuscleTitle;
+
+  /// Per-muscle volume chart label.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume — {muscle}'**
+  String insightsVolumeForMuscle(String muscle);
+
+  /// Per-muscle hard-sets chart label.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard sets per week — {muscle}'**
+  String insightsHardSetsForMuscle(String muscle);
+
+  /// Drill-down list heading, whole range scoped.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributing exercises'**
+  String get insightsContributingExercises;
+
+  /// Drill-down list heading, scoped to one tapped week.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributing exercises — week of {week}'**
+  String insightsContributingExercisesForWeek(String week);
+
+  /// Clears the tapped-week drill-down scope.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get insightsClearAction;
+
+  /// Set count on a contributing-exercise row, already formatted to one decimal.
+  ///
+  /// In en, this message translates to:
+  /// **'{sets} sets'**
+  String insightsContributorSets(String sets);
+
+  /// Section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall weekly volume'**
+  String get insightsOverallVolumeTitle;
+
+  /// Date range label.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 4 weeks'**
+  String get insightsRangeFourWeeks;
+
+  /// Date range label.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 3 months'**
+  String get insightsRangeThreeMonths;
+
+  /// Date range label.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 6 months'**
+  String get insightsRangeSixMonths;
+
+  /// Date range label.
+  ///
+  /// In en, this message translates to:
+  /// **'Last year'**
+  String get insightsRangeOneYear;
+
+  /// Date range label.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get insightsRangeAllTime;
+
+  /// Date range label.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom range'**
+  String get insightsRangeCustom;
+
+  /// Section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Rep ranges'**
+  String get insightsRepRangesTitle;
+
+  /// Rep-range chart subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{range} · sets by rep range'**
+  String insightsRepRangeSubtitle(String range);
+
+  /// Section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Intensity (% of e1RM)'**
+  String get insightsIntensityE1rmTitle;
+
+  /// e1RM-intensity chart subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{range} · sets with a known e1RM baseline'**
+  String insightsIntensityE1rmSubtitle(String range);
+
+  /// Section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Intensity (RPE)'**
+  String get insightsIntensityRpeTitle;
+
+  /// Explanatory text under the RPE intensity heading.
+  ///
+  /// In en, this message translates to:
+  /// **'A more honest measure than an e1RM estimate, where logged.'**
+  String get insightsIntensityRpeExplanation;
+
+  /// RPE-intensity chart subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{range} · sets by RPE'**
+  String insightsIntensityRpeSubtitle(String range);
 }
 
 class _AppLocalizationsDelegate
