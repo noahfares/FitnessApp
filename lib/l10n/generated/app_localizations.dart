@@ -945,6 +945,366 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{range} · sets by RPE'**
   String insightsIntensityRpeSubtitle(String range);
+
+  /// App bar title while loading/erroring, and on the no-session screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout'**
+  String get activeWorkoutTitle;
+
+  /// Error title if the active-workout query fails.
+  ///
+  /// In en, this message translates to:
+  /// **'This workout could not be read'**
+  String get activeWorkoutReadError;
+
+  /// Message shown when /workout/active is reached with no session running.
+  ///
+  /// In en, this message translates to:
+  /// **'No workout in progress.'**
+  String get activeWorkoutNoneInProgress;
+
+  /// Button on the no-session screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Start one'**
+  String get activeWorkoutStartOne;
+
+  /// Overflow-menu item opening the discard confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard workout'**
+  String get activeWorkoutDiscardMenuItem;
+
+  /// Empty state title with no exercises added to the session yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No exercises yet'**
+  String get activeWorkoutEmptyTitle;
+
+  /// Empty state message with no exercises added to the session yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the first one to start logging.'**
+  String get activeWorkoutEmptyMessage;
+
+  /// Exercise count in the session header.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} exercise} other{{count} exercises}}'**
+  String activeWorkoutExerciseCount(num count);
+
+  /// Button opening the exercise picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Add exercises'**
+  String get activeWorkoutAddExercises;
+
+  /// Button finishing the session.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get activeWorkoutFinish;
+
+  /// Dialog title when finishing a session with no completed sets.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing logged yet'**
+  String get activeWorkoutNothingLoggedTitle;
+
+  /// Dialog message when finishing a session with no completed sets.
+  ///
+  /// In en, this message translates to:
+  /// **'No sets were completed, so this would be an empty entry in your history. Discard it instead?'**
+  String get activeWorkoutNothingLoggedMessage;
+
+  /// Dialog/sheet action that dismisses without finishing or discarding.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep training'**
+  String get activeWorkoutKeepTraining;
+
+  /// Dialog action finishing an empty session anyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish anyway'**
+  String get activeWorkoutFinishAnyway;
+
+  /// Discard action label, used both in the empty-session dialog and the hold-to-confirm discard button.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get activeWorkoutDiscardAction;
+
+  /// Sheet title before discarding a session.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this workout?'**
+  String get activeWorkoutDiscardConfirmTitle;
+
+  /// Discard sheet message when the session has no exercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing has been added to it yet.'**
+  String get activeWorkoutDiscardTallyEmpty;
+
+  /// Discard sheet message summarising what will be lost.
+  ///
+  /// In en, this message translates to:
+  /// **'{exercises, plural, one{{exercises} exercise} other{{exercises} exercises}} and {sets, plural, one{{sets} completed set} other{{sets} completed sets}} will be removed from this session.'**
+  String activeWorkoutDiscardTally(num exercises, num sets);
+
+  /// Banner shown on a session left running overnight.
+  ///
+  /// In en, this message translates to:
+  /// **'This workout has been open for more than 12 hours. Finish or discard it if you are done.'**
+  String get activeWorkoutStaleNotice;
+
+  /// Per-exercise completion count.
+  ///
+  /// In en, this message translates to:
+  /// **'{completed} of {total, plural, one{{total} set} other{{total} sets}} done'**
+  String activeWorkoutSetsDone(num completed, num total);
+
+  /// Prefix before a routine's per-exercise target summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Target: {summary}'**
+  String activeWorkoutTargetPrefix(String summary);
+
+  /// Overflow-menu item when the exercise has no note yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add note'**
+  String get activeWorkoutAddNote;
+
+  /// Overflow-menu item when the exercise already has a note.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit note'**
+  String get activeWorkoutEditNote;
+
+  /// Overflow-menu item opening the warm-up generator.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate warm-ups'**
+  String get activeWorkoutGenerateWarmups;
+
+  /// Overflow-menu item opening the exercise picker to swap.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap exercise'**
+  String get activeWorkoutSwapExercise;
+
+  /// Remove action, used as the overflow-menu item and the confirm sheet's confirm label.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get activeWorkoutRemove;
+
+  /// Button breaking a superset pairing.
+  ///
+  /// In en, this message translates to:
+  /// **'Ungroup'**
+  String get activeWorkoutUngroup;
+
+  /// Button pairing this exercise with the next one into a superset.
+  ///
+  /// In en, this message translates to:
+  /// **'Group with next'**
+  String get activeWorkoutGroupWithNext;
+
+  /// Label on a grouped exercise block.
+  ///
+  /// In en, this message translates to:
+  /// **'Superset'**
+  String get activeWorkoutSupersetBadge;
+
+  /// Confirm sheet title before removing an exercise with completed sets.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String activeWorkoutRemoveExerciseConfirmTitle(String name);
+
+  /// Confirm sheet message before removing an exercise with completed sets.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} completed set} other{{count} completed sets}} will be removed from this session too.'**
+  String activeWorkoutRemoveExerciseConfirmMessage(num count);
+
+  /// Snackbar after removing an exercise, with an Undo action.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} removed'**
+  String activeWorkoutExerciseRemovedSnackbar(String name);
+
+  /// Snackbar action restoring a just-removed exercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get activeWorkoutUndo;
+
+  /// Column header above the ghost-value column.
+  ///
+  /// In en, this message translates to:
+  /// **'Last time'**
+  String get activeWorkoutLastTimeHeader;
+
+  /// Start-workout screen app bar title (deep-link entry).
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get startWorkoutTitle;
+
+  /// Title shown when a session is already in progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Already training'**
+  String get startWorkoutAlreadyTrainingTitle;
+
+  /// Message shown when a session is already in progress.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" is still in progress. Finish or discard it before starting another.'**
+  String startWorkoutAlreadyTrainingMessage(String name);
+
+  /// Button resuming the in-progress session.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume workout'**
+  String get startWorkoutResumeAction;
+
+  /// Title shown when no session is in progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a workout'**
+  String get startWorkoutFreshTitle;
+
+  /// Message under the empty-workout option.
+  ///
+  /// In en, this message translates to:
+  /// **'An empty session you add exercises to as you go.'**
+  String get startWorkoutEmptySessionMessage;
+
+  /// Button starting a blank session.
+  ///
+  /// In en, this message translates to:
+  /// **'Start empty workout'**
+  String get startWorkoutStartEmptyAction;
+
+  /// Section heading above the routine-day list.
+  ///
+  /// In en, this message translates to:
+  /// **'Or start from a routine'**
+  String get startWorkoutFromRoutineTitle;
+
+  /// Empty state title with no routines to start from.
+  ///
+  /// In en, this message translates to:
+  /// **'No routines yet'**
+  String get startWorkoutNoRoutinesTitle;
+
+  /// Empty state message with no routines to start from.
+  ///
+  /// In en, this message translates to:
+  /// **'Build one from the Routines tab.'**
+  String get startWorkoutNoRoutinesMessage;
+
+  /// Finish-summary app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout complete'**
+  String get sessionSummaryTitle;
+
+  /// Error title if the summary query fails.
+  ///
+  /// In en, this message translates to:
+  /// **'This summary could not be read'**
+  String get sessionSummaryReadError;
+
+  /// Button returning to the dashboard from the summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get sessionSummaryDone;
+
+  /// Summary headline.
+  ///
+  /// In en, this message translates to:
+  /// **'Nice work.'**
+  String get sessionSummaryNiceWork;
+
+  /// Stat tile label.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get sessionSummaryDurationLabel;
+
+  /// Stat tile label.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get sessionSummaryVolumeLabel;
+
+  /// Stat tile label.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets'**
+  String get sessionSummarySetsLabel;
+
+  /// Stat tile label.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercises'**
+  String get sessionSummaryExercisesLabel;
+
+  /// Section heading, shown only when this session set a record.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal records'**
+  String get sessionSummaryPersonalRecordsTitle;
+
+  /// Section heading above the muscle chips.
+  ///
+  /// In en, this message translates to:
+  /// **'Muscles worked'**
+  String get sessionSummaryMusclesWorkedTitle;
+
+  /// Section heading, shown only when a previous session exists to compare against.
+  ///
+  /// In en, this message translates to:
+  /// **'Compared to last time'**
+  String get sessionSummaryComparedToLastTime;
+
+  /// Volume-change figure; the +/- sign is composed in code, not part of this template.
+  ///
+  /// In en, this message translates to:
+  /// **'{volume} volume'**
+  String sessionSummaryVolumeChange(String volume);
+
+  /// PR description for a max-weight record.
+  ///
+  /// In en, this message translates to:
+  /// **'heaviest set: {weight}'**
+  String sessionSummaryPrHeaviestSet(String weight);
+
+  /// PR description for a best-e1RM record.
+  ///
+  /// In en, this message translates to:
+  /// **'best estimated 1RM: {e1rm}'**
+  String sessionSummaryPrBestE1rm(String e1rm);
+
+  /// PR description for a max-reps-at-weight record.
+  ///
+  /// In en, this message translates to:
+  /// **'{reps} reps at {weight}'**
+  String sessionSummaryPrRepsAtWeight(num reps, String weight);
+
+  /// PR description for a max-session-volume record.
+  ///
+  /// In en, this message translates to:
+  /// **'most volume in a session: {volume}'**
+  String sessionSummaryPrSessionVolume(String volume);
 }
 
 class _AppLocalizationsDelegate

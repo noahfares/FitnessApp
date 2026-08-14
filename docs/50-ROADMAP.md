@@ -802,6 +802,22 @@ sub-screens beyond the list, the rest of logging, the rest of history,
 body, `ConsistencyScreen`/`PrTimelineScreen`, every Settings sub-screen
 beyond the root, `AppShell`'s nav labels, and onboarding.
 
+**Batch 6.2, fourth pass — the rest of logging.** `F-I18N-001` still
+`in-progress`. `ActiveWorkoutScreen` — the app's densest screen — is now
+fully migrated: every dialog, sheet, overflow-menu item, and a message
+with two independent ICU plural clauses in one string (`"{exercises,
+plural, ...} and {sets, plural, ...} will be removed..."`), alongside
+`StartWorkoutScreen` and `SessionSummaryScreen`. Deliberately not followed
+into the shared widgets this screen only *renders* — `SetRow`,
+`AddSetButton`, `RestTimerBar`, and `fieldHeader()` (called from three
+separate presentation files, none of which have a `BuildContext` where the
+call happens) — each is its own unit with call sites across multiple
+screens, the same "needs its own batch" reasoning already applied to
+`AppShell`. Still English literals: routine/exercise sub-screens beyond
+the list, the rest of history, body, `ConsistencyScreen`/
+`PrTimelineScreen`, every Settings sub-screen beyond the root, `AppShell`'s
+nav labels, the shared widgets named above, and onboarding.
+
 **Batch 6.3 — onboarding.** `F-SET-011` done — the last item Phase 6
 scheduled ahead of release/health. No schema change.
 `OnboardingScreen` (`lib/features/onboarding/presentation/`) is a

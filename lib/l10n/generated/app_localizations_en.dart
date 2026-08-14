@@ -511,4 +511,245 @@ class AppLocalizationsEn extends AppLocalizations {
   String insightsIntensityRpeSubtitle(String range) {
     return '$range · sets by RPE';
   }
+
+  @override
+  String get activeWorkoutTitle => 'Workout';
+
+  @override
+  String get activeWorkoutReadError => 'This workout could not be read';
+
+  @override
+  String get activeWorkoutNoneInProgress => 'No workout in progress.';
+
+  @override
+  String get activeWorkoutStartOne => 'Start one';
+
+  @override
+  String get activeWorkoutDiscardMenuItem => 'Discard workout';
+
+  @override
+  String get activeWorkoutEmptyTitle => 'No exercises yet';
+
+  @override
+  String get activeWorkoutEmptyMessage => 'Add the first one to start logging.';
+
+  @override
+  String activeWorkoutExerciseCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count exercises',
+      one: '$count exercise',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get activeWorkoutAddExercises => 'Add exercises';
+
+  @override
+  String get activeWorkoutFinish => 'Finish';
+
+  @override
+  String get activeWorkoutNothingLoggedTitle => 'Nothing logged yet';
+
+  @override
+  String get activeWorkoutNothingLoggedMessage =>
+      'No sets were completed, so this would be an empty entry in your history. Discard it instead?';
+
+  @override
+  String get activeWorkoutKeepTraining => 'Keep training';
+
+  @override
+  String get activeWorkoutFinishAnyway => 'Finish anyway';
+
+  @override
+  String get activeWorkoutDiscardAction => 'Discard';
+
+  @override
+  String get activeWorkoutDiscardConfirmTitle => 'Discard this workout?';
+
+  @override
+  String get activeWorkoutDiscardTallyEmpty =>
+      'Nothing has been added to it yet.';
+
+  @override
+  String activeWorkoutDiscardTally(num exercises, num sets) {
+    String _temp0 = intl.Intl.pluralLogic(
+      exercises,
+      locale: localeName,
+      other: '$exercises exercises',
+      one: '$exercises exercise',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      sets,
+      locale: localeName,
+      other: '$sets completed sets',
+      one: '$sets completed set',
+    );
+    return '$_temp0 and $_temp1 will be removed from this session.';
+  }
+
+  @override
+  String get activeWorkoutStaleNotice =>
+      'This workout has been open for more than 12 hours. Finish or discard it if you are done.';
+
+  @override
+  String activeWorkoutSetsDone(num completed, num total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total sets',
+      one: '$total set',
+    );
+    return '$completed of $_temp0 done';
+  }
+
+  @override
+  String activeWorkoutTargetPrefix(String summary) {
+    return 'Target: $summary';
+  }
+
+  @override
+  String get activeWorkoutAddNote => 'Add note';
+
+  @override
+  String get activeWorkoutEditNote => 'Edit note';
+
+  @override
+  String get activeWorkoutGenerateWarmups => 'Generate warm-ups';
+
+  @override
+  String get activeWorkoutSwapExercise => 'Swap exercise';
+
+  @override
+  String get activeWorkoutRemove => 'Remove';
+
+  @override
+  String get activeWorkoutUngroup => 'Ungroup';
+
+  @override
+  String get activeWorkoutGroupWithNext => 'Group with next';
+
+  @override
+  String get activeWorkoutSupersetBadge => 'Superset';
+
+  @override
+  String activeWorkoutRemoveExerciseConfirmTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String activeWorkoutRemoveExerciseConfirmMessage(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count completed sets',
+      one: '$count completed set',
+    );
+    return '$_temp0 will be removed from this session too.';
+  }
+
+  @override
+  String activeWorkoutExerciseRemovedSnackbar(String name) {
+    return '$name removed';
+  }
+
+  @override
+  String get activeWorkoutUndo => 'Undo';
+
+  @override
+  String get activeWorkoutLastTimeHeader => 'Last time';
+
+  @override
+  String get startWorkoutTitle => 'Start';
+
+  @override
+  String get startWorkoutAlreadyTrainingTitle => 'Already training';
+
+  @override
+  String startWorkoutAlreadyTrainingMessage(String name) {
+    return '\"$name\" is still in progress. Finish or discard it before starting another.';
+  }
+
+  @override
+  String get startWorkoutResumeAction => 'Resume workout';
+
+  @override
+  String get startWorkoutFreshTitle => 'Start a workout';
+
+  @override
+  String get startWorkoutEmptySessionMessage =>
+      'An empty session you add exercises to as you go.';
+
+  @override
+  String get startWorkoutStartEmptyAction => 'Start empty workout';
+
+  @override
+  String get startWorkoutFromRoutineTitle => 'Or start from a routine';
+
+  @override
+  String get startWorkoutNoRoutinesTitle => 'No routines yet';
+
+  @override
+  String get startWorkoutNoRoutinesMessage =>
+      'Build one from the Routines tab.';
+
+  @override
+  String get sessionSummaryTitle => 'Workout complete';
+
+  @override
+  String get sessionSummaryReadError => 'This summary could not be read';
+
+  @override
+  String get sessionSummaryDone => 'Done';
+
+  @override
+  String get sessionSummaryNiceWork => 'Nice work.';
+
+  @override
+  String get sessionSummaryDurationLabel => 'Duration';
+
+  @override
+  String get sessionSummaryVolumeLabel => 'Volume';
+
+  @override
+  String get sessionSummarySetsLabel => 'Sets';
+
+  @override
+  String get sessionSummaryExercisesLabel => 'Exercises';
+
+  @override
+  String get sessionSummaryPersonalRecordsTitle => 'Personal records';
+
+  @override
+  String get sessionSummaryMusclesWorkedTitle => 'Muscles worked';
+
+  @override
+  String get sessionSummaryComparedToLastTime => 'Compared to last time';
+
+  @override
+  String sessionSummaryVolumeChange(String volume) {
+    return '$volume volume';
+  }
+
+  @override
+  String sessionSummaryPrHeaviestSet(String weight) {
+    return 'heaviest set: $weight';
+  }
+
+  @override
+  String sessionSummaryPrBestE1rm(String e1rm) {
+    return 'best estimated 1RM: $e1rm';
+  }
+
+  @override
+  String sessionSummaryPrRepsAtWeight(num reps, String weight) {
+    return '$reps reps at $weight';
+  }
+
+  @override
+  String sessionSummaryPrSessionVolume(String volume) {
+    return 'most volume in a session: $volume';
+  }
 }

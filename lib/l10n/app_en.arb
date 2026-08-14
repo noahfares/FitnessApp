@@ -347,5 +347,167 @@
   "@insightsIntensityRpeSubtitle": {
     "description": "RPE-intensity chart subtitle.",
     "placeholders": {"range": {"type": "String"}}
+  },
+
+  "activeWorkoutTitle": "Workout",
+  "@activeWorkoutTitle": {"description": "App bar title while loading/erroring, and on the no-session screen."},
+  "activeWorkoutReadError": "This workout could not be read",
+  "@activeWorkoutReadError": {"description": "Error title if the active-workout query fails."},
+  "activeWorkoutNoneInProgress": "No workout in progress.",
+  "@activeWorkoutNoneInProgress": {"description": "Message shown when /workout/active is reached with no session running."},
+  "activeWorkoutStartOne": "Start one",
+  "@activeWorkoutStartOne": {"description": "Button on the no-session screen."},
+  "activeWorkoutDiscardMenuItem": "Discard workout",
+  "@activeWorkoutDiscardMenuItem": {"description": "Overflow-menu item opening the discard confirmation."},
+  "activeWorkoutEmptyTitle": "No exercises yet",
+  "@activeWorkoutEmptyTitle": {"description": "Empty state title with no exercises added to the session yet."},
+  "activeWorkoutEmptyMessage": "Add the first one to start logging.",
+  "@activeWorkoutEmptyMessage": {"description": "Empty state message with no exercises added to the session yet."},
+  "activeWorkoutExerciseCount": "{count, plural, one{{count} exercise} other{{count} exercises}}",
+  "@activeWorkoutExerciseCount": {
+    "description": "Exercise count in the session header.",
+    "placeholders": {"count": {"type": "num"}}
+  },
+  "activeWorkoutAddExercises": "Add exercises",
+  "@activeWorkoutAddExercises": {"description": "Button opening the exercise picker."},
+  "activeWorkoutFinish": "Finish",
+  "@activeWorkoutFinish": {"description": "Button finishing the session."},
+  "activeWorkoutNothingLoggedTitle": "Nothing logged yet",
+  "@activeWorkoutNothingLoggedTitle": {"description": "Dialog title when finishing a session with no completed sets."},
+  "activeWorkoutNothingLoggedMessage": "No sets were completed, so this would be an empty entry in your history. Discard it instead?",
+  "@activeWorkoutNothingLoggedMessage": {"description": "Dialog message when finishing a session with no completed sets."},
+  "activeWorkoutKeepTraining": "Keep training",
+  "@activeWorkoutKeepTraining": {"description": "Dialog/sheet action that dismisses without finishing or discarding."},
+  "activeWorkoutFinishAnyway": "Finish anyway",
+  "@activeWorkoutFinishAnyway": {"description": "Dialog action finishing an empty session anyway."},
+  "activeWorkoutDiscardAction": "Discard",
+  "@activeWorkoutDiscardAction": {"description": "Discard action label, used both in the empty-session dialog and the hold-to-confirm discard button."},
+  "activeWorkoutDiscardConfirmTitle": "Discard this workout?",
+  "@activeWorkoutDiscardConfirmTitle": {"description": "Sheet title before discarding a session."},
+  "activeWorkoutDiscardTallyEmpty": "Nothing has been added to it yet.",
+  "@activeWorkoutDiscardTallyEmpty": {"description": "Discard sheet message when the session has no exercises."},
+  "activeWorkoutDiscardTally": "{exercises, plural, one{{exercises} exercise} other{{exercises} exercises}} and {sets, plural, one{{sets} completed set} other{{sets} completed sets}} will be removed from this session.",
+  "@activeWorkoutDiscardTally": {
+    "description": "Discard sheet message summarising what will be lost.",
+    "placeholders": {"exercises": {"type": "num"}, "sets": {"type": "num"}}
+  },
+  "activeWorkoutStaleNotice": "This workout has been open for more than 12 hours. Finish or discard it if you are done.",
+  "@activeWorkoutStaleNotice": {"description": "Banner shown on a session left running overnight."},
+  "activeWorkoutSetsDone": "{completed} of {total, plural, one{{total} set} other{{total} sets}} done",
+  "@activeWorkoutSetsDone": {
+    "description": "Per-exercise completion count.",
+    "placeholders": {"completed": {"type": "num"}, "total": {"type": "num"}}
+  },
+  "activeWorkoutTargetPrefix": "Target: {summary}",
+  "@activeWorkoutTargetPrefix": {
+    "description": "Prefix before a routine's per-exercise target summary.",
+    "placeholders": {"summary": {"type": "String"}}
+  },
+  "activeWorkoutAddNote": "Add note",
+  "@activeWorkoutAddNote": {"description": "Overflow-menu item when the exercise has no note yet."},
+  "activeWorkoutEditNote": "Edit note",
+  "@activeWorkoutEditNote": {"description": "Overflow-menu item when the exercise already has a note."},
+  "activeWorkoutGenerateWarmups": "Generate warm-ups",
+  "@activeWorkoutGenerateWarmups": {"description": "Overflow-menu item opening the warm-up generator."},
+  "activeWorkoutSwapExercise": "Swap exercise",
+  "@activeWorkoutSwapExercise": {"description": "Overflow-menu item opening the exercise picker to swap."},
+  "activeWorkoutRemove": "Remove",
+  "@activeWorkoutRemove": {"description": "Remove action, used as the overflow-menu item and the confirm sheet's confirm label."},
+  "activeWorkoutUngroup": "Ungroup",
+  "@activeWorkoutUngroup": {"description": "Button breaking a superset pairing."},
+  "activeWorkoutGroupWithNext": "Group with next",
+  "@activeWorkoutGroupWithNext": {"description": "Button pairing this exercise with the next one into a superset."},
+  "activeWorkoutSupersetBadge": "Superset",
+  "@activeWorkoutSupersetBadge": {"description": "Label on a grouped exercise block."},
+  "activeWorkoutRemoveExerciseConfirmTitle": "Remove {name}?",
+  "@activeWorkoutRemoveExerciseConfirmTitle": {
+    "description": "Confirm sheet title before removing an exercise with completed sets.",
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "activeWorkoutRemoveExerciseConfirmMessage": "{count, plural, one{{count} completed set} other{{count} completed sets}} will be removed from this session too.",
+  "@activeWorkoutRemoveExerciseConfirmMessage": {
+    "description": "Confirm sheet message before removing an exercise with completed sets.",
+    "placeholders": {"count": {"type": "num"}}
+  },
+  "activeWorkoutExerciseRemovedSnackbar": "{name} removed",
+  "@activeWorkoutExerciseRemovedSnackbar": {
+    "description": "Snackbar after removing an exercise, with an Undo action.",
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "activeWorkoutUndo": "Undo",
+  "@activeWorkoutUndo": {"description": "Snackbar action restoring a just-removed exercise."},
+  "activeWorkoutLastTimeHeader": "Last time",
+  "@activeWorkoutLastTimeHeader": {"description": "Column header above the ghost-value column."},
+
+  "startWorkoutTitle": "Start",
+  "@startWorkoutTitle": {"description": "Start-workout screen app bar title (deep-link entry)."},
+  "startWorkoutAlreadyTrainingTitle": "Already training",
+  "@startWorkoutAlreadyTrainingTitle": {"description": "Title shown when a session is already in progress."},
+  "startWorkoutAlreadyTrainingMessage": "\"{name}\" is still in progress. Finish or discard it before starting another.",
+  "@startWorkoutAlreadyTrainingMessage": {
+    "description": "Message shown when a session is already in progress.",
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "startWorkoutResumeAction": "Resume workout",
+  "@startWorkoutResumeAction": {"description": "Button resuming the in-progress session."},
+  "startWorkoutFreshTitle": "Start a workout",
+  "@startWorkoutFreshTitle": {"description": "Title shown when no session is in progress."},
+  "startWorkoutEmptySessionMessage": "An empty session you add exercises to as you go.",
+  "@startWorkoutEmptySessionMessage": {"description": "Message under the empty-workout option."},
+  "startWorkoutStartEmptyAction": "Start empty workout",
+  "@startWorkoutStartEmptyAction": {"description": "Button starting a blank session."},
+  "startWorkoutFromRoutineTitle": "Or start from a routine",
+  "@startWorkoutFromRoutineTitle": {"description": "Section heading above the routine-day list."},
+  "startWorkoutNoRoutinesTitle": "No routines yet",
+  "@startWorkoutNoRoutinesTitle": {"description": "Empty state title with no routines to start from."},
+  "startWorkoutNoRoutinesMessage": "Build one from the Routines tab.",
+  "@startWorkoutNoRoutinesMessage": {"description": "Empty state message with no routines to start from."},
+
+  "sessionSummaryTitle": "Workout complete",
+  "@sessionSummaryTitle": {"description": "Finish-summary app bar title."},
+  "sessionSummaryReadError": "This summary could not be read",
+  "@sessionSummaryReadError": {"description": "Error title if the summary query fails."},
+  "sessionSummaryDone": "Done",
+  "@sessionSummaryDone": {"description": "Button returning to the dashboard from the summary."},
+  "sessionSummaryNiceWork": "Nice work.",
+  "@sessionSummaryNiceWork": {"description": "Summary headline."},
+  "sessionSummaryDurationLabel": "Duration",
+  "@sessionSummaryDurationLabel": {"description": "Stat tile label."},
+  "sessionSummaryVolumeLabel": "Volume",
+  "@sessionSummaryVolumeLabel": {"description": "Stat tile label."},
+  "sessionSummarySetsLabel": "Sets",
+  "@sessionSummarySetsLabel": {"description": "Stat tile label."},
+  "sessionSummaryExercisesLabel": "Exercises",
+  "@sessionSummaryExercisesLabel": {"description": "Stat tile label."},
+  "sessionSummaryPersonalRecordsTitle": "Personal records",
+  "@sessionSummaryPersonalRecordsTitle": {"description": "Section heading, shown only when this session set a record."},
+  "sessionSummaryMusclesWorkedTitle": "Muscles worked",
+  "@sessionSummaryMusclesWorkedTitle": {"description": "Section heading above the muscle chips."},
+  "sessionSummaryComparedToLastTime": "Compared to last time",
+  "@sessionSummaryComparedToLastTime": {"description": "Section heading, shown only when a previous session exists to compare against."},
+  "sessionSummaryVolumeChange": "{volume} volume",
+  "@sessionSummaryVolumeChange": {
+    "description": "Volume-change figure; the +/- sign is composed in code, not part of this template.",
+    "placeholders": {"volume": {"type": "String"}}
+  },
+  "sessionSummaryPrHeaviestSet": "heaviest set: {weight}",
+  "@sessionSummaryPrHeaviestSet": {
+    "description": "PR description for a max-weight record.",
+    "placeholders": {"weight": {"type": "String"}}
+  },
+  "sessionSummaryPrBestE1rm": "best estimated 1RM: {e1rm}",
+  "@sessionSummaryPrBestE1rm": {
+    "description": "PR description for a best-e1RM record.",
+    "placeholders": {"e1rm": {"type": "String"}}
+  },
+  "sessionSummaryPrRepsAtWeight": "{reps} reps at {weight}",
+  "@sessionSummaryPrRepsAtWeight": {
+    "description": "PR description for a max-reps-at-weight record.",
+    "placeholders": {"reps": {"type": "num"}, "weight": {"type": "String"}}
+  },
+  "sessionSummaryPrSessionVolume": "most volume in a session: {volume}",
+  "@sessionSummaryPrSessionVolume": {
+    "description": "PR description for a max-session-volume record.",
+    "placeholders": {"volume": {"type": "String"}}
   }
 }

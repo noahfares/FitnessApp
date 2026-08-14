@@ -8,6 +8,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
 import '../../../data/db/tables/enums.dart';
 import '../../../data/repositories/workout_repository.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../history/application/history_providers.dart';
 import '../../settings/application/unit_preferences_provider.dart';
@@ -24,20 +25,21 @@ class SessionSummaryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final stats = ref.watch(workoutSummaryStatsProvider(workoutId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Workout complete')),
+      appBar: AppBar(title: Text(l10n.sessionSummaryTitle)),
       body: stats.view(
         (stats) => _Summary(workoutId: workoutId, stats: stats),
-        errorTitle: 'This summary could not be read',
+        errorTitle: l10n.sessionSummaryReadError,
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.screen),
           child: FilledButton(
             onPressed: () => context.go(AppRoutes.home),
-            child: const Text('Done'),
+            child: Text(l10n.sessionSummaryDone),
           ),
         ),
       ),
@@ -54,6 +56,7 @@ class _Summary extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final formatter = ref.watch(quantityFormatterProvider);
     final records =
         ref.watch(sessionRecordsProvider(workoutId)).value ?? const [];
@@ -71,24 +74,36 @@ class _Summary extends ConsumerWidget {
           color: theme.colorScheme.primary,
         ),
         const SizedBox(height: AppSpacing.md),
-        Text('Nice work.', style: theme.textTheme.headlineSmall),
+        Text(l10n.sessionSummaryNiceWork, style: theme.textTheme.headlineSmall),
         const SizedBox(height: AppSpacing.xl),
         Wrap(
           spacing: AppSpacing.md,
           runSpacing: AppSpacing.md,
           children: [
-            _StatTile(label: 'Duration', value: formatElapsed(stats.duration)),
             _StatTile(
-              label: 'Volume',
+              label: l10n.sessionSummaryDurationLabel,
+              value: formatElapsed(stats.duration),
+            ),
+            _StatTile(
+              label: l10n.sessionSummaryVolumeLabel,
               value: formatter.volume(Mass.grams(stats.totalVolumeGrams)),
             ),
-            _StatTile(label: 'Sets', value: '${stats.completedSetCount}'),
-            _StatTile(label: 'Exercises', value: '${stats.exerciseCount}'),
+            _StatTile(
+              label: l10n.sessionSummarySetsLabel,
+              value: '${stats.completedSetCount}',
+            ),
+            _StatTile(
+              label: l10n.sessionSummaryExercisesLabel,
+              value: '${stats.exerciseCount}',
+            ),
           ],
         ),
         if (records.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.xl),
-          Text('Personal records', style: theme.textTheme.titleMedium),
+          Text(
+            l10n.sessionSummaryPersonalRecordsTitle,
+            style: theme.textTheme.titleMedium,
+          ),
           const SizedBox(height: AppSpacing.sm),
           for (final pr in records)
             Padding(
@@ -103,7 +118,7 @@ class _Summary extends ConsumerWidget {
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      '${pr.exerciseName} — ${_describe(pr, formatter)}',
+                      '${pr.exerciseName} — ${_describe(l10n, pr, formatter)}',
                       style: theme.textTheme.bodyMedium,
                     ),
                   ),
@@ -113,7 +128,10 @@ class _Summary extends ConsumerWidget {
         ],
         if (stats.muscles.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.xl),
-          Text('Muscles worked', style: theme.textTheme.titleMedium),
+          Text(
+            l10n.sessionSummaryMusclesWorkedTitle,
+            style: theme.textTheme.titleMedium,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: AppSpacing.sm,
@@ -126,12 +144,17 @@ class _Summary extends ConsumerWidget {
         ],
         if (stats.previous != null) ...[
           const SizedBox(height: AppSpacing.xl),
-          Text('Compared to last time', style: theme.textTheme.titleMedium),
+          Text(
+            l10n.sessionSummaryComparedToLastTime,
+            style: theme.textTheme.titleMedium,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            volumeDelta! >= 0
-                ? '+${formatter.volume(Mass.grams(volumeDelta))} volume'
-                : '${formatter.volume(Mass.grams(volumeDelta))} volume',
+            l10n.sessionSummaryVolumeChange(
+              volumeDelta! >= 0
+                  ? '+${formatter.volume(Mass.grams(volumeDelta))}'
+                  : formatter.volume(Mass.grams(volumeDelta)),
+            ),
             style: theme.textTheme.bodyLarge,
           ),
         ],
@@ -141,18 +164,26 @@ class _Summary extends ConsumerWidget {
 
   /// What kind of record [pr] is, in plain language
   /// (`docs/40-ANALYTICS-SPEC.md` §4).
-  String _describe(SessionPr pr, QuantityFormatter formatter) {
+  String _describe(
+    AppLocalizations l10n,
+    SessionPr pr,
+    QuantityFormatter formatter,
+  ) {
     final record = pr.record;
     return switch (record.kind) {
-      PrKind.maxWeight =>
-        'heaviest set: ${formatter.setWeight(Mass.grams(record.value), showUnit: true)}',
-      PrKind.bestE1rm =>
-        'best estimated 1RM: ${formatter.e1rm(Mass.grams(record.value))}',
-      PrKind.maxRepsAtWeight =>
-        '${record.value} reps at '
-            '${formatter.setWeight(Mass.grams(record.qualifier!), showUnit: true)}',
-      PrKind.maxSessionVolume =>
-        'most volume in a session: ${formatter.volume(Mass.grams(record.value))}',
+      PrKind.maxWeight => l10n.sessionSummaryPrHeaviestSet(
+        formatter.setWeight(Mass.grams(record.value), showUnit: true),
+      ),
+      PrKind.bestE1rm => l10n.sessionSummaryPrBestE1rm(
+        formatter.e1rm(Mass.grams(record.value)),
+      ),
+      PrKind.maxRepsAtWeight => l10n.sessionSummaryPrRepsAtWeight(
+        record.value,
+        formatter.setWeight(Mass.grams(record.qualifier!), showUnit: true),
+      ),
+      PrKind.maxSessionVolume => l10n.sessionSummaryPrSessionVolume(
+        formatter.volume(Mass.grams(record.value)),
+      ),
     };
   }
 }
