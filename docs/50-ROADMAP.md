@@ -911,6 +911,22 @@ English literals: `ConsistencyScreen`/`PrTimelineScreen`, every Settings
 sub-screen beyond the root, `AppShell`'s nav labels, the shared logging
 widgets, and onboarding.
 
+**Batch 6.2, ninth pass — consistency and PR timeline.** `F-I18N-001`
+still `in-progress`. `ConsistencyScreen` and `PrTimelineScreen` are now
+fully migrated. `PrTimelineScreen._describe`'s own doc comment claims it
+mirrors `SessionSummaryScreen._describe` with "same wording", but the two
+actually differ in casing (session summary is lowercase inline text; the
+timeline's own version is sentence-case, standing alone as a whole list-tile
+subtitle) — three of the four PR-kind messages got their own sentence-case
+keys rather than forcing one casing to fit both call sites, while the
+fourth ("{reps} reps at {weight}") starts with a number and is genuinely
+identical either way, so `sessionSummaryPrRepsAtWeight` is reused as-is.
+`consistencyStreakWeeks` ("{weeks} wk") follows the non-pluralized-
+abbreviation pattern the seventh pass's "min" key established — "wk"
+doesn't inflect in English regardless of count. Still English literals:
+every Settings sub-screen beyond the root, `AppShell`'s nav labels, the
+shared logging widgets, and onboarding.
+
 **Batch 6.3 — onboarding.** `F-SET-011` done — the last item Phase 6
 scheduled ahead of release/health. No schema change.
 `OnboardingScreen` (`lib/features/onboarding/presentation/`) is a

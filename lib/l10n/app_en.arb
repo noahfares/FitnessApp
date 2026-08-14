@@ -804,5 +804,60 @@
   "@bodyPhotosDeleteConfirmMessage": {"description": "Confirm sheet message before permanently deleting a progress photo — no undo, unlike a soft delete."},
 
   "bodyTrackedDescription": "Bodyweight is always logged. Turn on whichever of these you also want to track.",
-  "@bodyTrackedDescription": {"description": "Subtitle on the tracked-measurements sheet."}
+  "@bodyTrackedDescription": {"description": "Subtitle on the tracked-measurements sheet."},
+
+  "consistencyTitle": "Consistency",
+  "@consistencyTitle": {"description": "Consistency screen app bar title."},
+  "consistencyCurrentStreakLabel": "Current streak",
+  "@consistencyCurrentStreakLabel": {"description": "Stat tile label."},
+  "consistencyLongestStreakLabel": "Longest streak",
+  "@consistencyLongestStreakLabel": {"description": "Stat tile label."},
+  "consistencySessionsPerWeekLabel": "Sessions / week",
+  "@consistencySessionsPerWeekLabel": {"description": "Stat tile label."},
+  "consistencyStreakWeeks": "{weeks} wk",
+  "@consistencyStreakWeeks": {
+    "description": "A streak length in weeks, used for both the current- and longest-streak stat tiles.",
+    "placeholders": {"weeks": {"type": "num"}}
+  },
+  "consistencyTargetExplanation": "Target: {target} sessions a week. A streak is a run of complete weeks meeting it — the week in progress never breaks one, whatever it currently reads.",
+  "@consistencyTargetExplanation": {
+    "description": "Explanatory footer describing how the streak and target work.",
+    "placeholders": {"target": {"type": "num"}}
+  },
+
+  "prTimelineTitle": "PR timeline",
+  "@prTimelineTitle": {"description": "PR timeline screen app bar title."},
+  "prTimelineEmptyTitle": "No records yet",
+  "@prTimelineEmptyTitle": {"description": "Empty state before any personal record has been set."},
+  "prTimelineEmptyMessage": "Every personal record you set will show up here.",
+  "@prTimelineEmptyMessage": {"description": "Empty state message before any personal record has been set."},
+  "prTimelineAllExercises": "All exercises",
+  "@prTimelineAllExercises": {"description": "Exercise filter dropdown's unset-state hint and its own \"no filter\" option."},
+  "prTimelineAllKinds": "All kinds",
+  "@prTimelineAllKinds": {"description": "PR-kind filter dropdown's unset-state hint and its own \"no filter\" option."},
+  "prTimelineNoMatchesTitle": "Nothing matches these filters",
+  "@prTimelineNoMatchesTitle": {"description": "Empty state when the exercise/kind filters exclude every record."},
+  "prTimelineHeaviestSet": "Heaviest set: {weight}",
+  "@prTimelineHeaviestSet": {
+    "description": "PR description for a max-weight record — sentence case, since this is a standalone list-tile subtitle rather than SessionSummaryScreen's inline list item.",
+    "placeholders": {"weight": {"type": "String"}}
+  },
+  "prTimelineBestE1rm": "Best estimated 1RM: {e1rm}",
+  "@prTimelineBestE1rm": {
+    "description": "PR description for a best-e1RM record — sentence case, see prTimelineHeaviestSet.",
+    "placeholders": {"e1rm": {"type": "String"}}
+  },
+  "prTimelineSessionVolume": "Most volume in a session: {volume}",
+  "@prTimelineSessionVolume": {
+    "description": "PR description for a max-session-volume record — sentence case, see prTimelineHeaviestSet.",
+    "placeholders": {"volume": {"type": "String"}}
+  },
+  "prTimelineKindHeaviestSet": "Heaviest set",
+  "@prTimelineKindHeaviestSet": {"description": "PR-kind filter dropdown option."},
+  "prTimelineKindBestE1rm": "Best e1RM",
+  "@prTimelineKindBestE1rm": {"description": "PR-kind filter dropdown option."},
+  "prTimelineKindMostReps": "Most reps at a weight",
+  "@prTimelineKindMostReps": {"description": "PR-kind filter dropdown option."},
+  "prTimelineKindMostVolume": "Most session volume",
+  "@prTimelineKindMostVolume": {"description": "PR-kind filter dropdown option."}
 }

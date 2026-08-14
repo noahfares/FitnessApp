@@ -1165,4 +1165,72 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bodyTrackedDescription =>
       'Bodyweight is always logged. Turn on whichever of these you also want to track.';
+
+  @override
+  String get consistencyTitle => 'Consistency';
+
+  @override
+  String get consistencyCurrentStreakLabel => 'Current streak';
+
+  @override
+  String get consistencyLongestStreakLabel => 'Longest streak';
+
+  @override
+  String get consistencySessionsPerWeekLabel => 'Sessions / week';
+
+  @override
+  String consistencyStreakWeeks(num weeks) {
+    return '$weeks wk';
+  }
+
+  @override
+  String consistencyTargetExplanation(num target) {
+    return 'Target: $target sessions a week. A streak is a run of complete weeks meeting it — the week in progress never breaks one, whatever it currently reads.';
+  }
+
+  @override
+  String get prTimelineTitle => 'PR timeline';
+
+  @override
+  String get prTimelineEmptyTitle => 'No records yet';
+
+  @override
+  String get prTimelineEmptyMessage =>
+      'Every personal record you set will show up here.';
+
+  @override
+  String get prTimelineAllExercises => 'All exercises';
+
+  @override
+  String get prTimelineAllKinds => 'All kinds';
+
+  @override
+  String get prTimelineNoMatchesTitle => 'Nothing matches these filters';
+
+  @override
+  String prTimelineHeaviestSet(String weight) {
+    return 'Heaviest set: $weight';
+  }
+
+  @override
+  String prTimelineBestE1rm(String e1rm) {
+    return 'Best estimated 1RM: $e1rm';
+  }
+
+  @override
+  String prTimelineSessionVolume(String volume) {
+    return 'Most volume in a session: $volume';
+  }
+
+  @override
+  String get prTimelineKindHeaviestSet => 'Heaviest set';
+
+  @override
+  String get prTimelineKindBestE1rm => 'Best e1RM';
+
+  @override
+  String get prTimelineKindMostReps => 'Most reps at a weight';
+
+  @override
+  String get prTimelineKindMostVolume => 'Most session volume';
 }

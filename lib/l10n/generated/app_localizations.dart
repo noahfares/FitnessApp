@@ -2031,6 +2031,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bodyweight is always logged. Turn on whichever of these you also want to track.'**
   String get bodyTrackedDescription;
+
+  /// Consistency screen app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Consistency'**
+  String get consistencyTitle;
+
+  /// Stat tile label.
+  ///
+  /// In en, this message translates to:
+  /// **'Current streak'**
+  String get consistencyCurrentStreakLabel;
+
+  /// Stat tile label.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest streak'**
+  String get consistencyLongestStreakLabel;
+
+  /// Stat tile label.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions / week'**
+  String get consistencySessionsPerWeekLabel;
+
+  /// A streak length in weeks, used for both the current- and longest-streak stat tiles.
+  ///
+  /// In en, this message translates to:
+  /// **'{weeks} wk'**
+  String consistencyStreakWeeks(num weeks);
+
+  /// Explanatory footer describing how the streak and target work.
+  ///
+  /// In en, this message translates to:
+  /// **'Target: {target} sessions a week. A streak is a run of complete weeks meeting it — the week in progress never breaks one, whatever it currently reads.'**
+  String consistencyTargetExplanation(num target);
+
+  /// PR timeline screen app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'PR timeline'**
+  String get prTimelineTitle;
+
+  /// Empty state before any personal record has been set.
+  ///
+  /// In en, this message translates to:
+  /// **'No records yet'**
+  String get prTimelineEmptyTitle;
+
+  /// Empty state message before any personal record has been set.
+  ///
+  /// In en, this message translates to:
+  /// **'Every personal record you set will show up here.'**
+  String get prTimelineEmptyMessage;
+
+  /// Exercise filter dropdown's unset-state hint and its own "no filter" option.
+  ///
+  /// In en, this message translates to:
+  /// **'All exercises'**
+  String get prTimelineAllExercises;
+
+  /// PR-kind filter dropdown's unset-state hint and its own "no filter" option.
+  ///
+  /// In en, this message translates to:
+  /// **'All kinds'**
+  String get prTimelineAllKinds;
+
+  /// Empty state when the exercise/kind filters exclude every record.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches these filters'**
+  String get prTimelineNoMatchesTitle;
+
+  /// PR description for a max-weight record — sentence case, since this is a standalone list-tile subtitle rather than SessionSummaryScreen's inline list item.
+  ///
+  /// In en, this message translates to:
+  /// **'Heaviest set: {weight}'**
+  String prTimelineHeaviestSet(String weight);
+
+  /// PR description for a best-e1RM record — sentence case, see prTimelineHeaviestSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Best estimated 1RM: {e1rm}'**
+  String prTimelineBestE1rm(String e1rm);
+
+  /// PR description for a max-session-volume record — sentence case, see prTimelineHeaviestSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Most volume in a session: {volume}'**
+  String prTimelineSessionVolume(String volume);
+
+  /// PR-kind filter dropdown option.
+  ///
+  /// In en, this message translates to:
+  /// **'Heaviest set'**
+  String get prTimelineKindHeaviestSet;
+
+  /// PR-kind filter dropdown option.
+  ///
+  /// In en, this message translates to:
+  /// **'Best e1RM'**
+  String get prTimelineKindBestE1rm;
+
+  /// PR-kind filter dropdown option.
+  ///
+  /// In en, this message translates to:
+  /// **'Most reps at a weight'**
+  String get prTimelineKindMostReps;
+
+  /// PR-kind filter dropdown option.
+  ///
+  /// In en, this message translates to:
+  /// **'Most session volume'**
+  String get prTimelineKindMostVolume;
 }
 
 class _AppLocalizationsDelegate

@@ -7,6 +7,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
 import '../../../data/db/tables/enums.dart';
 import '../../../data/repositories/personal_record_repository.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/empty_state.dart';
@@ -27,17 +28,18 @@ class _PrTimelineScreenState extends ConsumerState<PrTimelineScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final timeline = ref.watch(prTimelineProvider);
     final formatter = ref.watch(quantityFormatterProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('PR timeline')),
+      appBar: AppBar(title: Text(l10n.prTimelineTitle)),
       body: timeline.view((entries) {
         if (entries.isEmpty) {
-          return const EmptyState(
+          return EmptyState(
             icon: Icons.emoji_events_outlined,
-            title: 'No records yet',
-            message: 'Every personal record you set will show up here.',
+            title: l10n.prTimelineEmptyTitle,
+            message: l10n.prTimelineEmptyMessage,
           );
         }
 
@@ -65,13 +67,13 @@ class _PrTimelineScreenState extends ConsumerState<PrTimelineScreen> {
                     child: DropdownButton<String?>(
                       isExpanded: true,
                       value: _exerciseFilter,
-                      hint: const Text('All exercises'),
+                      hint: Text(l10n.prTimelineAllExercises),
                       onChanged: (value) =>
                           setState(() => _exerciseFilter = value),
                       items: [
-                        const DropdownMenuItem(
+                        DropdownMenuItem(
                           value: null,
-                          child: Text('All exercises'),
+                          child: Text(l10n.prTimelineAllExercises),
                         ),
                         for (final name in exerciseNames)
                           DropdownMenuItem(value: name, child: Text(name)),
@@ -83,17 +85,17 @@ class _PrTimelineScreenState extends ConsumerState<PrTimelineScreen> {
                     child: DropdownButton<PrKind?>(
                       isExpanded: true,
                       value: _kindFilter,
-                      hint: const Text('All kinds'),
+                      hint: Text(l10n.prTimelineAllKinds),
                       onChanged: (value) => setState(() => _kindFilter = value),
                       items: [
-                        const DropdownMenuItem(
+                        DropdownMenuItem(
                           value: null,
-                          child: Text('All kinds'),
+                          child: Text(l10n.prTimelineAllKinds),
                         ),
                         for (final kind in PrKind.values)
                           DropdownMenuItem(
                             value: kind,
-                            child: Text(_kindLabel(kind)),
+                            child: Text(_kindLabel(l10n, kind)),
                           ),
                       ],
                     ),
@@ -103,9 +105,9 @@ class _PrTimelineScreenState extends ConsumerState<PrTimelineScreen> {
             ),
             Expanded(
               child: filtered.isEmpty
-                  ? const EmptyState(
+                  ? EmptyState(
                       icon: Icons.filter_alt_off_outlined,
-                      title: 'Nothing matches these filters',
+                      title: l10n.prTimelineNoMatchesTitle,
                     )
                   : ListView.builder(
                       itemCount: filtered.length,
@@ -114,7 +116,7 @@ class _PrTimelineScreenState extends ConsumerState<PrTimelineScreen> {
                         return ListTile(
                           leading: const Icon(Icons.emoji_events_outlined),
                           title: Text(entry.exerciseName),
-                          subtitle: Text(_describe(entry, formatter)),
+                          subtitle: Text(_describe(l10n, entry, formatter)),
                           trailing: Text(
                             DateFormat.yMMMd().format(
                               DateTime.fromMillisecondsSinceEpoch(
@@ -135,24 +137,33 @@ class _PrTimelineScreenState extends ConsumerState<PrTimelineScreen> {
   /// Mirrors `SessionSummaryScreen._describe` — same four kinds, same
   /// wording, so a record reads identically whether it's celebrated in the
   /// moment or found later here.
-  String _describe(PrTimelineEntry entry, QuantityFormatter formatter) {
+  String _describe(
+    AppLocalizations l10n,
+    PrTimelineEntry entry,
+    QuantityFormatter formatter,
+  ) {
     return switch (entry.kind) {
-      PrKind.maxWeight =>
-        'Heaviest set: ${formatter.setWeight(Mass.grams(entry.valueGrams), showUnit: true)}',
-      PrKind.bestE1rm =>
-        'Best estimated 1RM: ${formatter.e1rm(Mass.grams(entry.valueGrams))}',
-      PrKind.maxRepsAtWeight =>
-        '${entry.valueGrams} reps at '
-            '${formatter.setWeight(Mass.grams(entry.qualifierGrams!), showUnit: true)}',
-      PrKind.maxSessionVolume =>
-        'Most volume in a session: ${formatter.volume(Mass.grams(entry.valueGrams))}',
+      PrKind.maxWeight => l10n.prTimelineHeaviestSet(
+        formatter.setWeight(Mass.grams(entry.valueGrams), showUnit: true),
+      ),
+      PrKind.bestE1rm => l10n.prTimelineBestE1rm(
+        formatter.e1rm(Mass.grams(entry.valueGrams)),
+      ),
+      PrKind.maxRepsAtWeight => l10n.sessionSummaryPrRepsAtWeight(
+        entry.valueGrams,
+        formatter.setWeight(Mass.grams(entry.qualifierGrams!), showUnit: true),
+      ),
+      PrKind.maxSessionVolume => l10n.prTimelineSessionVolume(
+        formatter.volume(Mass.grams(entry.valueGrams)),
+      ),
     };
   }
 
-  static String _kindLabel(PrKind kind) => switch (kind) {
-    PrKind.maxWeight => 'Heaviest set',
-    PrKind.bestE1rm => 'Best e1RM',
-    PrKind.maxRepsAtWeight => 'Most reps at a weight',
-    PrKind.maxSessionVolume => 'Most session volume',
-  };
+  static String _kindLabel(AppLocalizations l10n, PrKind kind) =>
+      switch (kind) {
+        PrKind.maxWeight => l10n.prTimelineKindHeaviestSet,
+        PrKind.bestE1rm => l10n.prTimelineKindBestE1rm,
+        PrKind.maxRepsAtWeight => l10n.prTimelineKindMostReps,
+        PrKind.maxSessionVolume => l10n.prTimelineKindMostVolume,
+      };
 }

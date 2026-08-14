@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../domain/analytics/consistency.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/application/week_start_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/calendar_heatmap.dart';
@@ -21,12 +22,13 @@ class ConsistencyScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final records = ref.watch(analyticsSetRecordsProvider);
     final weekStart = ref.watch(weekStartProvider);
     final now = ref.watch(analyticsClockProvider)();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Consistency')),
+      appBar: AppBar(title: Text(l10n.consistencyTitle)),
       body: records.view((records) {
         final days = trainingDays(records);
         final counts = weeklySessionCounts(
@@ -45,24 +47,22 @@ class ConsistencyScreen extends ConsumerWidget {
             Row(
               children: [
                 _StatTile(
-                  label: 'Current streak',
-                  value: '${stats.currentStreak} wk',
+                  label: l10n.consistencyCurrentStreakLabel,
+                  value: l10n.consistencyStreakWeeks(stats.currentStreak),
                 ),
                 _StatTile(
-                  label: 'Longest streak',
-                  value: '${stats.longestStreak} wk',
+                  label: l10n.consistencyLongestStreakLabel,
+                  value: l10n.consistencyStreakWeeks(stats.longestStreak),
                 ),
                 _StatTile(
-                  label: 'Sessions / week',
+                  label: l10n.consistencySessionsPerWeekLabel,
                   value: stats.sessionsPerWeek.toStringAsFixed(1),
                 ),
               ],
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Target: $_weeklyTarget sessions a week. A streak is a run of '
-              'complete weeks meeting it — the week in progress never breaks '
-              'one, whatever it currently reads.',
+              l10n.consistencyTargetExplanation(_weeklyTarget),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
