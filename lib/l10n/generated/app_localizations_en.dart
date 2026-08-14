@@ -1233,4 +1233,193 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prTimelineKindMostVolume => 'Most session volume';
+
+  @override
+  String get aboutTitle => 'About';
+
+  @override
+  String get aboutVersionLabel => 'Version';
+
+  @override
+  String get aboutSourceCodeLabel => 'Source code';
+
+  @override
+  String get aboutLicencesLabel => 'Open-source licences';
+
+  @override
+  String get aboutPrivacyHeading => 'Privacy';
+
+  @override
+  String get aboutPrivacyBody =>
+      'No account. No server. No telemetry. This app makes no network calls at all, and your training data never leaves the device unless you export it yourself.';
+
+  @override
+  String get appLockTitle => 'App lock';
+
+  @override
+  String get appLockDescription =>
+      'A PIN gates the whole app on launch and whenever it returns from the background. This is a screen lock, not encryption — it protects against a casual look, not a determined one.';
+
+  @override
+  String get appLockChangePinAction => 'Change PIN';
+
+  @override
+  String get appLockSetPinAction => 'Set a PIN';
+
+  @override
+  String get appLockRemovePinAction => 'Remove PIN';
+
+  @override
+  String get appLockEnterCurrentPinTitle => 'Enter the current PIN';
+
+  @override
+  String get appLockWrongPinMessage => 'Wrong PIN.';
+
+  @override
+  String get appLockChoosePinTitle => 'Choose a PIN (4 or more digits)';
+
+  @override
+  String get appLockConfirmPinTitle => 'Confirm the new PIN';
+
+  @override
+  String get appLockPinsMismatchMessage => 'PINs didn\'t match.';
+
+  @override
+  String get appLockRemoveConfirmTitle => 'Remove app lock?';
+
+  @override
+  String get appLockRemoveConfirmMessage => 'The app will open without a PIN.';
+
+  @override
+  String get appLockOkAction => 'OK';
+
+  @override
+  String get appearanceTitle => 'Appearance';
+
+  @override
+  String get appearanceMatchDeviceSetting => 'Match the device setting';
+
+  @override
+  String get appearanceDynamicColorLabel => 'Dynamic colour';
+
+  @override
+  String get appearanceDynamicColorDescription =>
+      'Tint the app from your wallpaper. Android 12+ only — off does nothing on a phone that doesn\'t support it.';
+
+  @override
+  String get appearanceColoursHeading => 'Colours in this theme';
+
+  @override
+  String get appearanceSwatchCompleted => 'Completed';
+
+  @override
+  String get appearanceSwatchPr => 'PR';
+
+  @override
+  String get appearanceSwatchWarning => 'Warning';
+
+  @override
+  String get appearanceGhostValuesHeading => 'Ghost values';
+
+  @override
+  String appearanceGhostValueLabel(String value) {
+    return 'last time: $value';
+  }
+
+  @override
+  String get e1rmFormulaTitle => 'e1RM formula';
+
+  @override
+  String get e1rmFormulaEpleyName => 'Epley (default)';
+
+  @override
+  String get e1rmFormulaBrzyckiName => 'Brzycki';
+
+  @override
+  String get e1rmFormulaLombardiName => 'Lombardi';
+
+  @override
+  String get restTimerTitle => 'Rest timer';
+
+  @override
+  String get restTimerAutoStartLabel => 'Start automatically';
+
+  @override
+  String get restTimerAutoStartDescription =>
+      'Completing a set starts the rest timer, and completing the next one restarts it.';
+
+  @override
+  String get restTimerDefaultRestHeading => 'Default rest';
+
+  @override
+  String get restTimerAutomaticLabel => 'Automatic';
+
+  @override
+  String get restTimerAutomaticDescription =>
+      'Longer for barbell and compound work, shorter for isolation.';
+
+  @override
+  String get restTimerExerciseOverrideNote =>
+      'An exercise with its own rest duration always wins over this.';
+
+  @override
+  String get restTimerAlertHeading => 'Alert';
+
+  @override
+  String get restTimerWarnBeforeEndLabel => 'Warn before the end';
+
+  @override
+  String restTimerWarnBeforeEndDescription(num seconds) {
+    return 'A short buzz $seconds seconds before zero.';
+  }
+
+  @override
+  String get restTimerNotificationLimitationNote =>
+      'The alert needs the app to still be running. Notifications that survive the phone putting the app to sleep arrive with F-TIM-003.';
+
+  @override
+  String get unitsTitle => 'Units';
+
+  @override
+  String get unitsWeightsTitle => 'Weights';
+
+  @override
+  String get unitsWeightsSubtitle => 'Sets, targets, plates and bars';
+
+  @override
+  String get unitsBodyweightTitle => 'Bodyweight';
+
+  @override
+  String get unitsBodyweightSubtitle => 'Separate from weights on purpose';
+
+  @override
+  String get unitsMeasurementsTitle => 'Measurements';
+
+  @override
+  String get unitsMeasurementsSubtitle => 'Circumferences';
+
+  @override
+  String get unitsDistanceTitle => 'Distance';
+
+  @override
+  String get unitsDistanceSubtitle => 'Cardio';
+
+  @override
+  String get unitsPreviewHeading => 'Preview';
+
+  @override
+  String get unitsPreviewDescription =>
+      'Changing a unit only changes how numbers are shown. Nothing stored is rewritten, so switching back is lossless.';
+
+  @override
+  String get unitsPreviewTopSetLabel => 'Top set';
+
+  @override
+  String get unitsPreviewSessionVolumeLabel => 'Session volume';
+
+  @override
+  String get unitsPreviewWaistLabel => 'Waist';
+
+  @override
+  String get unitsPreviewRunLabel => 'Run';
 }

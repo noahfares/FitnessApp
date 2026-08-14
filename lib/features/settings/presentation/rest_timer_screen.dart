@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../domain/timing/rest_defaults.dart';
 import '../../../domain/timing/rest_settings.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../application/rest_timer_settings_provider.dart';
 
 /// The "automatic" choice, as a radio value. Zero is the same sentinel the
@@ -23,27 +24,25 @@ class RestTimerScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final settings = ref.watch(restTimerSettingsProvider);
     final notifier = ref.read(restTimerSettingsProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Rest timer')),
+      appBar: AppBar(title: Text(l10n.restTimerTitle)),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
         children: [
           SwitchListTile(
-            title: const Text('Start automatically'),
-            subtitle: const Text(
-              'Completing a set starts the rest timer, and completing the next '
-              'one restarts it.',
-            ),
+            title: Text(l10n.restTimerAutoStartLabel),
+            subtitle: Text(l10n.restTimerAutoStartDescription),
             value: settings.autoStart,
             onChanged: (value) =>
                 unawaited(notifier.setAutoStart(enabled: value)),
           ),
           const Divider(),
-          const _SectionHeading('Default rest'),
+          _SectionHeading(l10n.restTimerDefaultRestHeading),
           RadioGroup<int>(
             groupValue: settings.defaultSeconds ?? _automaticRest,
             onChanged: (value) => unawaited(
@@ -53,13 +52,10 @@ class RestTimerScreen extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                const RadioListTile<int>(
+                RadioListTile<int>(
                   value: _automaticRest,
-                  title: Text('Automatic'),
-                  subtitle: Text(
-                    'Longer for barbell and compound work, shorter for '
-                    'isolation.',
-                  ),
+                  title: Text(l10n.restTimerAutomaticLabel),
+                  subtitle: Text(l10n.restTimerAutomaticDescription),
                 ),
                 for (final seconds in restDurationChoices)
                   RadioListTile<int>(
@@ -77,14 +73,14 @@ class RestTimerScreen extends ConsumerWidget {
               AppSpacing.md,
             ),
             child: Text(
-              'An exercise with its own rest duration always wins over this.',
+              l10n.restTimerExerciseOverrideNote,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
           ),
           const Divider(),
-          const _SectionHeading('Alert'),
+          _SectionHeading(l10n.restTimerAlertHeading),
           RadioGroup<RestAlertStyle>(
             groupValue: settings.alertStyle,
             onChanged: (value) {
@@ -101,9 +97,9 @@ class RestTimerScreen extends ConsumerWidget {
             ),
           ),
           SwitchListTile(
-            title: const Text('Warn before the end'),
-            subtitle: const Text(
-              'A short buzz $restPreWarningSeconds seconds before zero.',
+            title: Text(l10n.restTimerWarnBeforeEndLabel),
+            subtitle: Text(
+              l10n.restTimerWarnBeforeEndDescription(restPreWarningSeconds),
             ),
             value: settings.preWarning,
             onChanged: (value) =>
@@ -114,9 +110,7 @@ class RestTimerScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.all(AppSpacing.screen),
             child: Text(
-              'The alert needs the app to still be running. Notifications that '
-              'survive the phone putting the app to sleep arrive with '
-              'F-TIM-003.',
+              l10n.restTimerNotificationLimitationNote,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

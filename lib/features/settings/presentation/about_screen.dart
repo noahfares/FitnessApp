@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/app_version.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../data/platform/app_info_service.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 const _repositoryUrl = 'https://github.com/noahfares/fitnessapp';
 
@@ -21,6 +22,7 @@ class AboutScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final versionInfo = ref.watch(appVersionInfoProvider);
     final versionText = versionInfo.when(
@@ -30,13 +32,16 @@ class AboutScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('About')),
+      appBar: AppBar(title: Text(l10n.aboutTitle)),
       body: ListView(
         children: [
-          ListTile(title: const Text('Version'), subtitle: Text(versionText)),
+          ListTile(
+            title: Text(l10n.aboutVersionLabel),
+            subtitle: Text(versionText),
+          ),
           const Divider(),
           ListTile(
-            title: const Text('Source code'),
+            title: Text(l10n.aboutSourceCodeLabel),
             subtitle: const Text(_repositoryUrl),
             trailing: const Icon(Icons.open_in_new),
             onTap: () => launchUrl(
@@ -45,7 +50,7 @@ class AboutScreen extends ConsumerWidget {
             ),
           ),
           ListTile(
-            title: const Text('Open-source licences'),
+            title: Text(l10n.aboutLicencesLabel),
             onTap: () => showLicensePage(
               context: context,
               applicationName: 'FitnessApp',
@@ -58,14 +63,12 @@ class AboutScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Privacy', style: theme.textTheme.titleMedium),
-                const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'No account. No server. No telemetry. This app makes no '
-                  'network calls at all, and your training data never leaves '
-                  'the device unless you export it yourself.',
-                  style: theme.textTheme.bodyMedium,
+                  l10n.aboutPrivacyHeading,
+                  style: theme.textTheme.titleMedium,
                 ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(l10n.aboutPrivacyBody, style: theme.textTheme.bodyMedium),
               ],
             ),
           ),

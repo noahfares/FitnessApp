@@ -927,6 +927,26 @@ doesn't inflect in English regardless of count. Still English literals:
 every Settings sub-screen beyond the root, `AppShell`'s nav labels, the
 shared logging widgets, and onboarding.
 
+**Batch 6.2, tenth pass — six Settings sub-screens.** `F-I18N-001` still
+`in-progress`. `AboutScreen`, `AppLockScreen`, `AppearanceScreen`,
+`E1rmFormulaSheet`, `RestTimerScreen`, and `UnitsScreen` are now migrated —
+the smaller six of Settings' nine sub-screens, taken together since each
+averages under 170 lines; `DataScreen`/`ImportScreen`/`PlateSettingsScreen`
+(462/350/389 lines) are left for their own pass. Left as literals on
+purpose: `E1rmFormulaSheet`'s three formula subtitles ("w × (1 + reps /
+30)" etc.) are mathematical notation, the same "formatted, not prose"
+exclusion `InsightsScreen`'s bucket labels already established;
+`AppearanceScreen`'s ghost-value demo localizes only the "last time:"
+prose, leaving both illustrative weight values literal, matching
+`UnitsScreen`'s own preview rows (already `QuantityFormatter` output, this
+file's unit-symbol exclusion since the catalogue pass). `unitsBodyweightTitle`
+is reused for both the unit-choice row and the identical-text preview row
+label, the same real-reuse judgment the ninth pass applied elsewhere; the
+fourth appearance swatch reuses `routinesDeleteAction` rather than minting
+a near-duplicate, since its label is literally "Delete". Still English
+literals: `DataScreen`, `ImportScreen`, `PlateSettingsScreen`, `AppShell`'s
+nav labels, the shared logging widgets, and onboarding.
+
 **Batch 6.3 — onboarding.** `F-SET-011` done — the last item Phase 6
 scheduled ahead of release/health. No schema change.
 `OnboardingScreen` (`lib/features/onboarding/presentation/`) is a

@@ -2145,6 +2145,360 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Most session volume'**
   String get prTimelineKindMostVolume;
+
+  /// About screen app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get aboutTitle;
+
+  /// List tile label showing the installed version and build number.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get aboutVersionLabel;
+
+  /// List tile opening the repository URL.
+  ///
+  /// In en, this message translates to:
+  /// **'Source code'**
+  String get aboutSourceCodeLabel;
+
+  /// List tile opening the standard Flutter licence page.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source licences'**
+  String get aboutLicencesLabel;
+
+  /// Section heading above the privacy summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get aboutPrivacyHeading;
+
+  /// Privacy summary paragraph.
+  ///
+  /// In en, this message translates to:
+  /// **'No account. No server. No telemetry. This app makes no network calls at all, and your training data never leaves the device unless you export it yourself.'**
+  String get aboutPrivacyBody;
+
+  /// App-lock screen app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock'**
+  String get appLockTitle;
+
+  /// Explanatory paragraph above the PIN actions.
+  ///
+  /// In en, this message translates to:
+  /// **'A PIN gates the whole app on launch and whenever it returns from the background. This is a screen lock, not encryption — it protects against a casual look, not a determined one.'**
+  String get appLockDescription;
+
+  /// Button shown when a PIN is already set.
+  ///
+  /// In en, this message translates to:
+  /// **'Change PIN'**
+  String get appLockChangePinAction;
+
+  /// Button shown when no PIN is set yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a PIN'**
+  String get appLockSetPinAction;
+
+  /// Button removing an existing PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove PIN'**
+  String get appLockRemovePinAction;
+
+  /// Dialog title verifying the existing PIN before a change.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the current PIN'**
+  String get appLockEnterCurrentPinTitle;
+
+  /// Snackbar after an incorrect current-PIN entry.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong PIN.'**
+  String get appLockWrongPinMessage;
+
+  /// Dialog title entering a new PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a PIN (4 or more digits)'**
+  String get appLockChoosePinTitle;
+
+  /// Dialog title re-entering the new PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm the new PIN'**
+  String get appLockConfirmPinTitle;
+
+  /// Snackbar when the confirmation PIN doesn't match.
+  ///
+  /// In en, this message translates to:
+  /// **'PINs didn\'t match.'**
+  String get appLockPinsMismatchMessage;
+
+  /// Confirm sheet title before clearing the PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove app lock?'**
+  String get appLockRemoveConfirmTitle;
+
+  /// Confirm sheet message before clearing the PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'The app will open without a PIN.'**
+  String get appLockRemoveConfirmMessage;
+
+  /// Confirms a PIN-entry dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get appLockOkAction;
+
+  /// Appearance screen app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearanceTitle;
+
+  /// Subtitle on the "System" theme-mode radio option.
+  ///
+  /// In en, this message translates to:
+  /// **'Match the device setting'**
+  String get appearanceMatchDeviceSetting;
+
+  /// Switch tile title.
+  ///
+  /// In en, this message translates to:
+  /// **'Dynamic colour'**
+  String get appearanceDynamicColorLabel;
+
+  /// Switch tile subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tint the app from your wallpaper. Android 12+ only — off does nothing on a phone that doesn\'t support it.'**
+  String get appearanceDynamicColorDescription;
+
+  /// Section heading above the semantic-colour swatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Colours in this theme'**
+  String get appearanceColoursHeading;
+
+  /// Swatch label for the success colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get appearanceSwatchCompleted;
+
+  /// Swatch label for the personal-record colour.
+  ///
+  /// In en, this message translates to:
+  /// **'PR'**
+  String get appearanceSwatchPr;
+
+  /// Swatch label for the warning colour.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get appearanceSwatchWarning;
+
+  /// Section heading above the ghost-value colour sample.
+  ///
+  /// In en, this message translates to:
+  /// **'Ghost values'**
+  String get appearanceGhostValuesHeading;
+
+  /// Sample ghost-value text, illustrating the ghost colour. value is a demo weight-times-reps string, not user data.
+  ///
+  /// In en, this message translates to:
+  /// **'last time: {value}'**
+  String appearanceGhostValueLabel(String value);
+
+  /// Formula-picker sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'e1RM formula'**
+  String get e1rmFormulaTitle;
+
+  /// Formula option name.
+  ///
+  /// In en, this message translates to:
+  /// **'Epley (default)'**
+  String get e1rmFormulaEpleyName;
+
+  /// Formula option name.
+  ///
+  /// In en, this message translates to:
+  /// **'Brzycki'**
+  String get e1rmFormulaBrzyckiName;
+
+  /// Formula option name.
+  ///
+  /// In en, this message translates to:
+  /// **'Lombardi'**
+  String get e1rmFormulaLombardiName;
+
+  /// Rest timer screen app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest timer'**
+  String get restTimerTitle;
+
+  /// Switch tile title.
+  ///
+  /// In en, this message translates to:
+  /// **'Start automatically'**
+  String get restTimerAutoStartLabel;
+
+  /// Switch tile subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Completing a set starts the rest timer, and completing the next one restarts it.'**
+  String get restTimerAutoStartDescription;
+
+  /// Section heading above the default-rest radio group.
+  ///
+  /// In en, this message translates to:
+  /// **'Default rest'**
+  String get restTimerDefaultRestHeading;
+
+  /// Radio option name — resolves rest per exercise type rather than a fixed duration.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get restTimerAutomaticLabel;
+
+  /// Radio option subtitle explaining the automatic choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Longer for barbell and compound work, shorter for isolation.'**
+  String get restTimerAutomaticDescription;
+
+  /// Footnote under the default-rest radio group.
+  ///
+  /// In en, this message translates to:
+  /// **'An exercise with its own rest duration always wins over this.'**
+  String get restTimerExerciseOverrideNote;
+
+  /// Section heading above the alert-style radio group.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert'**
+  String get restTimerAlertHeading;
+
+  /// Switch tile title.
+  ///
+  /// In en, this message translates to:
+  /// **'Warn before the end'**
+  String get restTimerWarnBeforeEndLabel;
+
+  /// Switch tile subtitle naming the pre-warning lead time.
+  ///
+  /// In en, this message translates to:
+  /// **'A short buzz {seconds} seconds before zero.'**
+  String restTimerWarnBeforeEndDescription(num seconds);
+
+  /// Footnote naming the current background-execution limitation.
+  ///
+  /// In en, this message translates to:
+  /// **'The alert needs the app to still be running. Notifications that survive the phone putting the app to sleep arrive with F-TIM-003.'**
+  String get restTimerNotificationLimitationNote;
+
+  /// Units screen app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Units'**
+  String get unitsTitle;
+
+  /// Unit-choice row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Weights'**
+  String get unitsWeightsTitle;
+
+  /// Unit-choice row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets, targets, plates and bars'**
+  String get unitsWeightsSubtitle;
+
+  /// Unit-choice row title, also reused as the preview row's label for the same quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Bodyweight'**
+  String get unitsBodyweightTitle;
+
+  /// Unit-choice row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Separate from weights on purpose'**
+  String get unitsBodyweightSubtitle;
+
+  /// Unit-choice row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurements'**
+  String get unitsMeasurementsTitle;
+
+  /// Unit-choice row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Circumferences'**
+  String get unitsMeasurementsSubtitle;
+
+  /// Unit-choice row title, also reused as the preview row's label for the same quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get unitsDistanceTitle;
+
+  /// Unit-choice row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cardio'**
+  String get unitsDistanceSubtitle;
+
+  /// Section heading above the live unit preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get unitsPreviewHeading;
+
+  /// Explanatory paragraph above the preview rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing a unit only changes how numbers are shown. Nothing stored is rewritten, so switching back is lossless.'**
+  String get unitsPreviewDescription;
+
+  /// Preview row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Top set'**
+  String get unitsPreviewTopSetLabel;
+
+  /// Preview row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Session volume'**
+  String get unitsPreviewSessionVolumeLabel;
+
+  /// Preview row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Waist'**
+  String get unitsPreviewWaistLabel;
+
+  /// Preview row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get unitsPreviewRunLabel;
 }
 
 class _AppLocalizationsDelegate

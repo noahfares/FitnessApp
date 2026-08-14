@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../application/theme_provider.dart';
 
 /// Settings › Appearance (F-SET-002).
@@ -13,12 +14,13 @@ class AppearanceScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final mode = ref.watch(themeModeProvider);
     final dynamicColorEnabled = ref.watch(dynamicColorEnabledProvider);
     final colors = context.appColors;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Appearance')),
+      appBar: AppBar(title: Text(l10n.appearanceTitle)),
       body: ListView(
         children: [
           RadioGroup<ThemeMode>(
@@ -35,7 +37,7 @@ class AppearanceScreen extends ConsumerWidget {
                     value: option,
                     title: Text(option.label),
                     subtitle: option == ThemeMode.system
-                        ? const Text('Match the device setting')
+                        ? Text(l10n.appearanceMatchDeviceSetting)
                         : null,
                   ),
               ],
@@ -46,11 +48,8 @@ class AppearanceScreen extends ConsumerWidget {
             value: dynamicColorEnabled,
             onChanged: (enabled) =>
                 ref.read(dynamicColorEnabledProvider.notifier).set(enabled),
-            title: const Text('Dynamic colour'),
-            subtitle: const Text(
-              'Tint the app from your wallpaper. Android 12+ only — off does '
-              "nothing on a phone that doesn't support it.",
-            ),
+            title: Text(l10n.appearanceDynamicColorLabel),
+            subtitle: Text(l10n.appearanceDynamicColorDescription),
           ),
           const Divider(),
           Padding(
@@ -59,7 +58,7 @@ class AppearanceScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Colours in this theme',
+                  l10n.appearanceColoursHeading,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -67,17 +66,29 @@ class AppearanceScreen extends ConsumerWidget {
                   spacing: AppSpacing.sm,
                   runSpacing: AppSpacing.sm,
                   children: [
-                    _Swatch('Completed', colors.success, colors.onSuccess),
-                    _Swatch('PR', colors.pr, colors.onPr),
-                    _Swatch('Warning', colors.warning, colors.onWarning),
-                    _Swatch('Delete', colors.danger, colors.onDanger),
+                    _Swatch(
+                      l10n.appearanceSwatchCompleted,
+                      colors.success,
+                      colors.onSuccess,
+                    ),
+                    _Swatch(l10n.appearanceSwatchPr, colors.pr, colors.onPr),
+                    _Swatch(
+                      l10n.appearanceSwatchWarning,
+                      colors.warning,
+                      colors.onWarning,
+                    ),
+                    _Swatch(
+                      l10n.routinesDeleteAction,
+                      colors.danger,
+                      colors.onDanger,
+                    ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 // The subtlest colour in the app, and the one most worth
                 // checking on a real phone under gym lighting (F-LOG-004).
                 Text(
-                  'Ghost values',
+                  l10n.appearanceGhostValuesHeading,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: AppSpacing.xs),
@@ -94,7 +105,7 @@ class AppearanceScreen extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     Text(
-                      'last time: 97.5 kg × 8',
+                      l10n.appearanceGhostValueLabel('97.5 kg × 8'),
                       style: Theme.of(
                         context,
                       ).textTheme.bodyLarge?.copyWith(color: colors.ghost),

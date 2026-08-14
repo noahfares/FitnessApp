@@ -5,6 +5,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/distance.dart';
 import '../../../core/units/length.dart';
 import '../../../core/units/mass.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../application/unit_preferences_provider.dart';
 
 /// Settings › Units (F-SET-001).
@@ -21,42 +22,43 @@ class UnitsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final units = ref.watch(unitPreferencesProvider);
     final notifier = ref.read(unitPreferencesProvider.notifier);
     final formatter = ref.watch(quantityFormatterProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Units')),
+      appBar: AppBar(title: Text(l10n.unitsTitle)),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
         children: [
           _UnitChoice<MassUnit>(
-            title: 'Weights',
-            subtitle: 'Sets, targets, plates and bars',
+            title: l10n.unitsWeightsTitle,
+            subtitle: l10n.unitsWeightsSubtitle,
             values: MassUnit.values,
             selected: units.load,
             labelOf: (unit) => unit.symbol,
             onChanged: notifier.setLoad,
           ),
           _UnitChoice<MassUnit>(
-            title: 'Bodyweight',
-            subtitle: 'Separate from weights on purpose',
+            title: l10n.unitsBodyweightTitle,
+            subtitle: l10n.unitsBodyweightSubtitle,
             values: MassUnit.values,
             selected: units.body,
             labelOf: (unit) => unit.symbol,
             onChanged: notifier.setBody,
           ),
           _UnitChoice<LengthUnit>(
-            title: 'Measurements',
-            subtitle: 'Circumferences',
+            title: l10n.unitsMeasurementsTitle,
+            subtitle: l10n.unitsMeasurementsSubtitle,
             values: LengthUnit.values,
             selected: units.length,
             labelOf: (unit) => unit.symbol,
             onChanged: notifier.setLength,
           ),
           _UnitChoice<DistanceUnit>(
-            title: 'Distance',
-            subtitle: 'Cardio',
+            title: l10n.unitsDistanceTitle,
+            subtitle: l10n.unitsDistanceSubtitle,
             values: DistanceUnit.values,
             selected: units.distance,
             labelOf: (unit) => unit.symbol,
@@ -71,32 +73,34 @@ class UnitsScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Preview', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  l10n.unitsPreviewHeading,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'Changing a unit only changes how numbers are shown. Nothing '
-                  'stored is rewritten, so switching back is lossless.',
+                  l10n.unitsPreviewDescription,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 _PreviewRow(
-                  'Top set',
+                  l10n.unitsPreviewTopSetLabel,
                   formatter.setWeight(const Mass.grams(102500), showUnit: true),
                 ),
                 _PreviewRow(
-                  'Session volume',
+                  l10n.unitsPreviewSessionVolumeLabel,
                   formatter.volume(const Mass.grams(12480000)),
                 ),
                 _PreviewRow(
-                  'Bodyweight',
+                  l10n.unitsBodyweightTitle,
                   formatter.bodyweight(const Mass.grams(80000)),
                 ),
                 _PreviewRow(
-                  'Waist',
+                  l10n.unitsPreviewWaistLabel,
                   formatter.circumference(const Length.millimetres(820)),
                 ),
                 _PreviewRow(
-                  'Run',
+                  l10n.unitsPreviewRunLabel,
                   formatter.distance(const Distance.metres(5000)),
                 ),
               ],
