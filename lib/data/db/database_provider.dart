@@ -8,6 +8,7 @@ import '../repositories/plate_repository.dart';
 import '../repositories/routine_repository.dart';
 import '../repositories/set_repository.dart';
 import '../repositories/workout_repository.dart';
+import '../seed/demo_data_seeder.dart';
 import 'app_database.dart';
 
 /// The single database instance.
@@ -63,4 +64,10 @@ final personalRecordRepositoryProvider = Provider<PersonalRecordRepository>(
 /// Bars and the plate inventory (`F-PLT-002`).
 final plateRepositoryProvider = Provider<PlateRepository>(
   (ref) => PlateRepository(ref.watch(databaseProvider)),
+);
+
+/// Debug-only sample history for exercising the analytics screens without
+/// hand-logging workouts (Settings › Data, `kDebugMode` gated).
+final demoDataSeederProvider = Provider<DemoDataSeeder>(
+  (ref) => DemoDataSeeder(ref.watch(databaseProvider)),
 );
