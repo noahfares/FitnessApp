@@ -28,7 +28,10 @@ enum SetField {
 /// entered is worse than one entered against the wrong columns.
 List<SetField> setFieldsFor(String trackingType) => switch (trackingType) {
   'weightReps' => const [SetField.weight, SetField.reps],
-  'bodyweightReps' => const [SetField.reps],
+  // Weight here is *added* weight, not total — the exercise's own bodyweight
+  // coefficient plus the session's captured bodyweight make up the rest of
+  // the effective load (`F-LOG-019`).
+  'bodyweightReps' => const [SetField.weight, SetField.reps],
   'reps' => const [SetField.reps],
   'time' => const [SetField.duration],
   'distanceTime' => const [SetField.distance, SetField.duration],

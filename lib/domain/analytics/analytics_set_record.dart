@@ -17,6 +17,8 @@ class AnalyticsSetRecord {
     this.weightGrams,
     this.reps,
     this.rpe,
+    this.workoutBodyweightGrams,
+    this.bodyweightCoefficient,
   });
 
   /// The local calendar date of the session this set belongs to.
@@ -41,4 +43,13 @@ class AnalyticsSetRecord {
   /// Set for `weightReps` sets logged with RPE (`F-LOG-014`) — the honest
   /// intensity measure `F-ANA-011` §"Rules" 3 prefers over an e1RM estimate.
   final double? rpe;
+
+  /// The session's own captured bodyweight (`F-BOD-001`), for
+  /// `bodyweightReps`' effective load (`F-LOG-019`). Null for a session
+  /// logged before any bodyweight existed on record.
+  final int? workoutBodyweightGrams;
+
+  /// The exercise's own fraction of bodyweight loaded (`F-LOG-019` §3) —
+  /// null defaults to full bodyweight, same as [effectiveLoadGrams].
+  final double? bodyweightCoefficient;
 }

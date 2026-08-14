@@ -12,17 +12,22 @@ import '../../../domain/analytics/analytics_set_record.dart';
 import '../../../domain/analytics/date_range.dart';
 import '../../../domain/analytics/intensity_distribution.dart';
 import '../../../domain/analytics/muscle_balance.dart';
+import '../../../domain/analytics/muscle_heat.dart';
 import '../../../domain/analytics/sets_per_muscle.dart';
 import '../../../domain/analytics/weekly_volume.dart';
+import '../../../domain/catalog/muscle_taxonomy.dart' show BodyMapView;
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../settings/application/week_start_provider.dart';
 import '../../shell/widgets/async_view.dart';
+import '../../shell/widgets/body_map_heat_overlay.dart';
+import '../../shell/widgets/trend_chart.dart';
 import '../../shell/widgets/weekly_bar_chart.dart';
 import '../application/acwr_provider.dart';
 import '../application/analytics_clock_provider.dart';
 import '../application/analytics_set_records_provider.dart';
 import '../application/date_range_provider.dart';
+import '../application/duration_compliance_provider.dart';
 import 'date_range_selector.dart';
 
 /// The Insights tab (`F-NAV-001`) — overall and per-muscle weekly volume
@@ -200,6 +205,10 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         ),
         const SizedBox(height: AppSpacing.lg),
         const _AcwrSection(),
+        const Divider(height: AppSpacing.xl),
+        _MuscleHeatSection(records: inRange),
+        const Divider(height: AppSpacing.xl),
+        const _DurationComplianceSection(),
         const Divider(height: AppSpacing.xl),
         const DateRangeSelector(),
         const SizedBox(height: AppSpacing.md),
@@ -421,6 +430,133 @@ class _AcwrSection extends ConsumerWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Session duration trend and rest compliance (`F-ANA-012`) — "drifting rest
+/// times explain a lot of apparent plateaus," per the feature's own doc.
+/// Unscoped by the date range selector above (session duration wants the
+/// full history a trend needs, not a truncated recent window) — same
+/// reasoning `TrendChart`'s own 3-point minimum already assumes.
+///
+/// Collapsed by default behind an `ExpansionTile` — the same fix
+/// `F-ROU-011`'s own preview card needed once its chart's fixed height
+/// started starving whatever the list rendered below it; this screen's own
+/// widget test caught the identical starvation the moment this section was
+/// added uncollapsed.
+class _DurationComplianceSection extends ConsumerWidget {
+  const _DurationComplianceSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final duration = ref.watch(sessionDurationTrendProvider).value ?? const [];
+    final complianceRatio = ref.watch(restComplianceProvider).value;
+    final complianceLabel = complianceRatio == null
+        ? 'not enough logged rest yet'
+        : '${(complianceRatio * 100).round()}% of prescribed rest';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+      child: ExpansionTile(
+        initiallyExpanded: false,
+        tilePadding: EdgeInsets.zero,
+        title: Text('Duration & rest', style: theme.textTheme.titleMedium),
+        subtitle: Text(complianceLabel),
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text('Session duration', style: theme.textTheme.bodyMedium),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          TrendChart(
+            points: [
+              for (var i = 0; i < duration.length; i++)
+                TrendChartPoint(
+                  x: i.toDouble(),
+                  y: duration[i].durationSeconds / 60,
+                  label: DateFormat.MMMd().format(duration[i].date),
+                ),
+            ],
+            valueLabel: (v) => '${v.toStringAsFixed(0)} min',
+            subtitle: 'Every finished session',
+            zoomEnabled: false,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          if (complianceRatio != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Average actual rest vs. each exercise\'s resolved default — '
+                'an approximation, not a per-set historical record.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          const SizedBox(height: AppSpacing.sm),
+        ],
+      ),
+    );
+  }
+}
+
+/// Body map heat overlay (`F-ANA-014`) — an original, non-anatomical
+/// silhouette shaded by [records]' relative training volume per muscle.
+/// Collapsed by default, same reasoning as [_DurationComplianceSection].
+class _MuscleHeatSection extends ConsumerStatefulWidget {
+  const _MuscleHeatSection({required this.records});
+
+  final List<AnalyticsSetRecord> records;
+
+  @override
+  ConsumerState<_MuscleHeatSection> createState() => _MuscleHeatSectionState();
+}
+
+class _MuscleHeatSectionState extends ConsumerState<_MuscleHeatSection> {
+  BodyMapView _view = BodyMapView.front;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final intensity = muscleHeatIntensity(widget.records);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+      child: ExpansionTile(
+        initiallyExpanded: false,
+        tilePadding: EdgeInsets.zero,
+        title: Text('Muscle heat map', style: theme.textTheme.titleMedium),
+        subtitle: const Text('Relative training volume by muscle'),
+        children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: SegmentedButton<BodyMapView>(
+              segments: const [
+                ButtonSegment(value: BodyMapView.front, label: Text('Front')),
+                ButtonSegment(value: BodyMapView.back, label: Text('Back')),
+              ],
+              selected: {_view},
+              onSelectionChanged: (s) => setState(() => _view = s.first),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Relative to your hardest-trained muscle over the selected '
+              'range.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          BodyMapHeatOverlay(view: _view, intensity: intensity),
+          const SizedBox(height: AppSpacing.sm),
+        ],
       ),
     );
   }

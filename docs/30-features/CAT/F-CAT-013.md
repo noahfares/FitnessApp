@@ -1,6 +1,6 @@
 # F-CAT-013 — Muscle taxonomy and body map data
 
-Status: in-progress | Priority: P1 | Phase: 3
+Status: done | Priority: P1 | Phase: 3
 Blocks: F-ANA-005, F-ANA-008, F-ANA-014
 Reads: 21-DATA-MODEL#exercises, 40-ANALYTICS-SPEC#3-hard-sets-per-muscle-group-per-week
 
@@ -21,8 +21,11 @@ rather than a property of the taxonomy itself. Item 3 is new:
 `null` — deliberately, per this feature's own "decide explicitly" note,
 rather than forced into a category that would misattribute them. Verified
 against `docs/40-ANALYTICS-SPEC.md` §9's push/pull ratio fixture muscles.
-Still `in-progress`: item 2 (body-map SVG regions) is `F-ANA-014`, Phase 4 —
-nothing to map onto yet.
+## Status notes (Phase 4 closing pass)
+
+Item 2 closed alongside `F-ANA-014`: `bodyMapViewOf` maps every muscle with a
+category to a `BodyMapView.front`/`.back` region — same "decide explicitly"
+treatment as `categoryOf`'s own `neck`/`fullBody` exclusion.
 
 ## Open questions
 - Granularity: is splitting front/side/rear delts right while lumping all quad

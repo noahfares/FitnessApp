@@ -99,4 +99,13 @@ void main() {
     expect(config.failureThreshold, 3);
     expect(config.deloadFraction, 0.10);
   });
+
+  test('percentage-of-training-max round-trips its config through JSON', () {
+    const rule = PercentageProgressionRule(
+      config: PercentageProgressionConfig(percent: 0.85),
+    );
+    final decoded = ProgressionRule.fromJson(rule.toJson());
+    expect(decoded, isA<PercentageProgressionRule>());
+    expect((decoded as PercentageProgressionRule).config.percent, 0.85);
+  });
 }

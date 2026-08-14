@@ -450,8 +450,8 @@ total                       = 1065 s  (~18 min)
 
 ## 12. Progression rules
 
-Used by: `F-PRG-001`, `F-PRG-002`, `F-PRG-003`, `F-PRG-005`, `F-PRG-006`,
-`F-PRG-009`.
+Used by: `F-PRG-001`, `F-PRG-002`, `F-PRG-003`, `F-PRG-004`, `F-PRG-005`,
+`F-PRG-006`, `F-PRG-009`, `F-PRG-010`.
 
 `computeTargets(rule, exerciseHistory, context) -> TargetSet` proposes the
 next session's target weight and reps for one exercise, given its own
@@ -558,6 +558,59 @@ The null rule: `nextWeight`/`nextReps` = the previous session's actual
 values verbatim, with no success/partial/failure evaluation at all. This is
 the default for every routine exercise until a rule is explicitly assigned
 (`F-PRG-007`).
+
+### Training max (`F-PRG-010`)
+
+Not a progression rule itself — a per-exercise anchor
+(`exercises.training_max_grams`) that [percentage-of-training-max](#percentage-of-training-max-f-prg-004)
+reads. Set by hand, or derived from the exercise's best cached e1RM
+(`F-LOG-013`):
+
+```
+trainingMax = floor(bestE1rm × 0.90)
+```
+
+Floored, not rounded, deliberately: a training max is a conservative anchor
+percentage-based sets are built on top of, so erring light is the safer
+direction. No automated "prompt to increase it at cycle boundaries" exists
+— there is no cycle concept yet (`F-ROU-013`, not scheduled), so the max
+only ever moves by the user's own hand or a fresh "derive from e1RM" pull.
+
+### Percentage of training max (`F-PRG-004`)
+
+```
+nextWeight = round(trainingMax × percent)
+```
+
+Ignores logged history entirely — unlike every other rule above, the
+weight doesn't respond to what happened last session, because the training
+max itself is what's supposed to move, and only ever by hand or by
+re-deriving from e1RM. No training max configured on the exercise → falls
+back to the routine's own static target unchanged, the same shape every
+other rule's first-run case uses, for the same reason: nothing to compute
+a proposal from yet. This is a flat percentage, not a multi-week wave
+(5/3/1's own 3-week percentage schedule needs `F-ROU-013`'s week/cycle
+structure, not scheduled) — recomputed off the *current* training max every
+time a routine day using it is started.
+
+### Fixture — `trainingMaxProgression`
+
+Bench Press, best cached e1RM `120 kg` → training max `floor(120 × 0.90) =
+108 kg`. Routine target `1×5` at `85%` of training max.
+
+```
+derive           bestE1rm 120 kg               → training max 108 kg
+percentage       trainingMax 108 kg, 85%        → next 91.8 kg (round(108 × 0.85))
+                                                   — regardless of what was
+                                                   logged last session
+no training max  trainingMax not set            → falls back to the
+                                                   routine's static target
+                                                   unchanged
+```
+
+The "regardless of what was logged last session" line is the one a naive
+implementation gets wrong by reusing the linear/double-progression
+success/partial/failure machinery here — this rule has no such verdict.
 
 ### Fixture — `linearProgression`
 
@@ -713,6 +766,142 @@ silently proposing the *same* weight as last session, indistinguishable from
 `ProgressionOutcome.failure`'s repeat, hides that the engine actually wanted
 to progress and couldn't — §3 exists so the lifter is told to add a rep
 instead, not left thinking the exercise stalled.
+
+---
+
+## 14. Weekly insight cards
+
+Used by: `F-ANA-013`.
+
+Three signals, each with its own "genuinely notable" threshold (rule 2 —
+never a plain week-to-week wobble):
+
+1. **Muscle volume change** — current week's volume for a muscle vs. the
+   trailing average of the (up to 4) prior weeks that have data for it.
+   Shown, up or down, only when `|percentChange| >= 20%`, and only once
+   that muscle has at least 2 prior weeks of data to average.
+2. **Exercise e1RM new high** — this week's best e1RM for an exercise vs.
+   the *max* of prior weeks' bests (never an average — an e1RM insight is a
+   fresh high, matching the spec's own "up 7.5 kg" framing, never a decline
+   a single missed session would otherwise report as backsliding). Shown
+   only when the new best clears the prior max by `>= 3%`, and only once
+   the exercise has at least 2 prior weeks of e1RM data.
+3. **Hard sets last week** — a plain fact, no comparison needed: a muscle's
+   current-week set count, whenever it's greater than zero.
+
+### Rules
+
+1. **Global gate**: the whole history must span at least 3 distinct weeks
+   with any counted set before a single card is shown, full stop — the rule
+   behind "a new user with two sessions sees no spurious insights." Two
+   sessions land inside one or two calendar weeks, so under this gate
+   nothing is generated for them at all, not even the "plain fact" kind.
+2. Thresholds above are deliberately conservative — the goal is a small set
+   of cards, not an exhaustive report.
+3. Cards are ranked by significance — `|percentChange|` for the two
+   comparison kinds, the raw set count for the fact kind — and capped, most
+   significant first.
+4. Never fabricated: any signal missing its own minimum history is skipped
+   entirely for that muscle/exercise, not shown with a caveat.
+
+### Fixture — `weeklyInsights`
+
+Five weeks of history (`W1`–`W5`, `W5` current). Chest trained every week
+(baseline from `W1`–`W4`, average 20 kg·reps); Squat logged every week.
+
+```
+chest volume:  W1 18000  W2 19000  W3 21000  W4 22000  W5 28000
+  → baseline (avg W1-W4) = 20000, current 28000, change +40%
+    → shown: muscleVolumeChange, chest, +40%
+
+squat e1RM:    W1 140000 W2 142500 W3 141000 W4 143000 W5 148000
+  → prior max (W1-W4) = 143000, current 148000, change +3.5%
+    → shown: exerciseE1rmNewHigh, squat, +3.5%
+
+rear delts sets last week (W5): 4
+  → shown: muscleSetsLastWeek, rearDelts, 4
+
+biceps volume: W1 10000 W2 10200 W3 9900 W4 10100 W5 10300
+  → baseline 10050, current 10300, change +2.5% (< 20% threshold)
+    → not shown
+
+only two weeks of history (W4, W5), any muscle
+    → not shown (global gate — fewer than 3 distinct weeks trained)
+```
+
+---
+
+## 15. Duration and rest compliance
+
+Used by: `F-ANA-012`.
+
+### Session duration trend
+
+```
+durationSeconds = endedAt - startedAt
+```
+
+Per finished session — the in-progress session (`endedAt` null) is excluded,
+matching every other metric's "counted set" boundary discipline extended to
+whole sessions. Plotted oldest to newest, same shape every other trend chart
+uses.
+
+### Rest compliance
+
+```
+complianceRatio = actualRestSeconds / prescribedRestSeconds
+```
+
+Per completed, non-warm-up set with a recorded `rest_taken_seconds`
+(`F-TIM-007`) — a session's first completion has no preceding rest and is
+excluded, the same as `F-TIM-007`'s own recording rule. `prescribedRestSeconds`
+is the exercise's *currently configured* resolved rest (its own default, or
+the global default) — not a historical snapshot, since none is stored per
+set. This is a known approximation: a rest default changed after a set was
+logged makes that set's compliance figure reflect the new default, not the
+one that actually applied at the time. Averaged across the sample window to
+one ratio; `1.0` is exact compliance, `<1.0` under-resting, `>1.0` over-resting.
+
+### Fixture — `restCompliance`
+
+Four completed sets with recorded rest against a 120 s prescribed rest:
+`100s, 110s, 130s, 140s` → average `120s` → ratio `1.0` exactly. Drop the
+last set entirely (three sets: `100s, 110s, 130s`) → average `113.33s` →
+ratio `0.944` (~5.6% under-resting).
+
+---
+
+## 16. Body map regions
+
+Used by: `F-ANA-014`.
+
+Each of the 19 muscles with a defined push/pull/legs/core category
+(`F-CAT-013` §3 — everything except `neck` and `fullBody`, excluded here for
+the same "decide explicitly, don't force a placement" reason) maps to
+exactly one of two views:
+
+**Front**: `chest`, `frontDelts`, `sideDelts`, `biceps`, `forearms`, `abs`,
+`obliques`, `adductors`, `quads`.
+
+**Back**: `traps`, `rearDelts`, `lats`, `upperBack`, `lowerBack`, `triceps`,
+`glutes`, `hamstrings`, `calves`, `abductors`.
+
+### Heat intensity
+
+```
+intensity(muscle) = volume(muscle) / max(volume(m) for m in all trained muscles)
+```
+
+Relative, not absolute — the hottest-trained muscle in the window is always
+`1.0`, everything else scaled against it, so the map stays legible whether
+someone trains twice a week or six times. A muscle with no volume in the
+window has no defined intensity (excluded, not zero) — same "unknown vs.
+zero" distinction as every other metric here (Implementation note 5).
+
+The silhouette itself is an original geometric diagram — simple shapes, not
+a traced anatomical illustration — the same "licence-clean or don't ship it"
+discipline `F-CAT-001`'s exercise thumbnails already follow, satisfied here
+by drawing nothing sourced from anywhere.
 
 ---
 

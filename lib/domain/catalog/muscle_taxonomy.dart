@@ -38,3 +38,34 @@ const Map<String, MuscleCategory> _categories = {
 /// `null` for a muscle with no category (`neck`, `fullBody`) or a name this
 /// build doesn't recognise.
 MuscleCategory? categoryOf(String muscle) => _categories[muscle];
+
+/// Which side of the body-map silhouette a muscle is drawn on (`F-CAT-013`
+/// §2, `F-ANA-014`, `docs/40-ANALYTICS-SPEC.md` §16).
+enum BodyMapView { front, back }
+
+/// `neck` and `fullBody` map to no view, same "decide explicitly" reasoning
+/// as [categoryOf] — neither reads as a single drawable region.
+const Map<String, BodyMapView> _bodyMapViews = {
+  'chest': BodyMapView.front,
+  'frontDelts': BodyMapView.front,
+  'sideDelts': BodyMapView.front,
+  'biceps': BodyMapView.front,
+  'forearms': BodyMapView.front,
+  'abs': BodyMapView.front,
+  'obliques': BodyMapView.front,
+  'adductors': BodyMapView.front,
+  'quads': BodyMapView.front,
+  'traps': BodyMapView.back,
+  'rearDelts': BodyMapView.back,
+  'lats': BodyMapView.back,
+  'upperBack': BodyMapView.back,
+  'lowerBack': BodyMapView.back,
+  'triceps': BodyMapView.back,
+  'glutes': BodyMapView.back,
+  'hamstrings': BodyMapView.back,
+  'calves': BodyMapView.back,
+  'abductors': BodyMapView.back,
+};
+
+/// `null` for `neck`, `fullBody`, or a name this build doesn't recognise.
+BodyMapView? bodyMapViewOf(String muscle) => _bodyMapViews[muscle];

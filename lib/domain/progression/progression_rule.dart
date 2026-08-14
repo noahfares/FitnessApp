@@ -13,6 +13,7 @@ enum ProgressionRuleType {
   linear,
   doubleProgression,
   rpeAutoregulation,
+  percentageOfTrainingMax,
 }
 
 /// Per-exercise linear-progression parameters (`F-PRG-002` §3).
@@ -72,6 +73,17 @@ class RpeAutoregulationConfig {
   final double deloadFraction;
 }
 
+/// Per-exercise percentage-of-training-max parameters (`F-PRG-004`). No
+/// week/cycle structure exists yet (`F-ROU-013`, not scheduled) — this is a
+/// flat percentage, recomputed off the exercise's current training max
+/// every time a routine day using it is started, not a multi-week wave.
+class PercentageProgressionConfig {
+  const PercentageProgressionConfig({required this.percent});
+
+  /// Fraction of the training max, e.g. `0.85` for 85%.
+  final double percent;
+}
+
 sealed class ProgressionRule {
   const ProgressionRule();
 
@@ -106,6 +118,11 @@ sealed class ProgressionRule {
           backoffFraction: (map['backoffFraction'] as num?)?.toDouble() ?? 0.10,
           failureThreshold: map['failureThreshold'] as int? ?? 3,
           deloadFraction: (map['deloadFraction'] as num?)?.toDouble() ?? 0.10,
+        ),
+      ),
+      'percentageOfTrainingMax' => PercentageProgressionRule(
+        config: PercentageProgressionConfig(
+          percent: (map['percent'] as num).toDouble(),
         ),
       ),
       _ => const ManualCarryForwardRule(),
@@ -178,5 +195,24 @@ class RpeAutoregulationRule extends ProgressionRule {
     'backoffFraction': config.backoffFraction,
     'failureThreshold': config.failureThreshold,
     'deloadFraction': config.deloadFraction,
+  });
+}
+
+/// Weight computed as a flat percentage of the exercise's own training max
+/// (`F-PRG-004`) — ignores logged history entirely, unlike every other rule
+/// here, since a training max moves by the user's own hand
+/// (`F-PRG-010`), not by session performance.
+class PercentageProgressionRule extends ProgressionRule {
+  const PercentageProgressionRule({required this.config});
+
+  final PercentageProgressionConfig config;
+
+  @override
+  ProgressionRuleType get type => ProgressionRuleType.percentageOfTrainingMax;
+
+  @override
+  String toJson() => jsonEncode({
+    'type': 'percentageOfTrainingMax',
+    'percent': config.percent,
   });
 }

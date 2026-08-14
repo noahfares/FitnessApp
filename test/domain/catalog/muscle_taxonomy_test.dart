@@ -58,4 +58,81 @@ void main() {
       expect(categoryOf('notAMuscle'), isNull);
     });
   });
+
+  // Batch 4.5's second pass — `F-CAT-013` §2, `F-ANA-014`.
+  group('bodyMapViewOf', () {
+    test('every muscle with a category also has a view, and vice versa', () {
+      const all = [
+        'chest',
+        'frontDelts',
+        'sideDelts',
+        'rearDelts',
+        'lats',
+        'traps',
+        'upperBack',
+        'lowerBack',
+        'biceps',
+        'triceps',
+        'forearms',
+        'quads',
+        'hamstrings',
+        'glutes',
+        'calves',
+        'adductors',
+        'abductors',
+        'abs',
+        'obliques',
+        'neck',
+        'fullBody',
+      ];
+      for (final muscle in all) {
+        expect(
+          bodyMapViewOf(muscle) != null,
+          categoryOf(muscle) != null,
+          reason: muscle,
+        );
+      }
+    });
+
+    test('§16 front/back lists match exactly', () {
+      const front = [
+        'chest',
+        'frontDelts',
+        'sideDelts',
+        'biceps',
+        'forearms',
+        'abs',
+        'obliques',
+        'adductors',
+        'quads',
+      ];
+      const back = [
+        'traps',
+        'rearDelts',
+        'lats',
+        'upperBack',
+        'lowerBack',
+        'triceps',
+        'glutes',
+        'hamstrings',
+        'calves',
+        'abductors',
+      ];
+      for (final muscle in front) {
+        expect(bodyMapViewOf(muscle), BodyMapView.front, reason: muscle);
+      }
+      for (final muscle in back) {
+        expect(bodyMapViewOf(muscle), BodyMapView.back, reason: muscle);
+      }
+    });
+
+    test('neck and fullBody map to no view', () {
+      expect(bodyMapViewOf('neck'), isNull);
+      expect(bodyMapViewOf('fullBody'), isNull);
+    });
+
+    test('an unrecognised name returns null rather than throwing', () {
+      expect(bodyMapViewOf('notAMuscle'), isNull);
+    });
+  });
 }

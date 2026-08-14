@@ -6,6 +6,7 @@ import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/tables/enums.dart';
 import 'package:fitness_app/data/repositories/set_repository.dart';
 import 'package:fitness_app/data/repositories/workout_repository.dart';
+import 'package:fitness_app/domain/logging/warmup_generator.dart';
 
 /// Batch 1.4 — the `sets` table (`F-LOG-003`, `F-LOG-004`, `F-LOG-005`,
 /// `F-LOG-023`).
@@ -585,6 +586,44 @@ void main() {
             'ghost lookup over 12,000 sets took '
             '${stopwatch.elapsedMilliseconds} ms',
       );
+    });
+  });
+
+  group('insertWarmupSets (F-LOG-020)', () {
+    test('inserts before existing sets, shifting their positions', () async {
+      await makeExercise('bench');
+      final we = await startWith('bench');
+      final existing = (await sets.getSets(we)).single;
+      await sets.updateValues(
+        existing.id,
+        weightGrams: const Value(100000),
+        reps: const Value(5),
+      );
+
+      await sets.insertWarmupSets(we, const [
+        GeneratedWarmupSet(weightGrams: 20000, reps: 8),
+        GeneratedWarmupSet(weightGrams: 60000, reps: 3),
+      ]);
+
+      final all = await sets.getSets(we);
+      expect(all, hasLength(3));
+      expect(all[0].setType, SetType.warmup);
+      expect(all[0].weightGrams, 20000);
+      expect(all[0].reps, 8);
+      expect(all[1].setType, SetType.warmup);
+      expect(all[1].weightGrams, 60000);
+      expect(all[1].reps, 3);
+      // The original working set survives, now shifted to last.
+      expect(all[2].id, existing.id);
+      expect(all[2].weightGrams, 100000);
+      expect(all[2].position, 2);
+    });
+
+    test('an empty step list writes nothing', () async {
+      await makeExercise('bench');
+      final we = await startWith('bench');
+      await sets.insertWarmupSets(we, const []);
+      expect(await sets.getSets(we), hasLength(1));
     });
   });
 }

@@ -48,6 +48,7 @@ class ProgressionContext {
     this.staticRepsMax,
     this.staticSets,
     this.staticTargetRpe,
+    this.trainingMaxGrams,
   });
 
   final int? staticWeightGrams;
@@ -63,6 +64,10 @@ class ProgressionContext {
   /// The exercise's own target RPE — only read by the RPE-autoregulation
   /// rule (`F-PRG-005`).
   final double? staticTargetRpe;
+
+  /// The exercise's own training max (`exercises.training_max_grams`,
+  /// `F-PRG-010`) — only read by [PercentageProgressionRule] (`F-PRG-004`).
+  final int? trainingMaxGrams;
 }
 
 int _topSetWeight(List<ExerciseHistorySet> sets) =>
@@ -75,6 +80,14 @@ TargetSet computeTargets({
   required List<ExerciseHistorySession> exerciseHistory,
   required ProgressionContext context,
 }) {
+  // Percentage-of-training-max ignores logged history entirely (`F-PRG-004`
+  // — the training max moves by hand, not by session performance), so it is
+  // decided before the first-run check below, which exists only for rules
+  // that *do* need a prior session to judge.
+  if (rule case PercentageProgressionRule()) {
+    return _computePercentageTarget(rule: rule, context: context);
+  }
+
   final priorSessions = exerciseHistory
       .where((session) => session.countedSets.isNotEmpty)
       .toList();
@@ -212,7 +225,42 @@ TargetSet computeTargets({
         sets: context.staticSets ?? lastSets.length,
         rationale: applied.rationale,
       );
+
+    // Unreachable: handled by the early return above, before `priorSessions`
+    // is even computed — this rule needs no history. Kept only so the switch
+    // stays exhaustive over the sealed `ProgressionRule` union.
+    case PercentageProgressionRule():
+      return _computePercentageTarget(rule: rule, context: context);
   }
+}
+
+TargetSet _computePercentageTarget({
+  required PercentageProgressionRule rule,
+  required ProgressionContext context,
+}) {
+  final trainingMax = context.trainingMaxGrams;
+  if (trainingMax == null) {
+    return TargetSet(
+      weightGrams: context.staticWeightGrams,
+      reps: context.staticReps,
+      sets: context.staticSets,
+      rationale: ProgressionRationale(
+        outcome: ProgressionOutcome.firstRun,
+        targetReps: context.staticReps,
+      ),
+    );
+  }
+  return TargetSet(
+    weightGrams: (trainingMax * rule.config.percent).round(),
+    reps: context.staticReps,
+    sets: context.staticSets,
+    rationale: ProgressionRationale(
+      outcome: ProgressionOutcome.percentageOfTrainingMax,
+      targetReps: context.staticReps,
+      trainingMaxGrams: trainingMax,
+      percent: rule.config.percent,
+    ),
+  );
 }
 
 TargetSet _computeLinearTarget({

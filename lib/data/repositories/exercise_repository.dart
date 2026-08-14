@@ -70,6 +70,8 @@ class ExerciseRepository {
     int? stackBaseGrams,
     int? stackStepGrams,
     int? stackHalfStepGrams,
+    double? bodyweightCoefficient,
+    int? trainingMaxGrams,
   }) async {
     final timestamp = _now;
     await _db
@@ -86,6 +88,7 @@ class ExerciseRepository {
             notes: Value(notes),
             defaultRestSeconds: Value(defaultRestSeconds),
             defaultBarId: Value(defaultBarId),
+            bodyweightCoefficient: Value(bodyweightCoefficient),
             weightEntryMode: Value(
               weightEntryMode ?? defaultWeightEntryModeFor(equipment),
             ),
@@ -99,6 +102,7 @@ class ExerciseRepository {
             stackBaseGrams: Value(stackBaseGrams),
             stackStepGrams: Value(stackStepGrams),
             stackHalfStepGrams: Value(stackHalfStepGrams),
+            trainingMaxGrams: Value(trainingMaxGrams),
             isCustom: const Value(true),
             createdAt: timestamp,
             updatedAt: timestamp,
@@ -133,6 +137,17 @@ class ExerciseRepository {
 
   Future<void> setFavorite(String id, {required bool isFavorite}) =>
       update(id, ExercisesCompanion(isFavorite: Value(isFavorite)));
+
+  /// The per-exercise warm-up ramp override (`F-LOG-020`). Null restores the
+  /// app-wide default ramp.
+  Future<void> setWarmupRuleset(String id, String? json) =>
+      update(id, ExercisesCompanion(warmupRuleset: Value(json)));
+
+  /// The anchor for percentage-based progression (`F-PRG-010`). Null clears
+  /// it back to unset — a percentage-based rule then falls back to the
+  /// routine's static target until one is set again.
+  Future<void> setTrainingMax(String id, int? grams) =>
+      update(id, ExercisesCompanion(trainingMaxGrams: Value(grams)));
 
   /// Hides from pickers without touching history (`F-CAT-009`).
   ///

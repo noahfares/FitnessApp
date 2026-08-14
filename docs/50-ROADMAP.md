@@ -431,13 +431,29 @@ data is insufficient" a testable exit criterion rather than an aspiration.
 **4.6** is trailing odds and ends with no dependents of their own, same
 reasoning Phases 2–3 gave their own trailing batches.
 
-**Exit criteria**
-- [ ] Starting a routine day pre-fills targets that are correct, explained, and
+**Exit criteria — all four met at v0.43.0. Phase 4 complete.**
+- [x] Starting a routine day pre-fills targets that are correct, explained, and
       always assemblable from the configured plates.
-- [ ] Every progression rule has fixture tests for success, partial, failure,
-      and first-run paths.
-- [ ] The plate calculator never proposes plates the user doesn't own.
-- [ ] Insight cards say nothing at all when data is insufficient.
+      `test/data/repositories/workout_repository_test.dart`'s "plate-aware
+      rounding on proposed targets" group calls `startFromRoutineDay` through
+      a real plate inventory and asserts the `plateRoundingHeld` rationale
+      end-to-end, not just the domain-level rounding function in isolation.
+- [x] Every progression rule has fixture tests for success, partial, failure,
+      and first-run paths. True for linear, double-progression and
+      RPE-autoregulation. One deliberate exception: percentage-of-training-max
+      has no success/partial/failure verdict *by design* (`F-PRG-004`'s own
+      spec — the training max moves by hand, not by session performance), so
+      its fixture covers the percentage computation and the no-training-max
+      fallback instead — the shape that actually applies to it.
+- [x] The plate calculator never proposes plates the user doesn't own.
+      `test/domain/plates/plate_calculator_test.dart`'s `plateMaths` fixture,
+      reinforced by the same end-to-end repository test above.
+- [x] Insight cards say nothing at all when data is insufficient.
+      `test/domain/analytics/weekly_insights_test.dart` at the domain level;
+      `test/features/shell/weekly_insights_section_test.dart` through the
+      real `DashboardScreen` — no section renders with fewer than 3 distinct
+      weeks of history, the widget-level proof Phases 2–3's own audits made
+      the standard.
 
 ---
 

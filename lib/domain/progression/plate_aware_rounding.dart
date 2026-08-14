@@ -102,6 +102,8 @@ TargetSet _applyRounding(
         targetReps: target.reps,
         consecutiveFailures: target.rationale.consecutiveFailures,
         rawWeightGrams: proposed,
+        trainingMaxGrams: target.rationale.trainingMaxGrams,
+        percent: target.rationale.percent,
       ),
     );
   }
@@ -118,6 +120,8 @@ TargetSet _applyRounding(
       deltaGrams: target.rationale.deltaGrams,
       consecutiveFailures: target.rationale.consecutiveFailures,
       rawWeightGrams: proposed,
+      trainingMaxGrams: target.rationale.trainingMaxGrams,
+      percent: target.rationale.percent,
     ),
   );
 }

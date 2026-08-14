@@ -28,7 +28,16 @@ class PlateRepository {
     return query.watch();
   }
 
-  Future<List<Bar>> getBars() => watchBars().first;
+  /// A one-shot read via a plain query rather than `watchBars().first` —
+  /// the latter routes through drift's stream-query notification machinery,
+  /// which needs more real asynchronous hops than a widget test's
+  /// `pumpAndSettle` reliably drives forward (found via `F-LOG-020`'s warm-up
+  /// generator sheet, the first caller to need this off the stream path).
+  Future<List<Bar>> getBars() {
+    final query = _db.select(_db.bars)..where((b) => b.deletedAt.isNull());
+    query.orderBy([(b) => OrderingTerm(expression: b.weightGrams)]);
+    return query.get();
+  }
 
   Future<Bar?> findBarById(String id) =>
       (_db.select(_db.bars)
@@ -116,8 +125,17 @@ class PlateRepository {
     return query.watch();
   }
 
-  Future<List<Plate>> getPlates({bool includeDisabled = true}) =>
-      watchPlates(includeDisabled: includeDisabled).first;
+  /// Same reasoning as [getBars]: a plain query, not `watchPlates().first`.
+  Future<List<Plate>> getPlates({bool includeDisabled = true}) {
+    final query = _db.select(_db.plates)..where((p) => p.deletedAt.isNull());
+    if (!includeDisabled) {
+      query.where((p) => p.isEnabled.equals(true));
+    }
+    query.orderBy([
+      (p) => OrderingTerm(expression: p.weightGrams, mode: OrderingMode.desc),
+    ]);
+    return query.get();
+  }
 
   /// Enabled plates with a nonzero count — what a solve actually has to work
   /// with (`F-PLT-001`).

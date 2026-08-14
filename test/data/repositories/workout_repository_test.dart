@@ -854,6 +854,41 @@ void main() {
       expect(secondExercise.target!.repsMin, 8);
       expect(secondExercise.target!.repsMax, 12);
     });
+
+    test('percentage-of-training-max reads the exercise\'s own training max, '
+        'ignoring what was logged last session (F-PRG-004, F-PRG-010, batch '
+        '4.2)', () async {
+      final dayId = await makeDayWithRule(
+        const PercentageProgressionRule(
+          config: PercentageProgressionConfig(percent: 0.85),
+        ),
+      );
+      await (db.update(db.exercises)..where((e) => e.id.equals('bench'))).write(
+        const ExercisesCompanion(trainingMaxGrams: Value(108000)),
+      );
+
+      final first = await repo.startFromRoutineDay(dayId);
+      final [firstExercise] = await repo.watchExercises(first.id).first;
+      // A session that would trigger a deload under any other rule.
+      for (final set in await sets.getSets(firstExercise.workoutExerciseId)) {
+        await sets.complete(
+          set.id,
+          weightGrams: const Value(20000),
+          reps: const Value(1),
+        );
+      }
+      await repo.finish(first.id);
+      clock = clock.add(const Duration(days: 2));
+
+      final second = await repo.startFromRoutineDay(dayId);
+      final [secondExercise] = await repo.watchExercises(second.id).first;
+
+      expect(secondExercise.target!.weightGrams, 91800);
+      expect(
+        secondExercise.target!.rationale!.outcome,
+        ProgressionOutcome.percentageOfTrainingMax,
+      );
+    });
   });
 
   group('plate-aware rounding on proposed targets (F-PRG-012, batch 4.3)', () {

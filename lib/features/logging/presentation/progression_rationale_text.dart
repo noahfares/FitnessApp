@@ -53,6 +53,14 @@ String progressionRationaleText(
       return "The next jump isn't assemblable from your plates, so weight "
           'stays at ${weight(previousWeight!)} ${unit.symbol} and reps go up '
           'by one instead.';
+    case ProgressionOutcome.percentageOfTrainingMax:
+      final trainingMax = rationale.trainingMaxGrams;
+      final percent = rationale.percent;
+      if (trainingMax == null || percent == null) {
+        return 'Computed from your training max.';
+      }
+      return '${(percent * 100).round()}% of your training max '
+          '(${weight(trainingMax)} ${unit.symbol}).';
   }
 }
 

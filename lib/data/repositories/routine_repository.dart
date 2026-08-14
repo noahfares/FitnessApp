@@ -46,6 +46,7 @@ class RoutineExerciseDetail {
     this.exerciseDefaultRestSeconds,
     this.notes,
     this.progressionRule = const ManualCarryForwardRule(),
+    this.trainingMaxGrams,
   });
 
   final String routineExerciseId;
@@ -75,6 +76,11 @@ class RoutineExerciseDetail {
   /// Never null — an absent stored value decodes to
   /// [ManualCarryForwardRule], the default.
   final ProgressionRule progressionRule;
+
+  /// The exercise's own training max (`F-PRG-010`) — read here so the target
+  /// sheet can show whether a percentage-based rule (`F-PRG-004`) has
+  /// anything to compute from, without a second query.
+  final int? trainingMaxGrams;
 }
 
 /// One routine day scheduled for a given weekday (`F-ROU-012`) — what the
@@ -729,7 +735,8 @@ class RoutineRepository {
                  re.rest_seconds      AS rest_seconds,
                  e.default_rest_seconds AS exercise_default_rest_seconds,
                  re.notes             AS notes,
-                 re.progression_rule  AS progression_rule
+                 re.progression_rule  AS progression_rule,
+                 e.training_max_grams AS training_max_grams
             FROM routine_exercises re
             JOIN exercises e ON e.id = re.exercise_id
            WHERE re.routine_day_id = ? AND re.deleted_at IS NULL
@@ -767,6 +774,7 @@ class RoutineRepository {
                 progressionRule: ProgressionRule.fromJson(
                   row.read<String?>('progression_rule'),
                 ),
+                trainingMaxGrams: row.read<int?>('training_max_grams'),
               ),
           ],
         );

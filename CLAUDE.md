@@ -967,6 +967,161 @@ banner — plain English, not a chart annotation (§7 rule 5), rendering
 nothing at all when there's no verdict or it isn't stalled — that also
 shows the deload suggestion when `F-ANA-010`'s workload signal agrees.
 
+**Phase 4 batch 4.6 — logging extras (v0.41.0).** `F-LOG-019`, `F-LOG-020`
+and `F-TIM-009` all done — the last scheduled batch of Phase 4, though the
+phase itself is not yet audited complete (`F-PRG-004`/`F-PRG-010` from
+batch 4.2 and `F-ANA-013` from batch 4.5 remain `planned`/not attempted,
+so the roadmap's own exit criteria aren't all met). Schema v5 adds
+`exercises.warmup_ruleset` (nullable JSON, null = the app-wide default
+ramp) — every other column this batch touches (`bodyweight_coefficient`,
+`sets.rpe` used only for stopwatch's own duration field) already existed.
+Bodyweight-loaded exercises (`F-LOG-019`): `domain/logging/
+bodyweight_load.dart`'s `effectiveLoadGrams` is the pure §1 formula
+(bodyweight × coefficient + added weight); `set_fields.dart`'s
+`bodyweightReps` case gained `SetField.weight` so the set row can log
+*added* weight (a push-up leaves it blank, a weighted pull-up doesn't) —
+storage was always meant to be added-only, this is what actually renders
+the field. The per-exercise coefficient (`exercises.bodyweight_coefficient`,
+existed since schema v3) is a plain percentage field on the exercise editor
+shown only for that tracking type, defaulting to unset (full bodyweight).
+§2's "nearest measurement, falling back to most recent" needed no new code
+— `WorkoutRepository._backfillBodyweight` (`F-BOD-001`) already resolves
+`workouts.bodyweight_grams` that way at session start. §4 (analytics use
+effective load) reaches only `weekly_volume.dart`'s `weeklyVolume`/
+`dailyVolume` this batch, via a new `_setVolumeGrams` helper and two new
+fields on `AnalyticsSetRecord` (`workoutBodyweightGrams`,
+`bodyweightCoefficient`); `personal_records.dart` and
+`exercise_history.dart` still key off raw weight, left alone for the same
+reason batch 3.1 left PR detection's own filter alone. Warm-up generator
+(`F-LOG-020`): `domain/logging/warmup_generator.dart`'s
+`generateWarmupSets` rounds each step through the caller's own
+weight-source-aware function (`F-PLT-005`) then clamps to
+`[minWeightGrams, workingWeightGrams]`; `SetRepository.insertWarmupSets`
+shifts whatever's already logged to make room and inserts the generated
+`warmup` sets ahead of it in one transaction; `WarmupGeneratorSheet`
+(reached from the active workout screen's per-exercise menu) resolves
+rounding with the same plate/fixed-increment/stack dispatch
+`PlateCalculatorSheet` uses, and saves the edited ruleset back to the
+exercise on generate. Stopwatch (`F-TIM-009`): `domain/timing/
+stopwatch.dart`'s `LogStopwatch` is `RestTimer`'s own "value, not a ticking
+object" shape — elapsed time derived from a stored start timestamp against
+"now", immune to background drift — wired into `NumericKeypadSheet` as a
+start/stop toggle shown only for the duration field, redrawn once a second
+by a `Timer.periodic` that is the sheet's own state, not a new provider.
+Found and fixed along the way, via this batch's own new widget test:
+`PlateRepository.getBars`/`getPlates` (`F-PLT-002`) read through
+`watchBars().first`/`watchPlates().first`, a stream-based one-shot read
+that needs more real asynchronous hops than `pumpAndSettle` reliably
+drives forward in a widget test — `WarmupGeneratorSheet` was the first
+caller to hit this off the stream path, surfacing as the sheet silently
+never closing after "Generate" with no exception thrown. Both getters now
+run a plain one-shot query instead, which is both the fix and the more
+correct shape for what was always meant to be a single read; no other
+caller of either method needed to change.
+
+**Phase 4 batch 4.2, second pass — training max & percentage-based
+progression (v0.42.0).** `F-PRG-010` and `F-PRG-004` both done, closing out
+batch 4.2 (`F-PRG-003`/`F-PRG-005` landed in the first pass). Schema v6
+adds `exercises.training_max_grams` (nullable, null on every existing row —
+a percentage-based rule can't be assigned without one anyway, so nothing
+behaves differently until it's set). `domain/progression/training_max.dart`'s
+`deriveTrainingMaxGrams` is `floor(bestE1rm × 0.9)` — floored rather than
+rounded, since a training max is a conservative anchor meant to err light;
+`PersonalRecordRepository.bestE1rmGrams` reads the cached `bestE1rm` record
+(`F-LOG-013`) a new "Derive from e1RM" button on the exercise editor uses to
+fill the field, same as every other field there, without saving until the
+user hits the screen's own Save. `PercentageProgressionRule`
+(`domain/progression/progression_rule.dart`) is the one rule in
+`computeTargets` that ignores logged history entirely — `nextWeight =
+round(trainingMax × percent)`, decided before the engine's own first-run
+check even runs (extracted to `_computePercentageTarget`, called both from
+the early branch and from the switch's now-required exhaustive case) —
+because the training max is what's supposed to move, never the weight
+itself reacting to a session's success or failure the way every other rule
+here does. No training max configured falls back to the routine's static
+target unchanged, the same "nothing to compute from yet" shape `firstRun`
+already used for missing history, reused rather than given a second outcome
+value. Deliberately not full 5/3/1-style fidelity: this is a flat
+percentage, not a multi-week wave — `F-ROU-013` (week/cycle structure)
+still isn't scheduled, so there is nothing yet for the percentage to vary
+against week to week, exactly the caveat batch 4.2's own first-pass status
+note left open. Reached from a fifth "% of TM" segment on the day editor's
+target sheet's `SegmentedButton`, which stayed within one row across all
+five phone-width segments in the existing widget tests without needing the
+chip-row treatment `F-ANA-015`'s date range selector used for six longer
+labels. `docs/40-ANALYTICS-SPEC.md` §12 gained both the training-max
+derivation formula and the percentage rule, plus a `trainingMaxProgression`
+fixture (`docs/fixtures/analytics.json`) covering the percentage case and
+the no-training-max fallback.
+
+**Phase 4 closing pass — duration/rest compliance, weekly insight cards,
+body map (v0.43.0).** `F-ANA-012`, `F-ANA-013`, `F-ANA-014` all done — the
+last three features scheduled for Phase 4, closing out batch 4.5 and the
+phase itself. No schema change. Duration and rest compliance (`F-ANA-012`):
+`domain/analytics/duration_compliance.dart`'s `sessionDurationTrend` is
+`endedAt − startedAt` per finished session; `averageRestComplianceRatio`
+averages actual-vs-prescribed rest across every completed, non-warm-up set
+with a recorded `rest_taken_seconds` (`F-TIM-007`), "prescribed" resolved
+through the exercise's *current* configuration (`resolveRestSeconds`) since
+no per-set historical snapshot exists — a documented approximation, not a
+gap. Weekly insight cards (`F-ANA-013`): `domain/analytics/
+weekly_insights.dart`'s `generateWeeklyInsights` composes three existing
+signals (per-muscle volume, per-exercise e1RM via `epley1Rm`, hard sets per
+muscle) into a ranked, capped list, gated by a hard "at least 3 distinct
+weeks of history" rule that closes the acceptance criterion directly — two
+sessions land inside one or two calendar weeks, so nothing is generated for
+them at all. Each signal has its own significance-threshold, and a plain
+"sets last week" fact is deliberately scaled below any real comparison's
+significance so a busy muscle's raw count can never crowd out a genuine
+change — a bug the first draft of the ranking had, caught by its own
+fixture test. Reached on the **dashboard**, per the feature's own spec
+(not Insights) — `WeeklyInsightsSection` renders nothing at all while
+loading, on error, or with insufficient history, never a placeholder; each
+card links to the chart behind it, precisely for the e1RM kind (the specific
+exercise's detail screen) and generally for the two muscle-scoped kinds
+(the Insights tab, since its muscle picker is local widget state, not a
+route parameter — a documented simplification). Body map heat overlay
+(`F-ANA-014`): resolves batch 4.5's own "needs a licence-clean SVG this
+session couldn't responsibly source" blocker by not needing an SVG at all —
+`BodyMapHeatOverlay` draws an original, non-anatomical silhouette with
+`CustomPaint`, simple rounded rectangles per muscle region, nothing traced
+or sourced from anywhere. `domain/analytics/muscle_heat.dart`'s
+`muscleHeatIntensity` is relative to the hottest-trained muscle in the
+window, not absolute. Closes `F-CAT-013` §2 as a side effect:
+`domain/catalog/muscle_taxonomy.dart`'s new `bodyMapViewOf` maps every
+categorised muscle to a front/back region, `neck`/`fullBody` to neither,
+the same "decide explicitly" precedent `categoryOf` already set. Both new
+`InsightsScreen` sections ship collapsed behind an `ExpansionTile` by
+default — `F-ROU-011`'s own starvation fix, needed again here: an
+uncollapsed first draft of `BodyMapHeatOverlay` (an unbounded-width 100:220
+portrait shape) pushed "Overall weekly volume" and its chart out of the
+initial render/cache extent, caught by this batch's own widget test rather
+than shipped.
+
+**Phase 4 audited and declared complete (v0.43.0)**, mirroring Phases 2 and
+3's own audit batches. All four roadmap exit criteria are met:
+starting a routine day pre-fills targets that are correct, explained, and
+always assemblable — proven end-to-end by an existing batch 4.3 repository
+test that actually calls `startFromRoutineDay` through a real plate
+inventory and asserts the `plateRoundingHeld` rationale, not just the
+domain-level rounding function in isolation; the plate calculator never
+proposes plates the user doesn't own, same test plus `F-PLT-004`'s own
+fixture; every progression rule has fixture tests for success, partial,
+failure and first-run — true for linear, double-progression and
+RPE-autoregulation, with one deliberate, documented exception:
+percentage-of-training-max has no success/partial/failure verdict *by
+design* (`F-PRG-004`'s own spec — the training max moves by hand, not by
+session performance), so its fixture instead covers the percentage
+computation and the no-training-max fallback, the shape that actually
+applies to it; and insight cards say nothing at all when data is
+insufficient, proven both at the domain level (`weekly_insights_test.dart`)
+and through the real `DashboardScreen` (`weekly_insights_section_test.dart`
+asserts no "This week" section renders with too little history) — the
+widget-level proof Phases 2 and 3's own audits established as the standard,
+not just a domain fixture. Every feature `F-PRG-*`, `F-PLT-*`, `F-BOD-*`,
+`F-ANA-*` and `F-LOG-019`/`F-LOG-020`/`F-TIM-009` scheduled for Phase 4 is
+`done`.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

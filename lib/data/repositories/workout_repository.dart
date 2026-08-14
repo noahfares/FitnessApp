@@ -441,7 +441,8 @@ class WorkoutRepository {
                  re.target_weight_grams, re.target_rpe, re.rest_seconds,
                  re.progression_rule, e.default_bar_id, e.weight_source,
                  e.fixed_increments_grams, e.stack_base_grams,
-                 e.stack_step_grams, e.stack_half_step_grams
+                 e.stack_step_grams, e.stack_half_step_grams,
+                 e.training_max_grams
             FROM routine_exercises re
             JOIN exercises e ON e.id = re.exercise_id
            WHERE re.routine_day_id = ? AND re.deleted_at IS NULL
@@ -482,6 +483,7 @@ class WorkoutRepository {
           staticRepsMax: row.read<int?>('target_reps_max'),
           staticSets: row.read<int?>('target_sets'),
           staticTargetRpe: row.read<double?>('target_rpe'),
+          trainingMaxGrams: row.read<int?>('training_max_grams'),
         ),
       );
 

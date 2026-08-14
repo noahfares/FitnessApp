@@ -91,6 +91,19 @@ class Exercises extends Table with SyncColumns {
   IntColumn get stackHalfStepGrams =>
       integer().named('stack_half_step_grams').nullable()();
 
+  /// User-editable, per-exercise warm-up ramp (`F-LOG-020`) — JSON array of
+  /// `{percent, reps}` steps. Null uses the app-wide default ramp.
+  TextColumn get warmupRuleset => text().named('warmup_ruleset').nullable()();
+
+  /// The anchor for percentage-based progression (`F-PRG-004`), canonical
+  /// grams — set by hand or derived from the exercise's best e1RM
+  /// (`F-PRG-010`). Null until the user sets one; a percentage-based rule
+  /// falls back to the routine's static target with no training max
+  /// configured, the same "nothing to compute from yet" shape every other
+  /// rule's first-run case already uses.
+  IntColumn get trainingMaxGrams =>
+      integer().named('training_max_grams').nullable()();
+
   /// `updatedAt` as of the last time **seeding** wrote this row.
   ///
   /// Resolves the open question in `F-CAT-001`: a seeded row counts as

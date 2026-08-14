@@ -46,7 +46,7 @@ class AppDatabase extends _$AppDatabase {
   /// asserts on the *data*, not merely that nothing threw
   /// (docs/60-ENGINEERING.md §schema changes).
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -92,6 +92,19 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(exercises, exercises.stackBaseGrams);
         await m.addColumn(exercises, exercises.stackStepGrams);
         await m.addColumn(exercises, exercises.stackHalfStepGrams);
+      }
+      if (from < 5) {
+        // Per-exercise warm-up ramp override (`F-LOG-020`). Null on every
+        // existing row, which falls through to the app-wide default ramp —
+        // no exercise behaved any differently before this column existed.
+        await m.addColumn(exercises, exercises.warmupRuleset);
+      }
+      if (from < 6) {
+        // Training max for percentage-based progression (`F-PRG-010`). Null
+        // on every existing row — a percentage-based rule can't be assigned
+        // to an exercise without one anyway, so nothing behaves differently
+        // before this column is ever set.
+        await m.addColumn(exercises, exercises.trainingMaxGrams);
       }
       await _createIndexes();
     },

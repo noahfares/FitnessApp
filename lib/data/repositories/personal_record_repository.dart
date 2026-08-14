@@ -130,6 +130,19 @@ class PersonalRecordRepository {
             ..where((p) => p.deletedAt.isNull()))
           .get();
 
+  /// The exercise's own cached best e1RM, for "derive training max from
+  /// e1RM" (`F-PRG-010` §1) — null if no record is cached yet (an unused
+  /// exercise, or a fresh install before `rebuildAll` has run).
+  Future<int?> bestE1rmGrams(String exerciseId) async {
+    final row =
+        await (_db.select(_db.personalRecords)
+              ..where((p) => p.exerciseId.equals(exerciseId))
+              ..where((p) => p.kind.equalsValue(PrKind.bestE1rm))
+              ..where((p) => p.deletedAt.isNull()))
+            .getSingleOrNull();
+    return row?.value;
+  }
+
   /// The set ids currently holding a cached record for [exerciseId], for the
   /// inline badge (`F-LOG-013` §2). Streamed so a demotion — from a later
   /// rebuild — removes the badge without the row needing to be told directly.

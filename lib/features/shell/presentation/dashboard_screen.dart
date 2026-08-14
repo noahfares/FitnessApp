@@ -20,13 +20,15 @@ import '../../routines/application/routine_providers.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../widgets/async_view.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/weekly_insights_section.dart';
 
 /// The home tab (`F-NAV-004`): resume or start a workout first, then recent
 /// activity, then everywhere else in the app.
 ///
-/// Streaks, recent PRs and insight cards all depend on features that don't
-/// exist yet — they arrive with those, not as placeholders here. Today's
-/// scheduled day (`F-ROU-012`) landed in batch 3.5.
+/// Streaks and recent PRs depend on features that don't exist yet — they
+/// arrive with those, not as placeholders here. Today's scheduled day
+/// (`F-ROU-012`) landed in batch 3.5; weekly insight cards (`F-ANA-013`)
+/// landed in Phase 4's closing pass.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -51,6 +53,7 @@ class DashboardScreen extends ConsumerWidget {
         children: [
           const _ResumeOrStartCard(),
           const _TodaysScheduleCard(),
+          const WeeklyInsightsSection(),
           const SizedBox(height: AppSpacing.md),
           const _BodyweightCard(),
           const SizedBox(height: AppSpacing.xl),

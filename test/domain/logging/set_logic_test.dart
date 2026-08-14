@@ -13,7 +13,9 @@ void main() {
   group('setFieldsFor (F-LOG-003 §1)', () {
     test('every tracking type renders the inputs it measures', () {
       expect(setFieldsFor('weightReps'), [SetField.weight, SetField.reps]);
-      expect(setFieldsFor('bodyweightReps'), [SetField.reps]);
+      // Weight here is *added* weight (`F-LOG-019`) — a push-up leaves it
+      // blank, a weighted pull-up doesn't.
+      expect(setFieldsFor('bodyweightReps'), [SetField.weight, SetField.reps]);
       expect(setFieldsFor('reps'), [SetField.reps]);
       expect(setFieldsFor('time'), [SetField.duration]);
       expect(setFieldsFor('distanceTime'), [

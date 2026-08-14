@@ -31,7 +31,7 @@
 | [F-CAT-010](CAT/F-CAT-010.md) | Merge duplicate exercises | — | P2 | idea |
 | [F-CAT-011](CAT/F-CAT-011.md) | Exercise media | — | P3 | idea |
 | [F-CAT-012](CAT/F-CAT-012.md) | Substitution suggestions | — | P2 | idea |
-| [F-CAT-013](CAT/F-CAT-013.md) | Muscle taxonomy and body map data | 3 | P1 | in-progress |
+| [F-CAT-013](CAT/F-CAT-013.md) | Muscle taxonomy and body map data | 3 | P1 | done |
 | [F-CAT-014](CAT/F-CAT-014.md) | Exercise variants and modifiers | — | P3 | idea |
 
 ## `ROU` — Routines & programs
@@ -76,8 +76,8 @@
 | [F-LOG-016](LOG/F-LOG-016.md) | Repeat a previous session | 2 | P1 | done |
 | [F-LOG-017](LOG/F-LOG-017.md) | Per-side versus total weight | 2 | P1 | done |
 | [F-LOG-018](LOG/F-LOG-018.md) | Session summary | 1 | P1 | done |
-| [F-LOG-019](LOG/F-LOG-019.md) | Bodyweight-loaded exercises | 4 | P2 | planned |
-| [F-LOG-020](LOG/F-LOG-020.md) | Warm-up set generator | 4 | P2 | planned |
+| [F-LOG-019](LOG/F-LOG-019.md) | Bodyweight-loaded exercises | 4 | P2 | done |
+| [F-LOG-020](LOG/F-LOG-020.md) | Warm-up set generator | 4 | P2 | done |
 | [F-LOG-021](LOG/F-LOG-021.md) | Live session metrics | — | P2 | idea |
 | [F-LOG-022](LOG/F-LOG-022.md) | Undo and mis-tap protection | 2 | P1 | done |
 | [F-LOG-023](LOG/F-LOG-023.md) | Per-set notes | 1 | P1 | done |
@@ -94,7 +94,7 @@
 | [F-TIM-006](TIM/F-TIM-006.md) | Alert style | 1 | P1 | done |
 | [F-TIM-007](TIM/F-TIM-007.md) | Rest-taken recording | 2 | P2 | done |
 | [F-TIM-008](TIM/F-TIM-008.md) | Interval / EMOM timer | — | P3 | idea |
-| [F-TIM-009](TIM/F-TIM-009.md) | Stopwatch for timed exercises | 4 | P2 | planned |
+| [F-TIM-009](TIM/F-TIM-009.md) | Stopwatch for timed exercises | 4 | P2 | done |
 
 ## `ANA` — Analytics & charts
 
@@ -111,9 +111,9 @@
 | [F-ANA-009](ANA/F-ANA-009.md) | Stall detection | 4 | P2 | done |
 | [F-ANA-010](ANA/F-ANA-010.md) | Acute-to-chronic workload ratio | 4 | P2 | done |
 | [F-ANA-011](ANA/F-ANA-011.md) | Rep range and intensity distribution | 4 | P2 | done |
-| [F-ANA-012](ANA/F-ANA-012.md) | Duration and rest compliance | 4 | P3 | planned |
-| [F-ANA-013](ANA/F-ANA-013.md) | Weekly insight cards | 4 | P2 | planned |
-| [F-ANA-014](ANA/F-ANA-014.md) | Body map heat overlay | 4 | P3 | planned |
+| [F-ANA-012](ANA/F-ANA-012.md) | Duration and rest compliance | 4 | P3 | done |
+| [F-ANA-013](ANA/F-ANA-013.md) | Weekly insight cards | 4 | P2 | done |
+| [F-ANA-014](ANA/F-ANA-014.md) | Body map heat overlay | 4 | P3 | done |
 | [F-ANA-015](ANA/F-ANA-015.md) | Date range and filter controls | 3 | P1 | in-progress |
 | [F-ANA-016](ANA/F-ANA-016.md) | Chart interaction | 3 | P2 | done |
 | [F-ANA-017](ANA/F-ANA-017.md) | Year in review | — | P3 | idea |
@@ -126,13 +126,13 @@
 | [F-PRG-001](PRG/F-PRG-001.md) | Progression engine core | 4 | P1 | in-progress |
 | [F-PRG-002](PRG/F-PRG-002.md) | Linear progression | 4 | P1 | done |
 | [F-PRG-003](PRG/F-PRG-003.md) | Double progression | 4 | P1 | done |
-| [F-PRG-004](PRG/F-PRG-004.md) | Percentage / training-max based | 4 | P2 | planned |
+| [F-PRG-004](PRG/F-PRG-004.md) | Percentage / training-max based | 4 | P2 | done |
 | [F-PRG-005](PRG/F-PRG-005.md) | RPE-autoregulated | 4 | P2 | done |
 | [F-PRG-006](PRG/F-PRG-006.md) | Manual carry-forward | 4 | P1 | done |
 | [F-PRG-007](PRG/F-PRG-007.md) | Rule assignment | 4 | P1 | done |
 | [F-PRG-008](PRG/F-PRG-008.md) | Target explanation | 4 | P1 | done |
 | [F-PRG-009](PRG/F-PRG-009.md) | Failure and deload handling | 4 | P1 | done |
-| [F-PRG-010](PRG/F-PRG-010.md) | Training max management | 4 | P2 | planned |
+| [F-PRG-010](PRG/F-PRG-010.md) | Training max management | 4 | P2 | done |
 | [F-PRG-011](PRG/F-PRG-011.md) | Deload suggestion | 4 | P2 | done |
 | [F-PRG-012](PRG/F-PRG-012.md) | Plate-aware rounding | 4 | P1 | done |
 

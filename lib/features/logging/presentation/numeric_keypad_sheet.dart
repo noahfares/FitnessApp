@@ -13,6 +13,7 @@ import '../../../data/db/database_provider.dart';
 import '../../../domain/logging/duration_entry.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/weight_steps.dart';
+import '../../../domain/timing/stopwatch.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import 'plate_calculator_sheet.dart';
 import 'set_value_format.dart';
@@ -106,6 +107,15 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
   /// Repeats a stepper while it is held (`F-LOG-006` §2).
   Timer? _repeat;
 
+  /// Running while a count-up stopwatch is timing a hold (`F-TIM-009`). Null
+  /// when idle.
+  LogStopwatch? _stopwatch;
+
+  /// Repaints the elapsed display once a second while [_stopwatch] runs —
+  /// the actual elapsed value is always recomputed from the start timestamp,
+  /// never accumulated by this timer, so a missed tick cannot drift it.
+  Timer? _stopwatchTick;
+
   @override
   void initState() {
     super.initState();
@@ -133,6 +143,7 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
   @override
   void dispose() {
     _repeat?.cancel();
+    _stopwatchTick?.cancel();
     super.dispose();
   }
 
@@ -176,6 +187,18 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
                   ),
                   const SizedBox(width: AppSpacing.sm),
                 ],
+                if (_field == SetField.duration)
+                  IconButton(
+                    tooltip: _stopwatch == null
+                        ? 'Start stopwatch'
+                        : 'Stop stopwatch',
+                    icon: Icon(
+                      _stopwatch == null
+                          ? Icons.play_circle_outline
+                          : Icons.stop_circle_outlined,
+                    ),
+                    onPressed: _toggleStopwatch,
+                  ),
                 // Gated on `exerciseId` alone — which weight source applies
                 // (plate-loaded, fixed dumbbells, a stack) is resolved inside
                 // the sheet itself from the exercise row (`F-PLT-005`).
@@ -261,6 +284,15 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
       : '.';
 
   String _display(SetField field) {
+    // While the stopwatch runs, the duration tab shows live elapsed time
+    // rather than whatever was typed before it started (`F-TIM-009`).
+    final stopwatch = _stopwatch;
+    if (field == SetField.duration && stopwatch != null) {
+      return formatDurationSeconds(
+        stopwatch.elapsedSecondsAt(DateTime.now().millisecondsSinceEpoch),
+      );
+    }
+
     final raw = _text[field] ?? '';
     // Durations are typed as digits and read back as a clock, so what the tab
     // shows is not what the buffer holds.
@@ -269,6 +301,31 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
       return seconds == null ? '' : formatDurationSeconds(seconds);
     }
     return raw;
+  }
+
+  /// Starts timing a hold, or stops it and writes the elapsed time through
+  /// as the duration (`F-TIM-009`) — the same write-through-on-every-change
+  /// discipline every other field on this sheet already follows.
+  void _toggleStopwatch() {
+    final running = _stopwatch;
+    if (running == null) {
+      setState(() {
+        _stopwatch = LogStopwatch.start(DateTime.now().millisecondsSinceEpoch);
+        _stopwatchTick = Timer.periodic(
+          const Duration(seconds: 1),
+          (_) => setState(() {}),
+        );
+      });
+      return;
+    }
+
+    final elapsed = running.elapsedSecondsAt(
+      DateTime.now().millisecondsSinceEpoch,
+    );
+    _stopwatchTick?.cancel();
+    _stopwatchTick = null;
+    setState(() => _stopwatch = null);
+    _write(digitsFromSeconds(elapsed));
   }
 
   void _append(String character) {
