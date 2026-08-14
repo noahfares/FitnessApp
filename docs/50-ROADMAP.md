@@ -462,12 +462,67 @@ reasoning Phases 2–3 gave their own trailing batches.
 Makes the ownership claim real, and de-risks the signing migration before any
 public release.
 
-`F-DAT-001` `F-DAT-002` `F-DAT-003` `F-DAT-004` `F-DAT-005` `F-DAT-006`
-`F-DAT-007` `F-DAT-008` `F-DAT-010` `F-BOD-004` `F-SET-010`
-
 The minimal dump (`F-DAT-011`) already exists from Phase 1 as a schema-mistake
 escape hatch; this phase builds the real, versioned, round-trip-guaranteed
 format on top of it.
+
+| Batch | Features | Reads |
+|---|---|---|
+| **5.1** Round-trip spine | `F-DAT-001` `F-DAT-003` `F-DAT-004` `F-DAT-010` | `21-DATA-MODEL` `22-UNITS#import-and-export` |
+| **5.2** CSV export & auto-backup | `F-DAT-002` `F-DAT-008` | `21-DATA-MODEL` `22-UNITS#import-and-export` |
+| **5.3** Third-party import | `F-DAT-005` `F-DAT-006` `F-DAT-007` | `21-DATA-MODEL` `22-UNITS#import-and-export` |
+| **5.4** Photos & app lock | `F-BOD-004` `F-SET-010` | `21-DATA-MODEL#body_measurements` `22-UNITS` |
+
+Ordering rationale: the phase's own exit criterion is a round trip — export,
+wipe, import, reproduced exactly — so the four P0/P2 features that criterion
+actually names (`F-DAT-001` JSON export, `F-DAT-003` backup file, `F-DAT-004`
+restore, `F-DAT-010` wipe) ship together in **5.1** rather than split across
+batches the way their individual priorities alone would suggest; a JSON export
+nothing can read back is not a shippable increment on its own. **5.2** is the
+two remaining P1/P2 export-side features with no dependents of their own.
+**5.3** groups the three third-party importer features together since
+`F-DAT-006` and `F-DAT-007` both depend on `F-DAT-005`. **5.4** is unrelated
+to the rest of the phase (progress photos and an app-lock PIN) and trails for
+the same reason prior phases' odds-and-ends batches did.
+
+**Batch 5.1 done.** `F-DAT-001`, `F-DAT-003`, `F-DAT-004`, `F-DAT-010` all
+done. No schema change — every table already carries `SyncColumns`
+(`id`/`created_at`/`updated_at`/`deleted_at`), so a generic, schema-agnostic
+implementation covers all of them without per-table code.
+`lib/data/io/json_export_service.dart` (`F-DAT-001`) is `JsonDumpService`'s
+(`F-DAT-011`) same one-table-at-a-time streaming format with one addition, an
+explicit `"units":"canonical-v1"` marker — the two rescue-vs-real exporters
+stay deliberately separate files since `F-DAT-011`'s own spec says it "has no
+import counterpart," but they are otherwise identical, and this is the format
+`F-DAT-004` reads back. `lib/data/db/table_snapshot_io.dart`
+(`TableSnapshotIo`) is the shared delete/reinsert engine both restore and
+wipe need: `deleteAllRows()`, `restoreFrom(tables)`, and
+`purgeTombstonesBefore(cutoff)` (`F-DAT-010`'s own spec names tombstone purge
+as belonging here, alongside the wipe-to-first-run action). All three run
+inside a Drift transaction with `PRAGMA defer_foreign_keys = TRUE`, so table
+order never has to match the FK graph and any failure mid-restore rolls back
+completely — the transactionality `F-DAT-004` §3 requires. `BackupService`
+(`F-DAT-003`) wraps the export into a timestamped file kept in the app's own
+documents directory (not just handed to the share sheet) specifically so
+`RestoreService`'s automatic pre-restore safety copy (`F-DAT-004` §4) can be
+taken without user interaction. Restore is version-checked by exact
+`schemaVersion` match (`F-DAT-004` §2) — this app only ever migrates the
+database it opens on launch, never a restore's raw rows, so a backup from any
+other schema version is refused with a clear message rather than partially
+applied, satisfying `F-DAT-004`'s "never leaves a half-populated database"
+acceptance criterion by construction rather than by best-effort. Settings ›
+Data gained backup/restore (file picker + a `ConfirmSheet` naming what will
+be lost) and wipe (typed "DELETE" confirmation — stronger than
+`ConfirmSheet` alone, since a wipe destroys strictly more than any other
+destructive action in the app). Round-trip proven directly:
+`test/data/db/table_snapshot_io_test.dart`'s "export, wipe, restore
+reproduces every table exactly" deliberately includes a soft-deleted row —
+the case that would silently vanish if the exporter were built on
+repository reads (which filter `deleted_at`) instead of raw table selects.
+Not built: passphrase encryption (`F-DAT-003`'s spec calls it "optional")
+and bundling progress photos (`F-BOD-004` doesn't exist yet, batch 5.4) —
+both explicit deferrals with nothing to gate consent on yet, not silent
+drops. `F-DAT-005`–`F-DAT-008` remain `planned`, batches 5.2–5.3.
 
 **Exit criteria**
 - [ ] Export → wipe → import reproduces the database exactly, verified table by

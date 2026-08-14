@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../io/backup_service.dart';
 import '../io/json_dump_service.dart';
+import '../io/json_export_service.dart';
+import '../io/restore_service.dart';
 import '../repositories/body_measurement_repository.dart';
 import '../repositories/exercise_repository.dart';
 import '../repositories/personal_record_repository.dart';
@@ -10,6 +13,7 @@ import '../repositories/set_repository.dart';
 import '../repositories/workout_repository.dart';
 import '../seed/demo_data_seeder.dart';
 import 'app_database.dart';
+import 'table_snapshot_io.dart';
 
 /// The single database instance.
 ///
@@ -70,4 +74,29 @@ final plateRepositoryProvider = Provider<PlateRepository>(
 /// hand-logging workouts (Settings › Data, `kDebugMode` gated).
 final demoDataSeederProvider = Provider<DemoDataSeeder>(
   (ref) => DemoDataSeeder(ref.watch(databaseProvider)),
+);
+
+/// Generic whole-database delete/reinsert shared by restore and wipe
+/// (`F-DAT-004`, `F-DAT-010`).
+final tableSnapshotIoProvider = Provider<TableSnapshotIo>(
+  (ref) => TableSnapshotIo(ref.watch(databaseProvider)),
+);
+
+/// The designed, versioned, round-trip-guaranteed export (`F-DAT-001`).
+final jsonExportServiceProvider = Provider<JsonExportService>(
+  (ref) => JsonExportService(ref.watch(databaseProvider)),
+);
+
+/// The single-file backup a user keeps (`F-DAT-003`).
+final backupServiceProvider = Provider<BackupService>(
+  (ref) => BackupService(ref.watch(jsonExportServiceProvider)),
+);
+
+/// Restore from a backup file (`F-DAT-004`).
+final restoreServiceProvider = Provider<RestoreService>(
+  (ref) => RestoreService(
+    ref.watch(databaseProvider),
+    ref.watch(backupServiceProvider),
+    ref.watch(tableSnapshotIoProvider),
+  ),
 );

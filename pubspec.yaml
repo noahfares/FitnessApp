@@ -7,7 +7,7 @@ publish_to: none
 # Canonical source is the VERSION file at the repo root; CI fails if they
 # disagree. See docs/63-VERSIONING.md. The +N build number is set by the
 # release workflow (F-REL-005), not by hand.
-version: 0.44.1
+version: 0.45.0
 
 environment:
   sdk: ^3.11.0
@@ -56,6 +56,13 @@ dependencies:
   # in light and dark without bespoke platform work (docs/20-ARCHITECTURE.md).
   fl_chart: ^1.1.1
 
+  # Where backups live on-device (F-DAT-003) — already an implicit transitive
+  # dep via drift_flutter, now used directly so it's declared, not borrowed.
+  path_provider: ^2.1.5
+
+  # Picking a backup file to restore from (F-DAT-004).
+  file_picker: ^11.0.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -66,6 +73,10 @@ dev_dependencies:
   build_runner: ^2.15.1
   drift_dev: ^2.34.0
 
+  # Faking the backup directory in restore_service_test.dart.
+  path_provider_platform_interface: ^2.1.2
+  plugin_platform_interface: ^2.1.8
+
 flutter:
   uses-material-design: true
   assets:
@@ -74,4 +85,3 @@ flutter:
 # needs it, to keep `pub get` and CI fast:
 #   freezed, json_serializable   → domain entities, when they need unions
 #   flutter_local_notifications  → F-TIM-003 (Phase 1)
-#   file_picker                  → F-DAT-005/006 import (Phase 5)

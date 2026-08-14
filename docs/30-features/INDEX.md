@@ -151,16 +151,16 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-DAT-001](DAT/F-DAT-001.md) | JSON export | 5 | P0 | planned |
+| [F-DAT-001](DAT/F-DAT-001.md) | JSON export | 5 | P0 | done |
 | [F-DAT-002](DAT/F-DAT-002.md) | CSV export | 5 | P1 | planned |
-| [F-DAT-003](DAT/F-DAT-003.md) | Backup file | 5 | P0 | planned |
-| [F-DAT-004](DAT/F-DAT-004.md) | Restore | 5 | P0 | planned |
+| [F-DAT-003](DAT/F-DAT-003.md) | Backup file | 5 | P0 | done |
+| [F-DAT-004](DAT/F-DAT-004.md) | Restore | 5 | P0 | done |
 | [F-DAT-005](DAT/F-DAT-005.md) | Strong CSV import | 5 | P1 | planned |
 | [F-DAT-006](DAT/F-DAT-006.md) | Hevy CSV import | 5 | P2 | planned |
 | [F-DAT-007](DAT/F-DAT-007.md) | Import mapping UI | 5 | P1 | planned |
 | [F-DAT-008](DAT/F-DAT-008.md) | Automatic local backups | 5 | P2 | planned |
 | [F-DAT-009](DAT/F-DAT-009.md) | File-based cloud sync | — | P2 | idea |
-| [F-DAT-010](DAT/F-DAT-010.md) | Wipe all data | 5 | P2 | planned |
+| [F-DAT-010](DAT/F-DAT-010.md) | Wipe all data | 5 | P2 | done |
 | [F-DAT-011](DAT/F-DAT-011.md) | Minimal JSON dump | 1 | P0 | done |
 
 ## `SET` — Settings

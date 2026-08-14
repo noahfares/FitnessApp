@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,17 +9,21 @@ import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../data/io/restore_service.dart';
 import '../../../data/platform/export_sharer.dart';
+import '../../shell/widgets/confirm_sheet.dart';
 
-/// Settings › Data (`F-DAT-011`, `F-LOG-013` §5).
+/// Settings › Data (`F-DAT-001`, `F-DAT-003`, `F-DAT-004`, `F-DAT-010`,
+/// `F-DAT-011`, `F-LOG-013` §5).
 ///
-/// Only the minimal JSON dump exists in Phase 1 — import and a designed,
-/// versioned backup format are `F-DAT-004`/`F-DAT-001`, Phase 5. This is
-/// deliberately the rescue tool, not the real thing: dump, fix, reimport by
-/// hand if a schema mistake ever needs it (docs/30-features/DAT/F-DAT-011.md
-/// §Why). Also carries the "rebuild personal records" maintenance action —
-/// unrelated to the dump, but there is no other settings page for
-/// data-integrity actions yet.
+/// The minimal JSON dump (`F-DAT-011`) is Phase 1's rescue tool — dump, fix,
+/// reimport by hand if a schema mistake ever needs it
+/// (docs/30-features/DAT/F-DAT-011.md §Why). Everything below it is Phase
+/// 5's real, versioned, round-trip-guaranteed data layer built on top: a
+/// backup a user keeps, restoring from one, and wiping the device back to
+/// first run. Also carries the "rebuild personal records" maintenance
+/// action — unrelated to any of these, but there is no other settings page
+/// for data-integrity actions yet.
 class DataScreen extends ConsumerStatefulWidget {
   const DataScreen({super.key});
 
@@ -28,6 +33,9 @@ class DataScreen extends ConsumerStatefulWidget {
 
 class _DataScreenState extends ConsumerState<DataScreen> {
   bool _exporting = false;
+  bool _backingUp = false;
+  bool _restoring = false;
+  bool _wiping = false;
   bool _rebuildingPrs = false;
   bool _seedingDemoData = false;
 
@@ -55,6 +63,57 @@ class _DataScreenState extends ConsumerState<DataScreen> {
                   )
                 : const Icon(Icons.ios_share),
             label: Text(_exporting ? 'Exporting…' : 'Export data (.json)'),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          Text(
+            'A backup is a full, versioned copy of everything on this '
+            'device, saved here so restore can find it later.',
+            style: theme.textTheme.bodyMedium,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          FilledButton.icon(
+            onPressed: _backingUp ? null : () => unawaited(_backup(context)),
+            icon: _backingUp
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator.adaptive(strokeWidth: 2),
+                  )
+                : const Icon(Icons.save_outlined),
+            label: Text(_backingUp ? 'Backing up…' : 'Back up now'),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          OutlinedButton.icon(
+            onPressed: _restoring ? null : () => unawaited(_restore(context)),
+            icon: _restoring
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator.adaptive(strokeWidth: 2),
+                  )
+                : const Icon(Icons.restore),
+            label: Text(_restoring ? 'Restoring…' : 'Restore from backup…'),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          Text(
+            'Wiping deletes everything on this device and returns the app '
+            'to its first-run state. A backup is taken first.',
+            style: theme.textTheme.bodyMedium,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          OutlinedButton.icon(
+            onPressed: _wiping ? null : () => unawaited(_wipe(context)),
+            icon: _wiping
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator.adaptive(strokeWidth: 2),
+                  )
+                : Icon(Icons.delete_forever, color: theme.colorScheme.error),
+            label: Text(
+              _wiping ? 'Wiping…' : 'Wipe all data',
+              style: TextStyle(color: theme.colorScheme.error),
+            ),
           ),
           const SizedBox(height: AppSpacing.xl),
           Text(
@@ -134,6 +193,144 @@ class _DataScreenState extends ConsumerState<DataScreen> {
     } finally {
       if (mounted) setState(() => _exporting = false);
     }
+  }
+
+  Future<void> _backup(BuildContext context) async {
+    setState(() => _backingUp = true);
+    try {
+      await ref.read(backupServiceProvider).createBackup();
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('Backup saved.')));
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(content: Text('Backup failed. Try again.')),
+        );
+    } finally {
+      if (mounted) setState(() => _backingUp = false);
+    }
+  }
+
+  Future<void> _restore(BuildContext context) async {
+    final picked = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    final path = picked?.files.single.path;
+    if (path == null) return;
+    if (!context.mounted) return;
+
+    final confirmed = await showConfirmSheet(
+      context,
+      title: 'Restore from backup?',
+      message:
+          'This replaces every workout, routine and setting on this device '
+          'with what is in the backup file. A safety copy of what is here '
+          'now is saved first.',
+      confirmLabel: 'Restore',
+    );
+    if (!confirmed) return;
+    if (!context.mounted) return;
+
+    setState(() => _restoring = true);
+    try {
+      final result = await ref
+          .read(restoreServiceProvider)
+          .restoreFrom(File(path));
+      if (!context.mounted) return;
+      final message = switch (result.outcome) {
+        RestoreOutcome.success => 'Restore complete.',
+        RestoreOutcome.invalidFile ||
+        RestoreOutcome.versionMismatch => result.message ?? 'Restore failed.',
+      };
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message)));
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(content: Text('Restore failed. Try again.')),
+        );
+    } finally {
+      if (mounted) setState(() => _restoring = false);
+    }
+  }
+
+  Future<void> _wipe(BuildContext context) async {
+    final confirmed = await _confirmWipe(context);
+    if (!confirmed) return;
+    if (!context.mounted) return;
+
+    setState(() => _wiping = true);
+    try {
+      await ref.read(backupServiceProvider).createBackup();
+      await ref.read(tableSnapshotIoProvider).deleteAllRows();
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('All data wiped.')));
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(content: Text('Wipe failed. Try again.')),
+        );
+    } finally {
+      if (mounted) setState(() => _wiping = false);
+    }
+  }
+
+  /// Typed confirmation, not just a tap (spec: "requires typed
+  /// confirmation") — a wipe destroys strictly more than any other
+  /// destructive action in the app, so it earns a stronger gate than
+  /// `ConfirmSheet` alone.
+  Future<bool> _confirmWipe(BuildContext context) async {
+    final controller = TextEditingController();
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Wipe all data?'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'This permanently deletes every workout, routine and '
+                'setting on this device. Type DELETE to confirm.',
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                onChanged: (_) => setDialogState(() {}),
+                decoration: const InputDecoration(hintText: 'DELETE'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: controller.text == 'DELETE'
+                  ? () => Navigator.of(context).pop(true)
+                  : null,
+              child: const Text('Wipe'),
+            ),
+          ],
+        ),
+      ),
+    );
+    return result ?? false;
   }
 
   /// The maintenance action `F-LOG-013` §5 requires: a full recompute from

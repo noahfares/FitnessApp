@@ -1,6 +1,6 @@
 # F-DAT-001 — JSON export
 
-Status: planned | Priority: P0 | Phase: 5
+Status: done | Priority: P0 | Phase: 5
 Blocks: F-DAT-003, F-ROU-014
 Reads: 22-UNITS#import-and-export, 21-DATA-MODEL
 
@@ -27,3 +27,13 @@ Reads: 22-UNITS#import-and-export, 21-DATA-MODEL
 
 The full-fidelity, lossless representation. The format that proves
 the data isn't hostage.
+
+---
+
+## Status note (batch 5.1)
+
+`lib/data/io/json_export_service.dart` — `JsonDumpService`'s (`F-DAT-011`)
+same per-table streaming format plus an explicit `"units":"canonical-v1"`
+marker. Ids are already stable UUID v4 strings (`SyncColumns.id`), so no
+extra id layer was needed. This is the format `F-DAT-004` reads back;
+round-trip proven in `test/data/db/table_snapshot_io_test.dart`.
