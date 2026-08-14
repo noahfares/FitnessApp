@@ -1207,8 +1207,50 @@ Every other screen is still English literals. Full detail:
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`
-via `setx`/`[Environment]::SetEnvironmentVariable`). No Android SDK on
-either, so `flutter build apk` is CI-only. Flutter web is not a target
-platform. `tools/verify.sh` passes clean on both as of this note — if a
-future session finds neither toolchain present, set one up the same way
-before trusting an unverified diff.
+via `setx`/`[Environment]::SetEnvironmentVariable`). Flutter web is not a
+target platform. `tools/verify.sh` passes clean on both as of this note —
+if a future session finds neither toolchain present, set one up the same
+way before trusting an unverified diff.
+
+**Android SDK is now installed on the Windows machine (2026-08-14)** —
+`flutter build apk`/`appbundle` work locally, not just in CI. Eclipse
+Temurin JDK 17 (`C:\Program Files\Eclipse Adoptium\jdk-17.0.20.8-hotspot`,
+`JAVA_HOME`), Android SDK command-line tools at `C:\Android\sdk`
+(`ANDROID_HOME`/`ANDROID_SDK_ROOT`), with `platform-tools`,
+`platforms;android-36`, and `build-tools;36.0.0` installed and licences
+accepted (`flutter config --android-sdk C:\Android\sdk` points Flutter at
+it). All four env vars are persisted at the Windows user level, plus
+`platform-tools` and `cmdline-tools\latest\bin` on `PATH`.
+
+**Required fix, not optional**: `TEMP`/`TMP` were redirected to
+`C:\Android\tmp` (plain local folder, persisted at the user level) because
+Gradle — and any JVM's `java.nio.channels.Selector.open()`/`Pipe.open()`
+on this specific machine — fails with `java.io.IOException: Unable to
+establish loopback connection` / `SocketException: Invalid argument:
+connect` when its internal Unix-domain-socket auto-bind lands under
+`C:\Users\<user>\AppData\Local\Temp` (this profile's OneDrive-affected
+tree — see the hub's own `C:\claude\CLAUDE.md` note on that). Isolated with
+a minimal Java reproduction (`ServerSocketChannel.open(StandardProtocolFamily.UNIX)`
++ `bind(null)`, connect fails under `AppData\Local\Temp`, succeeds under a
+plain `C:\Android\...` path) before touching anything — `-D` system
+property overrides (`java.io.tmpdir`, `preferIPv4Stack`, forcing
+`WindowsSelectorProvider`) were tried first and **do nothing**; only
+redirecting the actual `TEMP`/`TMP` environment variables works, because
+the JDK's Unix-domain-socket path resolution reads the OS temp path
+directly, not the `java.io.tmpdir` system property. No Android SDK license
+prompt in `sdkmanager.bat --licenses` accepts through a PowerShell pipe —
+route the "y" lines through a file and use `cmd /c "... < file.txt"`
+redirection instead, and set `JAVA_HOME` inline in the same command (each
+tool-call PowerShell process is fresh; a `[Environment]::SetEnvironmentVariable`
+from an earlier command isn't visible to a later one, only to processes
+started after the *next* full session/shell restart). A debug APK
+(`flutter build apk --debug`) built clean with this setup, confirming the
+whole chain end to end — first real local verification since Phase 1.
+No emulator/AVD attempted: `systeminfo` reports this machine is itself
+already running under a hypervisor, so nested virtualization for the
+Android emulator is unlikely to be available — real on-device testing
+(`F-HLT-001`/`F-HLT-002`, and physically confirming `F-THM-006`'s icon
+once it has source art) still needs a real phone or a host-level nested-
+virtualization check this session can't perform. Visual Studio (Windows
+desktop target) remains not installed — irrelevant to this app, which
+doesn't target Windows as a release platform.
