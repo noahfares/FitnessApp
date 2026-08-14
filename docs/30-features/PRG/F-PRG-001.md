@@ -1,6 +1,6 @@
 # F-PRG-001 — Progression engine core
 
-Status: in-progress | Priority: P1 | Phase: 4
+Status: done | Priority: P1 | Phase: 4
 Depends on: F-ROU-003, F-ROU-010, F-LOG-004 | Blocks: F-PRG-002 … F-PRG-006
 Reads: 40-ANALYTICS-SPEC, 20-ARCHITECTURE#the-one-hard-rule, 22-UNITS
 
@@ -26,9 +26,15 @@ Reads: 40-ANALYTICS-SPEC, 20-ARCHITECTURE#the-one-hard-rule, 22-UNITS
       never the previous `target_snapshot`, so an in-session override is
       simply what happened, not a special case to detect (satisfies §3 by
       construction).
-- [ ] No rule can ever propose a load that cannot be assembled from the
-      user's plates — waits on `F-PRG-012`, Phase 4 batch 4.3
-      (`F-PLT-001` doesn't exist yet).
+- [x] No rule can ever propose a load that cannot be assembled from the
+      user's plates — closed by `F-PRG-012` (batch 4.3):
+      `WorkoutRepository.startFromRoutineDay` applies weight-source-aware
+      rounding (`applyPlateRounding`/`applyFixedIncrementRounding`/
+      `applyStackRounding`) to every rule's proposal, dispatched on the
+      exercise's `weightSource` rather than on which rule produced the
+      target — so this holds uniformly across linear, double-progression,
+      RPE-autoregulation and percentage-of-training-max alike, not just the
+      two rule types this feature's own first pass built.
 
 ## Status note
 
@@ -40,6 +46,11 @@ the single most recent one), so this is more history than any rule reads.
 Fine at any realistic amount of logged data now; worth capping the query
 (most-recent-N sessions) if a very long-lived exercise's start time is ever
 noticeably slow.
+
+Marked `done` retroactively: this file's own last unmet acceptance item was
+satisfied when `F-PRG-012` shipped in batch 4.3, but the status line here
+was never updated at the time — caught while double-checking Phase 4's
+completion claim rather than during that batch itself.
 
 ## Edge cases
 
