@@ -12,6 +12,7 @@ import '../../../data/db/database_provider.dart';
 import '../../../data/io/restore_service.dart';
 import '../../../data/platform/export_sharer.dart';
 import '../../shell/widgets/confirm_sheet.dart';
+import '../application/unit_preferences_provider.dart';
 
 /// Settings › Data (`F-DAT-001`, `F-DAT-003`, `F-DAT-004`, `F-DAT-010`,
 /// `F-DAT-011`, `F-LOG-013` §5).
@@ -33,6 +34,7 @@ class DataScreen extends ConsumerStatefulWidget {
 
 class _DataScreenState extends ConsumerState<DataScreen> {
   bool _exporting = false;
+  bool _exportingCsv = false;
   bool _backingUp = false;
   bool _restoring = false;
   bool _wiping = false;
@@ -63,6 +65,26 @@ class _DataScreenState extends ConsumerState<DataScreen> {
                   )
                 : const Icon(Icons.ios_share),
             label: Text(_exporting ? 'Exporting…' : 'Export data (.json)'),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'For spreadsheets, not backup — one CSV each for sets, body '
+            'measurements and routines, in your display units.',
+            style: theme.textTheme.bodySmall,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          OutlinedButton.icon(
+            onPressed: _exportingCsv
+                ? null
+                : () => unawaited(_exportCsv(context)),
+            icon: _exportingCsv
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator.adaptive(strokeWidth: 2),
+                  )
+                : const Icon(Icons.table_chart_outlined),
+            label: Text(_exportingCsv ? 'Exporting…' : 'Export data (.csv)'),
           ),
           const SizedBox(height: AppSpacing.xl),
           Text(
@@ -193,6 +215,53 @@ class _DataScreenState extends ConsumerState<DataScreen> {
     } finally {
       if (mounted) setState(() => _exporting = false);
     }
+  }
+
+  Future<void> _exportCsv(BuildContext context) async {
+    setState(() => _exportingCsv = true);
+    try {
+      final service = ref.read(csvExportServiceProvider);
+      final prefs = ref.read(unitPreferencesProvider);
+      final timestamp = DateFormat('yyyyMMdd-HHmmss').format(DateTime.now());
+      final dir = Directory.systemTemp;
+
+      final files = <File>[
+        await _writeCsv(
+          dir,
+          'sets-$timestamp.csv',
+          await service.setsCsv(prefs),
+        ),
+        await _writeCsv(
+          dir,
+          'measurements-$timestamp.csv',
+          await service.measurementsCsv(prefs),
+        ),
+        await _writeCsv(
+          dir,
+          'routines-$timestamp.csv',
+          await service.routinesCsv(prefs),
+        ),
+      ];
+
+      await ref
+          .read(exportSharerProvider)
+          .shareAll(files, subject: 'FitnessApp CSV export');
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(content: Text('Export failed. Try again.')),
+        );
+    } finally {
+      if (mounted) setState(() => _exportingCsv = false);
+    }
+  }
+
+  Future<File> _writeCsv(Directory dir, String name, String content) async {
+    final file = File('${dir.path}/fitnessapp-$name');
+    await file.writeAsString(content);
+    return file;
   }
 
   Future<void> _backup(BuildContext context) async {

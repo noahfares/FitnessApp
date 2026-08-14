@@ -4,6 +4,7 @@ import '../../core/ids/uuid.dart';
 import '../../domain/analytics/analytics_set_record.dart';
 import '../../domain/analytics/duration_compliance.dart';
 import '../../domain/analytics/exercise_history.dart';
+import '../../domain/export/set_export_row.dart';
 import '../../domain/logging/warmup_generator.dart';
 import '../../domain/timing/rest_defaults.dart';
 import '../db/app_database.dart';
@@ -595,6 +596,61 @@ class SetRepository {
         bodyweightCoefficient: row.read<double?>('bodyweight_coefficient'),
       ),
   ];
+
+  /// Every logged set, denormalised for the CSV export (`F-DAT-002`) — a
+  /// one-shot `Future`, not a `Stream`: export is a single action, not
+  /// something a screen keeps open and re-renders on every write.
+  Future<List<SetExportRow>> getSetsForExport() async {
+    final rows = await _db
+        .customSelect(
+          '''
+      SELECT w.started_at                    AS started_at,
+             w.started_at_tz_offset_minutes  AS tz_offset,
+             e.name                          AS exercise_name,
+             s.set_type                      AS set_type,
+             s.is_completed                  AS is_completed,
+             s.weight_grams                  AS weight_grams,
+             s.reps                          AS reps,
+             s.rpe                           AS rpe,
+             s.distance_metres               AS distance_metres,
+             s.duration_seconds              AS duration_seconds
+        FROM sets s
+        JOIN workout_exercises we ON we.id = s.workout_exercise_id
+        JOIN workouts w           ON w.id  = we.workout_id
+        JOIN exercises e          ON e.id  = we.exercise_id
+       WHERE we.deleted_at IS NULL
+         AND w.deleted_at  IS NULL
+         AND s.deleted_at  IS NULL
+         AND e.deleted_at  IS NULL
+       ORDER BY w.started_at, s.position
+      ''',
+          readsFrom: {
+            _db.sets,
+            _db.workoutExercises,
+            _db.workouts,
+            _db.exercises,
+          },
+        )
+        .get();
+
+    return [
+      for (final row in rows)
+        SetExportRow(
+          workoutDate: _localDate(
+            row.read<int>('started_at'),
+            row.read<int>('tz_offset'),
+          ),
+          exerciseName: row.read<String>('exercise_name'),
+          setType: row.read<String>('set_type'),
+          isCompleted: row.read<bool>('is_completed'),
+          weightGrams: row.read<int?>('weight_grams'),
+          reps: row.read<int?>('reps'),
+          rpe: row.read<double?>('rpe'),
+          distanceMetres: row.read<int?>('distance_metres'),
+          durationSeconds: row.read<int?>('duration_seconds'),
+        ),
+    ];
+  }
 
   /// Same local-date derivation as `WorkoutHistoryEntry.localDate` — never
   /// from UTC alone (ADR-0008).

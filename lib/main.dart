@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/widgets.dart';
@@ -9,6 +10,8 @@ import 'core/units/mass.dart';
 import 'core/units/unit_preferences.dart';
 import 'data/db/app_database.dart';
 import 'data/db/database_provider.dart';
+import 'data/io/backup_service.dart';
+import 'data/io/json_export_service.dart';
 import 'data/repositories/plate_repository.dart';
 import 'data/repositories/workout_repository.dart';
 import 'data/seed/exercise_seeder.dart';
@@ -60,5 +63,13 @@ Future<void> main() async {
       ],
       child: const FitnessApp(),
     ),
+  );
+
+  // Fire-and-forget: never delays the first frame, and a failure here (full
+  // disk, etc.) is not something launch should ever fail on (`F-DAT-008`).
+  unawaited(
+    BackupService(
+      JsonExportService(database),
+    ).maybeCreateAutomaticBackup().catchError((_) => null),
   );
 }

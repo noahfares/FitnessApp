@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../io/backup_service.dart';
+import '../io/csv_export_service.dart';
 import '../io/json_dump_service.dart';
 import '../io/json_export_service.dart';
 import '../io/restore_service.dart';
@@ -98,5 +99,15 @@ final restoreServiceProvider = Provider<RestoreService>(
     ref.watch(databaseProvider),
     ref.watch(backupServiceProvider),
     ref.watch(tableSnapshotIoProvider),
+  ),
+);
+
+/// Human-readable CSVs for spreadsheets — sets, measurements, routines
+/// (`F-DAT-002`).
+final csvExportServiceProvider = Provider<CsvExportService>(
+  (ref) => CsvExportService(
+    ref.watch(setRepositoryProvider),
+    ref.watch(bodyMeasurementRepositoryProvider),
+    ref.watch(routineRepositoryProvider),
   ),
 );

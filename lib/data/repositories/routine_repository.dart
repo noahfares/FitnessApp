@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../core/ids/uuid.dart';
+import '../../domain/export/routine_export_row.dart';
 import '../../domain/progression/progression_rule.dart';
 import '../../domain/routines/starter_programs.dart';
 import '../db/app_database.dart';
@@ -1021,5 +1022,57 @@ class RoutineRepository {
         .getSingle();
     final max = rows.read<int?>('max_position');
     return (max ?? -1) + 1;
+  }
+
+  /// Every non-archived routine's days and exercises, flattened for the CSV
+  /// export (`F-DAT-002` §4). A one-shot `Future`, not a `Stream`: export is
+  /// a single action.
+  Future<List<RoutineExportRow>> getAllForExport() async {
+    final rows = await _db
+        .customSelect(
+          '''
+      SELECT r.name                AS routine_name,
+             d.name                AS day_name,
+             e.name                AS exercise_name,
+             re.position           AS position,
+             re.target_sets        AS target_sets,
+             re.target_reps_min    AS target_reps_min,
+             re.target_reps_max    AS target_reps_max,
+             re.target_weight_grams AS target_weight_grams,
+             re.target_rpe         AS target_rpe
+        FROM routine_exercises re
+        JOIN routine_days d ON d.id = re.routine_day_id
+        JOIN routines r     ON r.id = d.routine_id
+        JOIN exercises e    ON e.id = re.exercise_id
+       WHERE re.deleted_at IS NULL
+         AND d.deleted_at  IS NULL
+         AND r.deleted_at  IS NULL
+         AND r.archived_at IS NULL
+         AND e.deleted_at  IS NULL
+       ORDER BY r.position, d.position, re.position
+      ''',
+          readsFrom: {
+            _db.routineExercises,
+            _db.routineDays,
+            _db.routines,
+            _db.exercises,
+          },
+        )
+        .get();
+
+    return [
+      for (final row in rows)
+        RoutineExportRow(
+          routineName: row.read<String>('routine_name'),
+          dayName: row.read<String>('day_name'),
+          exerciseName: row.read<String>('exercise_name'),
+          position: row.read<int>('position'),
+          targetSets: row.read<int?>('target_sets'),
+          targetRepsMin: row.read<int?>('target_reps_min'),
+          targetRepsMax: row.read<int?>('target_reps_max'),
+          targetWeightGrams: row.read<int?>('target_weight_grams'),
+          targetRpe: row.read<double?>('target_rpe'),
+        ),
+    ];
   }
 }

@@ -524,6 +524,23 @@ and bundling progress photos (`F-BOD-004` doesn't exist yet, batch 5.4) —
 both explicit deferrals with nothing to gate consent on yet, not silent
 drops. `F-DAT-005`–`F-DAT-008` remain `planned`, batches 5.2–5.3.
 
+**Batch 5.2 done.** `F-DAT-002`, `F-DAT-008` both done. No schema change.
+`lib/data/io/csv_export_service.dart` builds three CSVs (sets, measurements,
+routines) via new one-shot export queries on the existing repositories and a
+dependency-free `csv_writer.dart` RFC 4180 encoder — display units
+throughout, named in each header, via the existing `UnitPreferences`.
+`ExportSharer` gained `shareAll` so the three files go out in one share-sheet
+action rather than three separate prompts. `BackupService
+.maybeCreateAutomaticBackup()` runs fire-and-forget from `main()` on every
+launch, writing a new `fitnessapp-autobackup-*` file only once 24 hours have
+passed since the last one and pruning to the 7 most recent — kept in its own
+filename namespace so rotation never touches a manual backup or a restore's
+pre-restore safety copy. Not built: true OS-level scheduled execution while
+the app is closed — this batch's automatic backup runs on launch only, the
+same scope already drawn for `F-TIM-003`'s background timer and for the same
+toolchain reason (no Android SDK this session, `flutter build apk` is
+CI-only). `F-DAT-005`–`F-DAT-007` remain `planned`, batch 5.3.
+
 **Exit criteria**
 - [ ] Export → wipe → import reproduces the database exactly, verified table by
       table.

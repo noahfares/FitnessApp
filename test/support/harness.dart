@@ -76,11 +76,18 @@ class FakeRestTimerService implements RestTimerService {
 /// platform channel, which a widget test cannot exercise (`F-DAT-011`).
 class FakeExportSharer implements ExportSharer {
   File? sharedFile;
+  List<File>? sharedFiles;
   String? subject;
 
   @override
   Future<void> share(File file, {required String subject}) async {
     sharedFile = file;
+    this.subject = subject;
+  }
+
+  @override
+  Future<void> shareAll(List<File> files, {required String subject}) async {
+    sharedFiles = files;
     this.subject = subject;
   }
 }

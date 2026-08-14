@@ -22,6 +22,20 @@ class BodyMeasurementRepository {
   Stream<List<BodyMeasurement>> watchBodyweightHistory() =>
       _bodyweightQuery().watch();
 
+  /// Every measurement of every type, oldest first — the CSV export
+  /// (`F-DAT-002` §4). A one-shot `Future`, not a `Stream`: export is a
+  /// single action.
+  Future<List<BodyMeasurement>> getAllForExport() =>
+      (_db.select(_db.bodyMeasurements)
+            ..where((m) => m.deletedAt.isNull())
+            ..orderBy([
+              (m) => OrderingTerm(
+                expression: m.measuredAt,
+                mode: OrderingMode.asc,
+              ),
+            ]))
+          .get();
+
   /// The single most recent entry, for the dashboard's quick-entry card
   /// (`F-BOD-001` §4).
   Stream<BodyMeasurement?> watchLatestBodyweight() =>

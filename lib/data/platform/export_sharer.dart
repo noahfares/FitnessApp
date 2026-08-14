@@ -11,6 +11,10 @@ import 'package:share_plus/share_plus.dart';
 /// (docs/20-ARCHITECTURE.md §cross-platform-discipline).
 abstract interface class ExportSharer {
   Future<void> share(File file, {required String subject});
+
+  /// Multiple files in one share sheet action — the CSV export's three
+  /// files (`F-DAT-002` §4) shouldn't need three separate share prompts.
+  Future<void> shareAll(List<File> files, {required String subject});
 }
 
 class SystemExportSharer implements ExportSharer {
@@ -18,6 +22,16 @@ class SystemExportSharer implements ExportSharer {
   Future<void> share(File file, {required String subject}) async {
     await SharePlus.instance.share(
       ShareParams(files: [XFile(file.path)], subject: subject),
+    );
+  }
+
+  @override
+  Future<void> shareAll(List<File> files, {required String subject}) async {
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [for (final f in files) XFile(f.path)],
+        subject: subject,
+      ),
     );
   }
 }
