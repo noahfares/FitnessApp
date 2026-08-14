@@ -752,4 +752,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String sessionSummaryPrSessionVolume(String volume) {
     return 'most volume in a session: $volume';
   }
+
+  @override
+  String get routineEditorReadError => 'Routine could not be read';
+
+  @override
+  String get routineEditorNotFound => 'This routine no longer exists.';
+
+  @override
+  String get routineEditorDaysReadError => 'Days could not be read';
+
+  @override
+  String get routineEditorNoDaysMessage =>
+      '\"Push\", \"Pull\", \"Legs\" — a day is what you start a workout from.';
+
+  @override
+  String get routineEditorAddDay => 'Add a day';
+
+  @override
+  String get routineEditorNewDayTitle => 'New day';
+
+  @override
+  String get routineEditorScheduleAction => 'Schedule';
+
+  @override
+  String get routineEditorExercisesReadError => 'Exercises could not be read';
+
+  @override
+  String get routineEditorMenuRename => 'Rename';
+
+  @override
+  String get routineEditorRenameDayTitle => 'Rename day';
+
+  @override
+  String get routineEditorRenameRoutineTitle => 'Rename routine';
+
+  @override
+  String get routineEditorDeleteDayConfirmMessage =>
+      'Its exercises and targets will be removed.';
 }

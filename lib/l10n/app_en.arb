@@ -509,5 +509,30 @@
   "@sessionSummaryPrSessionVolume": {
     "description": "PR description for a max-session-volume record.",
     "placeholders": {"volume": {"type": "String"}}
-  }
+  },
+
+  "routineEditorReadError": "Routine could not be read",
+  "@routineEditorReadError": {"description": "Error title if the routine query fails."},
+  "routineEditorNotFound": "This routine no longer exists.",
+  "@routineEditorNotFound": {"description": "Shown when the routine id in the route no longer resolves."},
+  "routineEditorDaysReadError": "Days could not be read",
+  "@routineEditorDaysReadError": {"description": "Error title if the day list query fails."},
+  "routineEditorNoDaysMessage": "\"Push\", \"Pull\", \"Legs\" — a day is what you start a workout from.",
+  "@routineEditorNoDaysMessage": {"description": "Empty state message with no days on this routine yet."},
+  "routineEditorAddDay": "Add a day",
+  "@routineEditorAddDay": {"description": "Button adding a new day."},
+  "routineEditorNewDayTitle": "New day",
+  "@routineEditorNewDayTitle": {"description": "Dialog title creating a new day."},
+  "routineEditorScheduleAction": "Schedule",
+  "@routineEditorScheduleAction": {"description": "Opens the weekday scheduler — used as both an icon tooltip and a menu item."},
+  "routineEditorExercisesReadError": "Exercises could not be read",
+  "@routineEditorExercisesReadError": {"description": "Error title if a single day's exercise list query fails."},
+  "routineEditorMenuRename": "Rename",
+  "@routineEditorMenuRename": {"description": "Overflow-menu item, shared by the day tile and the routine menu."},
+  "routineEditorRenameDayTitle": "Rename day",
+  "@routineEditorRenameDayTitle": {"description": "Dialog title renaming a day."},
+  "routineEditorRenameRoutineTitle": "Rename routine",
+  "@routineEditorRenameRoutineTitle": {"description": "Dialog title renaming a routine."},
+  "routineEditorDeleteDayConfirmMessage": "Its exercises and targets will be removed.",
+  "@routineEditorDeleteDayConfirmMessage": {"description": "Confirm sheet message before deleting a day."}
 }

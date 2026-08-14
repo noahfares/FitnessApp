@@ -8,6 +8,7 @@ import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import '../../shell/widgets/empty_state.dart';
@@ -32,22 +33,21 @@ class RoutineEditorScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final routines = ref.watch(routinesProvider);
     final days = ref.watch(routineDaysProvider(routineId));
 
-    return routines.view(errorTitle: 'Routine could not be read', (rows) {
+    return routines.view(errorTitle: l10n.routineEditorReadError, (rows) {
       Routine? routine;
       for (final r in rows) {
         if (r.id == routineId) routine = r;
       }
       if (routine == null) {
-        return const Scaffold(
-          body: Center(child: Text('This routine no longer exists.')),
-        );
+        return Scaffold(body: Center(child: Text(l10n.routineEditorNotFound)));
       }
       final loadedRoutine = routine;
 
-      return days.view(errorTitle: 'Days could not be read', (dayRows) {
+      return days.view(errorTitle: l10n.routineEditorDaysReadError, (dayRows) {
         // Collapse straight into the single day rather than a list of
         // one (`F-ROU-002` §4).
         if (dayRows.length == 1) {
@@ -70,18 +70,17 @@ class _MultiDayRoutineScaffold extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Text(routine.name),
         actions: [_RoutineMenu(routine: routine)],
       ),
       body: days.isEmpty
-          ? const EmptyState(
+          ? EmptyState(
               icon: Icons.calendar_view_week_outlined,
-              title: 'No days yet',
-              message:
-                  '"Push", "Pull", "Legs" — a day is what you start '
-                  'a workout from.',
+              title: l10n.routinesNoDaysYet,
+              message: l10n.routineEditorNoDaysMessage,
             )
           // Drag to reorder — order is explicit `position`, never implied
           // by the list itself (`F-ROU-004`).
@@ -102,7 +101,7 @@ class _MultiDayRoutineScaffold extends ConsumerWidget {
           child: OutlinedButton.icon(
             onPressed: () => unawaited(_addDay(context, ref)),
             icon: const Icon(Icons.add),
-            label: const Text('Add a day'),
+            label: Text(l10n.routineEditorAddDay),
           ),
         ),
       ),
@@ -110,7 +109,11 @@ class _MultiDayRoutineScaffold extends ConsumerWidget {
   }
 
   Future<void> _addDay(BuildContext context, WidgetRef ref) async {
-    final name = await promptRoutineName(context, title: 'New day');
+    final l10n = AppLocalizations.of(context)!;
+    final name = await promptRoutineName(
+      context,
+      title: l10n.routineEditorNewDayTitle,
+    );
     if (name == null || name.trim().isEmpty) return;
     final day = await ref
         .read(routineRepositoryProvider)
@@ -138,6 +141,7 @@ class _SingleDayRoutineScaffold extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final exercises = ref.watch(routineDayExercisesProvider(day.id));
 
     return Scaffold(
@@ -146,14 +150,14 @@ class _SingleDayRoutineScaffold extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.calendar_today_outlined),
-            tooltip: 'Schedule',
+            tooltip: l10n.routineEditorScheduleAction,
             onPressed: () => unawaited(_schedule(context, ref)),
           ),
           _RoutineMenu(routine: routine),
         ],
       ),
       body: exercises.view(
-        errorTitle: 'Exercises could not be read',
+        errorTitle: l10n.routineEditorExercisesReadError,
         (rows) => DayExerciseList(routineId: routine.id, day: day, rows: rows),
       ),
       bottomNavigationBar: SafeArea(
@@ -186,6 +190,7 @@ class _DayTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final scheduleLabel = formatScheduledWeekdays(day.scheduledWeekdays);
     return Card(
       child: ListTile(
@@ -193,10 +198,19 @@ class _DayTile extends ConsumerWidget {
         subtitle: scheduleLabel.isEmpty ? null : Text(scheduleLabel),
         trailing: PopupMenuButton<_DayAction>(
           onSelected: (action) => unawaited(_handle(context, ref, action)),
-          itemBuilder: (context) => const [
-            PopupMenuItem(value: _DayAction.schedule, child: Text('Schedule')),
-            PopupMenuItem(value: _DayAction.rename, child: Text('Rename')),
-            PopupMenuItem(value: _DayAction.delete, child: Text('Delete')),
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: _DayAction.schedule,
+              child: Text(l10n.routineEditorScheduleAction),
+            ),
+            PopupMenuItem(
+              value: _DayAction.rename,
+              child: Text(l10n.routineEditorMenuRename),
+            ),
+            PopupMenuItem(
+              value: _DayAction.delete,
+              child: Text(l10n.routinesDeleteAction),
+            ),
           ],
         ),
         onTap: () => context.push(AppRoutes.routineDay(routineId, day.id)),
@@ -209,6 +223,7 @@ class _DayTile extends ConsumerWidget {
     WidgetRef ref,
     _DayAction action,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final repo = ref.read(routineRepositoryProvider);
     switch (action) {
       case _DayAction.schedule:
@@ -222,7 +237,7 @@ class _DayTile extends ConsumerWidget {
       case _DayAction.rename:
         final name = await promptRoutineName(
           context,
-          title: 'Rename day',
+          title: l10n.routineEditorRenameDayTitle,
           initial: day.name,
         );
         if (name != null && name.trim().isNotEmpty) {
@@ -231,8 +246,8 @@ class _DayTile extends ConsumerWidget {
       case _DayAction.delete:
         final confirmed = await showConfirmSheet(
           context,
-          title: 'Delete ${day.name}?',
-          message: 'Its exercises and targets will be removed.',
+          title: l10n.routinesDeleteConfirmTitle(day.name),
+          message: l10n.routineEditorDeleteDayConfirmMessage,
         );
         if (confirmed) await repo.deleteDay(day.id);
     }
@@ -248,19 +263,26 @@ class _RoutineMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     return PopupMenuButton<_RoutineMenuAction>(
       onSelected: (action) => unawaited(_handle(context, ref, action)),
-      itemBuilder: (context) => const [
-        PopupMenuItem(value: _RoutineMenuAction.rename, child: Text('Rename')),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: _RoutineMenuAction.rename,
+          child: Text(l10n.routineEditorMenuRename),
+        ),
         PopupMenuItem(
           value: _RoutineMenuAction.duplicate,
-          child: Text('Duplicate'),
+          child: Text(l10n.routinesDuplicateAction),
         ),
         PopupMenuItem(
           value: _RoutineMenuAction.archive,
-          child: Text('Archive'),
+          child: Text(l10n.routinesArchiveAction),
         ),
-        PopupMenuItem(value: _RoutineMenuAction.delete, child: Text('Delete')),
+        PopupMenuItem(
+          value: _RoutineMenuAction.delete,
+          child: Text(l10n.routinesDeleteAction),
+        ),
       ],
     );
   }
@@ -270,12 +292,13 @@ class _RoutineMenu extends ConsumerWidget {
     WidgetRef ref,
     _RoutineMenuAction action,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final repo = ref.read(routineRepositoryProvider);
     switch (action) {
       case _RoutineMenuAction.rename:
         final name = await promptRoutineName(
           context,
-          title: 'Rename routine',
+          title: l10n.routineEditorRenameRoutineTitle,
           initial: routine.name,
         );
         if (name != null && name.trim().isNotEmpty) {
@@ -292,10 +315,8 @@ class _RoutineMenu extends ConsumerWidget {
       case _RoutineMenuAction.delete:
         final confirmed = await showConfirmSheet(
           context,
-          title: 'Delete ${routine.name}?',
-          message:
-              'Its days and targets will be removed. Workouts you have '
-              'already logged from it are never affected.',
+          title: l10n.routinesDeleteConfirmTitle(routine.name),
+          message: l10n.routinesDeleteConfirmMessage,
         );
         if (confirmed) {
           await repo.delete(routine.id);

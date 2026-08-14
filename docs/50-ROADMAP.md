@@ -818,6 +818,25 @@ the list, the rest of history, body, `ConsistencyScreen`/
 `PrTimelineScreen`, every Settings sub-screen beyond the root, `AppShell`'s
 nav labels, the shared widgets named above, and onboarding.
 
+**Batch 6.2, fifth pass — the routine editor.** `F-I18N-001` still
+`in-progress`. `RoutineEditorScreen` (both the multi-day list and the
+single-day-collapses-inline case) is migrated, reusing several keys
+`RoutineListScreen`'s own pass already defined
+(`routinesDeleteConfirmTitle`/`Message`, `routinesDuplicateAction`,
+`routinesArchiveAction`, `routinesDeleteAction`, `routinesNoDaysYet`)
+rather than duplicating near-identical text — the per-screen-prefix
+convention is a default for independent copy, not a rule against reuse
+when two screens describe the same action. `RoutineDayEditorScreen` —
+1,000+ lines, several complex sub-widgets including the five-segment
+progression target sheet and the weekday scheduler `RoutineEditorScreen`
+itself already imports from it — is deliberately left for its own batch,
+large enough by this file's own sizing precedent (`InsightsScreen`, the
+previous largest single migration, was roughly 700 lines) to be a unit of
+work on its own. Still English literals: `RoutineDayEditorScreen`, the
+rest of history, body, `ConsistencyScreen`/`PrTimelineScreen`, every
+Settings sub-screen beyond the root, `AppShell`'s nav labels, the shared
+logging widgets, and onboarding.
+
 **Batch 6.3 — onboarding.** `F-SET-011` done — the last item Phase 6
 scheduled ahead of release/health. No schema change.
 `OnboardingScreen` (`lib/features/onboarding/presentation/`) is a

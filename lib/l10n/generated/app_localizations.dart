@@ -1305,6 +1305,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'most volume in a session: {volume}'**
   String sessionSummaryPrSessionVolume(String volume);
+
+  /// Error title if the routine query fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Routine could not be read'**
+  String get routineEditorReadError;
+
+  /// Shown when the routine id in the route no longer resolves.
+  ///
+  /// In en, this message translates to:
+  /// **'This routine no longer exists.'**
+  String get routineEditorNotFound;
+
+  /// Error title if the day list query fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Days could not be read'**
+  String get routineEditorDaysReadError;
+
+  /// Empty state message with no days on this routine yet.
+  ///
+  /// In en, this message translates to:
+  /// **'\"Push\", \"Pull\", \"Legs\" — a day is what you start a workout from.'**
+  String get routineEditorNoDaysMessage;
+
+  /// Button adding a new day.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a day'**
+  String get routineEditorAddDay;
+
+  /// Dialog title creating a new day.
+  ///
+  /// In en, this message translates to:
+  /// **'New day'**
+  String get routineEditorNewDayTitle;
+
+  /// Opens the weekday scheduler — used as both an icon tooltip and a menu item.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get routineEditorScheduleAction;
+
+  /// Error title if a single day's exercise list query fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercises could not be read'**
+  String get routineEditorExercisesReadError;
+
+  /// Overflow-menu item, shared by the day tile and the routine menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get routineEditorMenuRename;
+
+  /// Dialog title renaming a day.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename day'**
+  String get routineEditorRenameDayTitle;
+
+  /// Dialog title renaming a routine.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename routine'**
+  String get routineEditorRenameRoutineTitle;
+
+  /// Confirm sheet message before deleting a day.
+  ///
+  /// In en, this message translates to:
+  /// **'Its exercises and targets will be removed.'**
+  String get routineEditorDeleteDayConfirmMessage;
 }
 
 class _AppLocalizationsDelegate
