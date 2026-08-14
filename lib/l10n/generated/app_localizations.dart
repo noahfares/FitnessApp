@@ -1377,6 +1377,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Its exercises and targets will be removed.'**
   String get routineEditorDeleteDayConfirmMessage;
+
+  /// Error title if the day query fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Day could not be read'**
+  String get routineDayEditorReadError;
+
+  /// Shown when the day id in the route no longer resolves.
+  ///
+  /// In en, this message translates to:
+  /// **'This day no longer exists.'**
+  String get routineDayEditorNotFound;
+
+  /// Monday, abbreviated — schedule chips and the day-tile summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get routineDayEditorWeekdayMon;
+
+  /// Tuesday, abbreviated.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get routineDayEditorWeekdayTue;
+
+  /// Wednesday, abbreviated.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get routineDayEditorWeekdayWed;
+
+  /// Thursday, abbreviated.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get routineDayEditorWeekdayThu;
+
+  /// Friday, abbreviated.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get routineDayEditorWeekdayFri;
+
+  /// Saturday, abbreviated.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get routineDayEditorWeekdaySat;
+
+  /// Sunday, abbreviated.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get routineDayEditorWeekdaySun;
+
+  /// Subtitle on the weekday scheduler sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional — pick the weekdays you plan to train this day.'**
+  String get routineDayEditorScheduleDescription;
+
+  /// Empty state title with no exercises on this day yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No exercises yet'**
+  String get routineDayEditorEmptyTitle;
+
+  /// Empty state message with no exercises on this day yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add exercises, then set targets for each.'**
+  String get routineDayEditorEmptyMessage;
+
+  /// Button opening the exercise picker — used as both an empty-state action and the always-visible bottom button.
+  ///
+  /// In en, this message translates to:
+  /// **'Add exercises'**
+  String get routineDayEditorAddExercisesAction;
+
+  /// Count of exercises multi-selected for grouping into a superset.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 selected} other{{count} selected}}'**
+  String routineDayEditorSelectedCount(num count);
+
+  /// Shown when the multi-selection can't be grouped because the rows aren't contiguous.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be adjacent'**
+  String get routineDayEditorMustBeAdjacent;
+
+  /// Groups the selected exercises into a superset.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get routineDayEditorGroupAction;
+
+  /// Removes this exercise from the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get routineDayEditorRemoveTooltip;
+
+  /// Exercise tile subtitle when no target has been configured.
+  ///
+  /// In en, this message translates to:
+  /// **'No targets set'**
+  String get routineDayEditorNoTargetsSet;
+
+  /// Label on the first tile of a grouped block of exercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Superset'**
+  String get routineDayEditorSupersetLabel;
+
+  /// Breaks a superset group back into independent exercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Ungroup'**
+  String get routineDayEditorUngroupAction;
+
+  /// Target-sets number field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets'**
+  String get routineDayEditorSetsLabel;
+
+  /// Target-reps-minimum number field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps min'**
+  String get routineDayEditorRepsMinLabel;
+
+  /// Target-reps-maximum number field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps max'**
+  String get routineDayEditorRepsMaxLabel;
+
+  /// Target-weight field label, with the active load unit symbol.
+  ///
+  /// In en, this message translates to:
+  /// **'Target weight ({unit})'**
+  String routineDayEditorTargetWeightLabel(String unit);
+
+  /// Per-exercise rest override dropdown label.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest'**
+  String get routineDayEditorRestLabel;
+
+  /// Helper text under the rest override dropdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Overrides the exercise and global defaults.'**
+  String get routineDayEditorRestHelperText;
+
+  /// Dropdown option meaning no override — fall back to the exercise's or app's default rest.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get routineDayEditorRestDefaultOption;
+
+  /// Section heading above the progression-rule picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Progression'**
+  String get routineDayEditorProgressionHeading;
+
+  /// Progression-rule option: no automatic progression, carry the last weight forward.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ll decide'**
+  String get routineDayEditorRuleManual;
+
+  /// Progression-rule option: linear progression.
+  ///
+  /// In en, this message translates to:
+  /// **'Add weight on success'**
+  String get routineDayEditorRuleLinear;
+
+  /// Progression-rule option: double progression.
+  ///
+  /// In en, this message translates to:
+  /// **'Add reps, then weight'**
+  String get routineDayEditorRuleDoubleProgression;
+
+  /// Progression-rule option: RPE-autoregulated progression.
+  ///
+  /// In en, this message translates to:
+  /// **'Match effort (RPE)'**
+  String get routineDayEditorRuleRpe;
+
+  /// Progression-rule option: percentage of training max.
+  ///
+  /// In en, this message translates to:
+  /// **'% of TM'**
+  String get routineDayEditorRulePercent;
+
+  /// Increment field label for the linear progression rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Add when I hit every set ({unit})'**
+  String routineDayEditorLinearIncrementLabel(String unit);
+
+  /// Helper text explaining the linear progression rule's behaviour.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeats the same weight on a partial miss; deloads after three misses in a row.'**
+  String get routineDayEditorLinearHelperText;
+
+  /// Increment field label for the double progression rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Add when I hit the top of my rep range ({unit})'**
+  String routineDayEditorDoubleProgressionLabel(String unit);
+
+  /// Helper text explaining the double progression rule's behaviour.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses the Reps min/max above as the range. Deloads after three sessions in a row below the minimum.'**
+  String get routineDayEditorDoubleProgressionHelperText;
+
+  /// Target-RPE dropdown label for the RPE-autoregulated rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Target RPE'**
+  String get routineDayEditorTargetRpeLabel;
+
+  /// Helper text explaining the target-RPE field.
+  ///
+  /// In en, this message translates to:
+  /// **'How hard the last set should feel. Comes in easier — add more; harder — add less or back off.'**
+  String get routineDayEditorTargetRpeHelperText;
+
+  /// Increment field label for the RPE-autoregulated rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Base step ({unit})'**
+  String routineDayEditorBaseStepLabel(String unit);
+
+  /// Percentage field label for the percentage-of-training-max rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent of training max'**
+  String get routineDayEditorPercentLabel;
+
+  /// Helper text when the exercise has no training max configured.
+  ///
+  /// In en, this message translates to:
+  /// **'No training max set on this exercise yet — set one on the exercise\'s own editor first.'**
+  String get routineDayEditorPercentHelperNoTm;
+
+  /// Helper text showing the exercise's configured training max.
+  ///
+  /// In en, this message translates to:
+  /// **'Training max: {value} {unit}. Recomputed every time this day is started — no week/cycle variation yet.'**
+  String routineDayEditorPercentHelperWithTm(String value, String unit);
+
+  /// Button saving the target editor sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Save targets'**
+  String get routineDayEditorSaveTargets;
+
+  /// Title on the day's estimated-duration/volume preview card.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get routineDayEditorPreviewTitle;
+
+  /// Estimated session duration, rounded to the nearest minute.
+  ///
+  /// In en, this message translates to:
+  /// **'~{minutes} min'**
+  String routineDayEditorDurationApprox(num minutes);
+
+  /// Placeholder shown for duration or volume when nothing can be estimated yet.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get routineDayEditorNoData;
+
+  /// Subtitle on the sets-per-muscle bar chart.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets per muscle'**
+  String get routineDayEditorSetsPerMuscleSubtitle;
+
+  /// Shown in place of the chart until any target is set.
+  ///
+  /// In en, this message translates to:
+  /// **'Set targets to see sets per muscle here.'**
+  String get routineDayEditorSetTargetsMessage;
+
+  /// Button starting a workout from this day.
+  ///
+  /// In en, this message translates to:
+  /// **'Start workout'**
+  String get routineDayEditorStartWorkoutAction;
+
+  /// Confirm sheet message when starting a day while another workout is already active.
+  ///
+  /// In en, this message translates to:
+  /// **'A workout is already in progress. Finish or discard it before starting another.'**
+  String get routineDayEditorAlreadyTrainingMessage;
+
+  /// Confirm sheet action jumping to the already-active workout.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume it'**
+  String get routineDayEditorResumeAction;
 }
 
 class _AppLocalizationsDelegate

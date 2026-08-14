@@ -18,7 +18,8 @@ import 'routine_day_editor_screen.dart'
         DayExerciseList,
         StartDayButton,
         formatScheduledWeekdays,
-        showWeekdaySchedulerSheet;
+        showWeekdaySchedulerSheet,
+        weekdayAbbreviations;
 import 'routine_list_screen.dart' show promptRoutineName;
 
 /// A routine's days (`F-ROU-002`) — add, rename, delete, and jump into each
@@ -191,7 +192,10 @@ class _DayTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final scheduleLabel = formatScheduledWeekdays(day.scheduledWeekdays);
+    final scheduleLabel = formatScheduledWeekdays(
+      day.scheduledWeekdays,
+      weekdayAbbreviations(l10n),
+    );
     return Card(
       child: ListTile(
         title: Text(day.name),

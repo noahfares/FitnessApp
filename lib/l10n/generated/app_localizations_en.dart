@@ -790,4 +790,189 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get routineEditorDeleteDayConfirmMessage =>
       'Its exercises and targets will be removed.';
+
+  @override
+  String get routineDayEditorReadError => 'Day could not be read';
+
+  @override
+  String get routineDayEditorNotFound => 'This day no longer exists.';
+
+  @override
+  String get routineDayEditorWeekdayMon => 'Mon';
+
+  @override
+  String get routineDayEditorWeekdayTue => 'Tue';
+
+  @override
+  String get routineDayEditorWeekdayWed => 'Wed';
+
+  @override
+  String get routineDayEditorWeekdayThu => 'Thu';
+
+  @override
+  String get routineDayEditorWeekdayFri => 'Fri';
+
+  @override
+  String get routineDayEditorWeekdaySat => 'Sat';
+
+  @override
+  String get routineDayEditorWeekdaySun => 'Sun';
+
+  @override
+  String get routineDayEditorScheduleDescription =>
+      'Optional — pick the weekdays you plan to train this day.';
+
+  @override
+  String get routineDayEditorEmptyTitle => 'No exercises yet';
+
+  @override
+  String get routineDayEditorEmptyMessage =>
+      'Add exercises, then set targets for each.';
+
+  @override
+  String get routineDayEditorAddExercisesAction => 'Add exercises';
+
+  @override
+  String routineDayEditorSelectedCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected',
+      one: '1 selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get routineDayEditorMustBeAdjacent => 'Must be adjacent';
+
+  @override
+  String get routineDayEditorGroupAction => 'Group';
+
+  @override
+  String get routineDayEditorRemoveTooltip => 'Remove';
+
+  @override
+  String get routineDayEditorNoTargetsSet => 'No targets set';
+
+  @override
+  String get routineDayEditorSupersetLabel => 'Superset';
+
+  @override
+  String get routineDayEditorUngroupAction => 'Ungroup';
+
+  @override
+  String get routineDayEditorSetsLabel => 'Sets';
+
+  @override
+  String get routineDayEditorRepsMinLabel => 'Reps min';
+
+  @override
+  String get routineDayEditorRepsMaxLabel => 'Reps max';
+
+  @override
+  String routineDayEditorTargetWeightLabel(String unit) {
+    return 'Target weight ($unit)';
+  }
+
+  @override
+  String get routineDayEditorRestLabel => 'Rest';
+
+  @override
+  String get routineDayEditorRestHelperText =>
+      'Overrides the exercise and global defaults.';
+
+  @override
+  String get routineDayEditorRestDefaultOption => 'Default';
+
+  @override
+  String get routineDayEditorProgressionHeading => 'Progression';
+
+  @override
+  String get routineDayEditorRuleManual => 'I\'ll decide';
+
+  @override
+  String get routineDayEditorRuleLinear => 'Add weight on success';
+
+  @override
+  String get routineDayEditorRuleDoubleProgression => 'Add reps, then weight';
+
+  @override
+  String get routineDayEditorRuleRpe => 'Match effort (RPE)';
+
+  @override
+  String get routineDayEditorRulePercent => '% of TM';
+
+  @override
+  String routineDayEditorLinearIncrementLabel(String unit) {
+    return 'Add when I hit every set ($unit)';
+  }
+
+  @override
+  String get routineDayEditorLinearHelperText =>
+      'Repeats the same weight on a partial miss; deloads after three misses in a row.';
+
+  @override
+  String routineDayEditorDoubleProgressionLabel(String unit) {
+    return 'Add when I hit the top of my rep range ($unit)';
+  }
+
+  @override
+  String get routineDayEditorDoubleProgressionHelperText =>
+      'Uses the Reps min/max above as the range. Deloads after three sessions in a row below the minimum.';
+
+  @override
+  String get routineDayEditorTargetRpeLabel => 'Target RPE';
+
+  @override
+  String get routineDayEditorTargetRpeHelperText =>
+      'How hard the last set should feel. Comes in easier — add more; harder — add less or back off.';
+
+  @override
+  String routineDayEditorBaseStepLabel(String unit) {
+    return 'Base step ($unit)';
+  }
+
+  @override
+  String get routineDayEditorPercentLabel => 'Percent of training max';
+
+  @override
+  String get routineDayEditorPercentHelperNoTm =>
+      'No training max set on this exercise yet — set one on the exercise\'s own editor first.';
+
+  @override
+  String routineDayEditorPercentHelperWithTm(String value, String unit) {
+    return 'Training max: $value $unit. Recomputed every time this day is started — no week/cycle variation yet.';
+  }
+
+  @override
+  String get routineDayEditorSaveTargets => 'Save targets';
+
+  @override
+  String get routineDayEditorPreviewTitle => 'Preview';
+
+  @override
+  String routineDayEditorDurationApprox(num minutes) {
+    return '~$minutes min';
+  }
+
+  @override
+  String get routineDayEditorNoData => '—';
+
+  @override
+  String get routineDayEditorSetsPerMuscleSubtitle => 'Sets per muscle';
+
+  @override
+  String get routineDayEditorSetTargetsMessage =>
+      'Set targets to see sets per muscle here.';
+
+  @override
+  String get routineDayEditorStartWorkoutAction => 'Start workout';
+
+  @override
+  String get routineDayEditorAlreadyTrainingMessage =>
+      'A workout is already in progress. Finish or discard it before starting another.';
+
+  @override
+  String get routineDayEditorResumeAction => 'Resume it';
 }

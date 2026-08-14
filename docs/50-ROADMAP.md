@@ -837,6 +837,39 @@ rest of history, body, `ConsistencyScreen`/`PrTimelineScreen`, every
 Settings sub-screen beyond the root, `AppShell`'s nav labels, the shared
 logging widgets, and onboarding.
 
+**Batch 6.2, sixth pass — the routine day editor.** `F-I18N-001` still
+`in-progress`. `RoutineDayEditorScreen` — the file the previous pass
+deliberately deferred — is now fully migrated: the exercise list's empty
+state and superset multi-select bar (including its ICU plural,
+`"{count, plural, one{1 selected} other{{count} selected}}"`), the
+target-editor sheet's every field across all five progression-rule
+segments, the `_RoutinePreviewCard`'s duration/volume labels, and the
+"already training" resume sheet reached from `StartDayButton`. The one
+structural change: `formatScheduledWeekdays`'s weekday abbreviations were a
+module-level `const List<String>`, which has no `AppLocalizations` to read
+— unlike a widget's `build()`, a plain module constant is evaluated once at
+load time with no `BuildContext` in reach. Rather than thread a
+`BuildContext` through what should stay a pure formatting function, the
+constant became `weekdayAbbreviations(AppLocalizations l10n)`, resolved
+once by each of the two real call sites (the scheduler sheet's own chip
+row, and `RoutineEditorScreen`'s `_DayTile`) and passed into
+`formatScheduledWeekdays(weekdays, abbreviations)` alongside the data —
+the function itself stays pure and independently testable, just no longer
+hard-coded to English. Several keys are reused rather than duplicated,
+the same judgment the fifth pass made for `RoutineEditorScreen`:
+`routineEditorScheduleAction`/`routineEditorMenuRename`/
+`routineEditorExercisesReadError`/`routineEditorRenameDayTitle`
+(exact-text matches from the parent screen's own pass), `routineNameDialogSave`/
+`routineNameDialogCancel` (this app's only existing generic Save/Cancel
+pair), and `startWorkoutAlreadyTrainingTitle` for the already-training
+sheet's title — its message needed its own key,
+`routineDayEditorAlreadyTrainingMessage`, since this call site's
+`ActiveWorkoutExistsException` catch block has no workout name to interpolate,
+unlike `StartWorkoutScreen`'s version of the same sheet. Still English
+literals: the rest of history, body, `ConsistencyScreen`/
+`PrTimelineScreen`, every Settings sub-screen beyond the root, `AppShell`'s
+nav labels, the shared logging widgets, and onboarding.
+
 **Batch 6.3 — onboarding.** `F-SET-011` done — the last item Phase 6
 scheduled ahead of release/health. No schema change.
 `OnboardingScreen` (`lib/features/onboarding/presentation/`) is a
