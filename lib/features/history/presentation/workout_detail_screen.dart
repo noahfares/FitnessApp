@@ -13,6 +13,7 @@ import '../../../data/db/tables/enums.dart' show WeightEntryMode;
 import '../../../data/repositories/workout_repository.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/set_numbering.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../logging/application/active_workout_providers.dart';
 import '../../logging/application/set_providers.dart';
@@ -39,32 +40,33 @@ class WorkoutDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final workout = ref.watch(workoutByIdProvider(workoutId)).value;
     final exercises = ref.watch(sessionExercisesProvider(workoutId)).value;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Workout'),
+        title: Text(l10n.historyDetailTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
-            tooltip: 'Edit',
+            tooltip: l10n.historyDetailEditTooltip,
             onPressed: () =>
                 context.push(AppRoutes.historyWorkoutEdit(workoutId)),
           ),
           IconButton(
             icon: const Icon(Icons.replay_outlined),
-            tooltip: 'Repeat this workout',
+            tooltip: l10n.historyDetailRepeatTooltip,
             onPressed: () => unawaited(_repeat(context, ref)),
           ),
           IconButton(
             icon: const Icon(Icons.playlist_add_outlined),
-            tooltip: 'Save as routine',
+            tooltip: l10n.historyDetailSaveAsRoutineAction,
             onPressed: () => unawaited(_saveAsRoutine(context, ref)),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            tooltip: 'Delete',
+            tooltip: l10n.routinesDeleteAction,
             onPressed: () => unawaited(_delete(context, ref)),
           ),
         ],
@@ -84,14 +86,13 @@ class WorkoutDetailScreen extends ConsumerWidget {
       await repo.startFromWorkout(workoutId);
     } on ActiveWorkoutExistsException {
       if (!context.mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       final resume = await showConfirmSheet(
         context,
-        title: 'Already training',
-        message:
-            'A workout is already in progress. Finish or discard it '
-            'before starting another.',
-        confirmLabel: 'Resume it',
-        cancelLabel: 'Cancel',
+        title: l10n.startWorkoutAlreadyTrainingTitle,
+        message: l10n.routineDayEditorAlreadyTrainingMessage,
+        confirmLabel: l10n.routineDayEditorResumeAction,
+        cancelLabel: l10n.routineNameDialogCancel,
         isDestructive: false,
       );
       if (resume && context.mounted) context.go(AppRoutes.activeWorkout);
@@ -102,9 +103,10 @@ class WorkoutDetailScreen extends ConsumerWidget {
   }
 
   Future<void> _saveAsRoutine(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
     final name = await promptRoutineName(
       context,
-      title: 'Save as routine',
+      title: l10n.historyDetailSaveAsRoutineAction,
       initial: ref.read(workoutByIdProvider(workoutId)).value?.name ?? '',
     );
     if (name == null || name.trim().isEmpty) return;
@@ -116,12 +118,11 @@ class WorkoutDetailScreen extends ConsumerWidget {
   }
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showConfirmSheet(
       context,
-      title: 'Delete this workout?',
-      message:
-          'This session and all its sets will be removed from your '
-          'history.',
+      title: l10n.historyDetailDeleteConfirmTitle,
+      message: l10n.historyDetailDeleteConfirmMessage,
     );
     if (!confirmed) return;
 
@@ -139,6 +140,7 @@ class _Detail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final exercises = this.exercises;
 
@@ -161,7 +163,7 @@ class _Detail extends StatelessWidget {
           runSpacing: AppSpacing.sm,
           children: [
             _Stat(
-              label: 'Duration',
+              label: l10n.sessionSummaryDurationLabel,
               value: workout.endedAt == null
                   ? '—'
                   : formatElapsed(
@@ -170,7 +172,10 @@ class _Detail extends StatelessWidget {
                       ),
                     ),
             ),
-            _Stat(label: 'Exercises', value: '${exercises?.length ?? 0}'),
+            _Stat(
+              label: l10n.sessionSummaryExercisesLabel,
+              value: '${exercises?.length ?? 0}',
+            ),
           ],
         ),
         if (workout.notes != null && workout.notes!.isNotEmpty) ...[
@@ -181,9 +186,9 @@ class _Detail extends StatelessWidget {
         if (exercises == null)
           const LoadingView()
         else if (exercises.isEmpty)
-          const EmptyState(
+          EmptyState(
             icon: Icons.fitness_center,
-            title: 'No exercises in this session',
+            title: l10n.historyDetailNoExercisesTitle,
           )
         else
           for (final exercise in exercises)

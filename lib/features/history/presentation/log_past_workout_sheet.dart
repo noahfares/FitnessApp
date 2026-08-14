@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// A session logged from memory, after the fact (`F-LOG-009` §4).
 ///
@@ -43,6 +44,7 @@ class _LogPastWorkoutSheetState extends ConsumerState<_LogPastWorkoutSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     return Padding(
       padding: EdgeInsets.only(
@@ -55,13 +57,16 @@ class _LogPastWorkoutSheetState extends ConsumerState<_LogPastWorkoutSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Log a past workout', style: theme.textTheme.titleMedium),
+          Text(
+            l10n.historyLogPastSheetTitle,
+            style: theme.textTheme.titleMedium,
+          ),
           const SizedBox(height: AppSpacing.lg),
           TextField(
             controller: _name,
-            decoration: const InputDecoration(
-              labelText: 'Name (optional)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.historyLogPastNameLabel,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -70,7 +75,7 @@ class _LogPastWorkoutSheetState extends ConsumerState<_LogPastWorkoutSheet> {
               Expanded(
                 child: ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Date'),
+                  title: Text(l10n.historyLogPastDateLabel),
                   subtitle: Text(DateFormat.yMMMd().format(_date)),
                   onTap: _pickDate,
                 ),
@@ -78,7 +83,7 @@ class _LogPastWorkoutSheetState extends ConsumerState<_LogPastWorkoutSheet> {
               Expanded(
                 child: ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Start time'),
+                  title: Text(l10n.historyLogPastStartTimeLabel),
                   subtitle: Text(_startTime.format(context)),
                   onTap: _pickTime,
                 ),
@@ -88,8 +93,11 @@ class _LogPastWorkoutSheetState extends ConsumerState<_LogPastWorkoutSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Duration', style: theme.textTheme.bodyMedium),
-              Text('${_duration.inMinutes} min'),
+              Text(
+                l10n.sessionSummaryDurationLabel,
+                style: theme.textTheme.bodyMedium,
+              ),
+              Text(l10n.historyLogPastDurationMinutes(_duration.inMinutes)),
             ],
           ),
           Slider(
@@ -97,12 +105,15 @@ class _LogPastWorkoutSheetState extends ConsumerState<_LogPastWorkoutSheet> {
             min: 5,
             max: 240,
             divisions: 47,
-            label: '${_duration.inMinutes} min',
+            label: l10n.historyLogPastDurationMinutes(_duration.inMinutes),
             onChanged: (value) =>
                 setState(() => _duration = Duration(minutes: value.round())),
           ),
           const SizedBox(height: AppSpacing.md),
-          FilledButton(onPressed: _submit, child: const Text('Add exercises')),
+          FilledButton(
+            onPressed: _submit,
+            child: Text(l10n.routineDayEditorAddExercisesAction),
+          ),
         ],
       ),
     );

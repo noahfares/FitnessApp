@@ -9,6 +9,7 @@ import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/set_numbering.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../logging/presentation/numeric_keypad_sheet.dart';
 import '../../logging/presentation/set_note_sheet.dart';
 import '../../logging/presentation/set_type_sheet.dart';
@@ -45,6 +46,7 @@ class HistorySetRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final prefs = ref.watch(unitPreferencesProvider);
     final formatter = ref.watch(quantityFormatterProvider);
 
@@ -149,7 +151,7 @@ class HistorySetRow extends ConsumerWidget {
               child: Checkbox(
                 value: set.isCompleted,
                 onChanged: (value) => unawaited(_toggle(ref, value ?? false)),
-                semanticLabel: 'Complete set',
+                semanticLabel: l10n.historySetRowCompleteSemanticLabel,
               ),
             ),
           ],
@@ -177,6 +179,7 @@ class HistorySetRow extends ConsumerWidget {
   }
 
   void _delete(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final repo = ref.read(setRepositoryProvider);
     final records = ref.read(personalRecordRepositoryProvider);
     unawaited(
@@ -186,9 +189,9 @@ class HistorySetRow extends ConsumerWidget {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('Set ${label.text} deleted'),
+          content: Text(l10n.historySetRowDeletedSnackbar(label.text)),
           action: SnackBarAction(
-            label: 'Undo',
+            label: l10n.activeWorkoutUndo,
             onPressed: () => unawaited(
               repo
                   .restoreSet(set.id)

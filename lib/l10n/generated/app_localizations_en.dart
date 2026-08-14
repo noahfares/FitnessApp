@@ -975,4 +975,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routineDayEditorResumeAction => 'Resume it';
+
+  @override
+  String get historyDetailTitle => 'Workout';
+
+  @override
+  String get historyDetailEditTooltip => 'Edit';
+
+  @override
+  String get historyDetailRepeatTooltip => 'Repeat this workout';
+
+  @override
+  String get historyDetailSaveAsRoutineAction => 'Save as routine';
+
+  @override
+  String get historyDetailDeleteConfirmTitle => 'Delete this workout?';
+
+  @override
+  String get historyDetailDeleteConfirmMessage =>
+      'This session and all its sets will be removed from your history.';
+
+  @override
+  String get historyDetailNoExercisesTitle => 'No exercises in this session';
+
+  @override
+  String get historyEditTitle => 'Edit workout';
+
+  @override
+  String get historyEditDoneAction => 'Done';
+
+  @override
+  String get historyEditNameLabel => 'Name';
+
+  @override
+  String get historyEditDateLabel => 'Date';
+
+  @override
+  String get historyEditTimeLabel => 'Time';
+
+  @override
+  String get historyEditNotesLabel => 'Notes';
+
+  @override
+  String get historyEditEmptyTitle => 'No exercises yet';
+
+  @override
+  String get historyEditEmptyMessage => 'Add the first one below.';
+
+  @override
+  String get historyEditRemoveExerciseTooltip => 'Remove exercise';
+
+  @override
+  String get historyEditExerciseNoteLabel => 'Exercise note';
+
+  @override
+  String get historyEditRemoveExerciseConfirmMessage =>
+      'Its sets in this session will be removed too.';
+
+  @override
+  String get historySetRowCompleteSemanticLabel => 'Complete set';
+
+  @override
+  String historySetRowDeletedSnackbar(String label) {
+    return 'Set $label deleted';
+  }
+
+  @override
+  String get historyLogPastSheetTitle => 'Log a past workout';
+
+  @override
+  String get historyLogPastNameLabel => 'Name (optional)';
+
+  @override
+  String get historyLogPastDateLabel => 'Date';
+
+  @override
+  String get historyLogPastStartTimeLabel => 'Start time';
+
+  @override
+  String historyLogPastDurationMinutes(num minutes) {
+    return '$minutes min';
+  }
 }

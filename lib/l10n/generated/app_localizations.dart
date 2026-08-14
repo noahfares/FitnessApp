@@ -1689,6 +1689,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Resume it'**
   String get routineDayEditorResumeAction;
+
+  /// Workout detail screen app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout'**
+  String get historyDetailTitle;
+
+  /// Opens the full past-workout editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get historyDetailEditTooltip;
+
+  /// Starts a new session pre-filled from this one.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat this workout'**
+  String get historyDetailRepeatTooltip;
+
+  /// Used as both the app-bar tooltip and the naming dialog's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as routine'**
+  String get historyDetailSaveAsRoutineAction;
+
+  /// Confirm sheet title before deleting a whole past workout.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this workout?'**
+  String get historyDetailDeleteConfirmTitle;
+
+  /// Confirm sheet message before deleting a whole past workout.
+  ///
+  /// In en, this message translates to:
+  /// **'This session and all its sets will be removed from your history.'**
+  String get historyDetailDeleteConfirmMessage;
+
+  /// Empty state when a logged session has no exercises.
+  ///
+  /// In en, this message translates to:
+  /// **'No exercises in this session'**
+  String get historyDetailNoExercisesTitle;
+
+  /// Past-workout editor app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit workout'**
+  String get historyEditTitle;
+
+  /// Closes the past-workout editor — every field already writes through.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get historyEditDoneAction;
+
+  /// Workout name field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get historyEditNameLabel;
+
+  /// Opens the date picker for this past workout.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get historyEditDateLabel;
+
+  /// Opens the time picker for this past workout.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get historyEditTimeLabel;
+
+  /// Workout notes field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get historyEditNotesLabel;
+
+  /// Empty state before any exercise has been added to this past workout.
+  ///
+  /// In en, this message translates to:
+  /// **'No exercises yet'**
+  String get historyEditEmptyTitle;
+
+  /// Empty state message pointing at the add-exercises button.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the first one below.'**
+  String get historyEditEmptyMessage;
+
+  /// Removes an exercise from this past workout.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove exercise'**
+  String get historyEditRemoveExerciseTooltip;
+
+  /// Per-exercise note field label on the past-workout editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise note'**
+  String get historyEditExerciseNoteLabel;
+
+  /// Confirm sheet message before removing an exercise from a past workout — unconditional, unlike the live logger's completed-set-count version.
+  ///
+  /// In en, this message translates to:
+  /// **'Its sets in this session will be removed too.'**
+  String get historyEditRemoveExerciseConfirmMessage;
+
+  /// Screen-reader label on a past set's completion checkbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete set'**
+  String get historySetRowCompleteSemanticLabel;
+
+  /// Snackbar after deleting a set from a past workout, with an Undo action.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {label} deleted'**
+  String historySetRowDeletedSnackbar(String label);
+
+  /// Title on the sheet that starts a retroactively-logged session.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a past workout'**
+  String get historyLogPastSheetTitle;
+
+  /// Workout name field label — optional, unlike the live logger.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get historyLogPastNameLabel;
+
+  /// Opens the date picker for the retroactive session.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get historyLogPastDateLabel;
+
+  /// Opens the time picker for the retroactive session's start.
+  ///
+  /// In en, this message translates to:
+  /// **'Start time'**
+  String get historyLogPastStartTimeLabel;
+
+  /// Estimated duration in minutes, shown next to and on the duration slider.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String historyLogPastDurationMinutes(num minutes);
 }
 
 class _AppLocalizationsDelegate

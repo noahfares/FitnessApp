@@ -870,6 +870,29 @@ literals: the rest of history, body, `ConsistencyScreen`/
 `PrTimelineScreen`, every Settings sub-screen beyond the root, `AppShell`'s
 nav labels, the shared logging widgets, and onboarding.
 
+**Batch 6.2, seventh pass — the rest of history.** `F-I18N-001` still
+`in-progress`. `WorkoutDetailScreen`, `EditPastWorkoutScreen`,
+`HistorySetRow`, and `LogPastWorkoutSheet` are now fully migrated —
+`HistorySetRow` needed its own pass regardless of the still-deferred shared
+`SetRow`, since it is a deliberately trimmed-down, independent widget (no
+ghost value, no rest timer), not a wrapper around it. Reuses several
+exact-text keys already defined elsewhere rather than minting new ones:
+`sessionSummaryDurationLabel`/`sessionSummaryExercisesLabel`,
+`routinesDeleteAction`, `routineDayEditorAddExercisesAction` (three call
+sites now), `activeWorkoutRemove`/`activeWorkoutRemoveExerciseConfirmTitle`/
+`activeWorkoutUndo`, and the already-training title/resume/cancel trio the
+sixth pass established — `WorkoutDetailScreen`'s "repeat this workout"
+conflict sheet is the third call site for that exact message, after
+`StartWorkoutScreen`'s differently-worded version and the routine day
+editor's. The one screen-specific exception: the past-workout editor's
+remove-exercise confirmation is unconditional prose ("Its sets in this
+session will be removed too."), unlike the live logger's completed-set-count
+plural — editing history has nothing analogous to count, so it kept its own
+key rather than being forced into the active-workout message's shape. Still
+English literals: body, `ConsistencyScreen`/`PrTimelineScreen`, every
+Settings sub-screen beyond the root, `AppShell`'s nav labels, the shared
+logging widgets, and onboarding.
+
 **Batch 6.3 — onboarding.** `F-SET-011` done — the last item Phase 6
 scheduled ahead of release/health. No schema change.
 `OnboardingScreen` (`lib/features/onboarding/presentation/`) is a

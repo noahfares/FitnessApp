@@ -12,6 +12,7 @@ import '../../../data/db/tables/enums.dart' show WeightEntryMode;
 import '../../../data/repositories/workout_repository.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/set_numbering.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../logging/application/active_workout_providers.dart';
 import '../../logging/application/set_providers.dart';
@@ -36,14 +37,18 @@ class EditPastWorkoutScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final workout = ref.watch(workoutByIdProvider(workoutId)).value;
     final exercises = ref.watch(sessionExercisesProvider(workoutId)).value;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit workout'),
+        title: Text(l10n.historyEditTitle),
         actions: [
-          TextButton(onPressed: () => context.pop(), child: const Text('Done')),
+          TextButton(
+            onPressed: () => context.pop(),
+            child: Text(l10n.historyEditDoneAction),
+          ),
         ],
       ),
       body: workout == null
@@ -53,7 +58,7 @@ class EditPastWorkoutScreen extends ConsumerWidget {
         onPressed: () =>
             unawaited(_addExercisesToWorkout(context, ref, workoutId)),
         icon: const Icon(Icons.add),
-        label: const Text('Add exercises'),
+        label: Text(l10n.routineDayEditorAddExercisesAction),
       ),
     );
   }
@@ -86,6 +91,7 @@ class _EditorState extends ConsumerState<_Editor> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final exercises = widget.exercises;
     final startedAt = DateTime.fromMillisecondsSinceEpoch(
@@ -97,9 +103,9 @@ class _EditorState extends ConsumerState<_Editor> {
       children: [
         TextField(
           controller: _name,
-          decoration: const InputDecoration(
-            labelText: 'Name',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: l10n.historyEditNameLabel,
+            border: const OutlineInputBorder(),
           ),
           onSubmitted: (value) => unawaited(
             ref
@@ -118,7 +124,7 @@ class _EditorState extends ConsumerState<_Editor> {
             Expanded(
               child: ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Date'),
+                title: Text(l10n.historyEditDateLabel),
                 subtitle: Text(DateFormat.yMMMd().format(startedAt)),
                 onTap: () => unawaited(_pickDate(startedAt)),
               ),
@@ -126,7 +132,7 @@ class _EditorState extends ConsumerState<_Editor> {
             Expanded(
               child: ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Time'),
+                title: Text(l10n.historyEditTimeLabel),
                 subtitle: Text(DateFormat.jm().format(startedAt)),
                 onTap: () => unawaited(_pickTime(startedAt)),
               ),
@@ -137,9 +143,9 @@ class _EditorState extends ConsumerState<_Editor> {
         TextField(
           controller: _notes,
           maxLines: 3,
-          decoration: const InputDecoration(
-            labelText: 'Notes',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: l10n.historyEditNotesLabel,
+            border: const OutlineInputBorder(),
           ),
           onSubmitted: (value) => unawaited(
             ref
@@ -153,15 +159,18 @@ class _EditorState extends ConsumerState<_Editor> {
           ),
         ),
         const SizedBox(height: AppSpacing.xl),
-        Text('Exercises', style: theme.textTheme.titleMedium),
+        Text(
+          l10n.sessionSummaryExercisesLabel,
+          style: theme.textTheme.titleMedium,
+        ),
         const SizedBox(height: AppSpacing.sm),
         if (exercises == null)
           const LoadingView()
         else if (exercises.isEmpty)
-          const EmptyState(
+          EmptyState(
             icon: Icons.fitness_center,
-            title: 'No exercises yet',
-            message: 'Add the first one below.',
+            title: l10n.historyEditEmptyTitle,
+            message: l10n.historyEditEmptyMessage,
           )
         else
           for (final exercise in exercises)
@@ -243,6 +252,7 @@ class _ExerciseEditorState extends ConsumerState<_ExerciseEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final exercise = widget.exercise;
     final sets = ref.watch(setsProvider(exercise.workoutExerciseId)).value;
@@ -263,7 +273,7 @@ class _ExerciseEditorState extends ConsumerState<_ExerciseEditor> {
               ),
               IconButton(
                 icon: const Icon(Icons.close),
-                tooltip: 'Remove exercise',
+                tooltip: l10n.historyEditRemoveExerciseTooltip,
                 onPressed: () => unawaited(_removeExercise(context)),
               ),
             ],
@@ -277,10 +287,10 @@ class _ExerciseEditorState extends ConsumerState<_ExerciseEditor> {
           const SizedBox(height: AppSpacing.xs),
           TextField(
             controller: _notes,
-            decoration: const InputDecoration(
-              labelText: 'Exercise note',
+            decoration: InputDecoration(
+              labelText: l10n.historyEditExerciseNoteLabel,
               isDense: true,
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
             ),
             onSubmitted: _saveNote,
             onEditingComplete: () => _saveNote(_notes.text),
@@ -310,11 +320,12 @@ class _ExerciseEditorState extends ConsumerState<_ExerciseEditor> {
   );
 
   Future<void> _removeExercise(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showConfirmSheet(
       context,
-      title: 'Remove ${widget.exercise.name}?',
-      message: 'Its sets in this session will be removed too.',
-      confirmLabel: 'Remove',
+      title: l10n.activeWorkoutRemoveExerciseConfirmTitle(widget.exercise.name),
+      message: l10n.historyEditRemoveExerciseConfirmMessage,
+      confirmLabel: l10n.activeWorkoutRemove,
     );
     if (!confirmed) return;
     await ref
