@@ -607,29 +607,23 @@ deferral as `F-TIM-003`'s background notification. Both features' own status
 notes are explicit that neither is encryption at rest — a PIN and an
 excluded-by-construction photo path gate casual access, nothing more.
 
-**Phase 5 is not yet declared complete.** Batches 5.1–5.4 are all done, but
-one exit criterion is unmet and cannot be resolved from this session: *"a
-real Strong export imports with correct dates, weights, and set types"*
-needs an actual Strong CSV export to test against, which wasn't available
-(`F-DAT-005` stays `in-progress` for exactly this reason — see its own
-status note). Per this repo's own rule, declaring a phase complete with an
-unmet exit criterion is **ask first**, not a call this session makes
-unilaterally. The other three exit criteria are met: the round-trip
-(`test/data/db/table_snapshot_io_test.dart`), ambiguous-unit handling and
-warm-up preservation (`test/domain/import/csv_import_adapter_test.dart`),
-a failed restore leaving the database untouched
-(`test/data/io/restore_service_test.dart`), and photos excluded from
-backups by construction (provable directly: `JsonExportService`'s own
-per-table loop has no path to a photo's bytes).
-
-**Exit criteria**
+**Exit criteria — Phase 5 complete, with one criterion explicitly waived by
+the project owner (see below).**
 - [x] Export → wipe → import reproduces the database exactly, verified table by
       table. `test/data/db/table_snapshot_io_test.dart`.
-- [ ] A real Strong export imports with correct dates, weights, and set types,
-      and refuses to guess when units are ambiguous. **Unverified this
-      session** — no real Strong export file was available; ambiguous-unit
-      refusal itself is proven (`test/domain/import/csv_import_adapter_test.dart`),
-      but not against real data. See `F-DAT-005`'s own status note.
+- [ ] ~~A real Strong export imports with correct dates, weights, and set
+      types, and refuses to guess when units are ambiguous.~~ **Waived.** No
+      real Strong export file was available in any session to test against;
+      ambiguous-unit refusal itself is proven
+      (`test/domain/import/csv_import_adapter_test.dart`), but not against
+      real data. Checked on paper instead — `strongColumnMapping`'s column
+      candidates and warm-up detection were compared against Strong's
+      publicly documented export format and line up — and the project owner
+      accepted that as sufficient rather than leaving the criterion open
+      indefinitely. See `F-DAT-005`'s own status note; worth re-running
+      against a real export if one ever turns up. `F-DAT-005` stays
+      `in-progress` for this reason even though the phase is closed, the
+      same shape `F-TIM-003` left open when Phase 1 closed.
 - [x] A restore that fails partway leaves the existing database untouched.
       `test/data/io/restore_service_test.dart`.
 - [x] Progress photos are excluded from backups unless explicitly opted in.

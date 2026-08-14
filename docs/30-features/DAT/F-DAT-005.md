@@ -64,3 +64,19 @@ full rescan. Not built: distance import — exactly as unit-ambiguous as
 weight, but no acceptance criterion here requires cardio-distance
 correctness, so distance is left unset rather than guessed at; see
 `import_service.dart`'s own class doc for the full reasoning.
+
+## Status note (Phase 5 close)
+
+No real Strong export file was available in any session, so the one open
+acceptance item was checked on paper instead: `strongColumnMapping`
+(`csv_import_adapter.dart`) was compared against Strong's publicly
+documented export columns (`Date`, `Workout Name`, `Duration`,
+`Exercise Name`, `Set Order`, `Weight`, `Weight Unit`, `Reps`, `Distance`,
+`Distance Unit`, `Seconds`, `Notes`, `Workout Notes`, `RPE`) and the
+warm-up-in-`Set Order` convention (`W1`, `W2`) reported for Strong's
+export. Every candidate spelling and the warm-up detection regex line up
+with the documented format. This is not the same as running a real file
+through the importer — the project owner accepted it as sufficient to
+close Phase 5 regardless, waiving the criterion rather than leaving it
+open indefinitely. Worth re-running against a real Strong export if one
+ever turns up.
