@@ -1122,6 +1122,18 @@ not just a domain fixture. Every feature `F-PRG-*`, `F-PLT-*`, `F-BOD-*`,
 `F-ANA-*` and `F-LOG-019`/`F-LOG-020`/`F-TIM-009` scheduled for Phase 4 is
 `done`.
 
+**Dev tooling — demo data seeder (v0.44.0).** Not a roadmap feature (no
+`F-ID`), same as the `tools/*.sh` scripts. `lib/data/seed/demo_data_seeder.dart`'s
+`DemoDataSeeder` writes 8 weeks of a Push/Pull/Legs split plus weekly
+bodyweight through the real repositories (`WorkoutRepository.start`/
+`finish`, `SetRepository.addSet`/`complete`), so every derived table (PRs,
+`workouts.bodyweight_grams`, rest-taken seconds) comes out the way real use
+would produce it rather than being poked in directly. Reached from a
+`kDebugMode`-gated "Load sample data" button on Settings › Data, never
+present in a release build. Exists so the analytics screens (weekly
+insights, stall detection, ACWR, muscle balance, the body map) have
+something to look at without hand-logging weeks of sessions first.
+
 Local toolchain: Flutter at `/opt/flutter` on the Linux sandbox, or
 `C:\flutter` on the Windows machine (`git clone https://github.com/flutter/flutter.git -b stable --depth 1 C:\flutter`,
 then add `C:\flutter\bin` to `PATH` — done once, persisted to the user `PATH`

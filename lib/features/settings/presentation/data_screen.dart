@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -28,6 +29,7 @@ class DataScreen extends ConsumerStatefulWidget {
 class _DataScreenState extends ConsumerState<DataScreen> {
   bool _exporting = false;
   bool _rebuildingPrs = false;
+  bool _seedingDemoData = false;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +78,32 @@ class _DataScreenState extends ConsumerState<DataScreen> {
               _rebuildingPrs ? 'Rebuilding…' : 'Rebuild personal records',
             ),
           ),
+          if (kDebugMode) ...[
+            const SizedBox(height: AppSpacing.xl),
+            Text(
+              'Debug build only — never reachable in a release. Adds 8 '
+              'weeks of a Push/Pull/Legs split plus weekly bodyweight, so '
+              'the analytics screens have something to show without '
+              'hand-logging sessions.',
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            OutlinedButton.icon(
+              onPressed: _seedingDemoData
+                  ? null
+                  : () => unawaited(_seedDemoData(context)),
+              icon: _seedingDemoData
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator.adaptive(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.science_outlined),
+              label: Text(
+                _seedingDemoData ? 'Loading…' : 'Load sample data (debug)',
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -129,6 +157,26 @@ class _DataScreenState extends ConsumerState<DataScreen> {
         );
     } finally {
       if (mounted) setState(() => _rebuildingPrs = false);
+    }
+  }
+
+  Future<void> _seedDemoData(BuildContext context) async {
+    setState(() => _seedingDemoData = true);
+    try {
+      await ref.read(demoDataSeederProvider).seed();
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('Sample data loaded.')));
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(content: Text('Could not load sample data.')),
+        );
+    } finally {
+      if (mounted) setState(() => _seedingDemoData = false);
     }
   }
 }
