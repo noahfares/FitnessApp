@@ -3051,6 +3051,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use this'**
   String get onboardingUseThisAction;
+
+  /// Set-row column header for the reps field.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps'**
+  String get fieldHeaderReps;
+
+  /// Set-row column header for the duration field.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get fieldHeaderTime;
+
+  /// Starts timing a held duration on the numeric keypad.
+  ///
+  /// In en, this message translates to:
+  /// **'Start stopwatch'**
+  String get keypadStartStopwatchTooltip;
+
+  /// Stops the running stopwatch and writes the elapsed time through.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop stopwatch'**
+  String get keypadStopStopwatchTooltip;
+
+  /// Opens the plate calculator for the weight currently typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate calculator'**
+  String get keypadPlateCalculatorTooltip;
+
+  /// Screen-reader label on the keypad's minus stepper.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease'**
+  String get keypadDecreaseSemanticLabel;
+
+  /// Screen-reader label on the keypad's plus stepper.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase'**
+  String get keypadIncreaseSemanticLabel;
+
+  /// Screen-reader label on the keypad's decimal-point key.
+  ///
+  /// In en, this message translates to:
+  /// **'Decimal point'**
+  String get keypadDecimalPointSemanticLabel;
+
+  /// Screen-reader label on the keypad's backspace key.
+  ///
+  /// In en, this message translates to:
+  /// **'Backspace'**
+  String get keypadBackspaceSemanticLabel;
+
+  /// Clears the current field's buffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get keypadClearAction;
+
+  /// First fragment of SetRow's screen-reader label for a warm-up set.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm-up set {number}'**
+  String setRowWarmupSetLabel(String number);
+
+  /// First fragment of SetRow's screen-reader label for a working set.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {number}'**
+  String setRowSetLabel(String number);
+
+  /// Screen-reader value for a field with nothing entered yet.
+  ///
+  /// In en, this message translates to:
+  /// **'empty'**
+  String get setRowFieldEmptyValue;
+
+  /// Screen-reader fragment when RPE display is on but nothing was logged. mode is already uppercased (RPE or RIR).
+  ///
+  /// In en, this message translates to:
+  /// **'no {mode} logged'**
+  String setRowNoRpeLogged(String mode);
+
+  /// Screen-reader fragment stating the logged RPE or RIR value.
+  ///
+  /// In en, this message translates to:
+  /// **'{mode} {value}'**
+  String setRowRpeLogged(String mode, String value);
+
+  /// Screen-reader fragment for a completed set.
+  ///
+  /// In en, this message translates to:
+  /// **'completed'**
+  String get setRowCompletedStatus;
+
+  /// Screen-reader fragment for an incomplete set.
+  ///
+  /// In en, this message translates to:
+  /// **'not completed'**
+  String get setRowNotCompletedStatus;
+
+  /// Screen-reader fragment when the set carries a note.
+  ///
+  /// In en, this message translates to:
+  /// **'has a note'**
+  String get setRowHasNoteStatus;
+
+  /// Screen-reader fragment when this set holds a cached personal record.
+  ///
+  /// In en, this message translates to:
+  /// **'personal record'**
+  String get setRowPersonalRecordStatus;
+
+  /// Note-button tooltip when the set already has a note.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit note'**
+  String get setRowEditNoteTooltip;
+
+  /// Note-button tooltip when the set has no note yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add note'**
+  String get setRowAddNoteTooltip;
+
+  /// Adds a new set to an exercise, pre-filled from the one above it.
+  ///
+  /// In en, this message translates to:
+  /// **'Add set'**
+  String get addSetButtonLabel;
+
+  /// Screen-reader label on the rest timer bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest timer, {remaining} remaining'**
+  String restTimerBarSemanticLabel(String remaining);
+
+  /// Resumes a paused rest timer.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get restTimerBarResumeTooltip;
+
+  /// Pauses the running rest timer.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get restTimerBarPauseTooltip;
+
+  /// Ends the rest timer immediately.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip rest'**
+  String get restTimerBarSkipTooltip;
+
+  /// Minutes fragment of the spoken remaining-time label.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} minute} other{{count} minutes}}'**
+  String restTimerBarMinutes(num count);
+
+  /// Seconds fragment of the spoken remaining-time label.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} second} other{{count} seconds}}'**
+  String restTimerBarSeconds(num count);
+
+  /// Spoken remaining-time label when the timer has already reached zero.
+  ///
+  /// In en, this message translates to:
+  /// **'no time'**
+  String get restTimerBarNoTime;
+
+  /// Screen-reader label on the minus adjust button.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtract {seconds} seconds'**
+  String restTimerBarSubtractSemanticLabel(num seconds);
+
+  /// Screen-reader label on the plus adjust button.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {seconds} seconds'**
+  String restTimerBarAddSemanticLabel(num seconds);
 }
 
 class _AppLocalizationsDelegate

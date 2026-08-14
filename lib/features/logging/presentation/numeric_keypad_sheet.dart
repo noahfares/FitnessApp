@@ -14,6 +14,7 @@ import '../../../domain/logging/duration_entry.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/weight_steps.dart';
 import '../../../domain/timing/stopwatch.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import 'plate_calculator_sheet.dart';
 import 'set_value_format.dart';
@@ -158,6 +159,7 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final prefs = ref.watch(unitPreferencesProvider);
 
@@ -178,6 +180,7 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
                       label: fieldHeader(
                         field,
                         prefs,
+                        l10n,
                         perSide: field == SetField.weight && widget.perSide,
                       ),
                       value: _display(field),
@@ -190,8 +193,8 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
                 if (_field == SetField.duration)
                   IconButton(
                     tooltip: _stopwatch == null
-                        ? 'Start stopwatch'
-                        : 'Stop stopwatch',
+                        ? l10n.keypadStartStopwatchTooltip
+                        : l10n.keypadStopStopwatchTooltip,
                     icon: Icon(
                       _stopwatch == null
                           ? Icons.play_circle_outline
@@ -204,7 +207,7 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
                 // the sheet itself from the exercise row (`F-PLT-005`).
                 if (_field == SetField.weight && widget.exerciseId != null)
                   IconButton(
-                    tooltip: 'Plate calculator',
+                    tooltip: l10n.keypadPlateCalculatorTooltip,
                     icon: const Icon(Icons.calculate_outlined),
                     onPressed: () {
                       final grams = _parseGrams();
@@ -222,7 +225,7 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
                     },
                   ),
                 IconButton(
-                  tooltip: 'Done',
+                  tooltip: l10n.historyEditDoneAction,
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.keyboard_hide_outlined),
                 ),
@@ -233,7 +236,7 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
               children: [
                 _StepperButton(
                   icon: Icons.remove,
-                  semanticLabel: 'Decrease',
+                  semanticLabel: l10n.keypadDecreaseSemanticLabel,
                   onPressed: () => _stepBy(-1),
                   onHold: () => _startRepeat(-1),
                   onRelease: _stopRepeat,
@@ -249,7 +252,7 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
                 ),
                 _StepperButton(
                   icon: Icons.add,
-                  semanticLabel: 'Increase',
+                  semanticLabel: l10n.keypadIncreaseSemanticLabel,
                   onPressed: () => _stepBy(1),
                   onHold: () => _startRepeat(1),
                   onRelease: _stopRepeat,
@@ -571,6 +574,7 @@ class _Keys extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     Widget key(Widget child, VoidCallback? onTap, {String? semantics}) =>
         Expanded(
           child: Padding(
@@ -605,19 +609,22 @@ class _Keys extends StatelessWidget {
             key(
               Text(decimalSeparator ?? '.'),
               decimalSeparator == null ? null : onDecimal,
-              semantics: 'Decimal point',
+              semantics: l10n.keypadDecimalPointSemanticLabel,
             ),
             digit('0'),
             key(
               const Icon(Icons.backspace_outlined),
               onBackspace,
-              semantics: 'Backspace',
+              semantics: l10n.keypadBackspaceSemanticLabel,
             ),
           ],
         ),
         Align(
           alignment: Alignment.centerRight,
-          child: TextButton(onPressed: onClear, child: const Text('Clear')),
+          child: TextButton(
+            onPressed: onClear,
+            child: Text(l10n.keypadClearAction),
+          ),
         ),
       ],
     );

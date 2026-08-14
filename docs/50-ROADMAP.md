@@ -1000,6 +1000,28 @@ screen's tests throughout this file. Only the shared logging widgets
 (`SetRow`/`AddSetButton`/`RestTimerBar`/`fieldHeader()`) remain — the one
 unit deferred since the very first `F-I18N-001` batch, still not started.
 
+**Batch 6.2, fourteenth pass — the shared logging widgets, and done.**
+`F-I18N-001` closes. `fieldHeader()` gained an `AppLocalizations` param,
+threaded through its three real call sites; `NumericKeypadSheet` turned
+out to be unmigrated as a whole file, not just that one call, so its
+tooltips, stepper semantics, and digit-key semantics moved to ARB in the
+same pass rather than leaving an arbitrary half-migration behind. `SetRow`'s
+`_semanticLabel` — the screen-reader announcement per row (`F-A11Y-001`) —
+is composed from independently-translated fragments joined with `', '`
+rather than one templated sentence, since which fields and optional
+clauses appear varies per exercise and setting. `RestTimerBar`'s spoken
+remaining-time label gained two real ICU plurals, replacing the source's
+own `minutes == 1 ? 'minute' : 'minutes'` ternary — the same
+ternary-to-ICU cleanup the eleventh pass applied to `ImportScreen`.
+Several keys reuse exact matches already defined for `HistorySetRow`
+(`historySetRowCompleteSemanticLabel`, `historySetRowDeletedSnackbar`) and
+`EditPastWorkoutScreen` (`historyEditDoneAction`) rather than duplicate
+them — the two set rows really do say the same two things. No test needed
+updating: nothing asserted the composed semantic-label strings directly,
+and every literal-text assertion matches `AppLocalizations`'s English
+value exactly. **Every user-facing string in the app is now in ARB.**
+`F-I18N-001` is `done`.
+
 **Batch 6.3 — onboarding.** `F-SET-011` done — the last item Phase 6
 scheduled ahead of release/health. No schema change.
 `OnboardingScreen` (`lib/features/onboarding/presentation/`) is a

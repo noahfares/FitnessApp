@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../domain/timing/rest_timer.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../logging/application/active_workout_providers.dart';
 import '../application/rest_timer_providers.dart';
 
@@ -25,6 +26,7 @@ class RestTimerBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (!ref.watch(restTimerVisibleProvider)) return const SizedBox.shrink();
 
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final timer = ref.watch(restTimerProvider);
     final remaining = ref.watch(restRemainingProvider);
@@ -33,7 +35,7 @@ class RestTimerBar extends ConsumerWidget {
 
     return Semantics(
       container: true,
-      label: 'Rest timer, ${_spokenRemaining(remaining)} remaining',
+      label: l10n.restTimerBarSemanticLabel(_spokenRemaining(l10n, remaining)),
       child: Container(
         decoration: BoxDecoration(
           color: theme.colorScheme.secondaryContainer,
@@ -76,14 +78,16 @@ class RestTimerBar extends ConsumerWidget {
                   onPressed: () => controller.adjust(restAdjustStepSeconds),
                 ),
                 IconButton(
-                  tooltip: timer.isPaused ? 'Resume' : 'Pause',
+                  tooltip: timer.isPaused
+                      ? l10n.restTimerBarResumeTooltip
+                      : l10n.restTimerBarPauseTooltip,
                   onPressed: timer.isPaused
                       ? controller.resume
                       : controller.pause,
                   icon: Icon(timer.isPaused ? Icons.play_arrow : Icons.pause),
                 ),
                 IconButton(
-                  tooltip: 'Skip rest',
+                  tooltip: l10n.restTimerBarSkipTooltip,
                   onPressed: controller.skip,
                   icon: const Icon(Icons.stop),
                 ),
@@ -107,14 +111,14 @@ class RestTimerBar extends ConsumerWidget {
 
   /// `2:05` read aloud is "two colon zero five". Spelling it out is the
   /// difference between a usable announcement and a puzzle (`F-A11Y-001`).
-  static String _spokenRemaining(Duration remaining) {
+  static String _spokenRemaining(AppLocalizations l10n, Duration remaining) {
     final minutes = remaining.inMinutes;
     final seconds = remaining.inSeconds.remainder(60);
     final parts = [
-      if (minutes > 0) '$minutes ${minutes == 1 ? 'minute' : 'minutes'}',
-      if (seconds > 0) '$seconds ${seconds == 1 ? 'second' : 'seconds'}',
+      if (minutes > 0) l10n.restTimerBarMinutes(minutes),
+      if (seconds > 0) l10n.restTimerBarSeconds(seconds),
     ];
-    return parts.isEmpty ? 'no time' : parts.join(' ');
+    return parts.isEmpty ? l10n.restTimerBarNoTime : parts.join(' ');
   }
 }
 
@@ -126,6 +130,7 @@ class _AdjustButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final label = '${seconds.isNegative ? '−' : '+'}${seconds.abs()}';
     return TextButton(
       onPressed: onPressed,
@@ -138,8 +143,8 @@ class _AdjustButton extends StatelessWidget {
       ),
       child: Semantics(
         label: seconds.isNegative
-            ? 'Subtract ${seconds.abs()} seconds'
-            : 'Add $seconds seconds',
+            ? l10n.restTimerBarSubtractSemanticLabel(seconds.abs())
+            : l10n.restTimerBarAddSemanticLabel(seconds),
         excludeSemantics: true,
         child: Text(label),
       ),

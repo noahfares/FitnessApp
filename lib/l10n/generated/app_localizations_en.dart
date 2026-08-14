@@ -1747,4 +1747,127 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingUseThisAction => 'Use this';
+
+  @override
+  String get fieldHeaderReps => 'Reps';
+
+  @override
+  String get fieldHeaderTime => 'Time';
+
+  @override
+  String get keypadStartStopwatchTooltip => 'Start stopwatch';
+
+  @override
+  String get keypadStopStopwatchTooltip => 'Stop stopwatch';
+
+  @override
+  String get keypadPlateCalculatorTooltip => 'Plate calculator';
+
+  @override
+  String get keypadDecreaseSemanticLabel => 'Decrease';
+
+  @override
+  String get keypadIncreaseSemanticLabel => 'Increase';
+
+  @override
+  String get keypadDecimalPointSemanticLabel => 'Decimal point';
+
+  @override
+  String get keypadBackspaceSemanticLabel => 'Backspace';
+
+  @override
+  String get keypadClearAction => 'Clear';
+
+  @override
+  String setRowWarmupSetLabel(String number) {
+    return 'Warm-up set $number';
+  }
+
+  @override
+  String setRowSetLabel(String number) {
+    return 'Set $number';
+  }
+
+  @override
+  String get setRowFieldEmptyValue => 'empty';
+
+  @override
+  String setRowNoRpeLogged(String mode) {
+    return 'no $mode logged';
+  }
+
+  @override
+  String setRowRpeLogged(String mode, String value) {
+    return '$mode $value';
+  }
+
+  @override
+  String get setRowCompletedStatus => 'completed';
+
+  @override
+  String get setRowNotCompletedStatus => 'not completed';
+
+  @override
+  String get setRowHasNoteStatus => 'has a note';
+
+  @override
+  String get setRowPersonalRecordStatus => 'personal record';
+
+  @override
+  String get setRowEditNoteTooltip => 'Edit note';
+
+  @override
+  String get setRowAddNoteTooltip => 'Add note';
+
+  @override
+  String get addSetButtonLabel => 'Add set';
+
+  @override
+  String restTimerBarSemanticLabel(String remaining) {
+    return 'Rest timer, $remaining remaining';
+  }
+
+  @override
+  String get restTimerBarResumeTooltip => 'Resume';
+
+  @override
+  String get restTimerBarPauseTooltip => 'Pause';
+
+  @override
+  String get restTimerBarSkipTooltip => 'Skip rest';
+
+  @override
+  String restTimerBarMinutes(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '$count minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restTimerBarSeconds(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count seconds',
+      one: '$count second',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get restTimerBarNoTime => 'no time';
+
+  @override
+  String restTimerBarSubtractSemanticLabel(num seconds) {
+    return 'Subtract $seconds seconds';
+  }
+
+  @override
+  String restTimerBarAddSemanticLabel(num seconds) {
+    return 'Add $seconds seconds';
+  }
 }

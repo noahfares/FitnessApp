@@ -836,6 +836,7 @@ class _ColumnHeaders extends StatelessWidget {
                 fieldHeader(
                   field,
                   prefs,
+                  l10n,
                   perSide: field == SetField.weight && perSide,
                 ),
               ),

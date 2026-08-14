@@ -1199,5 +1199,98 @@
   "onboardingStarterSubtitle": "Optional — add a built-in program, or skip and build your own routine later.",
   "@onboardingStarterSubtitle": {"description": "Subheading on the starter-program onboarding page."},
   "onboardingUseThisAction": "Use this",
-  "@onboardingUseThisAction": {"description": "Imports a starter program and finishes onboarding into it."}
+  "@onboardingUseThisAction": {"description": "Imports a starter program and finishes onboarding into it."},
+
+  "fieldHeaderReps": "Reps",
+  "@fieldHeaderReps": {"description": "Set-row column header for the reps field."},
+  "fieldHeaderTime": "Time",
+  "@fieldHeaderTime": {"description": "Set-row column header for the duration field."},
+
+  "keypadStartStopwatchTooltip": "Start stopwatch",
+  "@keypadStartStopwatchTooltip": {"description": "Starts timing a held duration on the numeric keypad."},
+  "keypadStopStopwatchTooltip": "Stop stopwatch",
+  "@keypadStopStopwatchTooltip": {"description": "Stops the running stopwatch and writes the elapsed time through."},
+  "keypadPlateCalculatorTooltip": "Plate calculator",
+  "@keypadPlateCalculatorTooltip": {"description": "Opens the plate calculator for the weight currently typed."},
+  "keypadDecreaseSemanticLabel": "Decrease",
+  "@keypadDecreaseSemanticLabel": {"description": "Screen-reader label on the keypad's minus stepper."},
+  "keypadIncreaseSemanticLabel": "Increase",
+  "@keypadIncreaseSemanticLabel": {"description": "Screen-reader label on the keypad's plus stepper."},
+  "keypadDecimalPointSemanticLabel": "Decimal point",
+  "@keypadDecimalPointSemanticLabel": {"description": "Screen-reader label on the keypad's decimal-point key."},
+  "keypadBackspaceSemanticLabel": "Backspace",
+  "@keypadBackspaceSemanticLabel": {"description": "Screen-reader label on the keypad's backspace key."},
+  "keypadClearAction": "Clear",
+  "@keypadClearAction": {"description": "Clears the current field's buffer."},
+
+  "setRowWarmupSetLabel": "Warm-up set {number}",
+  "@setRowWarmupSetLabel": {
+    "description": "First fragment of SetRow's screen-reader label for a warm-up set.",
+    "placeholders": {"number": {"type": "String"}}
+  },
+  "setRowSetLabel": "Set {number}",
+  "@setRowSetLabel": {
+    "description": "First fragment of SetRow's screen-reader label for a working set.",
+    "placeholders": {"number": {"type": "String"}}
+  },
+  "setRowFieldEmptyValue": "empty",
+  "@setRowFieldEmptyValue": {"description": "Screen-reader value for a field with nothing entered yet."},
+  "setRowNoRpeLogged": "no {mode} logged",
+  "@setRowNoRpeLogged": {
+    "description": "Screen-reader fragment when RPE display is on but nothing was logged. mode is already uppercased (RPE or RIR).",
+    "placeholders": {"mode": {"type": "String"}}
+  },
+  "setRowRpeLogged": "{mode} {value}",
+  "@setRowRpeLogged": {
+    "description": "Screen-reader fragment stating the logged RPE or RIR value.",
+    "placeholders": {"mode": {"type": "String"}, "value": {"type": "String"}}
+  },
+  "setRowCompletedStatus": "completed",
+  "@setRowCompletedStatus": {"description": "Screen-reader fragment for a completed set."},
+  "setRowNotCompletedStatus": "not completed",
+  "@setRowNotCompletedStatus": {"description": "Screen-reader fragment for an incomplete set."},
+  "setRowHasNoteStatus": "has a note",
+  "@setRowHasNoteStatus": {"description": "Screen-reader fragment when the set carries a note."},
+  "setRowPersonalRecordStatus": "personal record",
+  "@setRowPersonalRecordStatus": {"description": "Screen-reader fragment when this set holds a cached personal record."},
+  "setRowEditNoteTooltip": "Edit note",
+  "@setRowEditNoteTooltip": {"description": "Note-button tooltip when the set already has a note."},
+  "setRowAddNoteTooltip": "Add note",
+  "@setRowAddNoteTooltip": {"description": "Note-button tooltip when the set has no note yet."},
+  "addSetButtonLabel": "Add set",
+  "@addSetButtonLabel": {"description": "Adds a new set to an exercise, pre-filled from the one above it."},
+
+  "restTimerBarSemanticLabel": "Rest timer, {remaining} remaining",
+  "@restTimerBarSemanticLabel": {
+    "description": "Screen-reader label on the rest timer bar.",
+    "placeholders": {"remaining": {"type": "String"}}
+  },
+  "restTimerBarResumeTooltip": "Resume",
+  "@restTimerBarResumeTooltip": {"description": "Resumes a paused rest timer."},
+  "restTimerBarPauseTooltip": "Pause",
+  "@restTimerBarPauseTooltip": {"description": "Pauses the running rest timer."},
+  "restTimerBarSkipTooltip": "Skip rest",
+  "@restTimerBarSkipTooltip": {"description": "Ends the rest timer immediately."},
+  "restTimerBarMinutes": "{count, plural, one{{count} minute} other{{count} minutes}}",
+  "@restTimerBarMinutes": {
+    "description": "Minutes fragment of the spoken remaining-time label.",
+    "placeholders": {"count": {"type": "num"}}
+  },
+  "restTimerBarSeconds": "{count, plural, one{{count} second} other{{count} seconds}}",
+  "@restTimerBarSeconds": {
+    "description": "Seconds fragment of the spoken remaining-time label.",
+    "placeholders": {"count": {"type": "num"}}
+  },
+  "restTimerBarNoTime": "no time",
+  "@restTimerBarNoTime": {"description": "Spoken remaining-time label when the timer has already reached zero."},
+  "restTimerBarSubtractSemanticLabel": "Subtract {seconds} seconds",
+  "@restTimerBarSubtractSemanticLabel": {
+    "description": "Screen-reader label on the minus adjust button.",
+    "placeholders": {"seconds": {"type": "num"}}
+  },
+  "restTimerBarAddSemanticLabel": "Add {seconds} seconds",
+  "@restTimerBarAddSemanticLabel": {
+    "description": "Screen-reader label on the plus adjust button.",
+    "placeholders": {"seconds": {"type": "num"}}
+  }
 }

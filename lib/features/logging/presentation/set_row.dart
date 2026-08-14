@@ -14,6 +14,7 @@ import '../../../data/repositories/set_repository.dart';
 import '../../../domain/logging/rpe.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/set_numbering.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/application/rpe_settings_provider.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/pr_badge.dart';
@@ -70,6 +71,7 @@ class SetRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final prefs = ref.watch(unitPreferencesProvider);
     final formatter = ref.watch(quantityFormatterProvider);
     final rpeSettings = ref.watch(rpeSettingsProvider);
@@ -145,7 +147,7 @@ class SetRow extends ConsumerWidget {
       onDismissed: (_) => _delete(context, ref),
       child: Semantics(
         container: true,
-        label: _semanticLabel(formatter, prefs, rpeSettings, isRecord),
+        label: _semanticLabel(l10n, formatter, prefs, rpeSettings, isRecord),
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.sm,
@@ -194,6 +196,7 @@ class SetRow extends ConsumerWidget {
   /// either direction gets a full rebuild for the exercise, not an attempt to
   /// reason about what the delete/undo did to the cache in place.
   void _delete(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final repo = ref.read(setRepositoryProvider);
     final records = ref.read(personalRecordRepositoryProvider);
     unawaited(
@@ -203,9 +206,9 @@ class SetRow extends ConsumerWidget {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('Set ${label.text} deleted'),
+          content: Text(l10n.historySetRowDeletedSnackbar(label.text)),
           action: SnackBarAction(
-            label: 'Undo',
+            label: l10n.activeWorkoutUndo,
             onPressed: () => unawaited(
               repo
                   .restoreSet(set.id)
@@ -219,6 +222,7 @@ class SetRow extends ConsumerWidget {
   /// What a screen reader announces (`F-A11Y-001`). The row is a grid of
   /// unlabelled numbers otherwise.
   String _semanticLabel(
+    AppLocalizations l10n,
     QuantityFormatter formatter,
     UnitPreferences prefs,
     RpeSettings rpeSettings,
@@ -226,23 +230,29 @@ class SetRow extends ConsumerWidget {
   ) {
     final parts = <String>[
       label.isWarmup
-          ? 'Warm-up set ${label.text.substring(1)}'
-          : 'Set ${label.text}',
+          ? l10n.setRowWarmupSetLabel(label.text.substring(1))
+          : l10n.setRowSetLabel(label.text),
       for (final field in fields)
-        '${fieldHeader(field, prefs, perSide: field == SetField.weight && perSide)} '
-            '${formatSetField(set, field, formatter, prefs, perSide: perSide) ?? 'empty'}',
+        '${fieldHeader(field, prefs, l10n, perSide: field == SetField.weight && perSide)} '
+            '${formatSetField(set, field, formatter, prefs, perSide: perSide) ?? l10n.setRowFieldEmptyValue}',
       if (rpeSettings.enabled)
         switch (displayRpe(set.rpe, rpeSettings.displayMode)) {
-          null => 'no ${rpeSettings.displayMode.name.toUpperCase()} logged',
-          final value =>
-            '${rpeSettings.displayMode.name.toUpperCase()} ${formatRpeValue(value)}',
+          null => l10n.setRowNoRpeLogged(
+            rpeSettings.displayMode.name.toUpperCase(),
+          ),
+          final value => l10n.setRowRpeLogged(
+            rpeSettings.displayMode.name.toUpperCase(),
+            formatRpeValue(value),
+          ),
         },
-      set.isCompleted ? 'completed' : 'not completed',
-      if (set.notes != null) 'has a note',
+      set.isCompleted
+          ? l10n.setRowCompletedStatus
+          : l10n.setRowNotCompletedStatus,
+      if (set.notes != null) l10n.setRowHasNoteStatus,
       // Colour and an icon alone are not indicators (`F-A11Y-003`) — the
       // badge's tooltip says the same thing visually, this says it to a
       // screen reader.
-      if (isRecord) 'personal record',
+      if (isRecord) l10n.setRowPersonalRecordStatus,
     ];
     return parts.join(', ');
   }
@@ -295,6 +305,7 @@ class _NoteButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final hasNote = set.notes != null && set.notes!.isNotEmpty;
     return SizedBox(
       width: AppSpacing.setNoteColumn,
@@ -304,7 +315,9 @@ class _NoteButton extends ConsumerWidget {
           minWidth: AppSpacing.setNoteColumn,
           minHeight: AppSpacing.minTouchTarget,
         ),
-        tooltip: hasNote ? 'Edit note' : 'Add note',
+        tooltip: hasNote
+            ? l10n.setRowEditNoteTooltip
+            : l10n.setRowAddNoteTooltip,
         iconSize: 18,
         color: hasNote ? Theme.of(context).colorScheme.primary : null,
         icon: Icon(
@@ -421,6 +434,7 @@ class _CompletionToggle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       // Bigger than the 48 dp minimum: hit mid-set, one-handed, with imprecise
       // aim (docs/24-DESIGN-SYSTEM.md §spacing).
@@ -429,7 +443,7 @@ class _CompletionToggle extends ConsumerWidget {
       child: Checkbox(
         value: set.isCompleted,
         onChanged: (value) => unawaited(_toggle(ref, value ?? false)),
-        semanticLabel: 'Complete set',
+        semanticLabel: l10n.historySetRowCompleteSemanticLabel,
       ),
     );
   }
@@ -502,6 +516,7 @@ class AddSetButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     return Align(
       alignment: Alignment.centerLeft,
       child: TextButton.icon(
@@ -509,7 +524,7 @@ class AddSetButton extends ConsumerWidget {
           ref.read(setRepositoryProvider).addSet(workoutExerciseId),
         ),
         icon: const Icon(Icons.add, size: 18),
-        label: const Text('Add set'),
+        label: Text(l10n.addSetButtonLabel),
       ),
     );
   }

@@ -13,6 +13,7 @@ import '../../../data/db/app_database.dart';
 import '../../../data/repositories/set_repository.dart';
 import '../../../domain/logging/duration_entry.dart';
 import '../../../domain/logging/set_fields.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// Column header text. Weight and distance carry the unit here so the values
 /// themselves do not: screen space in the set row is the scarcest resource in
@@ -23,13 +24,14 @@ import '../../../domain/logging/set_fields.dart';
 /// so.
 String fieldHeader(
   SetField field,
-  UnitPreferences prefs, {
+  UnitPreferences prefs,
+  AppLocalizations l10n, {
   bool perSide = false,
 }) => switch (field) {
   SetField.weight => perSide ? '${prefs.load.symbol}/side' : prefs.load.symbol,
-  SetField.reps => 'Reps',
+  SetField.reps => l10n.fieldHeaderReps,
   SetField.distance => prefs.distance.symbol,
-  SetField.duration => 'Time',
+  SetField.duration => l10n.fieldHeaderTime,
 };
 
 /// Halves stored total grams for per-side display, rounding rather than
