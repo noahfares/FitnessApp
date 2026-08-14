@@ -12,6 +12,7 @@ import '../../../data/db/database_provider.dart';
 import '../../../data/io/import_service.dart';
 import '../../../domain/import/csv_import_adapter.dart';
 import '../../../domain/import/import_mapping_state.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../logging/presentation/exercise_picker_sheet.dart';
 
 enum _Step { pickFile, chooseUnit, mapping, importing, done, error }
@@ -46,8 +47,9 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Import')),
+      appBar: AppBar(title: Text(l10n.importTitle)),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.screen),
         child: switch (_step) {
@@ -63,33 +65,30 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
   }
 
   Widget _buildPickFile() {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Import your training history from a Strong or Hevy CSV export. '
-          'Nothing is written until you confirm.',
-          style: theme.textTheme.bodyMedium,
-        ),
+        Text(l10n.importPickFileDescription, style: theme.textTheme.bodyMedium),
         const SizedBox(height: AppSpacing.lg),
         FilledButton.icon(
           onPressed: () => unawaited(_pickAndParse()),
           icon: const Icon(Icons.file_open_outlined),
-          label: const Text('Choose a CSV file'),
+          label: Text(l10n.importChooseCsvAction),
         ),
       ],
     );
   }
 
   Widget _buildChooseUnit() {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "This file doesn't name a weight unit, and guessing wrong would "
-          'silently corrupt every weight in it. Which unit was it logged in?',
+          l10n.importChooseUnitDescription,
           style: theme.textTheme.bodyMedium,
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -98,14 +97,14 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
             Expanded(
               child: OutlinedButton(
                 onPressed: () => _reparseWithUnit('kg'),
-                child: const Text('Kilograms'),
+                child: Text(l10n.importKilogramsAction),
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: OutlinedButton(
                 onPressed: () => _reparseWithUnit('lb'),
-                child: const Text('Pounds'),
+                child: Text(l10n.importPoundsAction),
               ),
             ),
           ],
@@ -115,6 +114,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
   }
 
   Widget _buildMapping() {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final preview = _preview!;
     final unresolved = _mappingState.unresolved(preview.unmatchedExerciseNames);
@@ -123,20 +123,22 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '${preview.workoutCount} workouts, ${preview.setCount} sets found.',
+          l10n.importWorkoutsSetsFoundMessage(
+            preview.workoutCount,
+            preview.setCount,
+          ),
           style: theme.textTheme.titleMedium,
         ),
         const SizedBox(height: AppSpacing.sm),
         if (unresolved.isNotEmpty)
           Text(
-            "${unresolved.length} exercise name${unresolved.length == 1 ? '' : 's'} "
-            "not in your catalogue. Resolve each once.",
+            l10n.importUnresolvedMessage(unresolved.length),
             style: theme.textTheme.bodyMedium,
           ),
         const SizedBox(height: AppSpacing.lg),
         Expanded(
           child: unresolved.isEmpty
-              ? const Center(child: Text('All exercises resolved.'))
+              ? Center(child: Text(l10n.importAllResolvedMessage))
               : ListView.separated(
                   itemCount: unresolved.length,
                   separatorBuilder: (_, _) =>
@@ -162,50 +164,54 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
               _mappingState.isFullyResolved(preview.unmatchedExerciseNames)
               ? () => unawaited(_commit())
               : null,
-          child: const Text('Import'),
+          child: Text(l10n.importImportAction),
         ),
       ],
     );
   }
 
   Widget _buildDone() {
+    final l10n = AppLocalizations.of(context)!;
     final result = _result!;
     final theme = Theme.of(context);
+    final summary = l10n.importResultMessage(
+      result.workoutsImported,
+      result.setsImported,
+    );
+    final skipped = result.workoutsSkippedAsDuplicate > 0
+        ? ' ${l10n.importSkippedSuffix(result.workoutsSkippedAsDuplicate)}'
+        : '';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Import complete.', style: theme.textTheme.titleMedium),
+        Text(l10n.importCompleteTitle, style: theme.textTheme.titleMedium),
         const SizedBox(height: AppSpacing.sm),
-        Text(
-          '${result.workoutsImported} workouts and ${result.setsImported} '
-          'sets imported.'
-          '${result.workoutsSkippedAsDuplicate > 0 ? ' ${result.workoutsSkippedAsDuplicate} already-imported workout${result.workoutsSkippedAsDuplicate == 1 ? '' : 's'} skipped.' : ''}',
-          style: theme.textTheme.bodyMedium,
-        ),
+        Text('$summary$skipped', style: theme.textTheme.bodyMedium),
         const SizedBox(height: AppSpacing.lg),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Done'),
+          child: Text(l10n.importDoneAction),
         ),
       ],
     );
   }
 
   Widget _buildError() {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          _errorMessage ?? 'Import failed.',
+          _errorMessage ?? l10n.importDefaultErrorMessage,
           style: theme.textTheme.bodyMedium,
         ),
         const SizedBox(height: AppSpacing.lg),
         OutlinedButton(
           onPressed: () => setState(() => _step = _Step.pickFile),
-          child: const Text('Try again'),
+          child: Text(l10n.importTryAgainAction),
         ),
       ],
     );
@@ -246,10 +252,9 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         continue;
       }
     }
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
-      _errorMessage =
-          "This file doesn't match a Strong or Hevy export — check it's the "
-          'right file and try again.';
+      _errorMessage = l10n.importUnrecognisedFormatMessage;
       _step = _Step.error;
     });
   }
@@ -297,8 +302,9 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       });
     } catch (_) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       setState(() {
-        _errorMessage = 'Import failed. Nothing was changed.';
+        _errorMessage = l10n.importFailedNothingChangedMessage;
         _step = _Step.error;
       });
     }
@@ -320,6 +326,7 @@ class _UnmatchedNameTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -333,13 +340,16 @@ class _UnmatchedNameTile extends StatelessWidget {
               children: [
                 OutlinedButton(
                   onPressed: onUseExisting,
-                  child: const Text('Use existing'),
+                  child: Text(l10n.importUseExistingAction),
                 ),
                 OutlinedButton(
                   onPressed: onCreateCustom,
-                  child: const Text('Create new'),
+                  child: Text(l10n.importCreateNewAction),
                 ),
-                OutlinedButton(onPressed: onSkip, child: const Text('Skip')),
+                OutlinedButton(
+                  onPressed: onSkip,
+                  child: Text(l10n.importSkipAction),
+                ),
               ],
             ),
           ],

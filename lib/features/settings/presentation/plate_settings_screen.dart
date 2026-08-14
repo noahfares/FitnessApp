@@ -9,6 +9,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import '../application/plate_providers.dart';
@@ -24,23 +25,24 @@ class PlateSettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final bars = ref.watch(barsProvider);
     final plates = ref.watch(platesProvider);
     final unit = ref.watch(unitPreferencesProvider).load;
     final formatter = ref.watch(quantityFormatterProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Bars & plates')),
+      appBar: AppBar(title: Text(l10n.plateSettingsTitle)),
       body: ListView(
         padding: const EdgeInsets.only(bottom: AppSpacing.xl),
         children: [
           _SectionHeading(
-            'Bars',
+            l10n.plateSettingsBarsHeading,
             onAdd: () => _showBarSheet(context, ref, unit: unit),
           ),
           bars.view(
             (rows) => rows.isEmpty
-                ? const _EmptyRow('No bars configured yet.')
+                ? _EmptyRow(l10n.plateSettingsNoBarsMessage)
                 : Column(
                     children: [
                       for (final bar in rows)
@@ -63,12 +65,12 @@ class PlateSettingsScreen extends ConsumerWidget {
           ),
           const Divider(),
           _SectionHeading(
-            'Plates',
+            l10n.plateSettingsPlatesHeading,
             onAdd: () => _showPlateSheet(context, ref, unit: unit),
           ),
           plates.view(
             (rows) => rows.isEmpty
-                ? const _EmptyRow('No plates configured yet.')
+                ? _EmptyRow(l10n.plateSettingsNoPlatesMessage)
                 : Column(
                     children: [
                       for (final plate in rows)
@@ -166,10 +168,11 @@ class _PlateRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final repo = ref.read(plateRepositoryProvider);
     return ListTile(
       title: Text(formatter.massValueOnly(Mass.grams(plate.weightGrams), unit)),
-      subtitle: Text('${plate.countAvailable} pair(s) available'),
+      subtitle: Text(l10n.plateSettingsPairsAvailable(plate.countAvailable)),
       leading: Switch(
         value: plate.isEnabled,
         onChanged: (value) =>
@@ -179,7 +182,7 @@ class _PlateRow extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            tooltip: 'Fewer pairs',
+            tooltip: l10n.plateSettingsFewerPairsTooltip,
             icon: const Icon(Icons.remove),
             onPressed: plate.countAvailable <= 0
                 ? null
@@ -189,20 +192,20 @@ class _PlateRow extends ConsumerWidget {
           ),
           Text('${plate.countAvailable}'),
           IconButton(
-            tooltip: 'More pairs',
+            tooltip: l10n.plateSettingsMorePairsTooltip,
             icon: const Icon(Icons.add),
             onPressed: () => unawaited(
               repo.setPlateCount(plate.id, plate.countAvailable + 1),
             ),
           ),
           IconButton(
-            tooltip: 'Remove',
+            tooltip: l10n.activeWorkoutRemove,
             icon: const Icon(Icons.delete_outline),
             onPressed: () async {
               final confirmed = await showConfirmSheet(
                 context,
-                title: 'Remove this plate?',
-                message: 'The calculator will stop proposing it.',
+                title: l10n.plateSettingsRemovePlateConfirmTitle,
+                message: l10n.plateSettingsRemovePlateConfirmMessage,
               );
               if (confirmed) await repo.deletePlate(plate.id);
             },
@@ -243,6 +246,7 @@ class _BarEditSheetState extends ConsumerState<_BarEditSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final repo = ref.read(plateRepositoryProvider);
     return SafeArea(
       child: Padding(
@@ -257,13 +261,17 @@ class _BarEditSheetState extends ConsumerState<_BarEditSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              widget.bar == null ? 'New bar' : 'Edit bar',
+              widget.bar == null
+                  ? l10n.plateSettingsNewBarTitle
+                  : l10n.plateSettingsEditBarTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppSpacing.md),
             TextField(
               controller: _name,
-              decoration: const InputDecoration(labelText: 'Name'),
+              decoration: InputDecoration(
+                labelText: l10n.plateSettingsNameLabel,
+              ),
             ),
             const SizedBox(height: AppSpacing.sm),
             TextField(
@@ -272,12 +280,12 @@ class _BarEditSheetState extends ConsumerState<_BarEditSheet> {
                 decimal: true,
               ),
               decoration: InputDecoration(
-                labelText: 'Weight (${widget.unit.symbol})',
+                labelText: l10n.plateSettingsWeightLabel(widget.unit.symbol),
               ),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Default bar'),
+              title: Text(l10n.plateSettingsDefaultBarLabel),
               value: _isDefault,
               onChanged: (value) => setState(() => _isDefault = value),
             ),
@@ -305,7 +313,7 @@ class _BarEditSheetState extends ConsumerState<_BarEditSheet> {
                 }
                 if (context.mounted) Navigator.of(context).pop();
               },
-              child: const Text('Save'),
+              child: Text(l10n.routineNameDialogSave),
             ),
           ],
         ),
@@ -336,6 +344,7 @@ class _PlateAddSheetState extends ConsumerState<_PlateAddSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final repo = ref.read(plateRepositoryProvider);
     return SafeArea(
       child: Padding(
@@ -349,7 +358,10 @@ class _PlateAddSheetState extends ConsumerState<_PlateAddSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('New plate', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              l10n.plateSettingsNewPlateTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: AppSpacing.md),
             TextField(
               controller: _weight,
@@ -357,14 +369,16 @@ class _PlateAddSheetState extends ConsumerState<_PlateAddSheet> {
                 decimal: true,
               ),
               decoration: InputDecoration(
-                labelText: 'Weight (${widget.unit.symbol})',
+                labelText: l10n.plateSettingsWeightLabel(widget.unit.symbol),
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
             TextField(
               controller: _pairs,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Pairs available'),
+              decoration: InputDecoration(
+                labelText: l10n.plateSettingsPairsAvailableFieldLabel,
+              ),
             ),
             const SizedBox(height: AppSpacing.sm),
             FilledButton(
@@ -379,7 +393,7 @@ class _PlateAddSheetState extends ConsumerState<_PlateAddSheet> {
                 );
                 if (context.mounted) Navigator.of(context).pop();
               },
-              child: const Text('Save'),
+              child: Text(l10n.routineNameDialogSave),
             ),
           ],
         ),

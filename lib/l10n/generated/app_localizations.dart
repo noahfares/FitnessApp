@@ -2499,6 +2499,480 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Run'**
   String get unitsPreviewRunLabel;
+
+  /// Data screen app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get dataTitle;
+
+  /// Explanatory paragraph above the JSON export button.
+  ///
+  /// In en, this message translates to:
+  /// **'Every table, every row, exactly as stored — a rescue copy, not a polished backup. Share it somewhere safe.'**
+  String get dataJsonDescription;
+
+  /// Button label — JSON export, idle state.
+  ///
+  /// In en, this message translates to:
+  /// **'Export data (.json)'**
+  String get dataExportJsonAction;
+
+  /// Button label while either export is in progress — shared by the JSON and CSV buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'Exporting…'**
+  String get dataExportingAction;
+
+  /// Explanatory paragraph above the CSV export button.
+  ///
+  /// In en, this message translates to:
+  /// **'For spreadsheets, not backup — one CSV each for sets, body measurements and routines, in your display units.'**
+  String get dataCsvDescription;
+
+  /// Button label — CSV export, idle state.
+  ///
+  /// In en, this message translates to:
+  /// **'Export data (.csv)'**
+  String get dataExportCsvAction;
+
+  /// Explanatory paragraph above the import button.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring your history over from Strong or Hevy — nothing is written until you confirm what to do with each exercise.'**
+  String get dataImportDescription;
+
+  /// Button opening the import flow.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from Strong or Hevy'**
+  String get dataImportAction;
+
+  /// Explanatory paragraph above the backup/restore buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'A backup is a full, versioned copy of everything on this device, saved here so restore can find it later.'**
+  String get dataBackupDescription;
+
+  /// Button label — backup, idle state.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get dataBackUpNowAction;
+
+  /// Button label — backup, in-progress state.
+  ///
+  /// In en, this message translates to:
+  /// **'Backing up…'**
+  String get dataBackingUpAction;
+
+  /// Button label — restore, idle state.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from backup…'**
+  String get dataRestoreAction;
+
+  /// Button label — restore, in-progress state.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring…'**
+  String get dataRestoringAction;
+
+  /// Explanatory paragraph above the wipe button.
+  ///
+  /// In en, this message translates to:
+  /// **'Wiping deletes everything on this device and returns the app to its first-run state. A backup is taken first.'**
+  String get dataWipeDescription;
+
+  /// Button label — wipe, idle state.
+  ///
+  /// In en, this message translates to:
+  /// **'Wipe all data'**
+  String get dataWipeAction;
+
+  /// Button label — wipe, in-progress state.
+  ///
+  /// In en, this message translates to:
+  /// **'Wiping…'**
+  String get dataWipingAction;
+
+  /// Explanatory paragraph above the rebuild-PRs button.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal records are a cache rebuilt from your logged sets. If one ever looks wrong, rebuilding it from scratch is always safe.'**
+  String get dataPrDescription;
+
+  /// Button label — rebuild, idle state.
+  ///
+  /// In en, this message translates to:
+  /// **'Rebuild personal records'**
+  String get dataRebuildPrsAction;
+
+  /// Button label — rebuild, in-progress state.
+  ///
+  /// In en, this message translates to:
+  /// **'Rebuilding…'**
+  String get dataRebuildingAction;
+
+  /// Explanatory paragraph above the debug-only sample-data button.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug build only — never reachable in a release. Adds 8 weeks of a Push/Pull/Legs split plus weekly bodyweight, so the analytics screens have something to show without hand-logging sessions.'**
+  String get dataDebugSeedDescription;
+
+  /// Button label — sample-data seed, idle state.
+  ///
+  /// In en, this message translates to:
+  /// **'Load sample data (debug)'**
+  String get dataLoadSampleDataAction;
+
+  /// Button label — sample-data seed, in-progress state.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get dataLoadingAction;
+
+  /// Snackbar after a failed export — shared by the JSON and CSV export buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'Export failed. Try again.'**
+  String get dataExportFailedMessage;
+
+  /// Snackbar after a successful backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup saved.'**
+  String get dataBackupSavedMessage;
+
+  /// Snackbar after a failed backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup failed. Try again.'**
+  String get dataBackupFailedMessage;
+
+  /// Confirm sheet title before restoring.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from backup?'**
+  String get dataRestoreConfirmTitle;
+
+  /// Confirm sheet message before restoring.
+  ///
+  /// In en, this message translates to:
+  /// **'This replaces every workout, routine and setting on this device with what is in the backup file. A safety copy of what is here now is saved first.'**
+  String get dataRestoreConfirmMessage;
+
+  /// Confirm sheet confirm-button label for restoring.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get dataRestoreConfirmAction;
+
+  /// Snackbar after a successful restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore complete.'**
+  String get dataRestoreCompleteMessage;
+
+  /// Fallback snackbar text when a known restore failure (invalid file, version mismatch) carries no more specific message.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore failed.'**
+  String get dataRestoreFailedDefaultMessage;
+
+  /// Snackbar after an unexpected exception during restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore failed. Try again.'**
+  String get dataRestoreExceptionMessage;
+
+  /// Typed-confirmation dialog title before a full wipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Wipe all data?'**
+  String get dataWipeConfirmTitle;
+
+  /// Typed-confirmation dialog body naming the exact keyword that must be typed.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes every workout, routine and setting on this device. Type {keyword} to confirm.'**
+  String dataWipeConfirmBody(String keyword);
+
+  /// The exact word that must be typed to confirm a wipe — used as both the dialog's instruction and the text-match comparison itself, so a translation can never show a word the code won't accept.
+  ///
+  /// In en, this message translates to:
+  /// **'DELETE'**
+  String get dataWipeConfirmKeyword;
+
+  /// Typed-confirmation dialog's destructive action, enabled only once the keyword matches.
+  ///
+  /// In en, this message translates to:
+  /// **'Wipe'**
+  String get dataWipeConfirmButton;
+
+  /// Snackbar after a failed wipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Wipe failed. Try again.'**
+  String get dataWipeFailedMessage;
+
+  /// Snackbar after a successful wipe.
+  ///
+  /// In en, this message translates to:
+  /// **'All data wiped.'**
+  String get dataAllDataWipedMessage;
+
+  /// Snackbar after a successful PR rebuild.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal records rebuilt.'**
+  String get dataRebuildPrsSuccessMessage;
+
+  /// Snackbar after a failed PR rebuild.
+  ///
+  /// In en, this message translates to:
+  /// **'Rebuild failed. Try again.'**
+  String get dataRebuildFailedMessage;
+
+  /// Snackbar after successfully seeding demo data.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample data loaded.'**
+  String get dataSampleDataLoadedMessage;
+
+  /// Snackbar after failing to seed demo data.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load sample data.'**
+  String get dataSampleDataFailedMessage;
+
+  /// Import screen app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get importTitle;
+
+  /// Explanatory paragraph on the file-picker step.
+  ///
+  /// In en, this message translates to:
+  /// **'Import your training history from a Strong or Hevy CSV export. Nothing is written until you confirm.'**
+  String get importPickFileDescription;
+
+  /// Button opening the file picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a CSV file'**
+  String get importChooseCsvAction;
+
+  /// Explanatory paragraph on the ambiguous-unit step.
+  ///
+  /// In en, this message translates to:
+  /// **'This file doesn\'t name a weight unit, and guessing wrong would silently corrupt every weight in it. Which unit was it logged in?'**
+  String get importChooseUnitDescription;
+
+  /// Button choosing kilograms as the file's weight unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Kilograms'**
+  String get importKilogramsAction;
+
+  /// Button choosing pounds as the file's weight unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Pounds'**
+  String get importPoundsAction;
+
+  /// Summary line on the exercise-mapping step.
+  ///
+  /// In en, this message translates to:
+  /// **'{workouts} workouts, {sets} sets found.'**
+  String importWorkoutsSetsFoundMessage(num workouts, num sets);
+
+  /// Count of exercise names needing manual resolution.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} exercise name not in your catalogue. Resolve each once.} other{{count} exercise names not in your catalogue. Resolve each once.}}'**
+  String importUnresolvedMessage(num count);
+
+  /// Shown once every unmatched exercise name has been resolved.
+  ///
+  /// In en, this message translates to:
+  /// **'All exercises resolved.'**
+  String get importAllResolvedMessage;
+
+  /// Resolves an unmatched exercise name to one already in the catalogue.
+  ///
+  /// In en, this message translates to:
+  /// **'Use existing'**
+  String get importUseExistingAction;
+
+  /// Resolves an unmatched exercise name by creating a custom exercise for it.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new'**
+  String get importCreateNewAction;
+
+  /// Resolves an unmatched exercise name by skipping every set that uses it.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get importSkipAction;
+
+  /// Commits the import once every exercise name is resolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get importImportAction;
+
+  /// Heading on the done step.
+  ///
+  /// In en, this message translates to:
+  /// **'Import complete.'**
+  String get importCompleteTitle;
+
+  /// Result summary on the done step.
+  ///
+  /// In en, this message translates to:
+  /// **'{workouts} workouts and {sets} sets imported.'**
+  String importResultMessage(num workouts, num sets);
+
+  /// Appended to the result summary when one or more workouts were skipped as duplicates.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} already-imported workout skipped.} other{{count} already-imported workouts skipped.}}'**
+  String importSkippedSuffix(num count);
+
+  /// Closes the import flow after a successful import.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get importDoneAction;
+
+  /// Fallback error text when no more specific message was set.
+  ///
+  /// In en, this message translates to:
+  /// **'Import failed.'**
+  String get importDefaultErrorMessage;
+
+  /// Returns to the file-picker step after a failure.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get importTryAgainAction;
+
+  /// Error shown when the file matches neither known CSV format.
+  ///
+  /// In en, this message translates to:
+  /// **'This file doesn\'t match a Strong or Hevy export — check it\'s the right file and try again.'**
+  String get importUnrecognisedFormatMessage;
+
+  /// Error shown when committing the import throws — nothing was written, since commit is all-or-nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Import failed. Nothing was changed.'**
+  String get importFailedNothingChangedMessage;
+
+  /// Plate settings screen app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Bars & plates'**
+  String get plateSettingsTitle;
+
+  /// Section heading above the bar inventory list.
+  ///
+  /// In en, this message translates to:
+  /// **'Bars'**
+  String get plateSettingsBarsHeading;
+
+  /// Empty state before any bar has been added.
+  ///
+  /// In en, this message translates to:
+  /// **'No bars configured yet.'**
+  String get plateSettingsNoBarsMessage;
+
+  /// Section heading above the plate inventory list.
+  ///
+  /// In en, this message translates to:
+  /// **'Plates'**
+  String get plateSettingsPlatesHeading;
+
+  /// Empty state before any plate has been added.
+  ///
+  /// In en, this message translates to:
+  /// **'No plates configured yet.'**
+  String get plateSettingsNoPlatesMessage;
+
+  /// Plate row subtitle stating how many pairs are owned.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} pair available} other{{count} pairs available}}'**
+  String plateSettingsPairsAvailable(num count);
+
+  /// Decrements a plate's owned pair count.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer pairs'**
+  String get plateSettingsFewerPairsTooltip;
+
+  /// Increments a plate's owned pair count.
+  ///
+  /// In en, this message translates to:
+  /// **'More pairs'**
+  String get plateSettingsMorePairsTooltip;
+
+  /// Confirm sheet title before removing a plate from the inventory.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this plate?'**
+  String get plateSettingsRemovePlateConfirmTitle;
+
+  /// Confirm sheet message before removing a plate from the inventory.
+  ///
+  /// In en, this message translates to:
+  /// **'The calculator will stop proposing it.'**
+  String get plateSettingsRemovePlateConfirmMessage;
+
+  /// Bar-edit sheet title when adding a new bar.
+  ///
+  /// In en, this message translates to:
+  /// **'New bar'**
+  String get plateSettingsNewBarTitle;
+
+  /// Bar-edit sheet title when editing an existing bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit bar'**
+  String get plateSettingsEditBarTitle;
+
+  /// Bar name field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get plateSettingsNameLabel;
+
+  /// Weight field label, shared by the bar-edit and add-plate sheets.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight ({unit})'**
+  String plateSettingsWeightLabel(String unit);
+
+  /// Switch tile marking a bar as the inventory default.
+  ///
+  /// In en, this message translates to:
+  /// **'Default bar'**
+  String get plateSettingsDefaultBarLabel;
+
+  /// Add-plate sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'New plate'**
+  String get plateSettingsNewPlateTitle;
+
+  /// Pair-count field label on the add-plate sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairs available'**
+  String get plateSettingsPairsAvailableFieldLabel;
 }
 
 class _AppLocalizationsDelegate

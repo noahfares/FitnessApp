@@ -947,6 +947,29 @@ a near-duplicate, since its label is literally "Delete". Still English
 literals: `DataScreen`, `ImportScreen`, `PlateSettingsScreen`, `AppShell`'s
 nav labels, the shared logging widgets, and onboarding.
 
+**Batch 6.2, eleventh pass — the last three Settings sub-screens.**
+`F-I18N-001` still `in-progress`, but Settings itself is now fully
+migrated: `DataScreen`, `ImportScreen`, and `PlateSettingsScreen` close out
+all nine sub-screens. Found and fixed, not just translated: the wipe
+confirmation dialog displayed "Type DELETE to confirm" but compared
+`controller.text` against a hardcoded `'DELETE'` literal — once the prompt
+read from `l10n.dataWipeConfirmKeyword`, keeping the comparison hardcoded
+would have silently broken the flow the moment a translation changed the
+displayed word, so the same `keyword` variable now drives both the display
+and the equality check. `ImportScreen` gained two proper ICU plurals
+(`importUnresolvedMessage`, `importSkippedSuffix`) replacing the source's
+own `length == 1 ? '' : 's'` ternaries and `plateSettingsPairsAvailable`
+replaces `_PlateRow`'s `"pair(s) available"` shorthand the same way — real
+cleanup, not preservation, since a crude-but-legible plural marker isn't
+the kind of broken copy earlier passes have deliberately kept verbatim
+(the routine-delete `ADR-0004` citation). `importResultMessage`'s own
+"workouts"/"sets" wording stays deliberately non-pluralized, since the
+source never conditioned it on count either — the two ternaries were
+fixed because they were already trying to pluralize and doing it crudely;
+this one was never trying, so nothing needed fixing. Every screen in the
+app is now migrated except `AppShell`'s nav labels, the shared logging
+widgets, and `OnboardingScreen`.
+
 **Batch 6.3 — onboarding.** `F-SET-011` done — the last item Phase 6
 scheduled ahead of release/health. No schema change.
 `OnboardingScreen` (`lib/features/onboarding/presentation/`) is a

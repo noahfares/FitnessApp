@@ -1422,4 +1422,286 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unitsPreviewRunLabel => 'Run';
+
+  @override
+  String get dataTitle => 'Data';
+
+  @override
+  String get dataJsonDescription =>
+      'Every table, every row, exactly as stored — a rescue copy, not a polished backup. Share it somewhere safe.';
+
+  @override
+  String get dataExportJsonAction => 'Export data (.json)';
+
+  @override
+  String get dataExportingAction => 'Exporting…';
+
+  @override
+  String get dataCsvDescription =>
+      'For spreadsheets, not backup — one CSV each for sets, body measurements and routines, in your display units.';
+
+  @override
+  String get dataExportCsvAction => 'Export data (.csv)';
+
+  @override
+  String get dataImportDescription =>
+      'Bring your history over from Strong or Hevy — nothing is written until you confirm what to do with each exercise.';
+
+  @override
+  String get dataImportAction => 'Import from Strong or Hevy';
+
+  @override
+  String get dataBackupDescription =>
+      'A backup is a full, versioned copy of everything on this device, saved here so restore can find it later.';
+
+  @override
+  String get dataBackUpNowAction => 'Back up now';
+
+  @override
+  String get dataBackingUpAction => 'Backing up…';
+
+  @override
+  String get dataRestoreAction => 'Restore from backup…';
+
+  @override
+  String get dataRestoringAction => 'Restoring…';
+
+  @override
+  String get dataWipeDescription =>
+      'Wiping deletes everything on this device and returns the app to its first-run state. A backup is taken first.';
+
+  @override
+  String get dataWipeAction => 'Wipe all data';
+
+  @override
+  String get dataWipingAction => 'Wiping…';
+
+  @override
+  String get dataPrDescription =>
+      'Personal records are a cache rebuilt from your logged sets. If one ever looks wrong, rebuilding it from scratch is always safe.';
+
+  @override
+  String get dataRebuildPrsAction => 'Rebuild personal records';
+
+  @override
+  String get dataRebuildingAction => 'Rebuilding…';
+
+  @override
+  String get dataDebugSeedDescription =>
+      'Debug build only — never reachable in a release. Adds 8 weeks of a Push/Pull/Legs split plus weekly bodyweight, so the analytics screens have something to show without hand-logging sessions.';
+
+  @override
+  String get dataLoadSampleDataAction => 'Load sample data (debug)';
+
+  @override
+  String get dataLoadingAction => 'Loading…';
+
+  @override
+  String get dataExportFailedMessage => 'Export failed. Try again.';
+
+  @override
+  String get dataBackupSavedMessage => 'Backup saved.';
+
+  @override
+  String get dataBackupFailedMessage => 'Backup failed. Try again.';
+
+  @override
+  String get dataRestoreConfirmTitle => 'Restore from backup?';
+
+  @override
+  String get dataRestoreConfirmMessage =>
+      'This replaces every workout, routine and setting on this device with what is in the backup file. A safety copy of what is here now is saved first.';
+
+  @override
+  String get dataRestoreConfirmAction => 'Restore';
+
+  @override
+  String get dataRestoreCompleteMessage => 'Restore complete.';
+
+  @override
+  String get dataRestoreFailedDefaultMessage => 'Restore failed.';
+
+  @override
+  String get dataRestoreExceptionMessage => 'Restore failed. Try again.';
+
+  @override
+  String get dataWipeConfirmTitle => 'Wipe all data?';
+
+  @override
+  String dataWipeConfirmBody(String keyword) {
+    return 'This permanently deletes every workout, routine and setting on this device. Type $keyword to confirm.';
+  }
+
+  @override
+  String get dataWipeConfirmKeyword => 'DELETE';
+
+  @override
+  String get dataWipeConfirmButton => 'Wipe';
+
+  @override
+  String get dataWipeFailedMessage => 'Wipe failed. Try again.';
+
+  @override
+  String get dataAllDataWipedMessage => 'All data wiped.';
+
+  @override
+  String get dataRebuildPrsSuccessMessage => 'Personal records rebuilt.';
+
+  @override
+  String get dataRebuildFailedMessage => 'Rebuild failed. Try again.';
+
+  @override
+  String get dataSampleDataLoadedMessage => 'Sample data loaded.';
+
+  @override
+  String get dataSampleDataFailedMessage => 'Could not load sample data.';
+
+  @override
+  String get importTitle => 'Import';
+
+  @override
+  String get importPickFileDescription =>
+      'Import your training history from a Strong or Hevy CSV export. Nothing is written until you confirm.';
+
+  @override
+  String get importChooseCsvAction => 'Choose a CSV file';
+
+  @override
+  String get importChooseUnitDescription =>
+      'This file doesn\'t name a weight unit, and guessing wrong would silently corrupt every weight in it. Which unit was it logged in?';
+
+  @override
+  String get importKilogramsAction => 'Kilograms';
+
+  @override
+  String get importPoundsAction => 'Pounds';
+
+  @override
+  String importWorkoutsSetsFoundMessage(num workouts, num sets) {
+    return '$workouts workouts, $sets sets found.';
+  }
+
+  @override
+  String importUnresolvedMessage(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count exercise names not in your catalogue. Resolve each once.',
+      one: '$count exercise name not in your catalogue. Resolve each once.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importAllResolvedMessage => 'All exercises resolved.';
+
+  @override
+  String get importUseExistingAction => 'Use existing';
+
+  @override
+  String get importCreateNewAction => 'Create new';
+
+  @override
+  String get importSkipAction => 'Skip';
+
+  @override
+  String get importImportAction => 'Import';
+
+  @override
+  String get importCompleteTitle => 'Import complete.';
+
+  @override
+  String importResultMessage(num workouts, num sets) {
+    return '$workouts workouts and $sets sets imported.';
+  }
+
+  @override
+  String importSkippedSuffix(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count already-imported workouts skipped.',
+      one: '$count already-imported workout skipped.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importDoneAction => 'Done';
+
+  @override
+  String get importDefaultErrorMessage => 'Import failed.';
+
+  @override
+  String get importTryAgainAction => 'Try again';
+
+  @override
+  String get importUnrecognisedFormatMessage =>
+      'This file doesn\'t match a Strong or Hevy export — check it\'s the right file and try again.';
+
+  @override
+  String get importFailedNothingChangedMessage =>
+      'Import failed. Nothing was changed.';
+
+  @override
+  String get plateSettingsTitle => 'Bars & plates';
+
+  @override
+  String get plateSettingsBarsHeading => 'Bars';
+
+  @override
+  String get plateSettingsNoBarsMessage => 'No bars configured yet.';
+
+  @override
+  String get plateSettingsPlatesHeading => 'Plates';
+
+  @override
+  String get plateSettingsNoPlatesMessage => 'No plates configured yet.';
+
+  @override
+  String plateSettingsPairsAvailable(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pairs available',
+      one: '$count pair available',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get plateSettingsFewerPairsTooltip => 'Fewer pairs';
+
+  @override
+  String get plateSettingsMorePairsTooltip => 'More pairs';
+
+  @override
+  String get plateSettingsRemovePlateConfirmTitle => 'Remove this plate?';
+
+  @override
+  String get plateSettingsRemovePlateConfirmMessage =>
+      'The calculator will stop proposing it.';
+
+  @override
+  String get plateSettingsNewBarTitle => 'New bar';
+
+  @override
+  String get plateSettingsEditBarTitle => 'Edit bar';
+
+  @override
+  String get plateSettingsNameLabel => 'Name';
+
+  @override
+  String plateSettingsWeightLabel(String unit) {
+    return 'Weight ($unit)';
+  }
+
+  @override
+  String get plateSettingsDefaultBarLabel => 'Default bar';
+
+  @override
+  String get plateSettingsNewPlateTitle => 'New plate';
+
+  @override
+  String get plateSettingsPairsAvailableFieldLabel => 'Pairs available';
 }
