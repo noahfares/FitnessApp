@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,7 @@ import '../../../core/units/week_start.dart';
 import '../../../domain/logging/rpe.dart';
 import '../../../domain/timing/rest_defaults.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../application/health_connect_settings_provider.dart';
 import '../application/rest_timer_settings_provider.dart';
 import '../application/rpe_settings_provider.dart';
 import '../application/theme_provider.dart';
@@ -32,6 +34,7 @@ class SettingsScreen extends ConsumerWidget {
     final rpeNotifier = ref.read(rpeSettingsProvider.notifier);
     final weekStart = ref.watch(weekStartProvider);
     final weekStartNotifier = ref.read(weekStartProvider.notifier);
+    final healthConnectEnabled = ref.watch(healthConnectEnabledProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
@@ -160,6 +163,20 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push(AppRoutes.settingsAppLock),
           ),
+          // Android only — Health Connect has no iOS equivalent
+          // (`data/platform/health_connect_service.dart`'s own doc).
+          if (Platform.isAndroid)
+            ListTile(
+              leading: const Icon(Icons.favorite_outline),
+              title: Text(l10n.settingsHealthConnectTitle),
+              subtitle: Text(
+                healthConnectEnabled
+                    ? l10n.settingsHealthConnectOn
+                    : l10n.settingsHealthConnectOff,
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(AppRoutes.settingsHealthConnect),
+            ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.info_outline),

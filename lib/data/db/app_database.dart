@@ -47,7 +47,7 @@ class AppDatabase extends _$AppDatabase {
   /// asserts on the *data*, not merely that nothing threw
   /// (docs/60-ENGINEERING.md §schema changes).
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -110,6 +110,18 @@ class AppDatabase extends _$AppDatabase {
       if (from < 7) {
         // Progress photos (`F-BOD-004`) — a new table, nothing to backfill.
         await m.createTable(progressPhotos);
+      }
+      if (from < 8) {
+        // Health Connect (`F-HLT-001`, `F-HLT-002`). False/null on every
+        // existing row — nothing was ever written to or read from Health
+        // Connect before this column existed, and the feature is opt-in and
+        // off by default, so no existing workout or measurement behaves any
+        // differently.
+        await m.addColumn(workouts, workouts.healthConnectSynced);
+        await m.addColumn(
+          bodyMeasurements,
+          bodyMeasurements.healthConnectRecordId,
+        );
       }
       await _createIndexes();
     },

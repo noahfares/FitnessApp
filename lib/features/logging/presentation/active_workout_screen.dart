@@ -19,6 +19,7 @@ import '../../../domain/timing/rest_defaults.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../catalog/presentation/exercise_note_sheet.dart';
+import '../../settings/application/health_connect_settings_provider.dart';
 import '../../settings/application/rest_timer_settings_provider.dart';
 import '../../settings/application/rpe_settings_provider.dart';
 import '../../shell/widgets/hold_to_confirm_button.dart';
@@ -295,7 +296,10 @@ class _ActiveWorkout extends ConsumerWidget {
       }
     }
 
-    await repo.finish(workout.id);
+    await repo.finish(
+      workout.id,
+      healthConnectEnabled: ref.read(healthConnectEnabledProvider),
+    );
     // maxSessionVolume only means something once the session's total is
     // final (`F-LOG-013`, `docs/40-ANALYTICS-SPEC.md` §4) — unlike the other
     // three kinds, it is never evaluated mid-session.

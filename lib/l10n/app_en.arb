@@ -1292,5 +1292,32 @@
   "@restTimerBarAddSemanticLabel": {
     "description": "Screen-reader label on the plus adjust button.",
     "placeholders": {"seconds": {"type": "num"}}
-  }
+  },
+
+  "settingsHealthConnectTitle": "Health Connect",
+  "@settingsHealthConnectTitle": {"description": "Health Connect settings row title, and the sub-screen's own app bar title."},
+  "settingsHealthConnectOn": "On",
+  "@settingsHealthConnectOn": {"description": "Settings row subtitle when Health Connect sync is enabled."},
+  "settingsHealthConnectOff": "Off",
+  "@settingsHealthConnectOff": {"description": "Settings row subtitle when Health Connect sync is disabled."},
+  "healthConnectWriteDescription": "When enabled, finishing a workout writes it to Health Connect as a strength training session — start time and duration only, no calorie estimate.",
+  "@healthConnectWriteDescription": {"description": "Explains F-HLT-001's write behaviour on the Health Connect settings screen."},
+  "healthConnectReadDescription": "Bodyweight logged in Health Connect — from a smart scale, for example — is imported automatically. A day you have already logged yourself is never overwritten.",
+  "@healthConnectReadDescription": {"description": "Explains F-HLT-002's read behaviour on the Health Connect settings screen."},
+  "healthConnectEnableLabel": "Sync with Health Connect",
+  "@healthConnectEnableLabel": {"description": "The opt-in switch's own title."},
+  "healthConnectUnavailableMessage": "Health Connect isn't installed on this device.",
+  "@healthConnectUnavailableMessage": {"description": "Snackbar when enabling sync but Health Connect itself isn't available."},
+  "healthConnectInstallAction": "Install",
+  "@healthConnectInstallAction": {"description": "Snackbar action opening Health Connect's Play Store listing."},
+  "healthConnectPermissionDeniedMessage": "Permission wasn't granted.",
+  "@healthConnectPermissionDeniedMessage": {"description": "Snackbar when enabling sync but the permission request was declined."},
+  "healthConnectRevokeAction": "Revoke permissions",
+  "@healthConnectRevokeAction": {"description": "Button revoking this app's Health Connect permissions directly, without leaving the app."},
+  "healthConnectRevokedMessage": "Health Connect permissions revoked.",
+  "@healthConnectRevokedMessage": {"description": "Snackbar after revoking Health Connect permissions."},
+  "healthConnectRemoveRecordTitle": "Also remove from Health Connect?",
+  "@healthConnectRemoveRecordTitle": {"description": "Confirm sheet title after deleting a workout that was written to Health Connect."},
+  "healthConnectRemoveRecordMessage": "This workout was also written to Health Connect as an exercise session.",
+  "@healthConnectRemoveRecordMessage": {"description": "Confirm sheet message after deleting a workout that was written to Health Connect."}
 }

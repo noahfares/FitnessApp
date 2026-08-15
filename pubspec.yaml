@@ -7,7 +7,7 @@ publish_to: none
 # Canonical source is the VERSION file at the repo root; CI fails if they
 # disagree. See docs/63-VERSIONING.md. The +N build number is set by the
 # release workflow (F-REL-005), not by hand.
-version: 0.68.1
+version: 0.69.0
 
 environment:
   sdk: ^3.11.0
@@ -79,6 +79,12 @@ dependencies:
   # Salted PIN hashing for the app lock (F-SET-010). Dart-team maintained;
   # never hand-roll hashing for anything gating access, even a UI-only gate.
   crypto: ^3.0.6
+
+  # Health Connect on Android, HealthKit on iOS (F-HLT-001, F-HLT-002) — one
+  # Dart API over both, wrapped behind `data/platform/health_connect_service.dart`
+  # per docs/20-ARCHITECTURE.md#cross-platform-discipline so neither platform's
+  # answer leaks into `features/` or `domain/`.
+  health: ^13.1.1
 
 dev_dependencies:
   flutter_test:

@@ -36,6 +36,11 @@ class BodyWeightScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    // Fire-and-forget: this app's own trigger for Health Connect's
+    // automatic bodyweight import (`F-HLT-002`). `history` below already
+    // watches the same rows this can insert into, so nothing here needs to
+    // read the result — a no-op whenever sync is off or nothing new exists.
+    ref.watch(healthConnectBodyweightSyncProvider);
     final history = ref.watch(bodyweightHistoryProvider);
     final tracked = ref.watch(trackedMeasurementTypesProvider);
 

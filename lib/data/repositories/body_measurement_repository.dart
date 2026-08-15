@@ -1,8 +1,10 @@
 import 'package:drift/drift.dart';
 
 import '../../core/ids/uuid.dart';
+import '../../domain/health/health_connect_import.dart';
 import '../db/app_database.dart';
 import '../db/tables/enums.dart';
+import '../platform/health_connect_service.dart';
 
 /// Bodyweight and future body measurements (`F-BOD-001`).
 ///
@@ -225,6 +227,116 @@ class BodyMeasurementRepository {
         updatedAt: Value(timestamp),
       ),
     );
+  }
+
+  /// Imports new bodyweight readings from Health Connect (`F-HLT-002`).
+  ///
+  /// A manual entry always wins
+  /// (`domain/health/health_connect_import.dart`'s conflict rule) — a day
+  /// the user has already logged by hand never gets a Health Connect
+  /// reading imported alongside or over it. Every reading's own UUID is
+  /// also checked against what has already been imported, so calling this
+  /// again (this app's own trigger is every time the body screen opens)
+  /// never creates a duplicate. [healthConnect] is a call-site parameter,
+  /// not a constructor dependency, for the same reason `WorkoutRepository`
+  /// takes its opt-in flag the same way — `data/` never imports
+  /// `features/`, and the enabled check lives in a `features/` provider.
+  ///
+  /// Returns the number of readings actually imported.
+  Future<int> syncBodyweightFromHealthConnect(
+    HealthConnectService healthConnect,
+  ) async {
+    if (!await healthConnect.hasPermissions()) return 0;
+
+    // Health Connect's own default access window is 30 days back from grant
+    // time; asking further back would need the extra history permission
+    // `F-HLT-002` never requested (kept to the minimum this feature needs).
+    final readings = await healthConnect.readWeightReadings(
+      since: _clock().subtract(const Duration(days: 30)),
+    );
+    if (readings.isEmpty) return 0;
+
+    final alreadyImported = await _importedHealthConnectRecordIds();
+    final manualDates = await _manuallyMeasuredLocalDates();
+
+    var imported = 0;
+    for (final reading in readings) {
+      if (alreadyImported.contains(reading.id)) continue;
+      final local = reading.measuredAt.toLocal();
+      if (!shouldImportHealthConnectReading(
+        candidateLocalDate: local,
+        manuallyMeasuredLocalDates: manualDates,
+      )) {
+        continue;
+      }
+
+      final timestamp = _now;
+      await _db
+          .into(_db.bodyMeasurements)
+          .insert(
+            BodyMeasurementsCompanion.insert(
+              id: newUuidV4(),
+              measuredAt: local.millisecondsSinceEpoch,
+              measuredAtTzOffsetMinutes: local.timeZoneOffset.inMinutes,
+              type: MeasurementType.bodyweight,
+              valueCanonical: reading.grams,
+              healthConnectRecordId: Value(reading.id),
+              createdAt: timestamp,
+              updatedAt: timestamp,
+            ),
+          );
+      imported++;
+    }
+    if (imported > 0) await _recomputeWorkoutBodyweights();
+    return imported;
+  }
+
+  Future<Set<String>> _importedHealthConnectRecordIds() async {
+    final rows =
+        await (_db.selectOnly(_db.bodyMeasurements)
+              ..addColumns([_db.bodyMeasurements.healthConnectRecordId])
+              ..where(
+                _db.bodyMeasurements.type.equalsValue(
+                  MeasurementType.bodyweight,
+                ),
+              )
+              ..where(_db.bodyMeasurements.healthConnectRecordId.isNotNull())
+              ..where(_db.bodyMeasurements.deletedAt.isNull()))
+            .get();
+    return {
+      for (final row in rows)
+        row.read(_db.bodyMeasurements.healthConnectRecordId)!,
+    };
+  }
+
+  /// The local calendar date (ADR-0008) of every bodyweight entry the user
+  /// entered by hand — never one only Health Connect has ever supplied.
+  Future<Set<DateTime>> _manuallyMeasuredLocalDates() async {
+    final rows =
+        await (_db.selectOnly(_db.bodyMeasurements)
+              ..addColumns([
+                _db.bodyMeasurements.measuredAt,
+                _db.bodyMeasurements.measuredAtTzOffsetMinutes,
+              ])
+              ..where(
+                _db.bodyMeasurements.type.equalsValue(
+                  MeasurementType.bodyweight,
+                ),
+              )
+              ..where(_db.bodyMeasurements.healthConnectRecordId.isNull())
+              ..where(_db.bodyMeasurements.deletedAt.isNull()))
+            .get();
+    return {
+      for (final row in rows)
+        DateTime.fromMillisecondsSinceEpoch(
+          row.read(_db.bodyMeasurements.measuredAt)!,
+          isUtc: true,
+        ).add(
+          Duration(
+            minutes: row.read(_db.bodyMeasurements.measuredAtTzOffsetMinutes)!,
+          ),
+        ),
+    };
   }
 
   /// Re-derives every workout's `bodyweight_grams` from the bodyweight log.

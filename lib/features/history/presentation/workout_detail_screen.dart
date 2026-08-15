@@ -10,6 +10,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/db/tables/enums.dart' show WeightEntryMode;
+import '../../../data/platform/health_connect_service.dart';
 import '../../../data/repositories/workout_repository.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/set_numbering.dart';
@@ -126,7 +127,38 @@ class WorkoutDetailScreen extends ConsumerWidget {
     );
     if (!confirmed) return;
 
+    // Read before the delete below tombstones it — `deleteWorkout` still
+    // leaves the row queryable, but there is no reason to rely on that.
+    final workout = ref.read(workoutByIdProvider(workoutId)).value;
+
     await ref.read(workoutRepositoryProvider).deleteWorkout(workoutId);
+
+    // The offer `F-HLT-001` §3 asks for — never automatic, and only shown
+    // at all when this workout actually reached Health Connect in the
+    // first place.
+    if (workout != null && workout.healthConnectSynced) {
+      if (!context.mounted) return;
+      final removeFromHealthConnect = await showConfirmSheet(
+        context,
+        title: l10n.healthConnectRemoveRecordTitle,
+        message: l10n.healthConnectRemoveRecordMessage,
+        confirmLabel: l10n.activeWorkoutRemove,
+      );
+      if (removeFromHealthConnect && workout.endedAt != null) {
+        try {
+          await ref
+              .read(healthConnectServiceProvider)
+              .deleteWorkout(
+                start: DateTime.fromMillisecondsSinceEpoch(workout.startedAt),
+                end: DateTime.fromMillisecondsSinceEpoch(workout.endedAt!),
+              );
+        } catch (_) {
+          // Best-effort, same as the write side — the local delete above
+          // already succeeded regardless.
+        }
+      }
+    }
+
     if (!context.mounted) return;
     context.go(AppRoutes.history);
   }

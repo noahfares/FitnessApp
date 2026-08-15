@@ -6,6 +6,7 @@ import '../io/import_service.dart';
 import '../io/json_dump_service.dart';
 import '../io/json_export_service.dart';
 import '../io/restore_service.dart';
+import '../platform/health_connect_service.dart';
 import '../repositories/body_measurement_repository.dart';
 import '../repositories/exercise_repository.dart';
 import '../repositories/personal_record_repository.dart';
@@ -39,7 +40,10 @@ final exerciseRepositoryProvider = Provider<ExerciseRepository>(
 /// Sessions and everything hanging off them (`F-LOG-001`, `F-LOG-002`,
 /// `F-LOG-007`).
 final workoutRepositoryProvider = Provider<WorkoutRepository>(
-  (ref) => WorkoutRepository(ref.watch(databaseProvider)),
+  (ref) => WorkoutRepository(
+    ref.watch(databaseProvider),
+    healthConnect: ref.watch(healthConnectServiceProvider),
+  ),
 );
 
 /// The `sets` table — the app's hot path (`F-LOG-003`–`F-LOG-006`,

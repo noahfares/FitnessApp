@@ -145,8 +145,8 @@ F-A11Y-005	6	done	P2	Reduce motion			24-DESIGN-SYSTEM#accessibility-baseline
 F-I18N-001	6	done	P1	String externalisation			22-UNITS, 24-DESIGN-SYSTEM
 F-I18N-002	0	done	P1	Locale-aware formatting	F-SET-001		22-UNITS, 24-DESIGN-SYSTEM
 F-I18N-003	—	idea	P3	Additional locales			22-UNITS, 24-DESIGN-SYSTEM
-F-HLT-001	6	planned	P2	Health Connect write			20-ARCHITECTURE#cross-platform-discipline
-F-HLT-002	6	planned	P3	Health Connect read	F-BOD-001		20-ARCHITECTURE#cross-platform-discipline
+F-HLT-001	6	done	P2	Health Connect write			20-ARCHITECTURE#cross-platform-discipline
+F-HLT-002	6	done	P3	Health Connect read	F-BOD-001		20-ARCHITECTURE#cross-platform-discipline
 F-HLT-003	—	idea	P2	HealthKit parity	F-HLT-001		20-ARCHITECTURE#cross-platform-discipline
 F-HLT-004	—	idea	P3	Wear OS companion			20-ARCHITECTURE#cross-platform-discipline
 F-HLT-005	—	idea	P3	watchOS companion	F-HLT-004		20-ARCHITECTURE#cross-platform-discipline

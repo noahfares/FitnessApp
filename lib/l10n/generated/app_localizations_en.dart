@@ -1870,4 +1870,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String restTimerBarAddSemanticLabel(num seconds) {
     return 'Add $seconds seconds';
   }
+
+  @override
+  String get settingsHealthConnectTitle => 'Health Connect';
+
+  @override
+  String get settingsHealthConnectOn => 'On';
+
+  @override
+  String get settingsHealthConnectOff => 'Off';
+
+  @override
+  String get healthConnectWriteDescription =>
+      'When enabled, finishing a workout writes it to Health Connect as a strength training session — start time and duration only, no calorie estimate.';
+
+  @override
+  String get healthConnectReadDescription =>
+      'Bodyweight logged in Health Connect — from a smart scale, for example — is imported automatically. A day you have already logged yourself is never overwritten.';
+
+  @override
+  String get healthConnectEnableLabel => 'Sync with Health Connect';
+
+  @override
+  String get healthConnectUnavailableMessage =>
+      'Health Connect isn\'t installed on this device.';
+
+  @override
+  String get healthConnectInstallAction => 'Install';
+
+  @override
+  String get healthConnectPermissionDeniedMessage =>
+      'Permission wasn\'t granted.';
+
+  @override
+  String get healthConnectRevokeAction => 'Revoke permissions';
+
+  @override
+  String get healthConnectRevokedMessage =>
+      'Health Connect permissions revoked.';
+
+  @override
+  String get healthConnectRemoveRecordTitle =>
+      'Also remove from Health Connect?';
+
+  @override
+  String get healthConnectRemoveRecordMessage =>
+      'This workout was also written to Health Connect as an exercise session.';
 }

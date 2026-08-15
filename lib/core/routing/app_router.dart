@@ -26,6 +26,7 @@ import '../../features/settings/presentation/about_screen.dart';
 import '../../features/settings/presentation/appearance_screen.dart';
 import '../../features/settings/presentation/app_lock_screen.dart';
 import '../../features/settings/presentation/data_screen.dart';
+import '../../features/settings/presentation/health_connect_settings_screen.dart';
 import '../../features/settings/presentation/import_screen.dart';
 import '../../features/settings/presentation/plate_settings_screen.dart';
 import '../../features/settings/presentation/rest_timer_screen.dart';
@@ -257,6 +258,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'app-lock',
             parentNavigatorKey: _rootNavigatorKey,
             builder: (context, state) => const AppLockScreen(),
+          ),
+          GoRoute(
+            path: 'health-connect',
+            parentNavigatorKey: _rootNavigatorKey,
+            builder: (context, state) => const HealthConnectSettingsScreen(),
           ),
           GoRoute(
             path: 'about',

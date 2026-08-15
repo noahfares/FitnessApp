@@ -5737,6 +5737,20 @@ class $WorkoutsTable extends Workouts with TableInfo<$WorkoutsTable, Workout> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _healthConnectSyncedMeta =
+      const VerificationMeta('healthConnectSynced');
+  @override
+  late final GeneratedColumn<bool> healthConnectSynced = GeneratedColumn<bool>(
+    'health_connect_synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("health_connect_synced" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -5752,6 +5766,7 @@ class $WorkoutsTable extends Workouts with TableInfo<$WorkoutsTable, Workout> {
     notes,
     bodyweightGrams,
     perceivedFatigue,
+    healthConnectSynced,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5864,6 +5879,15 @@ class $WorkoutsTable extends Workouts with TableInfo<$WorkoutsTable, Workout> {
         ),
       );
     }
+    if (data.containsKey('health_connect_synced')) {
+      context.handle(
+        _healthConnectSyncedMeta,
+        healthConnectSynced.isAcceptableOrUnknown(
+          data['health_connect_synced']!,
+          _healthConnectSyncedMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -5925,6 +5949,10 @@ class $WorkoutsTable extends Workouts with TableInfo<$WorkoutsTable, Workout> {
         DriftSqlType.int,
         data['${effectivePrefix}perceived_fatigue'],
       ),
+      healthConnectSynced: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}health_connect_synced'],
+      )!,
     );
   }
 
@@ -5986,6 +6014,13 @@ class Workout extends DataClass implements Insertable<Workout> {
   /// (`F-LOG-019`).
   final int? bodyweightGrams;
   final int? perceivedFatigue;
+
+  /// Whether this session was written to Health Connect as a strength
+  /// training exercise session (`F-HLT-001`). Never the record's own id —
+  /// [writeWorkoutData] returns only success/failure, so deletion instead
+  /// re-targets Health Connect by this row's own [startedAt]/[endedAt],
+  /// the same key the write used.
+  final bool healthConnectSynced;
   const Workout({
     required this.id,
     required this.userId,
@@ -6000,6 +6035,7 @@ class Workout extends DataClass implements Insertable<Workout> {
     this.notes,
     this.bodyweightGrams,
     this.perceivedFatigue,
+    required this.healthConnectSynced,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6031,6 +6067,7 @@ class Workout extends DataClass implements Insertable<Workout> {
     if (!nullToAbsent || perceivedFatigue != null) {
       map['perceived_fatigue'] = Variable<int>(perceivedFatigue);
     }
+    map['health_connect_synced'] = Variable<bool>(healthConnectSynced);
     return map;
   }
 
@@ -6061,6 +6098,7 @@ class Workout extends DataClass implements Insertable<Workout> {
       perceivedFatigue: perceivedFatigue == null && nullToAbsent
           ? const Value.absent()
           : Value(perceivedFatigue),
+      healthConnectSynced: Value(healthConnectSynced),
     );
   }
 
@@ -6087,6 +6125,9 @@ class Workout extends DataClass implements Insertable<Workout> {
       notes: serializer.fromJson<String?>(json['notes']),
       bodyweightGrams: serializer.fromJson<int?>(json['bodyweightGrams']),
       perceivedFatigue: serializer.fromJson<int?>(json['perceivedFatigue']),
+      healthConnectSynced: serializer.fromJson<bool>(
+        json['healthConnectSynced'],
+      ),
     );
   }
   @override
@@ -6108,6 +6149,7 @@ class Workout extends DataClass implements Insertable<Workout> {
       'notes': serializer.toJson<String?>(notes),
       'bodyweightGrams': serializer.toJson<int?>(bodyweightGrams),
       'perceivedFatigue': serializer.toJson<int?>(perceivedFatigue),
+      'healthConnectSynced': serializer.toJson<bool>(healthConnectSynced),
     };
   }
 
@@ -6125,6 +6167,7 @@ class Workout extends DataClass implements Insertable<Workout> {
     Value<String?> notes = const Value.absent(),
     Value<int?> bodyweightGrams = const Value.absent(),
     Value<int?> perceivedFatigue = const Value.absent(),
+    bool? healthConnectSynced,
   }) => Workout(
     id: id ?? this.id,
     userId: userId ?? this.userId,
@@ -6146,6 +6189,7 @@ class Workout extends DataClass implements Insertable<Workout> {
     perceivedFatigue: perceivedFatigue.present
         ? perceivedFatigue.value
         : this.perceivedFatigue,
+    healthConnectSynced: healthConnectSynced ?? this.healthConnectSynced,
   );
   Workout copyWithCompanion(WorkoutsCompanion data) {
     return Workout(
@@ -6170,6 +6214,9 @@ class Workout extends DataClass implements Insertable<Workout> {
       perceivedFatigue: data.perceivedFatigue.present
           ? data.perceivedFatigue.value
           : this.perceivedFatigue,
+      healthConnectSynced: data.healthConnectSynced.present
+          ? data.healthConnectSynced.value
+          : this.healthConnectSynced,
     );
   }
 
@@ -6188,7 +6235,8 @@ class Workout extends DataClass implements Insertable<Workout> {
           ..write('endedAt: $endedAt, ')
           ..write('notes: $notes, ')
           ..write('bodyweightGrams: $bodyweightGrams, ')
-          ..write('perceivedFatigue: $perceivedFatigue')
+          ..write('perceivedFatigue: $perceivedFatigue, ')
+          ..write('healthConnectSynced: $healthConnectSynced')
           ..write(')'))
         .toString();
   }
@@ -6208,6 +6256,7 @@ class Workout extends DataClass implements Insertable<Workout> {
     notes,
     bodyweightGrams,
     perceivedFatigue,
+    healthConnectSynced,
   );
   @override
   bool operator ==(Object other) =>
@@ -6225,7 +6274,8 @@ class Workout extends DataClass implements Insertable<Workout> {
           other.endedAt == this.endedAt &&
           other.notes == this.notes &&
           other.bodyweightGrams == this.bodyweightGrams &&
-          other.perceivedFatigue == this.perceivedFatigue);
+          other.perceivedFatigue == this.perceivedFatigue &&
+          other.healthConnectSynced == this.healthConnectSynced);
 }
 
 class WorkoutsCompanion extends UpdateCompanion<Workout> {
@@ -6242,6 +6292,7 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
   final Value<String?> notes;
   final Value<int?> bodyweightGrams;
   final Value<int?> perceivedFatigue;
+  final Value<bool> healthConnectSynced;
   final Value<int> rowid;
   const WorkoutsCompanion({
     this.id = const Value.absent(),
@@ -6257,6 +6308,7 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
     this.notes = const Value.absent(),
     this.bodyweightGrams = const Value.absent(),
     this.perceivedFatigue = const Value.absent(),
+    this.healthConnectSynced = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   WorkoutsCompanion.insert({
@@ -6273,6 +6325,7 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
     this.notes = const Value.absent(),
     this.bodyweightGrams = const Value.absent(),
     this.perceivedFatigue = const Value.absent(),
+    this.healthConnectSynced = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -6294,6 +6347,7 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
     Expression<String>? notes,
     Expression<int>? bodyweightGrams,
     Expression<int>? perceivedFatigue,
+    Expression<bool>? healthConnectSynced,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -6312,6 +6366,8 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
       if (notes != null) 'notes': notes,
       if (bodyweightGrams != null) 'bodyweight_grams': bodyweightGrams,
       if (perceivedFatigue != null) 'perceived_fatigue': perceivedFatigue,
+      if (healthConnectSynced != null)
+        'health_connect_synced': healthConnectSynced,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -6330,6 +6386,7 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
     Value<String?>? notes,
     Value<int?>? bodyweightGrams,
     Value<int?>? perceivedFatigue,
+    Value<bool>? healthConnectSynced,
     Value<int>? rowid,
   }) {
     return WorkoutsCompanion(
@@ -6347,6 +6404,7 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
       notes: notes ?? this.notes,
       bodyweightGrams: bodyweightGrams ?? this.bodyweightGrams,
       perceivedFatigue: perceivedFatigue ?? this.perceivedFatigue,
+      healthConnectSynced: healthConnectSynced ?? this.healthConnectSynced,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6395,6 +6453,9 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
     if (perceivedFatigue.present) {
       map['perceived_fatigue'] = Variable<int>(perceivedFatigue.value);
     }
+    if (healthConnectSynced.present) {
+      map['health_connect_synced'] = Variable<bool>(healthConnectSynced.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -6417,6 +6478,7 @@ class WorkoutsCompanion extends UpdateCompanion<Workout> {
           ..write('notes: $notes, ')
           ..write('bodyweightGrams: $bodyweightGrams, ')
           ..write('perceivedFatigue: $perceivedFatigue, ')
+          ..write('healthConnectSynced: $healthConnectSynced, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -8330,6 +8392,17 @@ class $BodyMeasurementsTable extends BodyMeasurements
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _healthConnectRecordIdMeta =
+      const VerificationMeta('healthConnectRecordId');
+  @override
+  late final GeneratedColumn<String> healthConnectRecordId =
+      GeneratedColumn<String>(
+        'health_connect_record_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -8342,6 +8415,7 @@ class $BodyMeasurementsTable extends BodyMeasurements
     type,
     valueCanonical,
     notes,
+    healthConnectRecordId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -8424,6 +8498,15 @@ class $BodyMeasurementsTable extends BodyMeasurements
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('health_connect_record_id')) {
+      context.handle(
+        _healthConnectRecordIdMeta,
+        healthConnectRecordId.isAcceptableOrUnknown(
+          data['health_connect_record_id']!,
+          _healthConnectRecordIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -8475,6 +8558,10 @@ class $BodyMeasurementsTable extends BodyMeasurements
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      healthConnectRecordId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}health_connect_record_id'],
+      ),
     );
   }
 
@@ -8523,6 +8610,15 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
   /// fixed per [type], never ambiguous.
   final int valueCanonical;
   final String? notes;
+
+  /// The Health Connect reading's own UUID, set only for a row imported by
+  /// `F-HLT-002` — null for everything the user entered by hand. Doubles as
+  /// both the dedup key (never import the same reading twice) and the
+  /// conflict-rule discriminator: a manual entry for a day always wins over
+  /// an incoming Health Connect reading for that same day, so only rows
+  /// where this is null count as "already logged" when deciding whether to
+  /// import.
+  final String? healthConnectRecordId;
   const BodyMeasurement({
     required this.id,
     required this.userId,
@@ -8534,6 +8630,7 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
     required this.type,
     required this.valueCanonical,
     this.notes,
+    this.healthConnectRecordId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -8558,6 +8655,9 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    if (!nullToAbsent || healthConnectRecordId != null) {
+      map['health_connect_record_id'] = Variable<String>(healthConnectRecordId);
+    }
     return map;
   }
 
@@ -8577,6 +8677,9 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      healthConnectRecordId: healthConnectRecordId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(healthConnectRecordId),
     );
   }
 
@@ -8600,6 +8703,9 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
       ),
       valueCanonical: serializer.fromJson<int>(json['valueCanonical']),
       notes: serializer.fromJson<String?>(json['notes']),
+      healthConnectRecordId: serializer.fromJson<String?>(
+        json['healthConnectRecordId'],
+      ),
     );
   }
   @override
@@ -8620,6 +8726,9 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
       ),
       'valueCanonical': serializer.toJson<int>(valueCanonical),
       'notes': serializer.toJson<String?>(notes),
+      'healthConnectRecordId': serializer.toJson<String?>(
+        healthConnectRecordId,
+      ),
     };
   }
 
@@ -8634,6 +8743,7 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
     MeasurementType? type,
     int? valueCanonical,
     Value<String?> notes = const Value.absent(),
+    Value<String?> healthConnectRecordId = const Value.absent(),
   }) => BodyMeasurement(
     id: id ?? this.id,
     userId: userId ?? this.userId,
@@ -8646,6 +8756,9 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
     type: type ?? this.type,
     valueCanonical: valueCanonical ?? this.valueCanonical,
     notes: notes.present ? notes.value : this.notes,
+    healthConnectRecordId: healthConnectRecordId.present
+        ? healthConnectRecordId.value
+        : this.healthConnectRecordId,
   );
   BodyMeasurement copyWithCompanion(BodyMeasurementsCompanion data) {
     return BodyMeasurement(
@@ -8665,6 +8778,9 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
           ? data.valueCanonical.value
           : this.valueCanonical,
       notes: data.notes.present ? data.notes.value : this.notes,
+      healthConnectRecordId: data.healthConnectRecordId.present
+          ? data.healthConnectRecordId.value
+          : this.healthConnectRecordId,
     );
   }
 
@@ -8680,7 +8796,8 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
           ..write('measuredAtTzOffsetMinutes: $measuredAtTzOffsetMinutes, ')
           ..write('type: $type, ')
           ..write('valueCanonical: $valueCanonical, ')
-          ..write('notes: $notes')
+          ..write('notes: $notes, ')
+          ..write('healthConnectRecordId: $healthConnectRecordId')
           ..write(')'))
         .toString();
   }
@@ -8697,6 +8814,7 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
     type,
     valueCanonical,
     notes,
+    healthConnectRecordId,
   );
   @override
   bool operator ==(Object other) =>
@@ -8711,7 +8829,8 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
           other.measuredAtTzOffsetMinutes == this.measuredAtTzOffsetMinutes &&
           other.type == this.type &&
           other.valueCanonical == this.valueCanonical &&
-          other.notes == this.notes);
+          other.notes == this.notes &&
+          other.healthConnectRecordId == this.healthConnectRecordId);
 }
 
 class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
@@ -8725,6 +8844,7 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
   final Value<MeasurementType> type;
   final Value<int> valueCanonical;
   final Value<String?> notes;
+  final Value<String?> healthConnectRecordId;
   final Value<int> rowid;
   const BodyMeasurementsCompanion({
     this.id = const Value.absent(),
@@ -8737,6 +8857,7 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
     this.type = const Value.absent(),
     this.valueCanonical = const Value.absent(),
     this.notes = const Value.absent(),
+    this.healthConnectRecordId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   BodyMeasurementsCompanion.insert({
@@ -8750,6 +8871,7 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
     required MeasurementType type,
     required int valueCanonical,
     this.notes = const Value.absent(),
+    this.healthConnectRecordId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        createdAt = Value(createdAt),
@@ -8769,6 +8891,7 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
     Expression<String>? type,
     Expression<int>? valueCanonical,
     Expression<String>? notes,
+    Expression<String>? healthConnectRecordId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -8783,6 +8906,8 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
       if (type != null) 'type': type,
       if (valueCanonical != null) 'value_canonical': valueCanonical,
       if (notes != null) 'notes': notes,
+      if (healthConnectRecordId != null)
+        'health_connect_record_id': healthConnectRecordId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -8798,6 +8923,7 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
     Value<MeasurementType>? type,
     Value<int>? valueCanonical,
     Value<String?>? notes,
+    Value<String?>? healthConnectRecordId,
     Value<int>? rowid,
   }) {
     return BodyMeasurementsCompanion(
@@ -8812,6 +8938,8 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
       type: type ?? this.type,
       valueCanonical: valueCanonical ?? this.valueCanonical,
       notes: notes ?? this.notes,
+      healthConnectRecordId:
+          healthConnectRecordId ?? this.healthConnectRecordId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -8853,6 +8981,11 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (healthConnectRecordId.present) {
+      map['health_connect_record_id'] = Variable<String>(
+        healthConnectRecordId.value,
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -8872,6 +9005,7 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
           ..write('type: $type, ')
           ..write('valueCanonical: $valueCanonical, ')
           ..write('notes: $notes, ')
+          ..write('healthConnectRecordId: $healthConnectRecordId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -14586,6 +14720,7 @@ typedef $$WorkoutsTableCreateCompanionBuilder =
       Value<String?> notes,
       Value<int?> bodyweightGrams,
       Value<int?> perceivedFatigue,
+      Value<bool> healthConnectSynced,
       Value<int> rowid,
     });
 typedef $$WorkoutsTableUpdateCompanionBuilder =
@@ -14603,6 +14738,7 @@ typedef $$WorkoutsTableUpdateCompanionBuilder =
       Value<String?> notes,
       Value<int?> bodyweightGrams,
       Value<int?> perceivedFatigue,
+      Value<bool> healthConnectSynced,
       Value<int> rowid,
     });
 
@@ -14735,6 +14871,11 @@ class $$WorkoutsTableFilterComposer
 
   ColumnFilters<int> get perceivedFatigue => $composableBuilder(
     column: $table.perceivedFatigue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get healthConnectSynced => $composableBuilder(
+    column: $table.healthConnectSynced,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14881,6 +15022,11 @@ class $$WorkoutsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get healthConnectSynced => $composableBuilder(
+    column: $table.healthConnectSynced,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$RoutineDaysTableOrderingComposer get sourceRoutineDayId {
     final $$RoutineDaysTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -14953,6 +15099,11 @@ class $$WorkoutsTableAnnotationComposer
 
   GeneratedColumn<int> get perceivedFatigue => $composableBuilder(
     column: $table.perceivedFatigue,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get healthConnectSynced => $composableBuilder(
+    column: $table.healthConnectSynced,
     builder: (column) => column,
   );
 
@@ -15075,6 +15226,7 @@ class $$WorkoutsTableTableManager
                 Value<String?> notes = const Value.absent(),
                 Value<int?> bodyweightGrams = const Value.absent(),
                 Value<int?> perceivedFatigue = const Value.absent(),
+                Value<bool> healthConnectSynced = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => WorkoutsCompanion(
                 id: id,
@@ -15090,6 +15242,7 @@ class $$WorkoutsTableTableManager
                 notes: notes,
                 bodyweightGrams: bodyweightGrams,
                 perceivedFatigue: perceivedFatigue,
+                healthConnectSynced: healthConnectSynced,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -15107,6 +15260,7 @@ class $$WorkoutsTableTableManager
                 Value<String?> notes = const Value.absent(),
                 Value<int?> bodyweightGrams = const Value.absent(),
                 Value<int?> perceivedFatigue = const Value.absent(),
+                Value<bool> healthConnectSynced = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => WorkoutsCompanion.insert(
                 id: id,
@@ -15122,6 +15276,7 @@ class $$WorkoutsTableTableManager
                 notes: notes,
                 bodyweightGrams: bodyweightGrams,
                 perceivedFatigue: perceivedFatigue,
+                healthConnectSynced: healthConnectSynced,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -16556,6 +16711,7 @@ typedef $$BodyMeasurementsTableCreateCompanionBuilder =
       required MeasurementType type,
       required int valueCanonical,
       Value<String?> notes,
+      Value<String?> healthConnectRecordId,
       Value<int> rowid,
     });
 typedef $$BodyMeasurementsTableUpdateCompanionBuilder =
@@ -16570,6 +16726,7 @@ typedef $$BodyMeasurementsTableUpdateCompanionBuilder =
       Value<MeasurementType> type,
       Value<int> valueCanonical,
       Value<String?> notes,
+      Value<String?> healthConnectRecordId,
       Value<int> rowid,
     });
 
@@ -16632,6 +16789,11 @@ class $$BodyMeasurementsTableFilterComposer
     column: $table.notes,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<String> get healthConnectRecordId => $composableBuilder(
+    column: $table.healthConnectRecordId,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$BodyMeasurementsTableOrderingComposer
@@ -16692,6 +16854,11 @@ class $$BodyMeasurementsTableOrderingComposer
     column: $table.notes,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get healthConnectRecordId => $composableBuilder(
+    column: $table.healthConnectRecordId,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$BodyMeasurementsTableAnnotationComposer
@@ -16738,6 +16905,11 @@ class $$BodyMeasurementsTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get healthConnectRecordId => $composableBuilder(
+    column: $table.healthConnectRecordId,
+    builder: (column) => column,
+  );
 }
 
 class $$BodyMeasurementsTableTableManager
@@ -16787,6 +16959,7 @@ class $$BodyMeasurementsTableTableManager
                 Value<MeasurementType> type = const Value.absent(),
                 Value<int> valueCanonical = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> healthConnectRecordId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BodyMeasurementsCompanion(
                 id: id,
@@ -16799,6 +16972,7 @@ class $$BodyMeasurementsTableTableManager
                 type: type,
                 valueCanonical: valueCanonical,
                 notes: notes,
+                healthConnectRecordId: healthConnectRecordId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -16813,6 +16987,7 @@ class $$BodyMeasurementsTableTableManager
                 required MeasurementType type,
                 required int valueCanonical,
                 Value<String?> notes = const Value.absent(),
+                Value<String?> healthConnectRecordId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BodyMeasurementsCompanion.insert(
                 id: id,
@@ -16825,6 +17000,7 @@ class $$BodyMeasurementsTableTableManager
                 type: type,
                 valueCanonical: valueCanonical,
                 notes: notes,
+                healthConnectRecordId: healthConnectRecordId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

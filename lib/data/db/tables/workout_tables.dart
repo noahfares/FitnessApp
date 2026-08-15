@@ -43,6 +43,15 @@ class Workouts extends Table with SyncColumns {
 
   IntColumn get perceivedFatigue =>
       integer().named('perceived_fatigue').nullable()();
+
+  /// Whether this session was written to Health Connect as a strength
+  /// training exercise session (`F-HLT-001`). Never the record's own id —
+  /// [writeWorkoutData] returns only success/failure, so deletion instead
+  /// re-targets Health Connect by this row's own [startedAt]/[endedAt],
+  /// the same key the write used.
+  BoolColumn get healthConnectSynced => boolean()
+      .named('health_connect_synced')
+      .withDefault(const Constant(false))();
 }
 
 /// An exercise as performed within a session — the snapshot, not a reference.
@@ -140,6 +149,16 @@ class BodyMeasurements extends Table with SyncColumns {
   IntColumn get valueCanonical => integer().named('value_canonical')();
 
   TextColumn get notes => text().nullable()();
+
+  /// The Health Connect reading's own UUID, set only for a row imported by
+  /// `F-HLT-002` — null for everything the user entered by hand. Doubles as
+  /// both the dedup key (never import the same reading twice) and the
+  /// conflict-rule discriminator: a manual entry for a day always wins over
+  /// an incoming Health Connect reading for that same day, so only rows
+  /// where this is null count as "already logged" when deciding whether to
+  /// import.
+  TextColumn get healthConnectRecordId =>
+      text().named('health_connect_record_id').nullable()();
 }
 
 /// Date-tagged progress photos (`F-BOD-004`).

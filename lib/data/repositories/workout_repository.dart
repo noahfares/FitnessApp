@@ -13,6 +13,7 @@ import '../../domain/progression/progression_rule.dart';
 import '../db/app_database.dart';
 import '../db/tables/enums.dart';
 import '../db/tables/shared.dart';
+import '../platform/health_connect_service.dart';
 import 'plate_repository.dart';
 import 'set_repository.dart';
 
@@ -204,11 +205,28 @@ class PreviousSessionStats {
 /// than a serialised-state restore, and it is why every method here writes
 /// immediately rather than batching.
 class WorkoutRepository {
-  WorkoutRepository(this._db, {DateTime Function()? clock})
-    : _clock = clock ?? DateTime.now;
+  WorkoutRepository(
+    this._db, {
+    DateTime Function()? clock,
+    HealthConnectService? healthConnect,
+  }) : _clock = clock ?? DateTime.now,
+       _healthConnect = healthConnect;
 
   final AppDatabase _db;
   final DateTime Function() _clock;
+
+  /// Null on any platform with no working implementation (`F-HLT-001`'s own
+  /// documented iOS gap) — every write attempt below checks for that first,
+  /// so nothing else here needs its own platform branch.
+  ///
+  /// Both this and the [finish] opt-in flag are constructor/call-site
+  /// injection rather than a direct read of `healthConnectEnabledProvider`
+  /// here, because that provider lives in `features/settings/application/`
+  /// — `data/` never imports `features/` (docs/20-ARCHITECTURE.md). The
+  /// caller in `features/` reads its own provider and passes the plain
+  /// value down, the same pattern `csvExportServiceProvider`'s callers
+  /// already use for `UnitPreferences`.
+  final HealthConnectService? _healthConnect;
 
   DateTime get _localNow => _clock();
   int get _now => _localNow.millisecondsSinceEpoch;
@@ -638,10 +656,48 @@ class WorkoutRepository {
   }
 
   /// Closes the session. PR evaluation (`F-LOG-013`) hangs off this in Phase 2.
-  Future<void> finish(String id) async {
+  ///
+  /// [healthConnectEnabled] is the caller's own read of
+  /// `healthConnectEnabledProvider` (`F-HLT-001` §2) — see the field doc on
+  /// [_healthConnect] for why this repository cannot read that provider
+  /// itself. False by default, so every other caller (the demo data seeder
+  /// included) is unaffected without needing to know this parameter exists.
+  Future<void> finish(String id, {bool healthConnectEnabled = false}) async {
+    final endedAt = _now;
     await (_db.update(_db.workouts)..where((w) => w.id.equals(id))).write(
-      WorkoutsCompanion(endedAt: Value(_now), updatedAt: Value(_now)),
+      WorkoutsCompanion(endedAt: Value(endedAt), updatedAt: Value(endedAt)),
     );
+    if (healthConnectEnabled) {
+      await _writeToHealthConnect(id, endedAt: endedAt);
+    }
+  }
+
+  /// Best-effort Health Connect write (`F-HLT-001` §1) — a failure here
+  /// never blocks finishing (§3, "the local record is authoritative"),
+  /// which is why every step is wrapped rather than left to propagate.
+  Future<void> _writeToHealthConnect(String id, {required int endedAt}) async {
+    final healthConnect = _healthConnect;
+    if (healthConnect == null) return;
+    try {
+      if (!await healthConnect.hasPermissions()) return;
+      final workout = await findById(id);
+      if (workout == null) return;
+      final synced = await healthConnect.writeWorkout(
+        start: DateTime.fromMillisecondsSinceEpoch(workout.startedAt),
+        end: DateTime.fromMillisecondsSinceEpoch(endedAt),
+        title: workout.name,
+      );
+      if (synced) {
+        await (_db.update(_db.workouts)..where((w) => w.id.equals(id))).write(
+          WorkoutsCompanion(
+            healthConnectSynced: const Value(true),
+            updatedAt: Value(_now),
+          ),
+        );
+      }
+    } catch (_) {
+      // Best-effort — the local record already finished successfully above.
+    }
   }
 
   Future<void> rename(String id, String name) async {

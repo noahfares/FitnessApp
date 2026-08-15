@@ -1249,8 +1249,41 @@ whole chain end to end — first real local verification since Phase 1.
 No emulator/AVD attempted: `systeminfo` reports this machine is itself
 already running under a hypervisor, so nested virtualization for the
 Android emulator is unlikely to be available — real on-device testing
-(`F-HLT-001`/`F-HLT-002`, and physically confirming `F-THM-006`'s icon
-once it has source art) still needs a real phone or a host-level nested-
-virtualization check this session can't perform. Visual Studio (Windows
-desktop target) remains not installed — irrelevant to this app, which
-doesn't target Windows as a release platform.
+still needs a real phone or a host-level nested-virtualization check this
+session couldn't perform on its own. Visual Studio (Windows desktop
+target) remains not installed — irrelevant to this app, which doesn't
+target Windows as a release platform.
+
+**A real device connected mid-session (2026-08-14)** — a Samsung Galaxy
+S24+ over USB, `adb` id `R3CX4015CQF`, after replacing the Windows USB
+driver troubleshooting this note originally spent time on (WinUSB INF
+edits, `pnputil`, driver-signature-enforcement dead ends) with the actual
+fix: a different USB port. This is the first physical device available to
+any session on this machine, closing the gap the previous paragraph
+named. Used to build **batch 6.5 — Health Connect**
+(`docs/50-ROADMAP.md` §Phase 6 has full detail): `F-HLT-001` (write) and
+`F-HLT-002` (read) both `done`, verified end-to-end against the real
+Health Connect app rather than by code review alone — a logged workout's
+`health_connect_synced` flag confirmed via a direct sqlite query on the
+pulled app database, the session itself visually confirmed inside Health
+Connect's own UI, the delete-time "remove from Health Connect?" offer
+confirmed to actually clear the record, and "Revoke permissions" confirmed
+to flip the toggle off and clear the OS-level grant. ADB UI automation
+notes for any future session doing the same: `adb shell input tap`
+coordinates must be real device pixels (this device is 1440×3120, `adb
+shell wm size`) — screenshots viewed at a scaled-down display resolution
+need their coordinates multiplied back up, and even then visual estimates
+were repeatedly wrong by hundreds of pixels; `adb shell uiautomator dump`
++ pulling the XML for a `bounds="[x1,y1][x2,y2]"` on the target
+`content-desc` was the only reliable way to find a tap target, redone
+after every screen change rather than reused across screens. Pulling the
+app's own sqlite database off a debug build for direct inspection works
+via `adb exec-out run-as <package> cat app_flutter/<db>.sqlite`, piped to
+a local file — `adb pull` after a `run-as`-scoped `cp` fails
+(`/data/local/tmp` isn't writable from the run-as context), and
+PowerShell's `>` redirection corrupts binary output, so route that
+specific command through the Bash tool instead. This device is now
+available for the accessibility Phase 6 exit criterion's own on-device
+TalkBack/200%-scale pass and for physically confirming `F-THM-006`'s icon
+once it has source art — neither attempted this session, both no longer
+blocked on hardware.

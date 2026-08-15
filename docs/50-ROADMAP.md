@@ -1076,6 +1076,48 @@ SDK on this toolchain, the same constraint every CI-only release feature
 since Phase 1 has carried — checked instead by reading the Gradle
 signing-config scoping directly and a plain YAML syntax check.
 
+**Batch 6.5 — Health Connect, done.** `F-HLT-001` and `F-HLT-002` both
+done, closing the batch — the first Phase 6 work this session could
+verify on a real device rather than by code review alone, since a
+physical phone (Samsung Galaxy S24+) and a working local Android SDK
+toolchain both became available mid-phase (see the toolchain note at the
+end of this file). Schema v8 adds `workouts.health_connect_synced`
+(bool, default false) and `body_measurements.health_connect_record_id`
+(nullable text). `data/platform/health_connect_service.dart` is the
+`ADR`-style platform-interface pattern every other Android-only
+integration in this codebase uses (`20-ARCHITECTURE#cross-platform-
+discipline`): `HealthConnectService` is the interface,
+`AndroidHealthConnectService` wraps the `health` package,
+`UnsupportedHealthConnectService` is the documented no-op for any
+platform without it. One shared opt-in toggle
+(`HealthConnectSettingsScreen`, off by default) requests exactly two
+scopes — `WRITE_EXERCISE` and `READ_WEIGHT` — confirmed on Health
+Connect's own "App access" screen to be exactly "Activity — 1 of 1
+selected" and "Body measurements — 1 of 1 selected," never the broader
+groups either permission belongs to. `WorkoutRepository.finish()` writes
+a strength-training session best-effort (try/catch, never blocks
+finishing) once enabled; `BodyMeasurementRepository
+.syncBodyweightFromHealthConnect` imports the last 30 days of weight
+readings, skipping any local date already logged by hand
+(`shouldImportHealthConnectReading`,
+`lib/domain/health/health_connect_import.dart`, fixture-tested).
+On-device verification (this session): a real logged set finished with
+sync enabled produced `health_connect_synced = 1` (confirmed both via a
+direct sqlite query on the pulled app database and visually inside Health
+Connect's own UI, which showed the session with the correct title and
+time window); deleting that workout through the app's own delete flow
+triggered the "Also remove from Health Connect?" offer, and confirming it
+left Health Connect showing "No data" for the app; and "Revoke
+permissions" flipped the toggle off with a confirmation snackbar and
+cleared the OS-level grant, with local history untouched throughout. Not
+exercised on-device: the read side's full write-then-import round trip —
+doing so would have meant writing test data into this device's real,
+already account-connected health apps (RENPHO Health, Samsung Health),
+judged out of scope for a verification pass; the read path's own domain
+logic is fixture-tested and the read permission grant itself is confirmed,
+but the round trip through a third-party app is not. Full detail in each
+feature's own status note.
+
 **Exit criteria**
 - [ ] Full app usable with a screen reader and at 200% text scale. Automated
       coverage is now complete for both halves — every screen carries
@@ -1083,8 +1125,11 @@ signing-config scoping directly and a plain YAML syntax check.
       own 200%-scale render test with no overflow (`F-A11Y-002`) — but
       "usable" is an on-device claim a render test can't make on its own:
       real TalkBack/VoiceOver navigation order and announcement clarity
-      still need a physical device this session doesn't have, the same
-      class of gap Phase 1/3's own on-device-only criteria left open.
+      still haven't been checked. A physical device is now available (see
+      the toolchain note at the end of this file, added during batch 6.5)
+      where it wasn't for any earlier Phase 6 batch — this criterion is a
+      candidate for the same on-device pass a future session could run,
+      not a hard blocker this session hit and failed.
 - [ ] Privacy policy and data-safety declarations match actual behaviour, with
       "no network calls" verified rather than asserted.
 - [ ] Play internal testing track live, then production.

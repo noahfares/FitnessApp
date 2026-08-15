@@ -82,6 +82,9 @@ abstract final class AppRoutes {
 
   /// Bars and the plate inventory (`F-PLT-002`).
   static const String settingsPlates = '/settings/plates';
+
+  /// Health Connect sync (`F-HLT-001`, `F-HLT-002`).
+  static const String settingsHealthConnect = '/settings/health-connect';
   static const String settingsAbout = '/settings/about';
 
   /// Bodyweight log (`F-BOD-001`). Reached from Home, same as settings — body

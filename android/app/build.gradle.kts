@@ -45,7 +45,11 @@ android {
         applicationId = "com.noahfares.fitnessapp"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // Pinned above Flutter's own default (24) because the `health`
+        // plugin's Health Connect client (`F-HLT-001`, `F-HLT-002`) requires
+        // API 26 — Android 8.0, released 2017, a vanishingly small slice of
+        // active devices to drop by now.
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

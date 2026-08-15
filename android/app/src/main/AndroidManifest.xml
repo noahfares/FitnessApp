@@ -1,4 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Health Connect (`F-HLT-001`, `F-HLT-002`) — the minimum this app
+         actually uses: writing a strength-training exercise session, and
+         reading weight. No location, no calories, no steps — everything
+         else Health Connect can do stays untouched. -->
+    <uses-permission android:name="android.permission.health.WRITE_EXERCISE"/>
+    <uses-permission android:name="android.permission.health.READ_WEIGHT"/>
     <application
         android:label="fitness_app"
         android:name="${applicationName}"
@@ -24,7 +30,25 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+            <!-- Health Connect's own permission-rationale screen needs
+                 somewhere to show it — this app has no separate privacy
+                 screen to route to, so it lands on MainActivity itself,
+                 which is what PRIVACY.md already exists to satisfy. -->
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
         </activity>
+        <activity-alias
+             android:name="ViewPermissionUsageActivity"
+             android:exported="true"
+             android:targetActivity=".MainActivity"
+             android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+                <intent-filter>
+                    <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                    <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+                </intent-filter>
+        </activity-alias>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
@@ -40,6 +64,12 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Health Connect (`F-HLT-001`, `F-HLT-002`) — lets the app check
+             whether the Health Connect app itself is installed. -->
+        <package android:name="com.google.android.apps.healthdata" />
+        <intent>
+            <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
         </intent>
     </queries>
 </manifest>

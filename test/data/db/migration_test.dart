@@ -45,6 +45,16 @@ void main() {
     final raw = NativeDatabase(file);
     await raw.ensureOpen(_NoopUser());
 
+    if (version < 8) {
+      // v8 added workouts.health_connect_synced and
+      // body_measurements.health_connect_record_id (`F-HLT-001`, `F-HLT-002`).
+      await raw.runCustom(
+        'ALTER TABLE workouts DROP COLUMN health_connect_synced',
+      );
+      await raw.runCustom(
+        'ALTER TABLE body_measurements DROP COLUMN health_connect_record_id',
+      );
+    }
     if (version < 7) {
       // v7 added the progress_photos table (`F-BOD-004`).
       await raw.runCustom('DROP TABLE progress_photos');
@@ -360,11 +370,61 @@ void main() {
     });
   });
 
+  group('v7 -> v8: health connect columns', () {
+    test(
+      'adds both columns, leaving existing rows unsynced/unimported',
+      () async {
+        await buildHistoricalDatabase(
+          7,
+          then: [
+            '''
+          INSERT INTO workouts
+            (id, created_at, updated_at, name, started_at,
+             started_at_tz_offset_minutes)
+          VALUES
+            ('workout-1', 100, 200, 'Push Day', 100, 0)
+          ''',
+            '''
+          INSERT INTO body_measurements
+            (id, created_at, updated_at, measured_at,
+             measured_at_tz_offset_minutes, type, value_canonical)
+          VALUES
+            ('measurement-1', 100, 200, 100, 0, 'bodyweight', 80000)
+          ''',
+          ],
+        );
+
+        final db = await reopen();
+        expect(
+          await columnsOf(db, 'workouts'),
+          contains('health_connect_synced'),
+        );
+        expect(
+          await columnsOf(db, 'body_measurements'),
+          contains('health_connect_record_id'),
+        );
+
+        final workout = await (db.select(
+          db.workouts,
+        )..where((w) => w.id.equals('workout-1'))).getSingle();
+        final measurement = await (db.select(
+          db.bodyMeasurements,
+        )..where((m) => m.id.equals('measurement-1'))).getSingle();
+
+        // False/null for existing rows — nothing was ever written to or read
+        // from Health Connect before this column existed.
+        expect(workout.healthConnectSynced, isFalse);
+        expect(measurement.healthConnectRecordId, isNull);
+        expect(workout.name, 'Push Day');
+      },
+    );
+  });
+
   test('a fresh database is created at the current version', () async {
     final db = await reopen();
-    expect(db.schemaVersion, 7);
+    expect(db.schemaVersion, 8);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.read<int>('user_version'), 7);
+    expect(version.read<int>('user_version'), 8);
   });
 }
 

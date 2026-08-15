@@ -235,8 +235,8 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-HLT-001](HLT/F-HLT-001.md) | Health Connect write | 6 | P2 | planned |
-| [F-HLT-002](HLT/F-HLT-002.md) | Health Connect read | 6 | P3 | planned |
+| [F-HLT-001](HLT/F-HLT-001.md) | Health Connect write | 6 | P2 | done |
+| [F-HLT-002](HLT/F-HLT-002.md) | Health Connect read | 6 | P3 | done |
 | [F-HLT-003](HLT/F-HLT-003.md) | HealthKit parity | — | P2 | idea |
 | [F-HLT-004](HLT/F-HLT-004.md) | Wear OS companion | — | P3 | idea |
 | [F-HLT-005](HLT/F-HLT-005.md) | watchOS companion | — | P3 | idea |

@@ -3237,6 +3237,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add {seconds} seconds'**
   String restTimerBarAddSemanticLabel(num seconds);
+
+  /// Health Connect settings row title, and the sub-screen's own app bar title.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Connect'**
+  String get settingsHealthConnectTitle;
+
+  /// Settings row subtitle when Health Connect sync is enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get settingsHealthConnectOn;
+
+  /// Settings row subtitle when Health Connect sync is disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingsHealthConnectOff;
+
+  /// Explains F-HLT-001's write behaviour on the Health Connect settings screen.
+  ///
+  /// In en, this message translates to:
+  /// **'When enabled, finishing a workout writes it to Health Connect as a strength training session — start time and duration only, no calorie estimate.'**
+  String get healthConnectWriteDescription;
+
+  /// Explains F-HLT-002's read behaviour on the Health Connect settings screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Bodyweight logged in Health Connect — from a smart scale, for example — is imported automatically. A day you have already logged yourself is never overwritten.'**
+  String get healthConnectReadDescription;
+
+  /// The opt-in switch's own title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync with Health Connect'**
+  String get healthConnectEnableLabel;
+
+  /// Snackbar when enabling sync but Health Connect itself isn't available.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Connect isn\'t installed on this device.'**
+  String get healthConnectUnavailableMessage;
+
+  /// Snackbar action opening Health Connect's Play Store listing.
+  ///
+  /// In en, this message translates to:
+  /// **'Install'**
+  String get healthConnectInstallAction;
+
+  /// Snackbar when enabling sync but the permission request was declined.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission wasn\'t granted.'**
+  String get healthConnectPermissionDeniedMessage;
+
+  /// Button revoking this app's Health Connect permissions directly, without leaving the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke permissions'**
+  String get healthConnectRevokeAction;
+
+  /// Snackbar after revoking Health Connect permissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Connect permissions revoked.'**
+  String get healthConnectRevokedMessage;
+
+  /// Confirm sheet title after deleting a workout that was written to Health Connect.
+  ///
+  /// In en, this message translates to:
+  /// **'Also remove from Health Connect?'**
+  String get healthConnectRemoveRecordTitle;
+
+  /// Confirm sheet message after deleting a workout that was written to Health Connect.
+  ///
+  /// In en, this message translates to:
+  /// **'This workout was also written to Health Connect as an exercise session.'**
+  String get healthConnectRemoveRecordMessage;
 }
 
 class _AppLocalizationsDelegate
