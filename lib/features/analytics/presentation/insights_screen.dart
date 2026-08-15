@@ -156,22 +156,25 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-          child: Row(
+          // Wrap, not a two-way Row: an equal-half split left too little
+          // width for "Consistency" at 200% text scale, wrapping it mid-word
+          // ("Consisten"/"cy") — found via on-device large-text inspection.
+          // Wrap sizes each button to its own content and drops to a second
+          // line instead, the same fix already used for the ghost-values
+          // preview and the week-start radio row.
+          child: Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
             children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => context.push(AppRoutes.consistency),
-                  icon: const Icon(Icons.calendar_month_outlined),
-                  label: Text(l10n.insightsConsistencyButton),
-                ),
+              OutlinedButton.icon(
+                onPressed: () => context.push(AppRoutes.consistency),
+                icon: const Icon(Icons.calendar_month_outlined),
+                label: Text(l10n.insightsConsistencyButton),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => context.push(AppRoutes.prTimeline),
-                  icon: const Icon(Icons.emoji_events_outlined),
-                  label: Text(l10n.insightsPrTimelineButton),
-                ),
+              OutlinedButton.icon(
+                onPressed: () => context.push(AppRoutes.prTimeline),
+                icon: const Icon(Icons.emoji_events_outlined),
+                label: Text(l10n.insightsPrTimelineButton),
               ),
             ],
           ),

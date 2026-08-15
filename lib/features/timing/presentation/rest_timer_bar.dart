@@ -94,13 +94,20 @@ class RestTimerBar extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.xs),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(2),
-              child: LinearProgressIndicator(
-                value: timer.progressAt(now.millisecondsSinceEpoch),
-                minHeight: 4,
-                backgroundColor: theme.colorScheme.onSecondaryContainer
-                    .withValues(alpha: 0.2),
+            // Excluded from semantics: without this, LinearProgressIndicator's
+            // own value (a raw percentage) merges into the Semantics label
+            // above, so a screen reader announces a stray leading number
+            // ("17, Rest timer, 2 minutes 28 seconds remaining") ahead of the
+            // actual sentence — found via on-device TalkBack inspection.
+            ExcludeSemantics(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(2),
+                child: LinearProgressIndicator(
+                  value: timer.progressAt(now.millisecondsSinceEpoch),
+                  minHeight: 4,
+                  backgroundColor: theme.colorScheme.onSecondaryContainer
+                      .withValues(alpha: 0.2),
+                ),
               ),
             ),
           ],

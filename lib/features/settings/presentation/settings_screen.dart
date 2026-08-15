@@ -91,20 +91,24 @@ class SettingsScreen extends ConsumerWidget {
               onChanged: (value) {
                 if (value != null) unawaited(weekStartNotifier.set(value));
               },
-              child: Row(
+              // A Column, not a three-way Row: an equal-thirds split left too
+              // little width per label at 200% text scale, wrapping a bare
+              // three-letter day name mid-word ("Mo"/"n") — found via
+              // on-device TalkBack/large-text inspection, not caught by the
+              // render tests' overflow-only assertion. Full-width rows are
+              // correct at any text scale.
+              child: Column(
                 children: [
                   for (final option in [
                     WeekStart.monday,
                     WeekStart.saturday,
                     WeekStart.sunday,
                   ])
-                    Expanded(
-                      child: RadioListTile<WeekStart>(
-                        value: option,
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(_weekdayLabel(l10n, option)),
-                      ),
+                    RadioListTile<WeekStart>(
+                      value: option,
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(_weekdayLabel(l10n, option)),
                     ),
                 ],
               ),

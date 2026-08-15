@@ -1283,7 +1283,30 @@ a local file — `adb pull` after a `run-as`-scoped `cp` fails
 (`/data/local/tmp` isn't writable from the run-as context), and
 PowerShell's `>` redirection corrupts binary output, so route that
 specific command through the Bash tool instead. This device is now
-available for the accessibility Phase 6 exit criterion's own on-device
-TalkBack/200%-scale pass and for physically confirming `F-THM-006`'s icon
-once it has source art — neither attempted this session, both no longer
-blocked on hardware.
+available for physically confirming `F-THM-006`'s icon once it has source
+art — not attempted this session, no longer blocked on hardware.
+
+**On-device accessibility pass, same session.** TalkBack toggles via `adb
+shell settings put secure enabled_accessibility_services
+com.samsung.android.accessibility.talkback/com.samsung.android.marvin.talkback.TalkBackService`
+plus `accessibility_enabled 1`; large text via `adb shell settings put
+system font_scale 2.0`. Both are device-wide settings, not per-app —
+always read the baseline first (`settings get ...`) and restore it exactly
+after, since this is the user's actual phone (baseline here was
+`font_scale 0.8`, no accessibility service enabled). The real finding:
+`adb shell input tap`/`swipe` do **not** trigger TalkBack's touch
+exploration — `dumpsys accessibility`'s "Accessibility Focused Window Id"
+stayed `-1` after a synthetic swipe meant to mimic TalkBack's linear-
+navigation gesture, so gesture-driven navigation-order testing can't be
+automated this way. `uiautomator dump`'s XML is a legitimate substitute for
+the *content* TalkBack would speak, though, since it reads the same
+`AccessibilityNodeInfo` tree — auditing its `content-desc` values and tree
+order across a screen is exactly what caught this session's real
+`RestTimerBar`/`SettingsScreen`/`InsightsScreen` bugs (`docs/50-ROADMAP.md`
+§Phase 6 has full detail), just not literal spoken-audio or swipe-order
+proof. `adb pull`ing a debug build's own sqlite database — useful for
+verifying anything written to disk, not just Health Connect — goes through
+`adb exec-out run-as <package> cat app_flutter/<db>.sqlite`, piped to a
+local file via the Bash tool specifically (PowerShell's `>` redirection
+corrupts binary output; `run-as`-scoped `cp` to `/data/local/tmp` fails
+outright, that path isn't writable from the run-as context).

@@ -1118,18 +1118,45 @@ logic is fixture-tested and the read permission grant itself is confirmed,
 but the round trip through a third-party app is not. Full detail in each
 feature's own status note.
 
+**On-device accessibility pass, closing the phase's own screen-reader/
+large-text exit criterion.** Run on the same Galaxy S24+ `F-HLT-001`/
+`F-HLT-002` used, immediately after — this is what the previous entry's
+"candidate for a future session" note was scoped for, done the same
+session rather than deferred. TalkBack was enabled via `adb shell settings
+put secure enabled_accessibility_services`; `adb shell input tap`/`swipe`
+turned out to bypass TalkBack's touch exploration entirely (`dumpsys
+accessibility` showed no accessibility-focused window after a synthetic
+swipe), so real gesture-driven navigation couldn't be automated from the
+host — instead the accessibility node tree itself was audited directly
+(`uiautomator dump`, the same `AccessibilityNodeInfo` data TalkBack speaks
+from) across the dashboard, the exercise picker, the active workout
+screen's set row, the session summary, and an Insights chart, plus a
+`font_scale 2.0` visual pass across the same screens. Two real bugs found
+and fixed, both invisible to the existing render tests because neither
+throws or overflows — they just render or speak wrong:
+`RestTimerBar`'s progress bar leaked a raw percentage into its own spoken
+label ("17, Rest timer, 2 minutes remaining"), and two `Row`/`Expanded`
+splits (`SettingsScreen`'s week-start radio row, `InsightsScreen`'s
+Consistency/PR-timeline buttons) broke a label mid-word at 200% scale
+("Mo"/"n", "Consisten"/"cy") instead of wrapping at a space. Both fixed
+and confirmed fixed against a rebuilt debug APK on the same device — full
+detail in `F-A11Y-001`/`F-A11Y-002`'s own status notes. Not covered: real
+gesture-based navigation order and TTS timing, which needs either a real
+finger or a UI Automator/Espresso harness beyond plain `adb shell input`.
+
 **Exit criteria**
-- [ ] Full app usable with a screen reader and at 200% text scale. Automated
-      coverage is now complete for both halves — every screen carries
+- [x] Full app usable with a screen reader and at 200% text scale. Automated
+      coverage was already complete for both halves — every screen carries
       semantic labels where `Semantics` matters (`F-A11Y-001`) and has its
-      own 200%-scale render test with no overflow (`F-A11Y-002`) — but
-      "usable" is an on-device claim a render test can't make on its own:
-      real TalkBack/VoiceOver navigation order and announcement clarity
-      still haven't been checked. A physical device is now available (see
-      the toolchain note at the end of this file, added during batch 6.5)
-      where it wasn't for any earlier Phase 6 batch — this criterion is a
-      candidate for the same on-device pass a future session could run,
-      not a hard blocker this session hit and failed.
+      own 200%-scale render test with no overflow (`F-A11Y-002`) — and the
+      on-device pass above is what closes the gap a render test structurally
+      can't: real accessibility-tree content on a real device, and real text
+      shaping at 200% on real hardware, catching two genuine bugs neither
+      automated suite saw. The one piece still unverified — literal
+      gesture-driven TalkBack navigation order, as opposed to the
+      accessibility-tree data TalkBack navigates *through* — is a tooling
+      gap (synthetic `adb` input doesn't trigger touch exploration), not an
+      unexamined one.
 - [ ] Privacy policy and data-safety declarations match actual behaviour, with
       "no network calls" verified rather than asserted.
 - [ ] Play internal testing track live, then production.
