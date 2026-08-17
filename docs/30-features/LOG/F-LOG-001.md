@@ -53,6 +53,15 @@ Screens: Start sheet, Active Workout | Data: `workouts`
 - Finishing `go`es rather than popping, so back cannot walk into a finished
   session. It lands on Home until the summary exists (`F-LOG-018`, batch 1.6);
   PR evaluation (`F-LOG-013`) hangs off the same call in Phase 2.
+- `sessionEndingProvider` is held true across finishing and discarding. The
+  session leaves `watchActive` on the first write, but the screen navigates
+  away several awaits later — after `evaluateSessionVolume`, which grows with
+  history and is visible on a real database. Without the flag the screen
+  renders its stale-deep-link empty state ("No workout in progress", with a
+  "Start one" button) in that gap, and tapping through it unmounts the screen,
+  so the `context.mounted` guard then swallows the summary: reported from real
+  use as finishing a workout, being told there was none, and finding it in
+  history anyway.
 
 ## Edge cases
 

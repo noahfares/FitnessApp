@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fitness_app/core/routing/app_routes.dart';
 import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/tables/enums.dart';
+import 'package:fitness_app/data/repositories/set_repository.dart';
 import 'package:fitness_app/data/repositories/workout_repository.dart';
 import 'package:fitness_app/features/logging/application/active_workout_providers.dart';
 import 'package:fitness_app/features/logging/presentation/active_workout_screen.dart';
@@ -132,6 +134,55 @@ void main() {
       expect(stored, isNotNull);
       expect(stored!.endedAt, isNotNull);
       expect(await repo.findActive(), isNull);
+    });
+
+    testWidgets(
+      'a session being finished waits, it does not say there is none',
+      (tester) async {
+        // A finished session leaves `watchActive` on the first write, several
+        // awaits before the summary is navigated to — evaluating the session's
+        // volume record in between, which on a real database with months of
+        // history is long enough to see. Without [sessionEndingProvider] the
+        // screen renders its stale-deep-link empty state in that gap, and
+        // tapping "Start one" there unmounts the screen, so the
+        // `context.mounted` guard swallows the summary entirely: a workout that
+        // is in history, after a screen that said there was none.
+        final container = await pump(tester, startAt: AppRoutes.activeWorkout);
+        expect(find.text('No workout in progress.'), findsOneWidget);
+
+        container.read(sessionEndingProvider.notifier).ending = true;
+        await tester.pump();
+
+        expect(find.text('No workout in progress.'), findsNothing);
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      },
+    );
+
+    testWidgets('finishing a logged session lands on the summary', (
+      tester,
+    ) async {
+      await seedExercises();
+      final workout = await repo.start();
+      await repo.addExercises(workout.id, ['bench']);
+      // A real finish, not the empty-session prompt — the summary is only
+      // reached on the path that writes a history entry.
+      final setRepo = SetRepository(db);
+      final workoutExerciseId = (await repo.watchExercises(workout.id).first)
+          .single
+          .workoutExerciseId;
+      final set = (await setRepo.getSets(workoutExerciseId)).single;
+      await setRepo.complete(
+        set.id,
+        weightGrams: const Value(100000),
+        reps: const Value(5),
+      );
+      await pump(tester, startAt: AppRoutes.activeWorkout);
+
+      await tester.tap(find.text('Finish'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Workout complete'), findsOneWidget);
+      expect(find.text('No workout in progress.'), findsNothing);
     });
 
     testWidgets('discarding names what will be lost, then tombstones it', (

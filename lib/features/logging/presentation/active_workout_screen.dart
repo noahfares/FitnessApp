@@ -46,6 +46,11 @@ class ActiveWorkoutScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final active = ref.watch(activeWorkoutProvider);
+    // Watched unconditionally, not inside the null branch below: a provider
+    // nothing is listening to is disposed and rebuilt at its initial value,
+    // so a flag only read once the workout has already gone would always
+    // read false.
+    final ending = ref.watch(sessionEndingProvider);
 
     return active.when(
       loading: () => const Scaffold(body: LoadingView()),
@@ -53,9 +58,14 @@ class ActiveWorkoutScreen extends ConsumerWidget {
         appBar: AppBar(title: const Text('Workout')),
         body: const ErrorView(title: 'This workout could not be read'),
       ),
-      data: (workout) => workout == null
-          ? const _NoActiveWorkout()
-          : _ActiveWorkout(workout: workout),
+      data: (workout) => switch (workout) {
+        // Finishing or discarding removes the session from the stream a
+        // moment before the screen navigates away. That null is expected, not
+        // a stale deep link, so it must not render the empty state.
+        null when ending => const Scaffold(body: LoadingView()),
+        null => const _NoActiveWorkout(),
+        final workout => _ActiveWorkout(workout: workout),
+      },
     );
   }
 }
@@ -284,24 +294,43 @@ class _ActiveWorkout extends ConsumerWidget {
       );
       if (choice == 'cancel' || choice == null) return;
       if (choice == 'discard') {
-        await repo.discard(workout.id);
-        if (!context.mounted) return;
-        context.go(AppRoutes.home);
+        await _end(ref, () async {
+          await repo.discard(workout.id);
+          if (context.mounted) context.go(AppRoutes.home);
+        });
         return;
       }
     }
 
-    await repo.finish(workout.id);
-    // maxSessionVolume only means something once the session's total is
-    // final (`F-LOG-013`, `docs/40-ANALYTICS-SPEC.md` §4) — unlike the other
-    // three kinds, it is never evaluated mid-session.
-    await ref
-        .read(personalRecordRepositoryProvider)
-        .evaluateSessionVolume(workout.id);
-    if (!context.mounted) return;
-    // Replaces the stack rather than popping, so back does not walk into a
-    // finished session (docs/23-NAVIGATION.md §navigation-invariants).
-    context.go(AppRoutes.activeWorkoutSummary, extra: workout.id);
+    await _end(ref, () async {
+      await repo.finish(workout.id);
+      // maxSessionVolume only means something once the session's total is
+      // final (`F-LOG-013`, `docs/40-ANALYTICS-SPEC.md` §4) — unlike the other
+      // three kinds, it is never evaluated mid-session.
+      await ref
+          .read(personalRecordRepositoryProvider)
+          .evaluateSessionVolume(workout.id);
+      if (!context.mounted) return;
+      // Replaces the stack rather than popping, so back does not walk into a
+      // finished session (docs/23-NAVIGATION.md §navigation-invariants).
+      context.go(AppRoutes.activeWorkoutSummary, extra: workout.id);
+    });
+  }
+
+  /// Runs [end] with [sessionEndingProvider] held true.
+  ///
+  /// The session disappears from [activeWorkoutProvider] on the first write
+  /// [end] makes, well before it navigates away; the flag is what stops this
+  /// screen rendering "No workout in progress" in that gap. Reset in a
+  /// `finally` so a failed write leaves a resumable session showing itself,
+  /// not a spinner.
+  Future<void> _end(WidgetRef ref, Future<void> Function() end) async {
+    ref.read(sessionEndingProvider.notifier).ending = true;
+    try {
+      await end();
+    } finally {
+      ref.read(sessionEndingProvider.notifier).ending = false;
+    }
   }
 
   /// A held press rather than a tap-to-confirm sheet (`F-LOG-022` §2):
@@ -367,9 +396,10 @@ class _ActiveWorkout extends ConsumerWidget {
     if (confirmed != true) return;
     if (!context.mounted) return;
 
-    await repo.discard(workout.id);
-    if (!context.mounted) return;
-    context.go(AppRoutes.home);
+    await _end(ref, () async {
+      await repo.discard(workout.id);
+      if (context.mounted) context.go(AppRoutes.home);
+    });
   }
 }
 

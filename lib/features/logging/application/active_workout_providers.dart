@@ -14,6 +14,28 @@ final activeWorkoutProvider = StreamProvider<Workout?>(
   (ref) => ref.watch(workoutRepositoryProvider).watchActive(),
 );
 
+/// True while a session is being finished or discarded (`F-LOG-001` §6).
+///
+/// `finish()`/`discard()` write to the database several awaits before the
+/// screen navigates away — evaluating the session's volume record, resolving a
+/// confirm sheet — and the session leaves [activeWorkoutProvider] on the very
+/// first of those writes. Without this flag the active workout screen sees a
+/// null workout while still mounted and renders its stale-deep-link empty
+/// state ("No workout in progress"), which is not what happened: the workout
+/// is finished and about to be shown. Tapping "Start one" in that gap
+/// unmounts the screen, so the `context.mounted` guard then swallows the
+/// navigation to the summary entirely.
+final sessionEndingProvider = NotifierProvider<SessionEndingNotifier, bool>(
+  SessionEndingNotifier.new,
+);
+
+class SessionEndingNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  set ending(bool value) => state = value;
+}
+
 /// The exercises in a session, with set counts.
 final sessionExercisesProvider =
     StreamProvider.family<List<SessionExercise>, String>(
