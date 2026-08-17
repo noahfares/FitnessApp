@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/a11y/motion.dart';
+
 /// Inline PR marker (`F-LOG-013` §2, docs/24-DESIGN-SYSTEM.md
 /// §component-inventory).
 ///
@@ -8,6 +10,10 @@ import 'package:flutter/material.dart';
 /// exists, so its first mount already lines up with the moment one is set. No
 /// separate overlay is needed, and nothing here can block input — it is a
 /// small icon, never a dialog or a sheet.
+///
+/// Under reduce motion the badge simply *is* there, with no entrance
+/// (`F-A11Y-005`): the record still shows, which is the part that carries
+/// meaning — only the flourish is dropped.
 class PrBadge extends StatelessWidget {
   const PrBadge({super.key, this.tooltip = 'Personal record'});
 
@@ -18,7 +24,7 @@ class PrBadge extends StatelessWidget {
     final theme = Theme.of(context);
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 350),
+      duration: motionDuration(context, const Duration(milliseconds: 350)),
       curve: Curves.easeOutBack,
       builder: (context, t, child) => Opacity(
         opacity: t.clamp(0.0, 1.0),

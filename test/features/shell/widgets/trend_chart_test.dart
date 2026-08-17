@@ -15,6 +15,7 @@ void main() {
       theme: dark ? AppTheme.dark() : AppTheme.light(),
       home: Scaffold(
         body: TrendChart(
+          metricLabel: 'Estimated one-rep max',
           points: points,
           valueLabel: (v) => '${v.toStringAsFixed(1)} kg',
           subtitle: 'Last 3 months · kg',
@@ -78,6 +79,7 @@ void main() {
           theme: AppTheme.light(),
           home: Scaffold(
             body: TrendChart(
+              metricLabel: 'Estimated one-rep max',
               points: const [
                 TrendChartPoint(x: 0, y: 100, label: 'Jan 1'),
                 TrendChartPoint(x: 1, y: 102, label: 'Jan 8'),
@@ -107,6 +109,7 @@ void main() {
           theme: AppTheme.light(),
           home: Scaffold(
             body: TrendChart(
+              metricLabel: 'Estimated one-rep max',
               points: const [
                 TrendChartPoint(x: 0, y: 100, label: 'Jan 1', workoutId: 'w1'),
                 TrendChartPoint(x: 1, y: 105, label: 'Jan 8', workoutId: 'w2'),

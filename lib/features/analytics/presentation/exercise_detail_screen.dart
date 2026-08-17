@@ -277,6 +277,7 @@ class _TrendSectionState extends ConsumerState<_TrendSection> {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: TrendChart(
             points: points,
+            metricLabel: 'Estimated one-rep max',
             subtitle: '${_rangeLabel(selection.preset)} · ${prefs.load.symbol}',
             showRegression: _showRegression,
             valueLabel: (v) => v.toStringAsFixed(1),
@@ -361,6 +362,7 @@ class _VolumeSection extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: WeeklyBarChart(
+            metricLabel: 'Weekly volume',
             points: points,
             subtitle: '${_rangeLabel(selection.preset)} · ${prefs.load.symbol}',
             valueLabel: (v) => v.toStringAsFixed(0),

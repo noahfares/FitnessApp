@@ -223,6 +223,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: WeeklyBarChart(
+            metricLabel: 'Overall weekly volume',
             points: [
               for (final p in overallVolume)
                 WeeklyBarPoint(
@@ -271,6 +272,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: WeeklyBarChart(
+            metricLabel: 'Weekly volume for the selected muscle',
             points: [
               for (final p in muscleVolume)
                 WeeklyBarPoint(
@@ -294,6 +296,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: WeeklyBarChart(
+            metricLabel: 'Hard sets per week for the selected muscle',
             points: [
               for (final p in muscleSets)
                 WeeklyBarPoint(
@@ -472,6 +475,7 @@ class _DurationComplianceSection extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           TrendChart(
+            metricLabel: 'Session duration in minutes',
             points: [
               for (var i = 0; i < duration.length; i++)
                 TrendChartPoint(
@@ -621,6 +625,7 @@ class _TrainingPatternsSection extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: WeeklyBarChart(
+            metricLabel: 'Sets by rep range',
             points: [
               for (final bucket in RepRangeBucket.values)
                 WeeklyBarPoint(
@@ -644,6 +649,7 @@ class _TrainingPatternsSection extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: WeeklyBarChart(
+            metricLabel: 'Sets by intensity zone',
             points: [
               for (final zone in IntensityZone.values)
                 WeeklyBarPoint(
@@ -675,6 +681,7 @@ class _TrainingPatternsSection extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
             child: WeeklyBarChart(
+              metricLabel: 'Sets by logged RPE',
               points: [
                 for (final rpe in (rpeCounts.keys.toList()..sort()))
                   WeeklyBarPoint(

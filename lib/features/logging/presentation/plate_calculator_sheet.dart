@@ -212,7 +212,14 @@ class _PlateResult extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PlateStackVisualization(plates: plates),
+        PlateStackVisualization(
+          plates: plates,
+          // The same sentence the row below shows, in the user's own unit —
+          // the drawing is a picture of it, not extra information.
+          semanticsLabel:
+              'Plates per side: '
+              '${plates.map((p) => '${p.pairs} × ${weight(p.weightGrams)} ${unit.symbol}').join(', ')}',
+        ),
         const SizedBox(height: AppSpacing.sm),
         Text(
           'Per side: '

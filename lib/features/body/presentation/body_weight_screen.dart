@@ -132,6 +132,7 @@ class _BodyweightTrendSection extends ConsumerWidget {
             const SizedBox(height: AppSpacing.sm),
             TrendChart(
               points: points,
+              metricLabel: 'Bodyweight trend',
               secondaryPoints: raw,
               subtitle: unit.symbol,
               valueLabel: (v) => v.toStringAsFixed(1),

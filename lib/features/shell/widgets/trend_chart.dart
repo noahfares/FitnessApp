@@ -1,6 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/a11y/chart_summary.dart';
+import '../../../core/a11y/motion.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../domain/analytics/linear_regression.dart';
@@ -49,6 +51,7 @@ class TrendChart extends StatelessWidget {
   const TrendChart({
     required this.points,
     required this.valueLabel,
+    required this.metricLabel,
     super.key,
     this.subtitle,
     this.showRegression = false,
@@ -67,6 +70,11 @@ class TrendChart extends StatelessWidget {
 
   /// Formats a y value for the axis and tooltip, e.g. `'120.3 kg'`.
   final String Function(double value) valueLabel;
+
+  /// What this chart is *of*, in words — "Estimated 1RM", "Bodyweight". Reads
+  /// as the first thing a screen reader announces (`F-A11Y-001`), so it is a
+  /// noun phrase rather than a sentence.
+  final String metricLabel;
 
   /// States the date range and units (`docs/24-DESIGN-SYSTEM.md` §Charts).
   final String? subtitle;
@@ -128,138 +136,160 @@ class TrendChart extends StatelessWidget {
               ),
             ),
           ),
-        SizedBox(
-          height: 220,
-          child: LineChart(
-            transformationConfig: FlTransformationConfig(
-              scaleAxis: zoomEnabled
-                  ? FlScaleAxis.horizontal
-                  : FlScaleAxis.none,
-            ),
-            LineChartData(
-              minY: chartMinY,
-              maxY: chartMaxY,
-              minX: points.first.x,
-              maxX: points.last.x,
-              gridData: FlGridData(
-                drawVerticalLine: false,
-                getDrawingHorizontalLine: (value) =>
-                    FlLine(color: theme.dividerColor, strokeWidth: 0.5),
-              ),
-              borderData: FlBorderData(show: false),
-              titlesData: FlTitlesData(
-                topTitles: const AxisTitles(),
-                rightTitles: const AxisTitles(),
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 48,
-                    getTitlesWidget: (value, meta) => Text(
-                      valueLabel(value),
-                      style: theme.textTheme.bodySmall,
+        // A line chart is entirely inaccessible on its own (`F-A11Y-001`), so
+        // the plot is replaced — not annotated — with a sentence saying what
+        // it shows. ExcludeSemantics stops fl_chart's axis labels being read
+        // out as a stream of loose numbers underneath it.
+        Semantics(
+          label: trendChartSummary(
+            metric: metricLabel,
+            values: [for (final p in points) p.y],
+            format: valueLabel,
+            firstLabel: points.first.label,
+            lastLabel: points.last.label,
+          ),
+          image: true,
+          child: ExcludeSemantics(
+            child: SizedBox(
+              height: 220,
+              child: LineChart(
+                duration: motionDuration(
+                  context,
+                  const Duration(milliseconds: 150),
+                ),
+                transformationConfig: FlTransformationConfig(
+                  scaleAxis: zoomEnabled
+                      ? FlScaleAxis.horizontal
+                      : FlScaleAxis.none,
+                ),
+                LineChartData(
+                  minY: chartMinY,
+                  maxY: chartMaxY,
+                  minX: points.first.x,
+                  maxX: points.last.x,
+                  gridData: FlGridData(
+                    drawVerticalLine: false,
+                    getDrawingHorizontalLine: (value) =>
+                        FlLine(color: theme.dividerColor, strokeWidth: 0.5),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  titlesData: FlTitlesData(
+                    topTitles: const AxisTitles(),
+                    rightTitles: const AxisTitles(),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 48,
+                        getTitlesWidget: (value, meta) => Text(
+                          valueLabel(value),
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 28,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.round();
+                          if (index < 0 || index >= points.length) {
+                            return const SizedBox.shrink();
+                          }
+                          // Only the first and last label, to avoid overlapping
+                          // text on a series with more than a handful of points.
+                          if (index != 0 && index != points.length - 1) {
+                            return const SizedBox.shrink();
+                          }
+                          return Text(
+                            points[index].label,
+                            style: theme.textTheme.bodySmall,
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 28,
-                    getTitlesWidget: (value, meta) {
-                      final index = value.round();
-                      if (index < 0 || index >= points.length) {
-                        return const SizedBox.shrink();
-                      }
-                      // Only the first and last label, to avoid overlapping
-                      // text on a series with more than a handful of points.
-                      if (index != 0 && index != points.length - 1) {
-                        return const SizedBox.shrink();
-                      }
-                      return Text(
-                        points[index].label,
-                        style: theme.textTheme.bodySmall,
-                      );
-                    },
+                  lineTouchData: LineTouchData(
+                    touchTooltipData: LineTouchTooltipData(
+                      getTooltipItems: (spots) => [
+                        for (final spot in spots)
+                          if (spot.barIndex == 0)
+                            LineTooltipItem(
+                              '${points[spot.spotIndex].label}\n'
+                              '${valueLabel(spot.y)}',
+                              theme.textTheme.bodySmall!.copyWith(
+                                color: theme.colorScheme.onInverseSurface,
+                              ),
+                            )
+                          else
+                            null,
+                      ],
+                    ),
+                    touchCallback: onPointTap == null
+                        ? null
+                        : (event, response) {
+                            if (event is! FlTapUpEvent) return;
+                            final spots = response?.lineBarSpots;
+                            if (spots == null || spots.isEmpty) return;
+                            final spot = spots.first;
+                            if (spot.barIndex != 0) return;
+                            onPointTap!(points[spot.spotIndex]);
+                          },
                   ),
-                ),
-              ),
-              lineTouchData: LineTouchData(
-                touchTooltipData: LineTouchTooltipData(
-                  getTooltipItems: (spots) => [
-                    for (final spot in spots)
-                      if (spot.barIndex == 0)
-                        LineTooltipItem(
-                          '${points[spot.spotIndex].label}\n'
-                          '${valueLabel(spot.y)}',
-                          theme.textTheme.bodySmall!.copyWith(
-                            color: theme.colorScheme.onInverseSurface,
-                          ),
-                        )
-                      else
-                        null,
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: [for (final p in points) FlSpot(p.x, p.y)],
+                      isCurved: false,
+                      color: seriesColor,
+                      barWidth: 2.5,
+                      dotData: FlDotData(
+                        getDotPainter: (spot, percent, bar, index) {
+                          final reliable = points[index].reliable;
+                          return FlDotCirclePainter(
+                            radius: reliable ? 4 : 3,
+                            color: reliable
+                                ? seriesColor
+                                : theme.colorScheme.onSurfaceVariant,
+                            strokeWidth: reliable ? 0 : 1.5,
+                            strokeColor: theme.colorScheme.onSurfaceVariant,
+                          );
+                        },
+                      ),
+                    ),
+                    if (secondaryPoints != null)
+                      LineChartBarData(
+                        spots: [
+                          for (final p in secondaryPoints!) FlSpot(p.x, p.y),
+                        ],
+                        isCurved: false,
+                        // No connecting line — a muted scatter only, so it reads
+                        // as noise the dominant series has already smoothed away.
+                        color: Colors.transparent,
+                        barWidth: 0,
+                        dotData: FlDotData(
+                          getDotPainter: (spot, percent, bar, index) =>
+                              FlDotCirclePainter(
+                                radius: 2.5,
+                                color: theme.colorScheme.onSurfaceVariant
+                                    .withValues(alpha: 0.5),
+                                strokeWidth: 0,
+                              ),
+                        ),
+                      ),
+                    if (regression != null)
+                      LineChartBarData(
+                        spots: [
+                          FlSpot(points.first.x, regression.at(points.first.x)),
+                          FlSpot(points.last.x, regression.at(points.last.x)),
+                        ],
+                        isCurved: false,
+                        color: theme.colorScheme.onSurfaceVariant,
+                        barWidth: 1.5,
+                        dashArray: const [6, 4],
+                        dotData: const FlDotData(show: false),
+                      ),
                   ],
                 ),
-                touchCallback: onPointTap == null
-                    ? null
-                    : (event, response) {
-                        if (event is! FlTapUpEvent) return;
-                        final spots = response?.lineBarSpots;
-                        if (spots == null || spots.isEmpty) return;
-                        final spot = spots.first;
-                        if (spot.barIndex != 0) return;
-                        onPointTap!(points[spot.spotIndex]);
-                      },
               ),
-              lineBarsData: [
-                LineChartBarData(
-                  spots: [for (final p in points) FlSpot(p.x, p.y)],
-                  isCurved: false,
-                  color: seriesColor,
-                  barWidth: 2.5,
-                  dotData: FlDotData(
-                    getDotPainter: (spot, percent, bar, index) {
-                      final reliable = points[index].reliable;
-                      return FlDotCirclePainter(
-                        radius: reliable ? 4 : 3,
-                        color: reliable
-                            ? seriesColor
-                            : theme.colorScheme.onSurfaceVariant,
-                        strokeWidth: reliable ? 0 : 1.5,
-                        strokeColor: theme.colorScheme.onSurfaceVariant,
-                      );
-                    },
-                  ),
-                ),
-                if (secondaryPoints != null)
-                  LineChartBarData(
-                    spots: [for (final p in secondaryPoints!) FlSpot(p.x, p.y)],
-                    isCurved: false,
-                    // No connecting line — a muted scatter only, so it reads
-                    // as noise the dominant series has already smoothed away.
-                    color: Colors.transparent,
-                    barWidth: 0,
-                    dotData: FlDotData(
-                      getDotPainter: (spot, percent, bar, index) =>
-                          FlDotCirclePainter(
-                            radius: 2.5,
-                            color: theme.colorScheme.onSurfaceVariant
-                                .withValues(alpha: 0.5),
-                            strokeWidth: 0,
-                          ),
-                    ),
-                  ),
-                if (regression != null)
-                  LineChartBarData(
-                    spots: [
-                      FlSpot(points.first.x, regression.at(points.first.x)),
-                      FlSpot(points.last.x, regression.at(points.last.x)),
-                    ],
-                    isCurved: false,
-                    color: theme.colorScheme.onSurfaceVariant,
-                    barWidth: 1.5,
-                    dashArray: const [6, 4],
-                    dotData: const FlDotData(show: false),
-                  ),
-              ],
             ),
           ),
         ),

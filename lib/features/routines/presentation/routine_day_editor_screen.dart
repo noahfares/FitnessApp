@@ -955,6 +955,7 @@ class _RoutinePreviewCard extends ConsumerWidget {
         children: [
           if (barPoints.isNotEmpty)
             WeeklyBarChart(
+              metricLabel: 'Planned sets per muscle',
               points: barPoints,
               subtitle: 'Sets per muscle',
               valueLabel: (v) => v.toStringAsFixed(1),

@@ -36,6 +36,7 @@ class PlateSettingsScreen extends ConsumerWidget {
         children: [
           _SectionHeading(
             'Bars',
+            addLabel: 'Add a bar',
             onAdd: () => _showBarSheet(context, ref, unit: unit),
           ),
           bars.view(
@@ -64,6 +65,7 @@ class PlateSettingsScreen extends ConsumerWidget {
           const Divider(),
           _SectionHeading(
             'Plates',
+            addLabel: 'Add a plate',
             onAdd: () => _showPlateSheet(context, ref, unit: unit),
           ),
           plates.view(
@@ -112,10 +114,18 @@ Future<void> _showPlateSheet(
 }
 
 class _SectionHeading extends StatelessWidget {
-  const _SectionHeading(this.text, {required this.onAdd});
+  const _SectionHeading(
+    this.text, {
+    required this.onAdd,
+    required this.addLabel,
+  });
 
   final String text;
   final VoidCallback onAdd;
+
+  /// What the add button announces. "Add" alone is ambiguous on a screen with
+  /// two of them (`F-A11Y-001`).
+  final String addLabel;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -130,7 +140,11 @@ class _SectionHeading extends StatelessWidget {
         Expanded(
           child: Text(text, style: Theme.of(context).textTheme.titleSmall),
         ),
-        IconButton(onPressed: onAdd, icon: const Icon(Icons.add)),
+        IconButton(
+          tooltip: addLabel,
+          onPressed: onAdd,
+          icon: const Icon(Icons.add),
+        ),
       ],
     ),
   );

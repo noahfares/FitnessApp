@@ -85,6 +85,9 @@ class HistorySetRow extends ConsumerWidget {
             SizedBox(
               width: AppSpacing.setNoteColumn,
               child: IconButton(
+                tooltip: (set.notes?.isNotEmpty ?? false)
+                    ? 'Edit set note'
+                    : 'Add a set note',
                 padding: EdgeInsets.zero,
                 iconSize: 18,
                 color: (set.notes?.isNotEmpty ?? false)

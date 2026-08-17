@@ -15,6 +15,7 @@ void main() {
       theme: dark ? AppTheme.dark() : AppTheme.light(),
       home: Scaffold(
         body: WeeklyBarChart(
+          metricLabel: 'Weekly volume',
           points: points,
           valueLabel: (v) => v.toStringAsFixed(0),
           subtitle: 'Last 3 months · kg',
@@ -64,6 +65,7 @@ void main() {
         theme: AppTheme.light(),
         home: Scaffold(
           body: WeeklyBarChart(
+            metricLabel: 'Weekly volume',
             points: const [
               WeeklyBarPoint(value: 1000, label: 'Aug 3'),
               WeeklyBarPoint(value: 1200, label: 'Aug 10'),
