@@ -8,6 +8,11 @@ import '../../../data/platform/app_info_service.dart';
 
 const _repositoryUrl = 'https://github.com/noahfares/fitnessapp';
 
+/// The policy lives in the repository, not on a host of its own (`F-REL-007`
+/// §4) — a file with a commit history is harder to quietly rewrite than a page.
+const _privacyPolicyUrl =
+    'https://github.com/noahfares/fitnessapp/blob/main/PRIVACY.md';
+
 /// Settings › About (`F-SET-009`).
 ///
 /// The version shown here is the only diagnostic context this app will ever
@@ -67,6 +72,15 @@ class AboutScreen extends ConsumerWidget {
                   style: theme.textTheme.bodyMedium,
                 ),
               ],
+            ),
+          ),
+          ListTile(
+            title: const Text('Privacy policy'),
+            subtitle: const Text('The full text, in the app\'s repository'),
+            trailing: const Icon(Icons.open_in_new),
+            onTap: () => launchUrl(
+              Uri.parse(_privacyPolicyUrl),
+              mode: LaunchMode.externalApplication,
             ),
           ),
         ],

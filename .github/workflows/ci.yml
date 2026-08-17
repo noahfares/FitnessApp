@@ -42,6 +42,9 @@ jobs:
       - name: Layer rule — lib/domain/ imports no Flutter, no data layer
         run: ./tools/check-layers.sh
 
+      - name: No network calls — the claim every privacy declaration rests on
+        run: ./tools/check-network.sh
+
       - name: Version consistency
         run: |
           set -euo pipefail

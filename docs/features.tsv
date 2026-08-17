@@ -156,7 +156,7 @@ F-REL-003	1	done	P1	GitHub Release automation	F-REL-002		62-RELEASE, 61-CI-CD
 F-REL-004	6	planned	P1	App bundle for Play	F-REL-002		62-RELEASE, 61-CI-CD
 F-REL-005	1	done	P1	Versioning scheme			62-RELEASE, 61-CI-CD
 F-REL-006	6	planned	P2	Store listing assets	F-THM-006		62-RELEASE, 61-CI-CD
-F-REL-007	6	planned	P0	Privacy policy and data safety			62-RELEASE, 10-VISION#non-goals
+F-REL-007	6	done	P0	Privacy policy and data safety			62-RELEASE, 10-VISION#non-goals
 F-REL-008	—	idea	P2	Update check for sideloaded installs			62-RELEASE, 61-CI-CD
 F-REL-009	—	idea	P2	iOS build and TestFlight			62-RELEASE, 61-CI-CD
 F-REL-010	—	idea	P3	F-Droid			62-RELEASE, 61-CI-CD

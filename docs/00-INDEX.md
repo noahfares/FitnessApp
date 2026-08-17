@@ -30,7 +30,7 @@ features.tsv  ← all 163 in one small generated file                    │
 51-BACKLOG    unscheduled ideas, already ID'd
    │
    ▼
-60-ENGINEERING ── 61-CI-CD ── 62-RELEASE ── 63-VERSIONING
+60-ENGINEERING ── 61-CI-CD ── 62-RELEASE ── 63-VERSIONING ── 64-PRIVACY
                                    how work gets built, versioned, shipped
 80-GLOSSARY   domain vocabulary
 ```
@@ -49,6 +49,7 @@ features.tsv  ← all 163 in one small generated file                    │
 | Building a screen | `23-NAVIGATION.md` + `24-DESIGN-SYSTEM.md` |
 | Deciding what to build next | `50-ROADMAP.md` |
 | Setting up CI or cutting a release | `61-CI-CD.md`, `62-RELEASE.md` |
+| Filling in a store privacy questionnaire | `64-PRIVACY.md`, and `PRIVACY.md` at the root |
 | **Committing anything at all** | `63-VERSIONING.md` — every commit bumps and tags |
 | Wondering why something is the way it is | `70-decisions/` |
 | Wondering whether an outside doc was already considered | `11-EXTERNAL-INPUTS.md` |
@@ -75,6 +76,7 @@ features.tsv  ← all 163 in one small generated file                    │
 | [`61-CI-CD.md`](61-CI-CD.md) | Workflow specifications |
 | [`62-RELEASE.md`](62-RELEASE.md) | Signing, distribution, store checklists |
 | [`63-VERSIONING.md`](63-VERSIONING.md) | **Version scheme and the mandatory bump-and-tag protocol** |
+| [`64-PRIVACY.md`](64-PRIVACY.md) | Store data-safety answers, and how the no-network claim is verified |
 | [`70-decisions/`](70-decisions/) | Architecture decision records |
 | [`80-GLOSSARY.md`](80-GLOSSARY.md) | Domain vocabulary |
 

@@ -40,5 +40,8 @@ echo "== test"
 echo "== layers"
 ./tools/check-layers.sh
 
+echo "== network"
+./tools/check-network.sh | tail -2
+
 echo "== docs"
 ./tools/check-docs.sh | tail -1
