@@ -53,7 +53,9 @@ user's phone knows about their activity, without them re-entering anything.
   to remove a record that was never written is noise.
 - **minSdk moves to 26**, which Health Connect's client library requires. That
   drops Android 7.x; recorded in `docs/62-RELEASE.md` as the product decision
-  it is rather than left in `build.gradle.kts`.
+  it is rather than left in `build.gradle.kts`, and **confirmed by the project
+  owner** rather than assumed — this feature is what costs those devices, so
+  the trade lives with it.
 - `PRIVACY.md` §health-data was rewritten *first* — version 1 promised any such
   integration would be disclosed there before it shipped — and
   `docs/64-PRIVACY.md` gained the Play Health-apps declaration.
