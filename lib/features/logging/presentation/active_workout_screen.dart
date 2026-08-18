@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/a11y/motion.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
@@ -104,15 +105,65 @@ class _NoActiveWorkout extends StatelessWidget {
   }
 }
 
-class _ActiveWorkout extends ConsumerWidget {
+class _ActiveWorkout extends ConsumerStatefulWidget {
   const _ActiveWorkout({required this.workout});
 
   final Workout workout;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ActiveWorkout> createState() => _ActiveWorkoutState();
+}
+
+class _ActiveWorkoutState extends ConsumerState<_ActiveWorkout> {
+  /// One key per exercise tile, so completing a set inside a superset can
+  /// bring the next member into view (`F-LOG-015` §2). Keyed by
+  /// `workoutExerciseId` rather than by index: the list reorders
+  /// (`F-LOG-010`), and an index-keyed map would scroll to whatever moved
+  /// into that slot.
+  final _tileKeys = <String, GlobalKey>{};
+
+  /// "Advance to the next exercise in the group" (`F-LOG-015` §2), in a logger
+  /// that deliberately shows every exercise at once.
+  ///
+  /// Reshaping the screen into one-exercise-at-a-time was the alternative, and
+  /// it would cost more than the clause is worth: seeing the whole session is
+  /// what makes the list usable between sets. Scrolling the next member to the
+  /// top is the same intent — it is what a one-at-a-time screen would show —
+  /// without hiding everything else.
+  void _advanceToNextInGroup(List<SessionExercise> exercises, int index) {
+    final current = exercises[index];
+    if (current.groupId == null) return;
+    final next = index + 1 < exercises.length ? exercises[index + 1] : null;
+    // Wrapping back to the group's first member is deliberate: after the last
+    // member the round starts again, which is what a superset is.
+    final target = next != null && next.groupId == current.groupId
+        ? next
+        : exercises.firstWhere(
+            (e) => e.groupId == current.groupId,
+            orElse: () => current,
+          );
+    if (target.workoutExerciseId == current.workoutExerciseId) return;
+
+    final key = _tileKeys[target.workoutExerciseId];
+    final context = key?.currentContext;
+    if (context == null) return;
+    unawaited(
+      Scrollable.ensureVisible(
+        context,
+        alignment: 0.1,
+        duration: motionDuration(context, const Duration(milliseconds: 250)),
+        curve: Curves.easeOut,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final workout = widget.workout;
     final theme = Theme.of(context);
-    final exercises = ref.watch(sessionExercisesProvider(workout.id)).value;
+    final exercises = ref
+        .watch(sessionExercisesProvider(widget.workout.id))
+        .value;
     final elapsed = ref.watch(elapsedProvider);
 
     return Scaffold(
@@ -194,8 +245,13 @@ class _ActiveWorkout extends ConsumerWidget {
                       final isFirstInGroup =
                           groupId != null &&
                           (i == 0 || exercises[i - 1].groupId != groupId);
+                      final tileKey = _tileKeys.putIfAbsent(
+                        exercise.workoutExerciseId,
+                        GlobalKey.new,
+                      );
                       return _SessionExerciseTile(
                         key: ValueKey(exercise.workoutExerciseId),
+                        tileKey: tileKey,
                         index: i,
                         exercise: exercise,
                         isFirstInGroup: isFirstInGroup,
@@ -203,6 +259,8 @@ class _ActiveWorkout extends ConsumerWidget {
                         nextExercise: i < exercises.length - 1
                             ? exercises[i + 1]
                             : null,
+                        onSetCompleted: () =>
+                            _advanceToNextInGroup(exercises, i),
                       );
                     },
                     onReorderItem: (oldIndex, newIndex) =>
@@ -264,14 +322,16 @@ class _ActiveWorkout extends ConsumerWidget {
   Future<void> _addExercises(BuildContext context, WidgetRef ref) async {
     final chosen = await showExercisePicker(context, ref);
     if (chosen == null || chosen.isEmpty) return;
-    await ref.read(workoutRepositoryProvider).addExercises(workout.id, chosen);
+    await ref
+        .read(workoutRepositoryProvider)
+        .addExercises(widget.workout.id, chosen);
   }
 
   /// Finishing an empty session would leave a junk history entry, so it asks
   /// first (`F-LOG-001` §6).
   Future<void> _finish(BuildContext context, WidgetRef ref) async {
     final repo = ref.read(workoutRepositoryProvider);
-    final tally = await repo.tally(workout.id);
+    final tally = await repo.tally(widget.workout.id);
 
     if (tally.isEmpty) {
       if (!context.mounted) return;
@@ -299,7 +359,7 @@ class _ActiveWorkout extends ConsumerWidget {
       if (choice == 'cancel' || choice == null) return;
       if (choice == 'discard') {
         await _end(ref, () async {
-          await repo.discard(workout.id);
+          await repo.discard(widget.workout.id);
           if (context.mounted) context.go(AppRoutes.home);
         });
         return;
@@ -307,18 +367,18 @@ class _ActiveWorkout extends ConsumerWidget {
     }
 
     await _end(ref, () async {
-      await repo.finish(workout.id);
+      await repo.finish(widget.workout.id);
       // maxSessionVolume only means something once the session's total is
       // final (`F-LOG-013`, `docs/40-ANALYTICS-SPEC.md` §4) — unlike the other
       // three kinds, it is never evaluated mid-session.
       await ref
           .read(personalRecordRepositoryProvider)
-          .evaluateSessionVolume(workout.id);
+          .evaluateSessionVolume(widget.workout.id);
       // Health Connect, if it was asked for (`F-HLT-001`). Deliberately
       // unawaited and after the navigation below is decided: a write failure —
       // or a slow platform call — must never stand between finishing a session
       // and seeing the summary (§3). The local record is authoritative.
-      final finished = await repo.findById(workout.id);
+      final finished = await repo.findById(widget.workout.id);
       if (finished?.endedAt case final endedAt?) {
         unawaited(
           writeWorkoutToHealth(
@@ -334,7 +394,7 @@ class _ActiveWorkout extends ConsumerWidget {
       if (!context.mounted) return;
       // Replaces the stack rather than popping, so back does not walk into a
       // finished session (docs/23-NAVIGATION.md §navigation-invariants).
-      context.go(AppRoutes.activeWorkoutSummary, extra: workout.id);
+      context.go(AppRoutes.activeWorkoutSummary, extra: widget.workout.id);
     });
   }
 
@@ -360,7 +420,7 @@ class _ActiveWorkout extends ConsumerWidget {
   /// only half-guards against.
   Future<void> _discard(BuildContext context, WidgetRef ref) async {
     final repo = ref.read(workoutRepositoryProvider);
-    final tally = await repo.tally(workout.id);
+    final tally = await repo.tally(widget.workout.id);
     if (!context.mounted) return;
 
     final confirmed = await showModalBottomSheet<bool>(
@@ -417,7 +477,7 @@ class _ActiveWorkout extends ConsumerWidget {
     if (!context.mounted) return;
 
     await _end(ref, () async {
-      await repo.discard(workout.id);
+      await repo.discard(widget.workout.id);
       if (context.mounted) context.go(AppRoutes.home);
     });
   }
@@ -448,6 +508,8 @@ class _StaleSessionNotice extends StatelessWidget {
 class _SessionExerciseTile extends ConsumerWidget {
   const _SessionExerciseTile({
     required this.exercise,
+    required this.tileKey,
+    required this.onSetCompleted,
     required this.index,
     required this.isFirstInGroup,
     required this.isLastInGroup,
@@ -456,6 +518,13 @@ class _SessionExerciseTile extends ConsumerWidget {
   });
 
   final SessionExercise exercise;
+
+  /// Anchors this tile for `Scrollable.ensureVisible` when a superset partner
+  /// finishes a set (`F-LOG-015` §2).
+  final GlobalKey tileKey;
+
+  /// Called when any set in this exercise is ticked.
+  final VoidCallback onSetCompleted;
 
   /// This tile's position in the list, for the drag handle
   /// (`ReorderableDragStartListener`, `F-LOG-010` §1).
@@ -496,6 +565,7 @@ class _SessionExerciseTile extends ConsumerWidget {
     final restSeconds = restSecondsForGroupMember(
       isGrouped: exercise.groupId != null,
       isLastInGroup: isLastInGroup,
+      withinGroupSeconds: exercise.withinGroupRestSeconds,
       resolvedSeconds: resolveRestSeconds(
         equipment: exercise.equipment.name,
         primaryMuscle: exercise.primaryMuscle.name,
@@ -509,6 +579,7 @@ class _SessionExerciseTile extends ConsumerWidget {
     ]);
 
     final tile = Column(
+      key: tileKey,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ListTile(
@@ -621,6 +692,7 @@ class _SessionExerciseTile extends ConsumerWidget {
           for (var i = 0; i < sets.length; i++)
             SetRow(
               set: sets[i],
+              onCompleted: onSetCompleted,
               label: labels[i],
               ghost: i < ghosts.length ? ghosts[i] : null,
               fields: fields,

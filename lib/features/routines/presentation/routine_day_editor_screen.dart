@@ -348,6 +348,16 @@ class _DayExerciseListState extends ConsumerState<DayExerciseList> {
                 onUngroup: groupId == null
                     ? null
                     : () => unawaited(_ungroup(groupId)),
+                withinGroupRestSeconds: row.withinGroupRestSeconds,
+                onWithinGroupRest: groupId == null || !isFirstInGroup
+                    ? null
+                    : () => unawaited(
+                        _editWithinGroupRest(
+                          context,
+                          groupId,
+                          row.withinGroupRestSeconds,
+                        ),
+                      ),
               );
             },
             onReorderItem: (oldIndex, newIndex) =>
@@ -392,6 +402,66 @@ class _DayExerciseListState extends ConsumerState<DayExerciseList> {
 
   Future<void> _ungroup(String groupId) =>
       ref.read(routineRepositoryProvider).ungroupExercises(groupId);
+
+  /// One picker per group, from the block's own header (`F-ROU-005` §3).
+  Future<void> _editWithinGroupRest(
+    BuildContext context,
+    String groupId,
+    int? current,
+  ) async {
+    final chosen = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.screen,
+                vertical: AppSpacing.sm,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.routinesWithinGroupRest,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    context.l10n.routinesWithinGroupRestExplainer,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+            RadioGroup<int>(
+              groupValue: current ?? 0,
+              onChanged: (value) => Navigator.of(context).pop(value ?? 0),
+              child: Column(
+                children: [
+                  RadioListTile<int>(
+                    value: 0,
+                    title: Text(context.l10n.routinesNoRestBetween),
+                  ),
+                  for (final seconds in const [10, 15, 30, 45, 60])
+                    RadioListTile<int>(
+                      value: seconds,
+                      title: Text(formatRestDuration(seconds)),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (chosen == null) return;
+    await ref
+        .read(routineRepositoryProvider)
+        .setWithinGroupRest(groupId, chosen == 0 ? null : chosen);
+  }
 }
 
 class _ExerciseTargetTile extends ConsumerWidget {
@@ -404,6 +474,8 @@ class _ExerciseTargetTile extends ConsumerWidget {
     required this.onSelectToggle,
     required this.onLongPress,
     required this.onUngroup,
+    required this.onWithinGroupRest,
+    required this.withinGroupRestSeconds,
     super.key,
   });
 
@@ -415,6 +487,12 @@ class _ExerciseTargetTile extends ConsumerWidget {
   final VoidCallback onSelectToggle;
   final VoidCallback onLongPress;
   final VoidCallback? onUngroup;
+
+  /// Opens the picker for rest *between* members (`F-ROU-005` §3). Null on a
+  /// row that is not the first of its group — one control per group, on the
+  /// block's own header, is the whole point of that header existing.
+  final VoidCallback? onWithinGroupRest;
+  final int? withinGroupRestSeconds;
 
   bool get _isGrouped => row.groupId != null;
 
@@ -511,6 +589,15 @@ class _ExerciseTargetTile extends ConsumerWidget {
                     ),
                   ),
                   const Spacer(),
+                  if (onWithinGroupRest != null)
+                    TextButton(
+                      onPressed: onWithinGroupRest,
+                      child: Text(
+                        withinGroupRestSeconds == null
+                            ? context.l10n.routinesNoRestBetween
+                            : formatRestDuration(withinGroupRestSeconds!),
+                      ),
+                    ),
                   if (onUngroup != null)
                     TextButton(
                       onPressed: onUngroup,
@@ -546,6 +633,30 @@ class _TargetEditorSheet extends ConsumerStatefulWidget {
 }
 
 class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
+  /// Where the resolved rest comes from, in words (`F-ROU-006`).
+  String _restSourceHint(BuildContext context, WidgetRef ref) {
+    final globalSeconds = ref.watch(restTimerSettingsProvider).defaultSeconds;
+    final resolved = resolveRestSeconds(
+      equipment: widget.row.equipment,
+      primaryMuscle: widget.row.primaryMuscle,
+      routineSeconds: _restSeconds,
+      exerciseSeconds: widget.row.exerciseDefaultRestSeconds,
+      globalSeconds: globalSeconds,
+    );
+    final source = resolveRestSource(
+      routineSeconds: _restSeconds,
+      exerciseSeconds: widget.row.exerciseDefaultRestSeconds,
+      globalSeconds: globalSeconds,
+    );
+    final duration = formatRestDuration(resolved);
+    return switch (source) {
+      RestSource.routine => context.l10n.routinesRestFromRoutine(duration),
+      RestSource.exercise => context.l10n.routinesRestFromExercise(duration),
+      RestSource.global => context.l10n.routinesRestFromGlobal(duration),
+      RestSource.builtIn => context.l10n.routinesRestFromBuiltIn(duration),
+    };
+  }
+
   late final TextEditingController _sets;
   late final TextEditingController _repsMin;
   late final TextEditingController _repsMax;
@@ -681,7 +792,12 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                 decoration: InputDecoration(
                   labelText: context.l10n.routinesRest,
                   border: const OutlineInputBorder(),
-                  helperText: context.l10n.routinesRestOverrideHint,
+                  // Which level "Default" actually resolves to, not just the
+                  // word "default" (`F-ROU-006`): a field showing 90 s with no
+                  // indication of where 90 came from is indistinguishable from
+                  // one somebody set deliberately, and the difference decides
+                  // whether editing the exercise will change anything.
+                  helperText: _restSourceHint(context, ref),
                 ),
                 items: [
                   DropdownMenuItem(

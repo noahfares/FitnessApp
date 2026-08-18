@@ -15,13 +15,15 @@ import '../../../domain/analytics/muscle_balance.dart';
 import '../../../domain/analytics/muscle_heat.dart';
 import '../../../domain/analytics/sets_per_muscle.dart';
 import '../../../domain/analytics/weekly_volume.dart';
-import '../../../domain/catalog/muscle_taxonomy.dart' show BodyMapView;
+import '../../../domain/catalog/muscle_taxonomy.dart'
+    show BodyMapView, MuscleCategory;
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../settings/application/week_start_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/body_map_heat_overlay.dart';
 import '../../shell/widgets/trend_chart.dart';
+import '../../shell/widgets/radar_chart.dart';
 import '../../shell/widgets/weekly_bar_chart.dart';
 import '../application/acwr_provider.dart';
 import '../application/analytics_clock_provider.dart';
@@ -146,6 +148,8 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
     );
     final pushPull = pushPullRatio(trailingTotals);
     final quadHamstring = quadHamstringRatio(trailingTotals);
+    final shares = volumeShareByCategory(trailingWindowRecords);
+    final maxShare = shares.values.fold<double>(0, (a, b) => a > b ? a : b);
 
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.screen),
@@ -208,6 +212,31 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
                   ratio: quadHamstring.ratio,
                 ),
               ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        // The radar §9 actually asks for. Shares, not grams: the question is
+        // whether one side of the training dwarfs another, and a scale that
+        // depends on how strong someone is answers a different one.
+        Center(
+          child: RadarChart(
+            metricLabel: context.l10n.analyticsRelativeVolumeByMuscle,
+            axes: [
+              for (final entry in shares.entries)
+                RadarAxis(
+                  label: switch (entry.key) {
+                    MuscleCategory.push => context.l10n.analyticsPush,
+                    MuscleCategory.pull => context.l10n.analyticsPull,
+                    MuscleCategory.legs => context.l10n.analyticsLegs,
+                    MuscleCategory.core => context.l10n.analyticsCore,
+                  },
+                  // Relative to the largest share, so the biggest category
+                  // always reaches the outer ring — the shape is about
+                  // proportion, and a polygon hugging the centre says nothing.
+                  value: maxShare == 0 ? 0 : entry.value / maxShare,
+                  displayValue: '${(entry.value * 100).round()}%',
+                ),
             ],
           ),
         ),
@@ -324,6 +353,16 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
             ],
             subtitle: rangeLabel,
             valueLabel: (v) => v.toStringAsFixed(1),
+            // "Optional reference bands for common volume targets"
+            // (`F-ANA-005` §2). A range, not a line: the evidence for hard-set
+            // volume is a range, and drawing one number would turn a rough
+            // guide into a prescription — the same framing ACWR and muscle
+            // balance already use.
+            referenceBand: (
+              min: 10,
+              max: 20,
+              label: context.l10n.analyticsReferenceBand,
+            ),
             // Tap a bar to scope "Contributing exercises" to that one week
             // (`F-ANA-016`) — carried over from `F-ANA-005`'s own deferral.
             onBarTap: (index, _) =>

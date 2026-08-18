@@ -410,6 +410,36 @@ void main() {
 
       expect(find.text('Superset'), findsNothing);
     });
+
+    testWidgets('completing a set brings the next group member into view', (
+      tester,
+    ) async {
+      await seedExercises();
+      final workout = await repo.start();
+      await repo.addExercises(workout.id, ['bench', 'squat', 'row']);
+      final exercises = await repo.watchExercises(workout.id).first;
+      await repo.toggleGroupWithNext(
+        exercises[0].workoutExerciseId,
+        exercises[1].workoutExerciseId,
+      );
+
+      await pumpApp(tester, db: db, startAt: AppRoutes.activeWorkout);
+
+      // The third exercise is below the fold to start with — that is the
+      // point of the screen showing everything at once.
+      final squatBefore = tester.getTopLeft(find.text('Back Squat')).dy;
+
+      await tester.tap(find.byType(Checkbox).first);
+      await tester.pumpAndSettle();
+
+      // Ticking the first member of the superset scrolls its partner up
+      // (`F-LOG-015` §2) rather than reshaping the screen into
+      // one-exercise-at-a-time.
+      expect(
+        tester.getTopLeft(find.text('Back Squat')).dy,
+        lessThan(squatBefore),
+      );
+    });
   });
 
   group('formatElapsed', () {

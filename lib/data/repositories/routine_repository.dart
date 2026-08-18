@@ -44,6 +44,7 @@ class RoutineExerciseDetail {
     this.targetWeightGrams,
     this.targetRpe,
     this.restSeconds,
+    this.withinGroupRestSeconds,
     this.exerciseDefaultRestSeconds,
     this.notes,
     this.progressionRule = const ManualCarryForwardRule(),
@@ -70,6 +71,10 @@ class RoutineExerciseDetail {
   final int? targetWeightGrams;
   final double? targetRpe;
   final int? restSeconds;
+
+  /// Rest between members of this exercise's superset (`F-ROU-005` §3). Null
+  /// is no pause at all, which is what a superset means by default.
+  final int? withinGroupRestSeconds;
   final int? exerciseDefaultRestSeconds;
   final String? notes;
 
@@ -672,6 +677,30 @@ class RoutineRepository {
         );
   }
 
+  /// Every weekday any non-archived routine day is scheduled for
+  /// (`F-ROU-012`), as ISO weekday numbers — what `F-ANA-006`'s adherence
+  /// figure measures against. Empty means nothing is scheduled at all, which
+  /// the metric treats as "no ratio to report" rather than as 0%.
+  Stream<Set<int>> watchScheduledWeekdays() {
+    return (_db.select(_db.routineDays).join([
+          innerJoin(
+            _db.routines,
+            _db.routines.id.equalsExp(_db.routineDays.routineId),
+          ),
+        ])..where(
+          _db.routineDays.deletedAt.isNull() &
+              _db.routines.deletedAt.isNull() &
+              _db.routines.archivedAt.isNull(),
+        ))
+        .watch()
+        .map(
+          (rows) => {
+            for (final row in rows)
+              ...row.readTable(_db.routineDays).scheduledWeekdays,
+          },
+        );
+  }
+
   /// Persists the day order after a drag-to-reorder (`F-ROU-004`).
   Future<void> reorderDays(List<String> orderedDayIds) async {
     final timestamp = _now;
@@ -734,6 +763,7 @@ class RoutineRepository {
                  re.target_weight_grams AS target_weight_grams,
                  re.target_rpe        AS target_rpe,
                  re.rest_seconds      AS rest_seconds,
+                 re.within_group_rest_seconds AS within_group_rest_seconds,
                  e.default_rest_seconds AS exercise_default_rest_seconds,
                  re.notes             AS notes,
                  re.progression_rule  AS progression_rule,
@@ -768,6 +798,9 @@ class RoutineRepository {
                 targetWeightGrams: row.read<int?>('target_weight_grams'),
                 targetRpe: row.read<double?>('target_rpe'),
                 restSeconds: row.read<int?>('rest_seconds'),
+                withinGroupRestSeconds: row.read<int?>(
+                  'within_group_rest_seconds',
+                ),
                 exerciseDefaultRestSeconds: row.read<int?>(
                   'exercise_default_rest_seconds',
                 ),
@@ -964,6 +997,23 @@ class RoutineRepository {
         );
       }
     });
+  }
+
+  /// Rest between the members of one superset (`F-ROU-005` §3).
+  ///
+  /// Written to every member so the value travels with the group rather than
+  /// with whichever row happened to be edited — and so `startFromRoutineDay`'s
+  /// snapshot picks it up per row without a join back to a group table that
+  /// does not exist. Null restores the default: no pause at all.
+  Future<void> setWithinGroupRest(String groupId, int? seconds) async {
+    await (_db.update(
+      _db.routineExercises,
+    )..where((re) => re.groupId.equals(groupId))).write(
+      RoutineExercisesCompanion(
+        withinGroupRestSeconds: Value(seconds),
+        updatedAt: Value(_now),
+      ),
+    );
   }
 
   /// Ungrouping is a single action that clears every member's `group_id`

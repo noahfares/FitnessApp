@@ -43,6 +43,7 @@ class SetRow extends ConsumerWidget {
     required this.equipment,
     required this.restSeconds,
     required this.exerciseId,
+    this.onCompleted,
     this.perSide = false,
     this.incrementGrams,
   });
@@ -52,6 +53,13 @@ class SetRow extends ConsumerWidget {
 
   /// Which cached PR records to check this row against (`F-LOG-013` §2).
   final String exerciseId;
+
+  /// Called the instant a set is ticked, before anything is written
+  /// (`F-LOG-015` §2 — "completing a set advances to the next exercise in the
+  /// group"). Null for a row with nowhere to advance to, which is most of
+  /// them: the logger shows every exercise at once, so "advancing" only means
+  /// something inside a superset.
+  final VoidCallback? onCompleted;
 
   /// The matching set from last time, or null (`F-LOG-004`).
   final GhostSet? ghost;
@@ -131,6 +139,7 @@ class SetRow extends ConsumerWidget {
       fields: fields,
       ghost: ghost,
       restSeconds: restSeconds,
+      onCompleted: onCompleted,
     );
 
     // Swipe to delete, with undo (`F-LOG-003` §6). Undo is a field update
@@ -423,12 +432,14 @@ class _CompletionToggle extends ConsumerWidget {
     required this.fields,
     required this.ghost,
     required this.restSeconds,
+    this.onCompleted,
   });
 
   final WorkoutSet set;
   final List<SetField> fields;
   final GhostSet? ghost;
   final int restSeconds;
+  final VoidCallback? onCompleted;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -457,6 +468,12 @@ class _CompletionToggle extends ConsumerWidget {
   /// before the write is awaited, because the countdown starts when the bar is
   /// racked, not when SQLite says so.
   Future<void> _toggle(WidgetRef ref, bool completed) async {
+    if (completed) {
+      // Before the awaits: advancing is a UI move and should happen at the
+      // moment of the tap, not after two database round trips
+      // (`F-LOG-015` §2).
+      onCompleted?.call();
+    }
     final repo = ref.read(setRepositoryProvider);
     final timer = ref.read(restTimerProvider.notifier);
     final records = ref.read(personalRecordRepositoryProvider);

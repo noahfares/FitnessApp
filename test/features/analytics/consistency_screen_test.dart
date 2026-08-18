@@ -1,50 +1,46 @@
 import 'package:drift/drift.dart' show Value;
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:fitness_app/core/routing/app_routes.dart';
 import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/tables/enums.dart';
+import 'package:fitness_app/data/repositories/routine_repository.dart';
 import 'package:fitness_app/data/repositories/set_repository.dart';
 import 'package:fitness_app/data/repositories/workout_repository.dart';
-import 'package:fitness_app/features/analytics/presentation/consistency_screen.dart';
-import 'package:fitness_app/features/shell/widgets/calendar_heatmap.dart';
+import 'package:fitness_app/features/settings/application/weekly_target_provider.dart';
 
 import '../../support/harness.dart';
 
-/// Batch 3.4 — `F-ANA-006` reached through the real `ConsistencyScreen`.
+/// `F-ANA-006`'s two remaining clauses: a **user-configurable** weekly target
+/// (§5 rule 2) and adherence against a schedule, which waited on `F-ROU-012`.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late AppDatabase db;
-  late WorkoutRepository workouts;
-  late SetRepository sets;
-  final clock = DateTime(2026, 8, 7);
 
-  setUp(() {
-    db = testDatabase();
-    workouts = WorkoutRepository(db, clock: () => clock);
-    sets = SetRepository(db, clock: () => clock);
-  });
+  setUp(() => db = testDatabase());
 
-  Future<void> makeExercise(String id) => db
-      .into(db.exercises)
-      .insert(
-        ExercisesCompanion.insert(
-          id: id,
-          name: id,
-          primaryMuscle: Muscle.chest,
-          equipment: Equipment.barbell,
-          trackingType: TrackingType.weightReps,
-          createdAt: 1,
-          updatedAt: 1,
-        ),
-      );
-
-  testWidgets('renders the heatmap and stat tiles for a logged session', (
-    tester,
-  ) async {
-    await makeExercise('bench');
-    final workout = await workouts.start();
-    await workouts.addExercises(workout.id, ['bench']);
+  Future<void> logSessionOn(DateTime day) async {
+    await db
+        .into(db.exercises)
+        .insert(
+          ExercisesCompanion.insert(
+            id: 'bench-${day.millisecondsSinceEpoch}',
+            name: 'Bench Press',
+            primaryMuscle: Muscle.chest,
+            equipment: Equipment.barbell,
+            trackingType: TrackingType.weightReps,
+            createdAt: 1,
+            updatedAt: 1,
+          ),
+        );
+    final workouts = WorkoutRepository(db, clock: () => day);
+    final workout = await workouts.start(name: 'Push');
+    await workouts.addExercises(workout.id, [
+      'bench-${day.millisecondsSinceEpoch}',
+    ]);
+    final sets = SetRepository(db, clock: () => day);
     final we = (await workouts.watchExercises(workout.id).first)
         .single
         .workoutExerciseId;
@@ -54,17 +50,59 @@ void main() {
       weightGrams: const Value(100000),
       reps: const Value(5),
     );
+    await workouts.finish(workout.id);
+  }
 
-    await pumpScreen(tester, const ConsistencyScreen(), db: db, now: clock);
+  testWidgets('the weekly target is chosen, not assumed', (tester) async {
+    final now = DateTime(2026, 3, 15, 12);
+    final container = await pumpApp(
+      tester,
+      db: db,
+      startAt: AppRoutes.consistency,
+      now: now,
+    );
 
-    expect(find.byType(CalendarHeatmap), findsOneWidget);
-    expect(find.text('Current streak'), findsOneWidget);
-    expect(find.text('Sessions / week'), findsOneWidget);
-    expect(tester.takeException(), isNull);
+    expect(container.read(weeklyTargetProvider), defaultWeeklyTarget);
+
+    // A bare '5' also matches numbers inside the stat tiles, so the chip is
+    // located by its widget type.
+    final chip = find.widgetWithText(ChoiceChip, '5');
+    await tester.scrollUntilVisible(
+      chip,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(chip);
+    await tester.pumpAndSettle();
+
+    expect(container.read(weeklyTargetProvider), 5);
+    // And it is the number the explainer quotes, not a hard-coded 3.
+    expect(find.textContaining('Target: 5 sessions a week'), findsOneWidget);
   });
 
-  testWidgets('no sessions still renders without throwing', (tester) async {
-    await pumpScreen(tester, const ConsistencyScreen(), db: db, now: clock);
-    expect(tester.takeException(), isNull);
+  testWidgets('adherence appears once a routine day is scheduled', (
+    tester,
+  ) async {
+    final now = DateTime(2026, 3, 15, 12); // a Sunday
+    await logSessionOn(DateTime(2026, 3, 9, 18)); // Monday
+
+    await pumpApp(tester, db: db, startAt: AppRoutes.consistency, now: now);
+    // Nothing scheduled yet, so there is no ratio to report — and reporting 0%
+    // to someone who never set a schedule would be a lie.
+    expect(find.text('Against your schedule'), findsNothing);
+
+    final routines = RoutineRepository(db);
+    final routine = await routines.create(name: 'PPL');
+    final day = await routines.addDay(routine.id, name: 'Push');
+    await routines.setScheduledWeekdays(day.id, const [1]);
+
+    await pumpApp(tester, db: db, startAt: AppRoutes.consistency, now: now);
+    await tester.scrollUntilVisible(
+      find.text('Against your schedule'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    expect(find.text('Against your schedule'), findsOneWidget);
   });
 }

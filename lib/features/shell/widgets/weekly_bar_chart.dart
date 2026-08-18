@@ -32,6 +32,7 @@ class WeeklyBarChart extends StatelessWidget {
     super.key,
     this.subtitle,
     this.onBarTap,
+    this.referenceBand,
   });
 
   final List<WeeklyBarPoint> points;
@@ -42,6 +43,12 @@ class WeeklyBarChart extends StatelessWidget {
   final String metricLabel;
 
   final String? subtitle;
+
+  /// A shaded band behind the bars — "common volume targets"
+  /// (`F-ANA-005` §2). Drawn as a range rather than a single line because the
+  /// evidence is a range: presenting one number as *the* answer would be
+  /// making a prescription out of a rough guide, which this app does not do.
+  final ({double min, double max, String label})? referenceBand;
 
   /// Per-bar tap-through (`F-ANA-016`) — e.g. scoping a drill-down list to
   /// the tapped week. Null skips the tap gesture entirely. The index is
@@ -61,7 +68,13 @@ class WeeklyBarChart extends StatelessWidget {
       );
     }
 
-    final maxValue = points.map((p) => p.value).reduce((a, b) => a > b ? a : b);
+    final band = referenceBand;
+    final maxValue = [
+      ...points.map((p) => p.value),
+      // The band has to fit, or a chart whose bars are all below the
+      // recommended range would simply not show the range.
+      if (band != null) band.max,
+    ].reduce((a, b) => a > b ? a : b);
     final barColor = context.appColors.chartSeries.first;
 
     return Column(
@@ -77,12 +90,39 @@ class WeeklyBarChart extends StatelessWidget {
               ),
             ),
           ),
+        if (band != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+            child: Row(
+              children: [
+                Container(
+                  width: 14,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: context.appColors.success.withValues(alpha: 0.25),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                // The band is shaded, and shading is colour — so it is also
+                // named, in words, right here (`F-A11Y-003`).
+                Expanded(
+                  child: Text(
+                    band.label,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         // Replaced, not annotated, for a screen reader (`F-A11Y-001`): the
         // bars themselves carry no semantics, and fl_chart's axis labels read
         // as loose numbers if left exposed underneath the summary.
         Semantics(
           label: barChartSummary(
-            metric: metricLabel,
+            metric: band == null ? metricLabel : '$metricLabel, ${band.label}',
             bars: [
               for (final point in points)
                 (label: point.label, value: point.value),
@@ -107,6 +147,18 @@ class WeeklyBarChart extends StatelessWidget {
                         FlLine(color: theme.dividerColor, strokeWidth: 0.5),
                   ),
                   borderData: FlBorderData(show: false),
+                  rangeAnnotations: RangeAnnotations(
+                    horizontalRangeAnnotations: [
+                      if (band != null)
+                        HorizontalRangeAnnotation(
+                          y1: band.min,
+                          y2: band.max,
+                          color: context.appColors.success.withValues(
+                            alpha: 0.12,
+                          ),
+                        ),
+                    ],
+                  ),
                   titlesData: FlTitlesData(
                     topTitles: const AxisTitles(),
                     rightTitles: const AxisTitles(),

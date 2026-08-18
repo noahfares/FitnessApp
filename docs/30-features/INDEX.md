@@ -42,8 +42,8 @@
 | [F-ROU-002](ROU/F-ROU-002.md) | Routine days | 2 | P0 | done |
 | [F-ROU-003](ROU/F-ROU-003.md) | Exercise targets | 2 | P0 | done |
 | [F-ROU-004](ROU/F-ROU-004.md) | Reordering | 2 | P1 | done |
-| [F-ROU-005](ROU/F-ROU-005.md) | Supersets and circuits | 2 | P1 | in-progress |
-| [F-ROU-006](ROU/F-ROU-006.md) | Rest defaults | 2 | P1 | planned |
+| [F-ROU-005](ROU/F-ROU-005.md) | Supersets and circuits | 2 | P1 | done |
+| [F-ROU-006](ROU/F-ROU-006.md) | Rest defaults | 2 | P1 | done |
 | [F-ROU-007](ROU/F-ROU-007.md) | Folders | 2 | P2 | done |
 | [F-ROU-008](ROU/F-ROU-008.md) | Duplicate and version | 2 | P1 | done |
 | [F-ROU-009](ROU/F-ROU-009.md) | Archive routines | 2 | P2 | done |
@@ -72,7 +72,7 @@
 | [F-LOG-012](LOG/F-LOG-012.md) | Workout detail | 1 | P0 | done |
 | [F-LOG-013](LOG/F-LOG-013.md) | PR detection and celebration | 2 | P1 | done |
 | [F-LOG-014](LOG/F-LOG-014.md) | RPE and RIR | 2 | P1 | done |
-| [F-LOG-015](LOG/F-LOG-015.md) | Supersets in the logger | 2 | P1 | in-progress |
+| [F-LOG-015](LOG/F-LOG-015.md) | Supersets in the logger | 2 | P1 | done |
 | [F-LOG-016](LOG/F-LOG-016.md) | Repeat a previous session | 2 | P1 | done |
 | [F-LOG-017](LOG/F-LOG-017.md) | Per-side versus total weight | 2 | P1 | done |
 | [F-LOG-018](LOG/F-LOG-018.md) | Session summary | 1 | P1 | done |
@@ -104,17 +104,17 @@
 | [F-ANA-002](ANA/F-ANA-002.md) | Per-exercise history | 3 | P0 | done |
 | [F-ANA-003](ANA/F-ANA-003.md) | Estimated 1RM trend | 3 | P1 | done |
 | [F-ANA-004](ANA/F-ANA-004.md) | Volume charts | 3 | P1 | done |
-| [F-ANA-005](ANA/F-ANA-005.md) | Sets per muscle group per week | 3 | P1 | in-progress |
-| [F-ANA-006](ANA/F-ANA-006.md) | Consistency | 3 | P1 | in-progress |
+| [F-ANA-005](ANA/F-ANA-005.md) | Sets per muscle group per week | 3 | P1 | done |
+| [F-ANA-006](ANA/F-ANA-006.md) | Consistency | 3 | P1 | done |
 | [F-ANA-007](ANA/F-ANA-007.md) | PR timeline | 3 | P1 | done |
-| [F-ANA-008](ANA/F-ANA-008.md) | Muscle balance | 3 | P2 | in-progress |
+| [F-ANA-008](ANA/F-ANA-008.md) | Muscle balance | 3 | P2 | done |
 | [F-ANA-009](ANA/F-ANA-009.md) | Stall detection | 4 | P2 | done |
 | [F-ANA-010](ANA/F-ANA-010.md) | Acute-to-chronic workload ratio | 4 | P2 | done |
 | [F-ANA-011](ANA/F-ANA-011.md) | Rep range and intensity distribution | 4 | P2 | done |
 | [F-ANA-012](ANA/F-ANA-012.md) | Duration and rest compliance | 4 | P3 | done |
 | [F-ANA-013](ANA/F-ANA-013.md) | Weekly insight cards | 4 | P2 | done |
 | [F-ANA-014](ANA/F-ANA-014.md) | Body map heat overlay | 4 | P3 | done |
-| [F-ANA-015](ANA/F-ANA-015.md) | Date range and filter controls | 3 | P1 | in-progress |
+| [F-ANA-015](ANA/F-ANA-015.md) | Date range and filter controls | 3 | P1 | done |
 | [F-ANA-016](ANA/F-ANA-016.md) | Chart interaction | 3 | P2 | done |
 | [F-ANA-017](ANA/F-ANA-017.md) | Year in review | — | P3 | idea |
 | [F-ANA-018](ANA/F-ANA-018.md) | Exercise comparison | — | P3 | idea |
@@ -170,8 +170,8 @@
 | [F-SET-001](SET/F-SET-001.md) | Units | 0 | P0 | done |
 | [F-SET-002](SET/F-SET-002.md) | Theme mode | 0 | P0 | done |
 | [F-SET-003](SET/F-SET-003.md) | Rest-timer defaults | 1 | P1 | done |
-| [F-SET-004](SET/F-SET-004.md) | Bar and plate inventory | 4 | P1 | planned |
-| [F-SET-005](SET/F-SET-005.md) | Week start | 3 | P1 | in-progress |
+| [F-SET-004](SET/F-SET-004.md) | Bar and plate inventory | 4 | P1 | done |
+| [F-SET-005](SET/F-SET-005.md) | Week start | 3 | P1 | done |
 | [F-SET-006](SET/F-SET-006.md) | e1RM formula | 3 | P2 | done |
 | [F-SET-007](SET/F-SET-007.md) | Increment steps | 2 | P1 | done |
 | [F-SET-008](SET/F-SET-008.md) | Notification preferences | 2 | P2 | planned |

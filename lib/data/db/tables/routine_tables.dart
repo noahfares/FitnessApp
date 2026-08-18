@@ -76,6 +76,13 @@ class RoutineExercises extends Table with SyncColumns {
 
   IntColumn get restSeconds => integer().named('rest_seconds').nullable()();
 
+  /// Rest *between* members of a superset (`F-ROU-005` §3). Null means the
+  /// original behaviour — no pause at all between members, which is what a
+  /// superset means when nobody says otherwise — and is what every row
+  /// created before this column existed keeps.
+  IntColumn get withinGroupRestSeconds =>
+      integer().named('within_group_rest_seconds').nullable()();
+
   /// JSON-serialised progression rule (`F-PRG-001`).
   TextColumn get progressionRule =>
       text().named('progression_rule').nullable()();

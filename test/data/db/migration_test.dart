@@ -45,6 +45,16 @@ void main() {
     final raw = NativeDatabase(file);
     await raw.ensureOpen(_NoopUser());
 
+    if (version < 8) {
+      // v8 added within-group rest to both the routine template and the
+      // workout snapshot (`F-ROU-005` §3).
+      await raw.runCustom(
+        'ALTER TABLE routine_exercises DROP COLUMN within_group_rest_seconds',
+      );
+      await raw.runCustom(
+        'ALTER TABLE workout_exercises DROP COLUMN within_group_rest_seconds',
+      );
+    }
     if (version < 7) {
       // v7 added the progress_photos table (`F-BOD-004`).
       await raw.runCustom('DROP TABLE progress_photos');
@@ -360,11 +370,53 @@ void main() {
     });
   });
 
+  group('v7 -> v8: within-group rest (F-ROU-005)', () {
+    test('adds the column to both tables, preserving existing rows', () async {
+      await buildHistoricalDatabase(
+        7,
+        then: [
+          "INSERT INTO routines (id, name, position, created_at, updated_at) "
+              "VALUES ('r1', 'PPL', 0, 1, 1)",
+          "INSERT INTO routine_days (id, routine_id, name, position, "
+              "created_at, updated_at) VALUES ('d1', 'r1', 'Push', 0, 1, 1)",
+          "INSERT INTO exercises (id, name, primary_muscle, equipment, "
+              "tracking_type, created_at, updated_at) "
+              "VALUES ('e1', 'Bench', 'chest', 'barbell', 'weightReps', 1, 1)",
+          "INSERT INTO routine_exercises (id, routine_day_id, exercise_id, "
+              "position, group_id, created_at, updated_at) "
+              "VALUES ('re1', 'd1', 'e1', 0, 'g1', 1, 1)",
+        ],
+      );
+
+      final db = await reopen();
+
+      expect(
+        await columnsOf(db, 'routine_exercises'),
+        contains('within_group_rest_seconds'),
+      );
+      expect(
+        await columnsOf(db, 'workout_exercises'),
+        contains('within_group_rest_seconds'),
+      );
+
+      final row = await db
+          .customSelect(
+            'SELECT * FROM routine_exercises WHERE id = ?',
+            variables: [const Variable<String>('re1')],
+          )
+          .getSingle();
+      expect(row.read<String?>('group_id'), 'g1');
+      // Null, not zero: a superset created before this column existed had no
+      // pause between members, and that is exactly what null means.
+      expect(row.read<int?>('within_group_rest_seconds'), isNull);
+    });
+  });
+
   test('a fresh database is created at the current version', () async {
     final db = await reopen();
-    expect(db.schemaVersion, 7);
+    expect(db.schemaVersion, 8);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.read<int>('user_version'), 7);
+    expect(version.read<int>('user_version'), 8);
   });
 }
 

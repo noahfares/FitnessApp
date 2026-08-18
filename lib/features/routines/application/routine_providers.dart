@@ -62,3 +62,9 @@ final todaysScheduledDaysProvider = StreamProvider<List<ScheduledDay>>((ref) {
   final now = ref.watch(analyticsClockProvider)();
   return ref.watch(routineRepositoryProvider).watchDaysForWeekday(now.weekday);
 });
+
+/// Every weekday any routine day is scheduled for (`F-ROU-012`) — what
+/// `F-ANA-006`'s adherence figure measures against.
+final scheduledWeekdaysProvider = StreamProvider<Set<int>>(
+  (ref) => ref.watch(routineRepositoryProvider).watchScheduledWeekdays(),
+);

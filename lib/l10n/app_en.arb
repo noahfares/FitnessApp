@@ -30,6 +30,7 @@
       }
     }
   },
+  "analyticsCore": "Core",
   "analyticsCurrentStreak": "Current streak",
   "analyticsCustomRange": "Custom range",
   "analyticsDeloadSuggestedHeading": "Deload suggested — not automatic, this is your call:",
@@ -67,6 +68,7 @@
   "analyticsLast4Weeks": "Last 4 weeks",
   "analyticsLast6Months": "Last 6 months",
   "analyticsLastYear": "Last year",
+  "analyticsLegs": "Legs",
   "analyticsLinearRegressionOverlay": "Linear regression overlay",
   "analyticsLogAFewWorkoutsTo": "Log a few workouts to see volume and muscle coverage here.",
   "analyticsLogThisExerciseInA": "Log this exercise in a workout to see it here.",
@@ -82,11 +84,29 @@
   "analyticsNotEnoughLoggedRestYet": "not enough logged rest yet",
   "analyticsOverallWeeklyVolume": "Overall weekly volume",
   "analyticsPrTimeline": "PR timeline",
+  "analyticsPull": "Pull",
+  "analyticsPush": "Push",
   "analyticsPushPull": "Push : pull",
   "analyticsQuadHamstring": "Quad : hamstring",
+  "analyticsReferenceBand": "Shaded: 10–20 hard sets a week, a commonly cited range for a muscle group. A guide, not a target.",
   "analyticsRelativeVolumeByMuscle": "Relative training volume by muscle",
   "analyticsRepRanges": "Rep ranges",
   "analyticsRestComplianceCaveat": "Average actual rest vs. each exercise's resolved default — an approximation, not a per-set historical record.",
+  "analyticsScheduleAdherence": "Against your schedule",
+  "analyticsScheduleAdherenceValue": "{percent}% — you trained {trained} of {scheduled} scheduled days in the last 4 weeks.",
+  "@analyticsScheduleAdherenceValue": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "trained": {
+        "type": "int"
+      },
+      "scheduled": {
+        "type": "int"
+      }
+    }
+  },
   "analyticsSessionDuration": "Session duration",
   "analyticsSessionDurationInMinutes": "Session duration in minutes",
   "analyticsSessionsWeek": "Sessions / week",
@@ -115,6 +135,14 @@
   "analyticsTrainingLoad": "Training load",
   "analyticsTrendLine": "Trend line",
   "analyticsUnreliableAtHighRepCounts": "Unreliable at high rep counts",
+  "analyticsUnscheduledSessions": "{count, plural, =1{Plus 1 session on an unscheduled day. Extra sessions never count against this.} other{Plus {count} sessions on unscheduled days. Extra sessions never count against this.}}",
+  "@analyticsUnscheduledSessions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "analyticsVolumeForMuscle": "Volume — {muscle}",
   "@analyticsVolumeForMuscle": {
     "placeholders": {
@@ -123,6 +151,7 @@
       }
     }
   },
+  "analyticsWeeklyTarget": "Sessions a week you are aiming for",
   "analyticsWeeklyVolume": "Weekly volume",
   "analyticsWeeklyVolumeForMuscle": "Weekly volume for the selected muscle",
   "appTitle": "FitnessApp",
@@ -810,6 +839,7 @@
   "routinesNewRoutine": "New routine",
   "routinesNoDaysYet": "No days yet",
   "routinesNoFolder": "No folder",
+  "routinesNoRestBetween": "No rest between",
   "routinesNoTargetsSet": "No targets set",
   "routinesNoTrainingMaxSet": "No training max set on this exercise. Set one on the exercise's own editor first.",
   "routinesOfTm": "% of TM",
@@ -839,6 +869,38 @@
   "routinesRepsMax": "Reps max",
   "routinesRepsMin": "Reps min",
   "routinesRest": "Rest",
+  "routinesRestFromBuiltIn": "{duration}, the built-in default for this kind of exercise.",
+  "@routinesRestFromBuiltIn": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "routinesRestFromExercise": "{duration}, inherited from this exercise's own default.",
+  "@routinesRestFromExercise": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "routinesRestFromGlobal": "{duration}, inherited from your global rest setting.",
+  "@routinesRestFromGlobal": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "routinesRestFromRoutine": "{duration}, set here for this routine.",
+  "@routinesRestFromRoutine": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
   "routinesRestOverrideHint": "Overrides the exercise and global defaults.",
   "routinesRoutineCouldNotBeRead": "Routine could not be read",
   "routinesRoutinesCouldNotBeRead": "Routines could not be read",
@@ -880,6 +942,8 @@
     }
   },
   "routinesUngroup": "Ungroup",
+  "routinesWithinGroupRest": "Rest between superset members",
+  "routinesWithinGroupRestExplainer": "Zero is what a superset usually means. A few seconds is for walking between two machines without the timer treating it as a full rest.",
   "settings100Kg8": "100 kg × 8",
   "settingsAbout": "About",
   "settingsAddABar": "Add a bar",

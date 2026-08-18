@@ -63,6 +63,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get analyticsCore => 'Core';
+
+  @override
   String get analyticsCurrentStreak => 'Current streak';
 
   @override
@@ -140,6 +143,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get analyticsLastYear => 'Last year';
 
   @override
+  String get analyticsLegs => 'Legs';
+
+  @override
   String get analyticsLinearRegressionOverlay => 'Linear regression overlay';
 
   @override
@@ -188,10 +194,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get analyticsPrTimeline => 'PR timeline';
 
   @override
+  String get analyticsPull => 'Pull';
+
+  @override
+  String get analyticsPush => 'Push';
+
+  @override
   String get analyticsPushPull => 'Push : pull';
 
   @override
   String get analyticsQuadHamstring => 'Quad : hamstring';
+
+  @override
+  String get analyticsReferenceBand =>
+      'Shaded: 10–20 hard sets a week, a commonly cited range for a muscle group. A guide, not a target.';
 
   @override
   String get analyticsRelativeVolumeByMuscle =>
@@ -203,6 +219,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get analyticsRestComplianceCaveat =>
       'Average actual rest vs. each exercise\'s resolved default — an approximation, not a per-set historical record.';
+
+  @override
+  String get analyticsScheduleAdherence => 'Against your schedule';
+
+  @override
+  String analyticsScheduleAdherenceValue(
+    int percent,
+    int trained,
+    int scheduled,
+  ) {
+    return '$percent% — you trained $trained of $scheduled scheduled days in the last 4 weeks.';
+  }
 
   @override
   String get analyticsSessionDuration => 'Session duration';
@@ -253,9 +281,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'Unreliable at high rep counts';
 
   @override
+  String analyticsUnscheduledSessions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Plus $count sessions on unscheduled days. Extra sessions never count against this.',
+      one:
+          'Plus 1 session on an unscheduled day. Extra sessions never count against this.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String analyticsVolumeForMuscle(String muscle) {
     return 'Volume — $muscle';
   }
+
+  @override
+  String get analyticsWeeklyTarget => 'Sessions a week you are aiming for';
 
   @override
   String get analyticsWeeklyVolume => 'Weekly volume';
@@ -1519,6 +1563,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routinesNoFolder => 'No folder';
 
   @override
+  String get routinesNoRestBetween => 'No rest between';
+
+  @override
   String get routinesNoTargetsSet => 'No targets set';
 
   @override
@@ -1582,6 +1629,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routinesRest => 'Rest';
 
   @override
+  String routinesRestFromBuiltIn(String duration) {
+    return '$duration, the built-in default for this kind of exercise.';
+  }
+
+  @override
+  String routinesRestFromExercise(String duration) {
+    return '$duration, inherited from this exercise\'s own default.';
+  }
+
+  @override
+  String routinesRestFromGlobal(String duration) {
+    return '$duration, inherited from your global rest setting.';
+  }
+
+  @override
+  String routinesRestFromRoutine(String duration) {
+    return '$duration, set here for this routine.';
+  }
+
+  @override
   String get routinesRestOverrideHint =>
       'Overrides the exercise and global defaults.';
 
@@ -1641,6 +1708,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routinesUngroup => 'Ungroup';
+
+  @override
+  String get routinesWithinGroupRest => 'Rest between superset members';
+
+  @override
+  String get routinesWithinGroupRestExplainer =>
+      'Zero is what a superset usually means. A few seconds is for walking between two machines without the timer treating it as a full rest.';
 
   @override
   String get settings100Kg8 => '100 kg × 8';

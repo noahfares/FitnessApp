@@ -17,8 +17,8 @@ F-ROU-001	2	done	P0	Routine CRUD		F-ROU-002, F-ROU-010	21-DATA-MODEL#routine_day
 F-ROU-002	2	done	P0	Routine days	F-ROU-001		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-003	2	done	P0	Exercise targets	F-ROU-002	F-PRG-001	21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-004	2	done	P1	Reordering			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
-F-ROU-005	2	in-progress	P1	Supersets and circuits		F-LOG-015	21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
-F-ROU-006	2	planned	P1	Rest defaults	F-TIM-005		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-005	2	done	P1	Supersets and circuits		F-LOG-015	21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
+F-ROU-006	2	done	P1	Rest defaults	F-TIM-005		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-007	2	done	P2	Folders			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-008	2	done	P1	Duplicate and version	F-ROU-001		21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 F-ROU-009	2	done	P2	Archive routines			21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
@@ -42,7 +42,7 @@ F-LOG-011	1	done	P0	Workout history list			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#
 F-LOG-012	1	done	P0	Workout detail			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-013	2	done	P1	PR detection and celebration	F-LOG-003		40-ANALYTICS-SPEC#4-personal-records, 21-DATA-MODEL#personal_records
 F-LOG-014	2	done	P1	RPE and RIR		F-PRG-005	21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
-F-LOG-015	2	in-progress	P1	Supersets in the logger	F-ROU-005		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
+F-LOG-015	2	done	P1	Supersets in the logger	F-ROU-005		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-016	2	done	P1	Repeat a previous session			21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
 F-LOG-017	2	done	P1	Per-side versus total weight			22-UNITS, 21-DATA-MODEL#sets
 F-LOG-018	1	done	P1	Session summary	F-LOG-001		21-DATA-MODEL#sets, 24-DESIGN-SYSTEM#component-inventory
@@ -64,17 +64,17 @@ F-ANA-001	3	in-progress	P0	Analytics engine		F-ANA-002 … F-ANA-014	40-ANALYTIC
 F-ANA-002	3	done	P0	Per-exercise history			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-003	3	done	P1	Estimated 1RM trend	F-ANA-001		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-004	3	done	P1	Volume charts	F-ANA-001		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-005	3	in-progress	P1	Sets per muscle group per week	F-CAT-013	F-ROU-011	40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-006	3	in-progress	P1	Consistency			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-005	3	done	P1	Sets per muscle group per week	F-CAT-013	F-ROU-011	40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-006	3	done	P1	Consistency			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-007	3	done	P1	PR timeline	F-LOG-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-008	3	in-progress	P2	Muscle balance	F-CAT-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-008	3	done	P2	Muscle balance	F-CAT-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-009	4	done	P2	Stall detection	F-ANA-003		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-010	4	done	P2	Acute-to-chronic workload ratio			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-011	4	done	P2	Rep range and intensity distribution	F-LOG-014		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-012	4	done	P3	Duration and rest compliance	F-TIM-007		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-013	4	done	P2	Weekly insight cards	F-ANA-003, F-ANA-004, F-ANA-005, F-ANA-009		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-014	4	done	P3	Body map heat overlay	F-CAT-013		40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
-F-ANA-015	3	in-progress	P1	Date range and filter controls			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
+F-ANA-015	3	done	P1	Date range and filter controls			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-016	3	done	P2	Chart interaction			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-017	—	idea	P3	Year in review			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 F-ANA-018	—	idea	P3	Exercise comparison			40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
@@ -110,8 +110,8 @@ F-DAT-011	1	done	P0	Minimal JSON dump		F-DAT-001	21-DATA-MODEL, 22-UNITS#import-
 F-SET-001	0	done	P0	Units		F-LOG-003, F-BOD-001, F-PLT-002	22-UNITS, 70-decisions/ADR-0003-canonical-units
 F-SET-002	0	done	P0	Theme mode			22-UNITS
 F-SET-003	1	done	P1	Rest-timer defaults	F-TIM-005		22-UNITS
-F-SET-004	4	planned	P1	Bar and plate inventory	F-PLT-002		22-UNITS
-F-SET-005	3	in-progress	P1	Week start		F-ANA-004, F-ANA-006	22-UNITS
+F-SET-004	4	done	P1	Bar and plate inventory	F-PLT-002		22-UNITS
+F-SET-005	3	done	P1	Week start		F-ANA-004, F-ANA-006	22-UNITS
 F-SET-006	3	done	P2	e1RM formula	F-ANA-003		22-UNITS
 F-SET-007	2	done	P1	Increment steps	F-SET-001		22-UNITS
 F-SET-008	2	planned	P2	Notification preferences	F-TIM-003		22-UNITS

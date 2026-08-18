@@ -190,6 +190,12 @@ abstract class AppLocalizations {
   /// **'{sets} sets'**
   String analyticsContributorSets(String sets);
 
+  /// No description provided for @analyticsCore.
+  ///
+  /// In en, this message translates to:
+  /// **'Core'**
+  String get analyticsCore;
+
   /// No description provided for @analyticsCurrentStreak.
   ///
   /// In en, this message translates to:
@@ -328,6 +334,12 @@ abstract class AppLocalizations {
   /// **'Last year'**
   String get analyticsLastYear;
 
+  /// No description provided for @analyticsLegs.
+  ///
+  /// In en, this message translates to:
+  /// **'Legs'**
+  String get analyticsLegs;
+
   /// No description provided for @analyticsLinearRegressionOverlay.
   ///
   /// In en, this message translates to:
@@ -418,6 +430,18 @@ abstract class AppLocalizations {
   /// **'PR timeline'**
   String get analyticsPrTimeline;
 
+  /// No description provided for @analyticsPull.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull'**
+  String get analyticsPull;
+
+  /// No description provided for @analyticsPush.
+  ///
+  /// In en, this message translates to:
+  /// **'Push'**
+  String get analyticsPush;
+
   /// No description provided for @analyticsPushPull.
   ///
   /// In en, this message translates to:
@@ -429,6 +453,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Quad : hamstring'**
   String get analyticsQuadHamstring;
+
+  /// No description provided for @analyticsReferenceBand.
+  ///
+  /// In en, this message translates to:
+  /// **'Shaded: 10–20 hard sets a week, a commonly cited range for a muscle group. A guide, not a target.'**
+  String get analyticsReferenceBand;
 
   /// No description provided for @analyticsRelativeVolumeByMuscle.
   ///
@@ -447,6 +477,22 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Average actual rest vs. each exercise\'s resolved default — an approximation, not a per-set historical record.'**
   String get analyticsRestComplianceCaveat;
+
+  /// No description provided for @analyticsScheduleAdherence.
+  ///
+  /// In en, this message translates to:
+  /// **'Against your schedule'**
+  String get analyticsScheduleAdherence;
+
+  /// No description provided for @analyticsScheduleAdherenceValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% — you trained {trained} of {scheduled} scheduled days in the last 4 weeks.'**
+  String analyticsScheduleAdherenceValue(
+    int percent,
+    int trained,
+    int scheduled,
+  );
 
   /// No description provided for @analyticsSessionDuration.
   ///
@@ -532,11 +578,23 @@ abstract class AppLocalizations {
   /// **'Unreliable at high rep counts'**
   String get analyticsUnreliableAtHighRepCounts;
 
+  /// No description provided for @analyticsUnscheduledSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Plus 1 session on an unscheduled day. Extra sessions never count against this.} other{Plus {count} sessions on unscheduled days. Extra sessions never count against this.}}'**
+  String analyticsUnscheduledSessions(int count);
+
   /// No description provided for @analyticsVolumeForMuscle.
   ///
   /// In en, this message translates to:
   /// **'Volume — {muscle}'**
   String analyticsVolumeForMuscle(String muscle);
+
+  /// No description provided for @analyticsWeeklyTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions a week you are aiming for'**
+  String get analyticsWeeklyTarget;
 
   /// No description provided for @analyticsWeeklyVolume.
   ///
@@ -2678,6 +2736,12 @@ abstract class AppLocalizations {
   /// **'No folder'**
   String get routinesNoFolder;
 
+  /// No description provided for @routinesNoRestBetween.
+  ///
+  /// In en, this message translates to:
+  /// **'No rest between'**
+  String get routinesNoRestBetween;
+
   /// No description provided for @routinesNoTargetsSet.
   ///
   /// In en, this message translates to:
@@ -2767,6 +2831,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rest'**
   String get routinesRest;
+
+  /// No description provided for @routinesRestFromBuiltIn.
+  ///
+  /// In en, this message translates to:
+  /// **'{duration}, the built-in default for this kind of exercise.'**
+  String routinesRestFromBuiltIn(String duration);
+
+  /// No description provided for @routinesRestFromExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'{duration}, inherited from this exercise\'s own default.'**
+  String routinesRestFromExercise(String duration);
+
+  /// No description provided for @routinesRestFromGlobal.
+  ///
+  /// In en, this message translates to:
+  /// **'{duration}, inherited from your global rest setting.'**
+  String routinesRestFromGlobal(String duration);
+
+  /// No description provided for @routinesRestFromRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'{duration}, set here for this routine.'**
+  String routinesRestFromRoutine(String duration);
 
   /// No description provided for @routinesRestOverrideHint.
   ///
@@ -2869,6 +2957,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ungroup'**
   String get routinesUngroup;
+
+  /// No description provided for @routinesWithinGroupRest.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest between superset members'**
+  String get routinesWithinGroupRest;
+
+  /// No description provided for @routinesWithinGroupRestExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Zero is what a superset usually means. A few seconds is for walking between two machines without the timer treating it as a full rest.'**
+  String get routinesWithinGroupRestExplainer;
 
   /// No description provided for @settings100Kg8.
   ///

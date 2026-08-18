@@ -66,18 +66,43 @@ int resolveRestSeconds({
     globalSeconds ??
     builtInRestSeconds(equipment: equipment, primaryMuscle: primaryMuscle);
 
+/// Which level of the chain a resolved rest actually came from
+/// (`F-ROU-006`: "each level is explicitly overridable and shows which level it
+/// inherited from").
+///
+/// The display of an inherited value is the whole point: a field showing 90 s
+/// with no indication of where 90 came from is indistinguishable from one
+/// somebody set to 90 deliberately, and the difference decides whether
+/// changing the exercise's default will do anything.
+enum RestSource { routine, exercise, global, builtIn }
+
+RestSource resolveRestSource({
+  int? routineSeconds,
+  int? exerciseSeconds,
+  int? globalSeconds,
+}) {
+  if (routineSeconds != null) return RestSource.routine;
+  if (exerciseSeconds != null) return RestSource.exercise;
+  if (globalSeconds != null) return RestSource.global;
+  return RestSource.builtIn;
+}
+
 /// The rest to use for a set that may sit inside a superset (`F-ROU-005` §3,
 /// `F-LOG-015` §3).
 ///
-/// Only the group's last member rests [resolvedSeconds] — every other member
-/// rests zero. There is no dedicated within-group-rest column in the schema,
-/// so it is fixed rather than independently configurable; after-group rest is
-/// [resolvedSeconds] unchanged, exactly as if the exercise were standalone.
+/// The group's last member rests [resolvedSeconds] — the full rest, exactly as
+/// if the exercise were standalone. Every other member rests
+/// [withinGroupSeconds], which is null for "no pause at all", the original
+/// behaviour and still the default: that is what a superset means when nobody
+/// says otherwise. A configured value is for the person who wants ten seconds
+/// to walk between two machines without the timer pretending that is a full
+/// rest (`F-ROU-005` §3).
 int restSecondsForGroupMember({
   required bool isGrouped,
   required bool isLastInGroup,
   required int resolvedSeconds,
-}) => isGrouped && !isLastInGroup ? 0 : resolvedSeconds;
+  int? withinGroupSeconds,
+}) => isGrouped && !isLastInGroup ? (withinGroupSeconds ?? 0) : resolvedSeconds;
 
 /// The durations offered in pickers, in seconds.
 ///
