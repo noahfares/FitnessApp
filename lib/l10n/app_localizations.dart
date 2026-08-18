@@ -3858,6 +3858,18 @@ abstract class AppLocalizations {
   /// **'Hold to {action}'**
   String shellHoldTo(String action);
 
+  /// No description provided for @shellClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get shellClose;
+
+  /// No description provided for @shellHomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get shellHomeTitle;
+
   /// No description provided for @shellInProgressElapsed.
   ///
   /// In en, this message translates to:

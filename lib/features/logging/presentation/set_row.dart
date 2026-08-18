@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/formatting/quantity_formatter.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/unit_preferences.dart';
 import '../../../data/db/app_database.dart';
@@ -280,7 +281,7 @@ class _NumberCell extends StatelessWidget {
     // which is deliberate: colour alone is not an indicator (`F-A11Y-003`).
     final colour = label.isWarmup
         ? context.appColors.warning
-        : theme.colorScheme.onSurfaceVariant;
+        : context.appColors.labelSecondary;
 
     return InkWell(
       onLongPress: onLongPress,
@@ -400,22 +401,24 @@ class _ValueCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = context.appColors;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs / 2),
       child: InkWell(
         // The purpose-built keypad, never the system keyboard (`F-LOG-006`).
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppRadius.control),
         child: Container(
           height: AppSpacing.minTouchTarget,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: theme.colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(AppRadius.control),
+            color: colors.surfaceRaised,
           ),
           child: Text(
             text ?? '',
             style: theme.textTheme.bodyLarge?.copyWith(
+              color: colors.label,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),

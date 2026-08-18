@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/a11y/motion.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/l10n/l10n.dart';
 
 /// Inline PR marker (`F-LOG-013` §2, docs/24-DESIGN-SYSTEM.md
@@ -23,7 +24,6 @@ class PrBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final tooltip = this.tooltip ?? context.l10n.shellPersonalRecord;
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
@@ -38,7 +38,10 @@ class PrBadge extends StatelessWidget {
         child: Icon(
           Icons.emoji_events,
           size: 18,
-          color: theme.colorScheme.tertiary,
+          // `pr` is the only celebratory colour in the app — never the seeded
+          // `tertiary` role, which a dynamic-colour wallpaper could otherwise
+          // reassign to anything.
+          color: context.appColors.pr,
           semanticLabel: tooltip,
         ),
       ),

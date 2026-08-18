@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 
 import '../../../core/formatting/quantity_formatter.dart';
 import '../../../core/routing/app_routes.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
 import '../../../domain/analytics/date_range.dart';
@@ -167,8 +169,8 @@ class _StallSection extends ConsumerWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(12),
+          color: context.appColors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.card),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,7 +179,7 @@ class _StallSection extends ConsumerWidget {
               children: [
                 Icon(
                   Icons.trending_flat,
-                  color: theme.colorScheme.onSurfaceVariant,
+                  color: context.appColors.labelSecondary,
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
@@ -192,7 +194,7 @@ class _StallSection extends ConsumerWidget {
             Text(
               context.l10n.analyticsStallExplainer(verdict.windowSize),
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+                color: context.appColors.labelSecondary,
               ),
             ),
             if (suggestion.suggested) ...[
@@ -205,7 +207,7 @@ class _StallSection extends ConsumerWidget {
                 Text(
                   '•  $reason',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                    color: context.appColors.labelSecondary,
                   ),
                 ),
             ],
@@ -272,7 +274,7 @@ class _TrendSectionState extends ConsumerState<_TrendSection> {
               Text(
                 context.l10n.analyticsFormulaLabel(_formulaLabel(formula)),
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+                  color: context.appColors.labelSecondary,
                 ),
               ),
             ],
@@ -414,7 +416,7 @@ class _SessionCard extends StatelessWidget {
                 Text(
                   session.workoutName,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                    color: context.appColors.labelSecondary,
                   ),
                 ),
               ],
@@ -431,7 +433,7 @@ class _SessionCard extends StatelessWidget {
               '  ·  ${session.countedSets.length} counted set'
               '${session.countedSets.length == 1 ? '' : 's'}',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+                color: context.appColors.labelSecondary,
               ),
             ),
             const SizedBox(height: AppSpacing.xs),
@@ -442,7 +444,7 @@ class _SessionCard extends StatelessWidget {
                   _setLine(set, formatter),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: set.setType == 'warmup' || !set.isCompleted
-                        ? theme.colorScheme.onSurfaceVariant
+                        ? context.appColors.labelSecondary
                         : null,
                   ),
                 ),

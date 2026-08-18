@@ -23,7 +23,7 @@ import struct
 import zlib
 from pathlib import Path
 
-SEED = (0x3E, 0x63, 0xDD)          # AppTheme.seed — one accent, everywhere.
+SEED = (0x00, 0x71, 0xE3)          # AppTheme.seed — one accent, everywhere.
 ON_SEED = (0xFF, 0xFF, 0xFF)
 SCALE = 4                           # supersampling factor for smooth edges
 

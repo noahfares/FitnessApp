@@ -2241,6 +2241,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get shellClose => 'Close';
+
+  @override
+  String get shellHomeTitle => 'Home';
+
+  @override
   String shellInProgressElapsed(String elapsed) {
     return 'In progress · $elapsed';
   }

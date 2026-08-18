@@ -67,7 +67,8 @@ void main() {
 
     await pumpScreen(tester, const DashboardScreen(), db: db, now: w3);
 
-    expect(find.text('This week'), findsOneWidget);
+    // Section headers render uppercase in the Apple-style pass.
+    expect(find.text('THIS WEEK'), findsOneWidget);
     expect(find.textContaining('Chest volume is up'), findsOneWidget);
   });
 

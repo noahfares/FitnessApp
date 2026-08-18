@@ -29,8 +29,10 @@ void main() {
     });
 
     test('both derive from the same seed', () {
-      // One accent drives the whole app; changing the seed re-tints everything.
-      expect(AppTheme.seed, const Color(0xFF3E63DD));
+      // One accent drives the whole app; changing the seed re-tints
+      // everything. The Apple-style pass re-tints it to Apple's own light
+      // `tint` (`AppColors.light.tint`).
+      expect(AppTheme.seed, const Color(0xFF0071E3));
     });
 
     test('a dynamic scheme overrides the seed when given (F-THM-003)', () {

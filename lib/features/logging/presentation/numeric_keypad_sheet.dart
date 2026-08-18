@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/distance.dart';
 import '../../../core/units/mass.dart';
@@ -159,7 +161,6 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final prefs = ref.watch(unitPreferencesProvider);
 
     return SafeArea(
@@ -231,25 +232,36 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
             ),
             const SizedBox(height: AppSpacing.sm),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _StepperButton(
                   icon: Icons.remove,
+                  emphasized: false,
                   semanticLabel: context.l10n.loggingDecrease,
                   onPressed: () => _stepBy(-1),
                   onHold: () => _startRepeat(-1),
                   onRelease: _stopRepeat,
                 ),
-                Expanded(
+                const SizedBox(width: AppSpacing.xl),
+                SizedBox(
+                  width: 104,
                   child: Text(
                     _display(_field).isEmpty ? '—' : _display(_field),
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.headlineSmall?.copyWith(
+                    style: TextStyle(
+                      fontSize: 48,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -1.44,
+                      height: 1,
+                      color: context.appColors.label,
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
                 ),
+                const SizedBox(width: AppSpacing.xl),
                 _StepperButton(
                   icon: Icons.add,
+                  emphasized: true,
                   semanticLabel: context.l10n.loggingIncrease,
                   onPressed: () => _stepBy(1),
                   onHold: () => _startRepeat(1),
@@ -486,27 +498,32 @@ class _FieldTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = context.appColors;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(AppRadius.control),
       child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.sm,
           vertical: AppSpacing.sm,
         ),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: selected
-              ? theme.colorScheme.secondaryContainer
-              : theme.colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(AppRadius.control),
+          color: selected ? colors.tint : colors.surfaceRaised,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: theme.textTheme.labelSmall),
+            Text(
+              label,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: selected ? Colors.white70 : colors.labelSecondary,
+              ),
+            ),
             Text(
               value.isEmpty ? '—' : value,
               style: theme.textTheme.titleMedium?.copyWith(
+                color: selected ? Colors.white : colors.label,
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
@@ -518,9 +535,14 @@ class _FieldTab extends StatelessWidget {
 }
 
 /// A stepper key: one tap steps once, holding repeats (`F-LOG-006` §2).
+///
+/// [emphasized] (the `+` side) is filled `tint` with a white glyph; the `−`
+/// side sits on `surfaceRaised` with a `tint` glyph — the same pairing the
+/// Apple-style pass uses for every stepper in the app.
 class _StepperButton extends StatelessWidget {
   const _StepperButton({
     required this.icon,
+    required this.emphasized,
     required this.semanticLabel,
     required this.onPressed,
     required this.onHold,
@@ -528,6 +550,7 @@ class _StepperButton extends StatelessWidget {
   });
 
   final IconData icon;
+  final bool emphasized;
   final String semanticLabel;
   final VoidCallback onPressed;
   final VoidCallback onHold;
@@ -535,6 +558,7 @@ class _StepperButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return GestureDetector(
       onLongPress: onHold,
       onLongPressEnd: (_) => onRelease(),
@@ -544,10 +568,21 @@ class _StepperButton extends StatelessWidget {
         // (docs/24-DESIGN-SYSTEM.md §spacing).
         width: AppSpacing.setRowTouchTarget,
         height: AppSpacing.setRowTouchTarget,
-        child: IconButton.filledTonal(
-          tooltip: semanticLabel,
-          onPressed: onPressed,
-          icon: Icon(icon),
+        child: Tooltip(
+          message: semanticLabel,
+          child: Material(
+            color: emphasized ? colors.tint : colors.surfaceRaised,
+            shape: const CircleBorder(),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: onPressed,
+              child: Icon(
+                icon,
+                size: 26,
+                color: emphasized ? Colors.white : colors.tint,
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -572,6 +607,7 @@ class _Keys extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     Widget key(Widget child, VoidCallback? onTap, {String? semantics}) =>
         Expanded(
           child: Padding(
@@ -581,7 +617,12 @@ class _Keys extends StatelessWidget {
               child: FilledButton.tonal(
                 onPressed: onTap,
                 style: FilledButton.styleFrom(
+                  backgroundColor: colors.surfaceRaised,
+                  foregroundColor: colors.label,
                   padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.control),
+                  ),
                   textStyle: Theme.of(context).textTheme.titleLarge,
                 ),
                 child: semantics == null

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../../logging/presentation/start_workout_screen.dart';
 import '../widgets/active_workout_banner.dart';
 
@@ -34,6 +35,7 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: Column(
@@ -42,19 +44,53 @@ class AppShell extends StatelessWidget {
           // Directly above the bar on every shell screen, never inside a tab
           // (`F-NAV-003`) — it must survive switching tabs, not just scrolling.
           const ActiveWorkoutBanner(),
-          NavigationBar(
-            selectedIndex: navigationShell.currentIndex,
-            onDestinationSelected: (index) =>
-                _onDestinationSelected(context, index),
-            destinations: [
-              for (final destination in destinations)
-                NavigationDestination(
-                  icon: Icon(destination.icon),
-                  selectedIcon: Icon(destination.selectedIcon),
-                  label: destination.label,
-                  tooltip: destination.label,
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: colors.background,
+              border: Border(top: BorderSide(color: colors.separator)),
+            ),
+            child: NavigationBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              surfaceTintColor: Colors.transparent,
+              indicatorColor: Colors.transparent,
+              selectedIndex: navigationShell.currentIndex,
+              onDestinationSelected: (index) =>
+                  _onDestinationSelected(context, index),
+              labelTextStyle: WidgetStateProperty.resolveWith(
+                (states) => TextStyle(
+                  fontSize: 10,
+                  fontWeight: states.contains(WidgetState.selected)
+                      ? FontWeight.w600
+                      : FontWeight.w500,
+                  color: states.contains(WidgetState.selected)
+                      ? colors.tint
+                      : colors.labelSecondary,
                 ),
-            ],
+              ),
+              destinations: [
+                for (var i = 0; i < destinations.length; i++)
+                  if (i == startIndex)
+                    NavigationDestination(
+                      icon: _StartTabIcon(color: colors.tint),
+                      label: '',
+                      tooltip: destinations[i].label,
+                    )
+                  else
+                    NavigationDestination(
+                      icon: Icon(
+                        destinations[i].icon,
+                        color: colors.labelSecondary,
+                      ),
+                      selectedIcon: Icon(
+                        destinations[i].selectedIcon,
+                        color: colors.tint,
+                      ),
+                      label: destinations[i].label,
+                      tooltip: destinations[i].label,
+                    ),
+              ],
+            ),
           ),
         ],
       ),
@@ -78,6 +114,39 @@ class AppShell extends StatelessWidget {
     navigationShell.goBranch(
       index,
       initialLocation: index == navigationShell.currentIndex,
+    );
+  }
+}
+
+/// The centre Start slot: a floating filled circle rather than an outline
+/// icon, the deliberate emphasis `docs/23-NAVIGATION.md` asks for. No visible
+/// label — `Semantics` below carries "Start" for assistive tech instead.
+class _StartTabIcon extends StatelessWidget {
+  const _StartTabIcon({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Start',
+      button: true,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.35),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: const Icon(Icons.add, color: Colors.white, size: 26),
+      ),
     );
   }
 }

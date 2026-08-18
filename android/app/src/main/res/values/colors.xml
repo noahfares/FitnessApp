@@ -3,6 +3,6 @@
     <!-- AppTheme.seed. The same value in three places by necessity — Dart,
          the adaptive icon, and the launch window — so tools/gen_icons.py names
          it as the source and this comment says where else to change it. -->
-    <color name="ic_launcher_background">#3E63DD</color>
-    <color name="launch_background">#3E63DD</color>
+    <color name="ic_launcher_background">#0071E3</color>
+    <color name="launch_background">#0071E3</color>
 </resources>

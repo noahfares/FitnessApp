@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/app_routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../logging/application/active_workout_providers.dart';
 import '../../logging/presentation/active_workout_screen.dart'
     show formatElapsed;
@@ -24,45 +26,46 @@ class ActiveWorkoutBanner extends ConsumerWidget {
     if (workout == null) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
+    final colors = context.appColors;
     final exercises = ref.watch(sessionExercisesProvider(workout.id)).value;
     final elapsed = ref.watch(elapsedProvider);
 
-    return Material(
-      color: theme.colorScheme.primaryContainer,
-      child: InkWell(
-        onTap: () => context.push(AppRoutes.activeWorkout),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minHeight: AppSpacing.minTouchTarget,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.screen,
-              vertical: AppSpacing.sm,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        border: Border(top: BorderSide(color: colors.separator)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.push(AppRoutes.activeWorkout),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: AppSpacing.minTouchTarget,
             ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.fitness_center,
-                  size: 18,
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text(
-                    '${exercises?.length ?? 0} '
-                    '${exercises?.length == 1 ? 'exercise' : 'exercises'} · '
-                    '${formatElapsed(elapsed)}',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onPrimaryContainer,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.screen,
+                vertical: AppSpacing.sm,
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.fitness_center, size: 18, color: colors.tint),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      '${exercises?.length ?? 0} '
+                      '${exercises?.length == 1 ? 'exercise' : 'exercises'} · '
+                      '${formatElapsed(elapsed)}',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colors.label,
+                        fontFeatures: AppTheme.tabularFigures,
+                      ),
                     ),
                   ),
-                ),
-                Icon(
-                  Icons.chevron_right,
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
-              ],
+                  Icon(Icons.chevron_right, color: colors.labelTertiary),
+                ],
+              ),
             ),
           ),
         ),
