@@ -1140,6 +1140,8 @@
       }
     }
   },
+  "shellClose": "Close",
+  "shellHomeTitle": "Home",
   "shellInProgressElapsed": "In progress · {elapsed}",
   "@shellInProgressElapsed": {
     "placeholders": {

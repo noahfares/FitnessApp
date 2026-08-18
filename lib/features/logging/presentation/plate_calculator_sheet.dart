@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/formatting/quantity_formatter.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/mass.dart';
 import '../../../data/db/app_database.dart';
@@ -176,7 +177,7 @@ class _PlateLoadedView extends StatelessWidget {
               Text(
                 "Not exactly assemblable from what's configured.",
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+                  color: context.appColors.labelSecondary,
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
@@ -216,6 +217,7 @@ class _PlateResult extends StatelessWidget {
       children: [
         PlateStackVisualization(
           plates: plates,
+          fullBar: true,
           // The same sentence the row below shows, in the user's own unit —
           // the drawing is a picture of it, not extra information.
           semanticsLabel: context.l10n.loggingPlatesPerSide(

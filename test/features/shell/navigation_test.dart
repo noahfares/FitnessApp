@@ -17,6 +17,16 @@ void main() {
       expect(find.byType(NavigationBar), findsOneWidget);
       expect(AppShell.destinations.length, 5);
       for (final destination in AppShell.destinations) {
+        if (destination.label == 'Start') {
+          // The centre Start slot is a floating icon-only action (no visible
+          // label, per the Apple-style redesign) — verified by semantics.
+          expect(
+            find.bySemanticsLabel('Start'),
+            findsOneWidget,
+            reason: 'Start slot missing an accessible label',
+          );
+          continue;
+        }
         expect(
           find.text(destination.label),
           findsWidgets,
@@ -27,7 +37,7 @@ void main() {
 
     testWidgets('starts on Home', (tester) async {
       await pumpApp(tester, db: testDatabase());
-      expect(find.text('FitnessApp'), findsOneWidget);
+      expect(find.text('Home'), findsWidgets);
       expect(find.text('Ready to train?'), findsOneWidget);
     });
 
@@ -65,7 +75,14 @@ void main() {
     testWidgets('settings pushes over the shell and pops back', (tester) async {
       await pumpApp(tester, db: testDatabase());
 
-      await tester.tap(find.byIcon(Icons.settings_outlined));
+      // Settings is a flush row at the bottom of Home now, not an AppBar
+      // action — scroll it into view before tapping.
+      await tester.scrollUntilVisible(
+        find.text('Settings'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.text('Settings'));
       await tester.pumpAndSettle();
       expect(find.text('Units'), findsOneWidget);
 

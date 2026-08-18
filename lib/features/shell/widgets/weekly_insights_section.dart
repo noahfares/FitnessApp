@@ -3,12 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/app_routes.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../domain/analytics/weekly_insights.dart';
 import '../../analytics/application/weekly_insights_provider.dart';
 import '../../analytics/presentation/weekly_insight_text.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../../core/l10n/l10n.dart';
+import 'section_header.dart';
 
 /// The dashboard's weekly insight cards (`F-ANA-013`) — "the payoff for the
 /// whole analytics layer," per the feature's own doc. Renders nothing at all
@@ -23,26 +26,61 @@ class WeeklyInsightsSection extends ConsumerWidget {
     final insights = ref.watch(weeklyInsightsProvider).value ?? const [];
     if (insights.isEmpty) return const SizedBox.shrink();
 
-    final theme = Theme.of(context);
+    final colors = context.appColors;
     final formatter = ref.watch(quantityFormatterProvider);
     final unit = ref.watch(unitPreferencesProvider).load;
 
     return Padding(
-      padding: const EdgeInsets.only(top: AppSpacing.md),
+      padding: const EdgeInsets.only(top: AppSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(context.l10n.shellThisWeek, style: theme.textTheme.titleMedium),
+          SectionHeader(context.l10n.shellThisWeek),
           const SizedBox(height: AppSpacing.sm),
           for (final insight in insights)
-            Card(
-              child: ListTile(
-                leading: Icon(_iconFor(insight.kind)),
-                title: Text(
-                  weeklyInsightText(insight, formatter, unit, context.l10n),
+            Padding(
+              padding: EdgeInsets.only(
+                bottom: insight == insights.last ? 0 : AppSpacing.sm,
+              ),
+              child: Material(
+                color: colors.surface,
+                borderRadius: BorderRadius.circular(AppRadius.card),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(AppRadius.card),
+                  onTap: () => _open(context, insight),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.md,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(_iconFor(insight.kind), color: colors.tint),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: Text(
+                            weeklyInsightText(
+                              insight,
+                              formatter,
+                              unit,
+                              context.l10n,
+                            ),
+                            style: TextStyle(
+                              fontSize: 16,
+                              letterSpacing: -0.16,
+                              color: colors.label,
+                            ),
+                          ),
+                        ),
+                        Icon(
+                          Icons.chevron_right,
+                          size: 19,
+                          color: colors.labelTertiary,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => _open(context, insight),
               ),
             ),
         ],

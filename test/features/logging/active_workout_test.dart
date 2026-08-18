@@ -57,7 +57,9 @@ void main() {
   }) => pumpApp(tester, db: db, startAt: startAt, now: now);
 
   Future<void> openStartSheet(WidgetTester tester) async {
-    await tester.tap(find.byIcon(Icons.add_circle_outline));
+    // The centre Start slot is a floating icon-only action with no visible
+    // label (Apple-style redesign) — find it by its accessible label.
+    await tester.tap(find.bySemanticsLabel('Start'));
     await tester.pumpAndSettle();
   }
 

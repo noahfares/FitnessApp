@@ -75,7 +75,8 @@ class WeeklyBarChart extends StatelessWidget {
       // recommended range would simply not show the range.
       if (band != null) band.max,
     ].reduce((a, b) => a > b ? a : b);
-    final barColor = context.appColors.chartSeries.first;
+    final activeColor = context.appColors.chartSeries.first;
+    final inactiveColor = context.appColors.chartInactive;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,10 +222,15 @@ class WeeklyBarChart extends StatelessWidget {
                         barRods: [
                           BarChartRodData(
                             toY: points[i].value,
-                            color: barColor,
+                            // Only the most recent bar (the current week) is
+                            // tinted — the rest recede, per the Apple-style
+                            // pass's "one accent" rule.
+                            color: i == points.length - 1
+                                ? activeColor
+                                : inactiveColor,
                             width: 14,
                             borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(3),
+                              top: Radius.circular(5),
                             ),
                           ),
                         ],

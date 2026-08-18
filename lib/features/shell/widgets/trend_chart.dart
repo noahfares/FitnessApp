@@ -264,15 +264,19 @@ class TrendChart extends StatelessWidget {
                       color: seriesColor,
                       barWidth: 2.5,
                       dotData: FlDotData(
+                        // Hollow rather than solid — a background-coloured fill
+                        // with a coloured ring, so the point reads distinctly
+                        // from the line itself (Apple-style pass).
                         getDotPainter: (spot, percent, bar, index) {
                           final reliable = points[index].reliable;
+                          final ringColor = reliable
+                              ? seriesColor
+                              : context.appColors.labelSecondary;
                           return FlDotCirclePainter(
-                            radius: reliable ? 4 : 3,
-                            color: reliable
-                                ? seriesColor
-                                : theme.colorScheme.onSurfaceVariant,
-                            strokeWidth: reliable ? 0 : 1.5,
-                            strokeColor: theme.colorScheme.onSurfaceVariant,
+                            radius: 5,
+                            color: context.appColors.background,
+                            strokeWidth: 2.5,
+                            strokeColor: ringColor,
                           );
                         },
                       ),
