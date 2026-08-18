@@ -36,6 +36,12 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // `flutter_local_notifications` requires it (`F-TIM-003`): it uses
+        // java.time to schedule against a zoned target, and desugaring is what
+        // makes that available below API 26. Caught by CI's debug-APK job,
+        // which is the only thing in this repository that compiles Android at
+        // all — worth remembering the next time a plugin lands.
+        isCoreLibraryDesugaringEnabled = true
     }
 
     defaultConfig {
@@ -114,4 +120,10 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Required by the compileOptions flag above. Version tracks what the
+    // Android Gradle Plugin expects; bumping AGP may require bumping this.
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }

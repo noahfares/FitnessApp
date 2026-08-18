@@ -210,7 +210,7 @@ If the roadmap looks wrong, say so and stop. Don't route around it.
 
 ## Current state
 
-Version **0.56.1**. **Phases 0–5 complete and audited.** **Phase 6 built** —
+Version **0.56.2**. **Phases 0–5 complete and audited.** **Phase 6 built** —
 every scheduled feature across all six phases is `done` except two, and both
 are blocked on hardware rather than on work:
 
