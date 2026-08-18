@@ -27,6 +27,8 @@ import '../../shell/widgets/confirm_sheet.dart';
 import '../../shell/widgets/empty_state.dart';
 import '../application/history_providers.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../data/platform/health_service.dart';
+import '../../health/application/health_providers.dart';
 
 /// A finished session, in full (`F-LOG-012`).
 ///
@@ -115,14 +117,39 @@ class WorkoutDetailScreen extends ConsumerWidget {
   }
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
+    // Whether a copy of this session exists in Health Connect decides what the
+    // confirmation says: offering to remove a record that was never written
+    // would be noise, and deleting one silently would be worse
+    // (`F-HLT-001` acceptance).
+    final sharesWithHealth = ref.read(healthWriteEnabledProvider);
     final confirmed = await showConfirmSheet(
       context,
       title: context.l10n.historyDeleteThisWorkout,
-      message: context.l10n.historyDeleteWorkoutExplainer,
+      message: sharesWithHealth
+          ? context.l10n.historyDeleteWorkoutHealthExplainer
+          : context.l10n.historyDeleteWorkoutExplainer,
     );
     if (!confirmed) return;
 
-    await ref.read(workoutRepositoryProvider).deleteWorkout(workoutId);
+    final repo = ref.read(workoutRepositoryProvider);
+    if (sharesWithHealth) {
+      final workout = await repo.findById(workoutId);
+      if (workout?.endedAt case final endedAt?) {
+        // Unawaited for the same reason the write is: the local delete is what
+        // actually happened, and a health store that refuses must not leave a
+        // workout undeleted here.
+        unawaited(
+          ref
+              .read(healthServiceProvider)
+              .deleteWorkout(
+                start: DateTime.fromMillisecondsSinceEpoch(workout!.startedAt),
+                end: DateTime.fromMillisecondsSinceEpoch(endedAt),
+              ),
+        );
+      }
+    }
+
+    await repo.deleteWorkout(workoutId);
     if (!context.mounted) return;
     context.go(AppRoutes.history);
   }

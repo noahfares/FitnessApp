@@ -152,6 +152,13 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => context.push(AppRoutes.settingsPlates),
           ),
           ListTile(
+            leading: const Icon(Icons.favorite_outline),
+            title: Text(context.l10n.settingsHealthConnect),
+            subtitle: Text(context.l10n.settingsHealthConnectSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRoutes.settingsHealth),
+          ),
+          ListTile(
             leading: const Icon(Icons.lock_outline),
             title: Text(context.l10n.settingsAppLock),
             trailing: const Icon(Icons.chevron_right),

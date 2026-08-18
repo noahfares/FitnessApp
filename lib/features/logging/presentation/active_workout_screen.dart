@@ -18,6 +18,9 @@ import '../../../domain/routines/rep_range.dart';
 import '../../../domain/timing/rest_defaults.dart';
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../catalog/presentation/exercise_note_sheet.dart';
+import '../../health/application/health_providers.dart';
+import '../../health/application/health_sync.dart';
+import '../../../data/platform/health_service.dart';
 import '../../settings/application/rest_timer_settings_provider.dart';
 import '../../settings/application/rpe_settings_provider.dart';
 import '../../shell/widgets/hold_to_confirm_button.dart';
@@ -311,6 +314,23 @@ class _ActiveWorkout extends ConsumerWidget {
       await ref
           .read(personalRecordRepositoryProvider)
           .evaluateSessionVolume(workout.id);
+      // Health Connect, if it was asked for (`F-HLT-001`). Deliberately
+      // unawaited and after the navigation below is decided: a write failure —
+      // or a slow platform call — must never stand between finishing a session
+      // and seeing the summary (§3). The local record is authoritative.
+      final finished = await repo.findById(workout.id);
+      if (finished?.endedAt case final endedAt?) {
+        unawaited(
+          writeWorkoutToHealth(
+            ref.read(healthServiceProvider),
+            enabled: ref.read(healthWriteEnabledProvider),
+            start: DateTime.fromMillisecondsSinceEpoch(finished!.startedAt),
+            end: DateTime.fromMillisecondsSinceEpoch(endedAt),
+            title: finished.name,
+          ),
+        );
+      }
+
       if (!context.mounted) return;
       // Replaces the stack rather than popping, so back does not walk into a
       // finished session (docs/23-NAVIGATION.md §navigation-invariants).

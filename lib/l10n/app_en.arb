@@ -312,6 +312,27 @@
   "equipmentKettlebell": "Kettlebell",
   "equipmentMachine": "Machine",
   "equipmentOther": "Other",
+  "healthExplainer": "Off by default. Health Connect is Android's own on-device store — nothing here involves a network or an account, but it is still another app's copy of your training, so it asks first.",
+  "healthImportBodyweightExplainer": "The last year, skipping days you already logged.",
+  "healthImportBodyweightNow": "Import bodyweight now",
+  "healthImportResult": "{imported, plural, =0{Nothing new to import.} =1{1 entry imported.} other{{imported} entries imported.}}{skipped, plural, =0{} =1{ 1 day skipped — you had already logged it.} other{ {skipped} days skipped — you had already logged them.}}",
+  "@healthImportResult": {
+    "placeholders": {
+      "imported": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "healthNeverSentAnywhere": "This app still makes no network calls. Health Connect is on your device, and what you share with it is governed by its own settings.",
+  "healthPermissionDenied": "Permission was not granted, so nothing is shared. Everything else works exactly as before.",
+  "healthReadBodyweight": "Read bodyweight",
+  "healthReadBodyweightExplainer": "Lets a smart scale fill in your bodyweight log. Entries you made here always win for the same day.",
+  "healthTitle": "Health Connect",
+  "healthWriteWorkouts": "Write finished workouts",
+  "healthWriteWorkoutsExplainer": "Each finished session is written as a strength-training workout: start time and duration, nothing else. No calorie estimate — a made-up number in your health record is worse than no number.",
   "historyAddASetNote": "Add a set note",
   "historyAddExercises": "Add exercises",
   "historyAddTheFirstOneBelow": "Add the first one below.",
@@ -321,6 +342,7 @@
   "historyDate": "Date",
   "historyDeleteThisWorkout": "Delete this workout?",
   "historyDeleteWorkoutExplainer": "This session and all its sets will be removed from your history.",
+  "historyDeleteWorkoutHealthExplainer": "This session and all its sets will be removed from your history, and the copy in Health Connect will be removed too.",
   "historyDone": "Done",
   "historyDuration": "Duration",
   "historyEdit": "Edit",
@@ -908,6 +930,8 @@
   "settingsFitnessappCsvExport": "FitnessApp CSV export",
   "settingsFitnessappExport": "FitnessApp export",
   "settingsGhostValues": "Ghost values",
+  "settingsHealthConnect": "Health Connect",
+  "settingsHealthConnectSubtitle": "Share workouts, read bodyweight — off by default",
   "settingsImport": "Import",
   "settingsImportComplete": "Import complete.",
   "settingsImportDone": "{workouts, plural, =1{1 workout} other{{workouts} workouts}} and {sets, plural, =1{1 set} other{{sets} sets}} imported.",

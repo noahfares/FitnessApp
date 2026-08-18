@@ -1,4 +1,23 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Health Connect (`F-HLT-001`, `F-HLT-002`). Exactly four: write and
+         read the workout type this app produces, and read the bodyweight it
+         can usefully consume. Asking for more than is used is how a permission
+         prompt stops being trustworthy — and note there is still no INTERNET
+         permission here, which is what makes docs/64-PRIVACY.md's claim
+         enforceable by the OS rather than by us. -->
+    <uses-permission android:name="android.permission.health.READ_EXERCISE"/>
+    <uses-permission android:name="android.permission.health.WRITE_EXERCISE"/>
+    <uses-permission android:name="android.permission.health.READ_WEIGHT"/>
+
+    <!-- Health Connect's own app, when present, is queried by the client
+         library; Android 11+ requires declaring it to see it at all. -->
+    <queries>
+        <package android:name="com.google.android.apps.healthdata"/>
+        <intent>
+            <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE"/>
+        </intent>
+    </queries>
+
     <application
         android:label="FitnessApp"
         android:name="${applicationName}"
@@ -23,6 +42,12 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <!-- Where Health Connect sends someone who taps "read the privacy
+                 policy" from its own permission screen. Required before the
+                 permissions above may be requested at all. -->
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE"/>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

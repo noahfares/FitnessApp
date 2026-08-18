@@ -55,8 +55,19 @@ training data on your device and never transmits it, so it is not "collected" in
 Play's sense. Declare no data collection, not "health data collected, not
 shared".
 
-**App access / permissions declaration:** no permissions are requested, so no
-sensitive-permission form applies. No foreground service is declared today —
+**Health Connect (`F-HLT-001`, `F-HLT-002`):** the app declares
+`READ_EXERCISE`, `WRITE_EXERCISE` and `READ_WEIGHT`, and Play requires a
+**Health apps declaration** for those. The answers: data is written to and read
+from Health Connect only with explicit in-app consent, is never transmitted off
+the device, is never used for advertising or analytics, and is not shared with
+any third party. The app handles
+`androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE`, which points at
+`PRIVACY.md` §health-data — the section that has to stay accurate for this
+declaration to be true.
+
+**App access / permissions declaration:** apart from the three health
+permissions above, none are requested, and the INTERNET permission in
+particular is still absent. No foreground service is declared today —
 `F-TIM-003`'s rest-timer notification will need one, and the declaration must be
 updated in the same change that adds it, not afterwards.
 
@@ -91,8 +102,10 @@ One list, so the trigger is recognisable when it comes up:
    remote config, an update checker.
 2. Any backend, sync service, or account system (`F-DAT-009` file sync is
    deliberately *not* one: it writes a file to storage the user already owns).
-3. Any health-platform integration (`F-HLT-001`, `F-HLT-002`) — that is
-   permissioned, sensitive data leaving the app's own store, and needs its own
-   declarations even when it never touches a network.
+3. ~~Any health-platform integration (`F-HLT-001`, `F-HLT-002`)~~ — **this one
+   happened**, in v0.53.0. It is permissioned, opt-in, off by default, and
+   disclosed in `PRIVACY.md` §health-data and in the Health apps declaration
+   above. The pattern it set is the one any future item on this list should
+   follow: policy first, declaration second, code third.
 
 Each of these is a policy change first and a code change second.

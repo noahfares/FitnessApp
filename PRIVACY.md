@@ -1,7 +1,7 @@
 # Privacy policy
 
 **App:** Fitness App (`com.noahfares.fitnessapp`)
-**Effective:** 2026-08-17 · **Version:** 1 · Canonical copy: this file, in the
+**Effective:** 2026-08-18 · **Version:** 2 · Canonical copy: this file, in the
 app's own repository.
 
 ## The short version
@@ -66,9 +66,32 @@ age.
 ## Health data
 
 The app stores the training and body measurements *you* enter, on your device.
-It does not read from or write to Apple Health, Google Health Connect, or any
-other health platform. If that ever changes, it will be opt-in, off by default,
-disclosed here, and reflected in the store declarations before it ships.
+
+**Health Connect is optional, and off until you turn it on** (Settings ›
+Health Connect). Version 1 of this policy said any such integration would be
+opt-in, off by default, and disclosed here before it shipped; this section is
+that disclosure.
+
+- **Writing workouts.** With the switch on, each *finished* session is written
+  to Health Connect as a strength-training workout: its start time, its
+  duration, and its name. No sets, no weights, no notes, and deliberately no
+  calorie estimate — a fabricated energy figure in a health record is worse
+  than no figure.
+- **Reading bodyweight.** With that switch on, and only when you ask for an
+  import, the app reads bodyweight entries from Health Connect so a smart scale
+  can fill in your log. Entries you made in this app always win for the same
+  day; nothing you typed is overwritten.
+- **Neither is a network call.** Health Connect is an on-device store belonging
+  to your phone, not a service this app talks to over the internet. The app
+  still requests no internet permission at all.
+- **Revoking.** Permission is granted and revoked in Health Connect's own
+  settings, outside this app. Turning either switch off here stops this app
+  reading or writing; what Health Connect already holds is yours to delete
+  there.
+- **Deleting.** Deleting a workout in this app also removes the copy it wrote
+  to Health Connect.
+
+Apple Health is not supported: iOS is not a target platform.
 
 ## Changes to this policy
 

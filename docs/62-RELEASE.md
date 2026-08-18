@@ -105,6 +105,12 @@ decisions.
 
 ### Google Play
 
+**minSdk is 26** as of `F-HLT-001`: Health Connect's client library requires
+it. That drops Android 7.x — a 2016 release with a fraction of a percent of
+active devices — which is a product decision recorded here rather than a build
+detail buried in `build.gradle.kts`.
+
+
 - [ ] Developer account (one-off fee).
 - [ ] `applicationId` fixed and final.
 - [ ] Play App Signing enrolment configured per the rules above.

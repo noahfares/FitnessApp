@@ -658,6 +658,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String get equipmentOther => 'Other';
 
   @override
+  String get healthExplainer =>
+      'Off by default. Health Connect is Android\'s own on-device store — nothing here involves a network or an account, but it is still another app\'s copy of your training, so it asks first.';
+
+  @override
+  String get healthImportBodyweightExplainer =>
+      'The last year, skipping days you already logged.';
+
+  @override
+  String get healthImportBodyweightNow => 'Import bodyweight now';
+
+  @override
+  String healthImportResult(int imported, int skipped) {
+    String _temp0 = intl.Intl.pluralLogic(
+      imported,
+      locale: localeName,
+      other: '$imported entries imported.',
+      one: '1 entry imported.',
+      zero: 'Nothing new to import.',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      skipped,
+      locale: localeName,
+      other: ' $skipped days skipped — you had already logged them.',
+      one: ' 1 day skipped — you had already logged it.',
+      zero: '',
+    );
+    return '$_temp0$_temp1';
+  }
+
+  @override
+  String get healthNeverSentAnywhere =>
+      'This app still makes no network calls. Health Connect is on your device, and what you share with it is governed by its own settings.';
+
+  @override
+  String get healthPermissionDenied =>
+      'Permission was not granted, so nothing is shared. Everything else works exactly as before.';
+
+  @override
+  String get healthReadBodyweight => 'Read bodyweight';
+
+  @override
+  String get healthReadBodyweightExplainer =>
+      'Lets a smart scale fill in your bodyweight log. Entries you made here always win for the same day.';
+
+  @override
+  String get healthTitle => 'Health Connect';
+
+  @override
+  String get healthWriteWorkouts => 'Write finished workouts';
+
+  @override
+  String get healthWriteWorkoutsExplainer =>
+      'Each finished session is written as a strength-training workout: start time and duration, nothing else. No calorie estimate — a made-up number in your health record is worse than no number.';
+
+  @override
   String get historyAddASetNote => 'Add a set note';
 
   @override
@@ -685,6 +740,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get historyDeleteWorkoutExplainer =>
       'This session and all its sets will be removed from your history.';
+
+  @override
+  String get historyDeleteWorkoutHealthExplainer =>
+      'This session and all its sets will be removed from your history, and the copy in Health Connect will be removed too.';
 
   @override
   String get historyDone => 'Done';
@@ -1739,6 +1798,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsGhostValues => 'Ghost values';
+
+  @override
+  String get settingsHealthConnect => 'Health Connect';
+
+  @override
+  String get settingsHealthConnectSubtitle =>
+      'Share workouts, read bodyweight — off by default';
 
   @override
   String get settingsImport => 'Import';

@@ -11,6 +11,7 @@ import '../../features/body/presentation/progress_photos_screen.dart';
 import '../../features/catalog/presentation/exercise_catalog_screen.dart';
 import '../../features/catalog/presentation/exercise_editor_screen.dart';
 import '../../features/history/presentation/edit_past_workout_screen.dart';
+import '../../features/health/presentation/health_screen.dart';
 import '../../features/history/presentation/history_screen.dart';
 import '../../features/history/presentation/workout_detail_screen.dart';
 import '../../features/logging/application/active_workout_providers.dart';
@@ -255,6 +256,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'app-lock',
             parentNavigatorKey: _rootNavigatorKey,
             builder: (context, state) => const AppLockScreen(),
+          ),
+          GoRoute(
+            path: 'health',
+            parentNavigatorKey: _rootNavigatorKey,
+            builder: (context, state) => const HealthScreen(),
           ),
           GoRoute(
             path: 'about',

@@ -1258,6 +1258,72 @@ abstract class AppLocalizations {
   /// **'Other'**
   String get equipmentOther;
 
+  /// No description provided for @healthExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Off by default. Health Connect is Android\'s own on-device store — nothing here involves a network or an account, but it is still another app\'s copy of your training, so it asks first.'**
+  String get healthExplainer;
+
+  /// No description provided for @healthImportBodyweightExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'The last year, skipping days you already logged.'**
+  String get healthImportBodyweightExplainer;
+
+  /// No description provided for @healthImportBodyweightNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Import bodyweight now'**
+  String get healthImportBodyweightNow;
+
+  /// No description provided for @healthImportResult.
+  ///
+  /// In en, this message translates to:
+  /// **'{imported, plural, =0{Nothing new to import.} =1{1 entry imported.} other{{imported} entries imported.}}{skipped, plural, =0{} =1{ 1 day skipped — you had already logged it.} other{ {skipped} days skipped — you had already logged them.}}'**
+  String healthImportResult(int imported, int skipped);
+
+  /// No description provided for @healthNeverSentAnywhere.
+  ///
+  /// In en, this message translates to:
+  /// **'This app still makes no network calls. Health Connect is on your device, and what you share with it is governed by its own settings.'**
+  String get healthNeverSentAnywhere;
+
+  /// No description provided for @healthPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission was not granted, so nothing is shared. Everything else works exactly as before.'**
+  String get healthPermissionDenied;
+
+  /// No description provided for @healthReadBodyweight.
+  ///
+  /// In en, this message translates to:
+  /// **'Read bodyweight'**
+  String get healthReadBodyweight;
+
+  /// No description provided for @healthReadBodyweightExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Lets a smart scale fill in your bodyweight log. Entries you made here always win for the same day.'**
+  String get healthReadBodyweightExplainer;
+
+  /// No description provided for @healthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Connect'**
+  String get healthTitle;
+
+  /// No description provided for @healthWriteWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Write finished workouts'**
+  String get healthWriteWorkouts;
+
+  /// No description provided for @healthWriteWorkoutsExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Each finished session is written as a strength-training workout: start time and duration, nothing else. No calorie estimate — a made-up number in your health record is worse than no number.'**
+  String get healthWriteWorkoutsExplainer;
+
   /// No description provided for @historyAddASetNote.
   ///
   /// In en, this message translates to:
@@ -1311,6 +1377,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This session and all its sets will be removed from your history.'**
   String get historyDeleteWorkoutExplainer;
+
+  /// No description provided for @historyDeleteWorkoutHealthExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'This session and all its sets will be removed from your history, and the copy in Health Connect will be removed too.'**
+  String get historyDeleteWorkoutHealthExplainer;
 
   /// No description provided for @historyDone.
   ///
@@ -3097,6 +3169,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ghost values'**
   String get settingsGhostValues;
+
+  /// No description provided for @settingsHealthConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Connect'**
+  String get settingsHealthConnect;
+
+  /// No description provided for @settingsHealthConnectSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share workouts, read bodyweight — off by default'**
+  String get settingsHealthConnectSubtitle;
 
   /// No description provided for @settingsImport.
   ///
