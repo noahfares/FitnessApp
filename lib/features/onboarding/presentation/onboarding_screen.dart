@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/l10n.dart';
 import '../../../core/routing/app_routes.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/distance.dart';
 import '../../../core/units/mass.dart';
@@ -13,6 +15,7 @@ import '../../../data/db/database_provider.dart';
 import '../../../domain/routines/starter_programs.dart';
 import '../../settings/application/theme_provider.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import '../../shell/widgets/apple_list.dart';
 import '../application/onboarding_provider.dart';
 
 /// First run (`F-SET-011`).
@@ -66,9 +69,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.appColors;
 
     return Scaffold(
+      backgroundColor: colors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -78,7 +82,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 padding: const EdgeInsets.all(AppSpacing.sm),
                 child: TextButton(
                   onPressed: () => unawaited(_finish()),
-                  child: Text(context.l10n.onboardingSkip),
+                  child: Text(
+                    context.l10n.onboardingSkip,
+                    style: TextStyle(fontSize: 17, color: colors.tint),
+                  ),
                 ),
               ),
             ),
@@ -97,15 +104,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 for (var i = 0; i < _pages; i++)
-                  Container(
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
                     width: 8,
                     height: 8,
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: i == _page
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.surfaceContainerHighest,
+                      color: i == _page ? colors.tint : colors.labelTertiary,
                     ),
                   ),
               ],
@@ -113,6 +119,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             Padding(
               padding: const EdgeInsets.all(AppSpacing.screen),
               child: SizedBox(
+                height: 50,
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: _next,
@@ -136,7 +143,6 @@ class _WelcomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final mode = ref.watch(themeModeProvider);
 
     return _Page(
@@ -146,30 +152,17 @@ class _WelcomePage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            context.l10n.onboardingAppearance,
-            style: theme.textTheme.titleSmall,
-          ),
+          _FieldLabel(context.l10n.onboardingAppearance),
           const SizedBox(height: AppSpacing.sm),
-          SegmentedButton<ThemeMode>(
+          SegmentedTrack<ThemeMode>(
+            selected: mode,
             segments: [
-              ButtonSegment(
-                value: ThemeMode.system,
-                label: Text(context.l10n.themeModeSystem),
-              ),
-              ButtonSegment(
-                value: ThemeMode.light,
-                label: Text(context.l10n.themeModeLight),
-              ),
-              ButtonSegment(
-                value: ThemeMode.dark,
-                label: Text(context.l10n.themeModeDark),
-              ),
+              (value: ThemeMode.system, label: context.l10n.themeModeSystem),
+              (value: ThemeMode.light, label: context.l10n.themeModeLight),
+              (value: ThemeMode.dark, label: context.l10n.themeModeDark),
             ],
-            selected: {mode},
-            onSelectionChanged: (selection) => unawaited(
-              ref.read(themeModeProvider.notifier).set(selection.first),
-            ),
+            onChanged: (value) =>
+                unawaited(ref.read(themeModeProvider.notifier).set(value)),
           ),
         ],
       ),
@@ -182,7 +175,6 @@ class _UnitsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final prefs = ref.watch(unitPreferencesProvider);
     final notifier = ref.read(unitPreferencesProvider.notifier);
 
@@ -195,19 +187,15 @@ class _UnitsPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            context.l10n.onboardingWeightUnit,
-            style: theme.textTheme.titleSmall,
-          ),
+          _FieldLabel(context.l10n.onboardingWeightUnit),
           const SizedBox(height: AppSpacing.sm),
-          SegmentedButton<MassUnit>(
+          SegmentedTrack<MassUnit>(
+            selected: prefs.load,
             segments: [
               for (final unit in MassUnit.values)
-                ButtonSegment(value: unit, label: Text(unit.symbol)),
+                (value: unit, label: unit.symbol),
             ],
-            selected: {prefs.load},
-            onSelectionChanged: (selection) {
-              final unit = selection.first;
+            onChanged: (unit) {
               // Bodyweight follows the load unit here rather than asking a
               // fourth question — anyone who wants them to differ can say so
               // on Settings › Units, where that choice already lives.
@@ -250,7 +238,7 @@ class _StarterProgramPageState extends ConsumerState<_StarterProgramPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.appColors;
 
     return _Page(
       icon: Icons.list_alt,
@@ -264,36 +252,94 @@ class _StarterProgramPageState extends ConsumerState<_StarterProgramPage> {
           // are one tap away in the gallery (`F-ROU-015`), for someone who
           // already knows what they want.
           for (final program in starterPrograms.take(3))
-            Card(
-              child: ListTile(
-                title: Text(program.name),
-                subtitle: Text(
-                  program.summary,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Material(
+                color: colors.surface,
+                borderRadius: BorderRadius.circular(AppRadius.card),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(AppRadius.card),
+                  onTap: _imported == null && _importing == null
+                      ? () => unawaited(_import(program))
+                      : null,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.md,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                program.name,
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: -0.17,
+                                  color: colors.label,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                program.summary,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: colors.labelSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        if (_imported == program.id)
+                          Icon(Icons.check, color: colors.tint)
+                        else if (_importing == program.id)
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: colors.tint,
+                            ),
+                          )
+                        else
+                          Icon(Icons.add, color: colors.tint),
+                      ],
+                    ),
+                  ),
                 ),
-                trailing: _imported == program.id
-                    ? const Icon(Icons.check)
-                    : _importing == program.id
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.add),
-                onTap: _imported == null && _importing == null
-                    ? () => unawaited(_import(program))
-                    : null,
               ),
             ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             context.l10n.onboardingProgramLater,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            style: TextStyle(fontSize: 13, color: colors.labelSecondary),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _FieldLabel extends StatelessWidget {
+  const _FieldLabel(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.15,
+        color: context.appColors.label,
       ),
     );
   }
@@ -314,17 +360,29 @@ class _Page extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.appColors;
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 48, color: theme.colorScheme.primary),
+          Icon(icon, size: 48, color: colors.tint),
           const SizedBox(height: AppSpacing.lg),
-          Text(title, style: theme.textTheme.headlineSmall),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.84,
+              height: 1.1,
+              color: colors.label,
+            ),
+          ),
           const SizedBox(height: AppSpacing.sm),
-          Text(body, style: theme.textTheme.bodyMedium),
+          Text(
+            body,
+            style: TextStyle(fontSize: 16, color: colors.labelSecondary),
+          ),
           const SizedBox(height: AppSpacing.xl),
           child,
         ],

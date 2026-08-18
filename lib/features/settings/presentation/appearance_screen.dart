@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../shell/widgets/apple_list.dart';
+import '../../shell/widgets/section_header.dart';
 import '../application/theme_provider.dart';
 import '../../../core/l10n/l10n.dart';
 
@@ -19,83 +22,80 @@ class AppearanceScreen extends ConsumerWidget {
     final colors = context.appColors;
 
     return Scaffold(
+      backgroundColor: colors.background,
       appBar: AppBar(title: Text(context.l10n.settingsAppearance)),
       body: ListView(
+        padding: const EdgeInsets.all(AppSpacing.screen),
         children: [
-          RadioGroup<ThemeMode>(
-            groupValue: mode,
-            onChanged: (selected) {
-              if (selected != null) {
-                ref.read(themeModeProvider.notifier).set(selected);
-              }
-            },
-            child: Column(
-              children: [
-                for (final option in ThemeMode.values)
-                  RadioListTile<ThemeMode>(
-                    value: option,
-                    title: Text(option.label(context.l10n)),
-                    subtitle: option == ThemeMode.system
-                        ? Text(context.l10n.settingsMatchTheDeviceSetting)
-                        : null,
-                  ),
-              ],
-            ),
+          AppleListSection(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: SegmentedTrack<ThemeMode>(
+                  selected: mode,
+                  segments: [
+                    for (final option in ThemeMode.values)
+                      (value: option, label: option.label(context.l10n)),
+                  ],
+                  onChanged: (selected) =>
+                      ref.read(themeModeProvider.notifier).set(selected),
+                ),
+              ),
+            ],
           ),
-          const Divider(),
-          SwitchListTile(
-            value: dynamicColorEnabled,
-            onChanged: (enabled) =>
-                ref.read(dynamicColorEnabledProvider.notifier).set(enabled),
-            title: Text(context.l10n.settingsDynamicColour),
-            subtitle: Text(context.l10n.settingsDynamicColourExplainer),
-          ),
-          const Divider(),
+          const SizedBox(height: AppSpacing.xs),
           Padding(
-            padding: const EdgeInsets.all(AppSpacing.screen),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.l10n.settingsColoursInThisTheme,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Wrap(
-                  spacing: AppSpacing.sm,
-                  runSpacing: AppSpacing.sm,
-                  children: [
-                    _Swatch('Completed', colors.success, colors.onSuccess),
-                    _Swatch('PR', colors.pr, colors.onPr),
-                    _Swatch('Warning', colors.warning, colors.onWarning),
-                    _Swatch('Delete', colors.danger, colors.onDanger),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                // The subtlest colour in the app, and the one most worth
-                // checking on a real phone under gym lighting (F-LOG-004).
-                Text(
-                  context.l10n.settingsGhostValues,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Row(
-                  children: [
-                    Text(
-                      context.l10n.settings100Kg8,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Text(
-                      context.l10n.settingsLastTime975Kg,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyLarge?.copyWith(color: colors.ghost),
-                    ),
-                  ],
-                ),
-              ],
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: Text(
+              context.l10n.settingsMatchTheDeviceSetting,
+              style: TextStyle(fontSize: 13, color: colors.labelSecondary),
             ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          AppleListSection(
+            children: [
+              AppleSwitchRow(
+                title: context.l10n.settingsDynamicColour,
+                subtitle: context.l10n.settingsDynamicColourExplainer,
+                value: dynamicColorEnabled,
+                onChanged: (enabled) =>
+                    ref.read(dynamicColorEnabledProvider.notifier).set(enabled),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          SectionHeader(context.l10n.settingsColoursInThisTheme),
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              _Swatch('Completed', colors.success, colors.onSuccess),
+              _Swatch('PR', colors.pr, colors.onPr),
+              _Swatch('Warning', colors.warning, colors.onWarning),
+              _Swatch('Delete', colors.danger, colors.onDanger),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          // The subtlest colour in the app, and the one most worth checking on
+          // a real phone under gym lighting (F-LOG-004).
+          Text(
+            context.l10n.settingsGhostValues,
+            style: TextStyle(fontSize: 13, color: colors.labelSecondary),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Row(
+            children: [
+              Text(
+                context.l10n.settings100Kg8,
+                style: TextStyle(fontSize: 17, color: colors.label),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Text(
+                context.l10n.settingsLastTime975Kg,
+                style: TextStyle(fontSize: 17, color: colors.ghost),
+              ),
+            ],
           ),
         ],
       ),
@@ -119,14 +119,9 @@ class _Swatch extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(AppSpacing.sm),
+        borderRadius: BorderRadius.circular(AppRadius.control),
       ),
-      child: Text(
-        label,
-        style: Theme.of(
-          context,
-        ).textTheme.bodySmall?.copyWith(color: foreground),
-      ),
+      child: Text(label, style: TextStyle(fontSize: 13, color: foreground)),
     );
   }
 }

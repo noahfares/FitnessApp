@@ -4,12 +4,15 @@ Status: done | Priority: P2 | Phase: 6
 Reads: 24-DESIGN-SYSTEM
 
 A visual redesign of the five-tab shell, Home, Log a Set (the numeric keypad
-and plate calculator), Insights (per-exercise), and Session Summary — rebuilt
-on Apple's product-page and iOS vocabulary: SF-style system type with tight
-negative tracking, tinted grouped surfaces, filled pill buttons, and a single
-accent colour. Both light and dark appearances are fully specified from a
-design handoff, following Apple's *elevated* dark palette rather than pure
-black.
+and plate calculator), Insights (per-exercise), Session Summary, onboarding,
+and every Settings screen — rebuilt on Apple's product-page and iOS
+vocabulary: SF-style system type with tight negative tracking, tinted grouped
+surfaces, filled pill buttons, and a single accent colour. Both light and dark
+appearances are fully specified from a design handoff, following Apple's
+*elevated* dark palette rather than pure black. Onboarding, Settings, and the
+muscle heat map (point 10) were a follow-up round after the first pass shipped
+— the handoff covered four screens explicitly; these three were the visible
+gaps once the app was actually used end to end.
 
 ---
 
@@ -39,13 +42,15 @@ black.
    assistive tech). `ActiveWorkoutBanner` restyled to `surface` with a top
    hairline instead of `primaryContainer`.
 5. Home (`dashboard_screen.dart`): app bar removed in favour of an inline
-   date caption + large "Home" title; grouped `surface` cards (radius 20) for
-   the resume/start action, today's schedule, and bodyweight; a flush row
-   list (hairline dividers, no cards) for recent workouts. The former
-   `OutlinedButton` pair (Exercises/History) is replaced by flush rows for
-   **Exercises** and **Settings** — Settings previously lived in the app
-   bar's removed action; per the project owner's call, both moved to Home
-   rather than a tab, since neither has a tab slot of its own.
+   date caption + large "Home" title, with a small round Settings icon button
+   in the header's top-right corner (revised from an earlier flush-row
+   placement, per the project owner's call — a header icon reads more like
+   the platform convention this handoff follows than a list row does);
+   grouped `surface` cards (radius 20) for the resume/start action, today's
+   schedule, and bodyweight; a flush row list (hairline dividers, no cards)
+   for recent workouts. The former `OutlinedButton` pair (Exercises/History)
+   is replaced by a flush **Exercises** row — the exercise catalogue has no
+   tab of its own (unlike History), so this is its only way in now.
 6. Log a Set (`set_row.dart`, `numeric_keypad_sheet.dart`,
    `plate_calculator_sheet.dart`, `plate_stack_visualization.dart`): value
    cells and keypad keys restyled to `surfaceRaised`/`AppRadius.control`;
@@ -72,6 +77,23 @@ black.
 9. The app icon, adaptive icon, launch background and store graphics
    (`F-THM-006`) regenerated from the new seed via `tools/gen-icons.sh`, so
    branding matches the new tint rather than the retired indigo.
+10. **Follow-up round.** Onboarding (`onboarding_screen.dart`) restyled: large
+    titles, a shared `SegmentedTrack` pill control (appearance/unit choice),
+    `surface` cards for starter programs. Every Settings screen restyled
+    around two new shared widgets in `lib/features/shell/widgets/apple_list.dart`
+    — `AppleListSection`/`AppleListRow`/`AppleSwitchRow`/`AppleRadioRow` (a
+    grouped `surface` card of rows, hairline dividers, chevron or switch or
+    checkmark trailing) and `SegmentedTrack` (reused from onboarding) — across
+    the hub, Appearance, Units, About, Rest Timer, App Lock, and Bars &
+    Plates. The muscle heat map (`body_map_heat_overlay.dart`) was redrawn
+    from axis-aligned rectangles to an original vector figure — a hand-built
+    torso/limb silhouette (cubic-bezier torso, capsule limbs, oval joints)
+    with each muscle region an organic capsule, blob, or oval instead of a
+    `Rect` — while keeping every muscle name, the `Semantics` label format,
+    and the licence-clean "nothing traced" constraint `docs/40-ANALYTICS-SPEC.md`
+    §16 sets. `TrendChart` and `WeeklyBarChart` dot/bar restyles (point 7)
+    and the `SettingsScreen`/`Icons.settings_outlined` tests were updated to
+    match, same as the first round.
 
 ## Conflicts resolved (from the design handoff)
 
@@ -114,15 +136,18 @@ rule — flagged here for a future decision, not a gap in this feature.
 - [x] `AppColors`/`AppTheme` carry the full Apple token set, gated on
       dynamic colour being off; `tools/verify.sh` (format, analyze, test,
       layers, network, strings, docs) passes clean.
-- [x] The five-tab shell, Home, Log a Set surfaces, Insights, and Session
-      Summary are restyled in both light and dark, matching the handoff's
-      colours, radii, spacing, and typography for the elements that map to
-      real data/widgets.
+- [x] The five-tab shell, Home, Log a Set surfaces, Insights, Session
+      Summary, onboarding, and every Settings screen are restyled in both
+      light and dark, matching the handoff's colours, radii, spacing, and
+      typography for the elements that map to real data/widgets.
 - [x] `pr` drives every celebratory colour in the app (`PrBadge`, the
       summary's PR cards) instead of the seeded `tertiary` role.
+- [x] The muscle heat map reads as a figure, not a grid of rectangles, in
+      both views and both appearances, with no traced or sourced artwork.
 - [x] Existing test suite passes with only the expected, documented
-      behavioural updates (Settings' entry point, the Start tab's label,
-      section-header casing).
+      behavioural updates (Settings' entry point moving twice — first to a
+      Home row, then to a header icon — the Start tab's label,
+      section-header casing, `SwitchListTile` → `AppleSwitchRow`).
 - [x] App icon, adaptive icon, launch background, and store graphics
       regenerated from the new seed.
 

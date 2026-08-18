@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import '../application/app_lock_provider.dart';
@@ -27,8 +28,9 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
   @override
   Widget build(BuildContext context) {
     final hasLock = ref.watch(hasAppLockProvider);
-    final theme = Theme.of(context);
+    final colors = context.appColors;
     return Scaffold(
+      backgroundColor: colors.background,
       appBar: AppBar(title: Text(context.l10n.settingsAppLock)),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.screen),
@@ -37,22 +39,30 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
           children: [
             Text(
               context.l10n.settingsAppLockExplainer,
-              style: theme.textTheme.bodyMedium,
+              style: TextStyle(fontSize: 15, color: colors.labelSecondary),
             ),
             const SizedBox(height: AppSpacing.lg),
-            FilledButton(
-              onPressed: () => unawaited(_setOrChangePin(hasLock)),
-              child: Text(
-                hasLock
-                    ? context.l10n.settingsChangePin
-                    : context.l10n.settingsSetAPin,
+            SizedBox(
+              height: 50,
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () => unawaited(_setOrChangePin(hasLock)),
+                child: Text(
+                  hasLock
+                      ? context.l10n.settingsChangePin
+                      : context.l10n.settingsSetAPin,
+                ),
               ),
             ),
             if (hasLock) ...[
               const SizedBox(height: AppSpacing.sm),
-              OutlinedButton(
-                onPressed: () => unawaited(_removePin()),
-                child: Text(context.l10n.settingsRemovePin),
+              SizedBox(
+                height: 50,
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => unawaited(_removePin()),
+                  child: Text(context.l10n.settingsRemovePin),
+                ),
               ),
             ],
           ],

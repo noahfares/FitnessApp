@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/app_version.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../data/platform/app_info_service.dart';
+import '../../shell/widgets/apple_list.dart';
+import '../../shell/widgets/section_header.dart';
 import '../../../core/l10n/l10n.dart';
 
 const _repositoryUrl = 'https://github.com/noahfares/fitnessapp';
@@ -27,7 +31,7 @@ class AboutScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
+    final colors = context.appColors;
     final versionInfo = ref.watch(appVersionInfoProvider);
     final versionText = versionInfo.when(
       data: (info) => '${info.version} (build ${info.buildNumber})',
@@ -36,57 +40,67 @@ class AboutScreen extends ConsumerWidget {
     );
 
     return Scaffold(
+      backgroundColor: colors.background,
       appBar: AppBar(title: Text(context.l10n.settingsAbout)),
       body: ListView(
+        padding: const EdgeInsets.all(AppSpacing.screen),
         children: [
-          ListTile(
-            title: Text(context.l10n.settingsVersion),
-            subtitle: Text(versionText),
-          ),
-          const Divider(),
-          ListTile(
-            title: Text(context.l10n.settingsSourceCode),
-            subtitle: const Text(_repositoryUrl),
-            trailing: const Icon(Icons.open_in_new),
-            onTap: () => launchUrl(
-              Uri.parse(_repositoryUrl),
-              mode: LaunchMode.externalApplication,
-            ),
-          ),
-          ListTile(
-            title: Text(context.l10n.settingsOpenSourceLicences),
-            onTap: () => showLicensePage(
-              context: context,
-              applicationName: 'FitnessApp',
-              applicationVersion: versionText,
-            ),
-          ),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.screen),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.l10n.settingsPrivacy,
-                  style: theme.textTheme.titleMedium,
+          AppleListSection(
+            children: [
+              AppleListRow(
+                title: context.l10n.settingsVersion,
+                subtitle: versionText,
+                showChevron: false,
+              ),
+              AppleListRow(
+                title: context.l10n.settingsSourceCode,
+                subtitle: _repositoryUrl,
+                trailing: Icon(Icons.open_in_new, size: 16, color: colors.tint),
+                showChevron: false,
+                onTap: () => launchUrl(
+                  Uri.parse(_repositoryUrl),
+                  mode: LaunchMode.externalApplication,
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  context.l10n.settingsPrivacySummary,
-                  style: theme.textTheme.bodyMedium,
+              ),
+              AppleListRow(
+                title: context.l10n.settingsOpenSourceLicences,
+                onTap: () => showLicensePage(
+                  context: context,
+                  applicationName: 'FitnessApp',
+                  applicationVersion: versionText,
                 ),
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          SectionHeader(context.l10n.settingsPrivacy),
+          const SizedBox(height: AppSpacing.sm),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            decoration: BoxDecoration(
+              color: colors.surface,
+              borderRadius: BorderRadius.circular(AppRadius.card),
+            ),
+            child: Text(
+              context.l10n.settingsPrivacySummary,
+              style: TextStyle(fontSize: 15, color: colors.label),
             ),
           ),
-          ListTile(
-            title: Text(context.l10n.settingsPrivacyPolicy),
-            subtitle: Text(context.l10n.settingsTheFullTextInThe),
-            trailing: const Icon(Icons.open_in_new),
-            onTap: () => launchUrl(
-              Uri.parse(_privacyPolicyUrl),
-              mode: LaunchMode.externalApplication,
-            ),
+          const SizedBox(height: AppSpacing.xl),
+          AppleListSection(
+            children: [
+              AppleListRow(
+                title: context.l10n.settingsPrivacyPolicy,
+                subtitle: context.l10n.settingsTheFullTextInThe,
+                trailing: Icon(Icons.open_in_new, size: 16, color: colors.tint),
+                showChevron: false,
+                onTap: () => launchUrl(
+                  Uri.parse(_privacyPolicyUrl),
+                  mode: LaunchMode.externalApplication,
+                ),
+              ),
+            ],
           ),
         ],
       ),

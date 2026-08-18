@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/units/distance.dart';
 import '../../../core/units/length.dart';
 import '../../../core/units/mass.dart';
+import '../../shell/widgets/apple_list.dart';
+import '../../shell/widgets/section_header.dart';
 import '../application/unit_preferences_provider.dart';
 import '../../../core/l10n/l10n.dart';
 
@@ -22,64 +26,69 @@ class UnitsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.appColors;
     final units = ref.watch(unitPreferencesProvider);
     final notifier = ref.read(unitPreferencesProvider.notifier);
     final formatter = ref.watch(quantityFormatterProvider);
 
     return Scaffold(
+      backgroundColor: colors.background,
       appBar: AppBar(title: Text(context.l10n.settingsUnits)),
       body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+        padding: const EdgeInsets.all(AppSpacing.screen),
         children: [
-          _UnitChoice<MassUnit>(
-            title: context.l10n.settingsWeights,
-            subtitle: context.l10n.settingsSetsTargetsPlatesAndBars,
-            values: MassUnit.values,
-            selected: units.load,
-            labelOf: (unit) => unit.symbol,
-            onChanged: notifier.setLoad,
+          AppleListSection(
+            children: [
+              _UnitChoice<MassUnit>(
+                title: context.l10n.settingsWeights,
+                subtitle: context.l10n.settingsSetsTargetsPlatesAndBars,
+                values: MassUnit.values,
+                selected: units.load,
+                labelOf: (unit) => unit.symbol,
+                onChanged: notifier.setLoad,
+              ),
+              _UnitChoice<MassUnit>(
+                title: context.l10n.settingsBodyweight,
+                subtitle: context.l10n.settingsDistanceUnitNote,
+                values: MassUnit.values,
+                selected: units.body,
+                labelOf: (unit) => unit.symbol,
+                onChanged: notifier.setBody,
+              ),
+              _UnitChoice<LengthUnit>(
+                title: context.l10n.settingsMeasurements,
+                subtitle: context.l10n.settingsCircumferences,
+                values: LengthUnit.values,
+                selected: units.length,
+                labelOf: (unit) => unit.symbol,
+                onChanged: notifier.setLength,
+              ),
+              _UnitChoice<DistanceUnit>(
+                title: context.l10n.settingsDistance,
+                subtitle: context.l10n.settingsCardio,
+                values: DistanceUnit.values,
+                selected: units.distance,
+                labelOf: (unit) => unit.symbol,
+                onChanged: notifier.setDistance,
+              ),
+            ],
           ),
-          _UnitChoice<MassUnit>(
-            title: context.l10n.settingsBodyweight,
-            subtitle: context.l10n.settingsDistanceUnitNote,
-            values: MassUnit.values,
-            selected: units.body,
-            labelOf: (unit) => unit.symbol,
-            onChanged: notifier.setBody,
-          ),
-          _UnitChoice<LengthUnit>(
-            title: context.l10n.settingsMeasurements,
-            subtitle: context.l10n.settingsCircumferences,
-            values: LengthUnit.values,
-            selected: units.length,
-            labelOf: (unit) => unit.symbol,
-            onChanged: notifier.setLength,
-          ),
-          _UnitChoice<DistanceUnit>(
-            title: context.l10n.settingsDistance,
-            subtitle: context.l10n.settingsCardio,
-            values: DistanceUnit.values,
-            selected: units.distance,
-            labelOf: (unit) => unit.symbol,
-            onChanged: notifier.setDistance,
-          ),
-          const Divider(height: AppSpacing.xxl),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.screen,
-              vertical: AppSpacing.sm,
+          const SizedBox(height: AppSpacing.xl),
+          SectionHeader(context.l10n.settingsPreview),
+          const SizedBox(height: AppSpacing.sm),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            decoration: BoxDecoration(
+              color: colors.surface,
+              borderRadius: BorderRadius.circular(AppRadius.card),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  context.l10n.settingsPreview,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
                   context.l10n.settingsUnitsExplainer,
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: TextStyle(fontSize: 13, color: colors.labelSecondary),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 _PreviewRow(
@@ -105,7 +114,6 @@ class UnitsScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.xl),
         ],
       ),
     );
@@ -131,31 +139,35 @@ class _UnitChoice<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.screen,
+        horizontal: AppSpacing.lg,
         vertical: AppSpacing.md,
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: Theme.of(context).textTheme.bodyLarge),
-                Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-              ],
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 17,
+              letterSpacing: -0.17,
+              color: colors.label,
             ),
           ),
-          const SizedBox(width: AppSpacing.md),
-          SegmentedButton<T>(
+          const SizedBox(height: 1),
+          Text(
+            subtitle,
+            style: TextStyle(fontSize: 13, color: colors.labelSecondary),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          SegmentedTrack<T>(
+            selected: selected,
             segments: [
-              for (final value in values)
-                ButtonSegment(value: value, label: Text(labelOf(value))),
+              for (final value in values) (value: value, label: labelOf(value)),
             ],
-            selected: {selected},
-            showSelectedIcon: false,
-            onSelectionChanged: (selection) => onChanged(selection.first),
+            onChanged: onChanged,
           ),
         ],
       ),
@@ -171,14 +183,24 @@ class _PreviewRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.appColors;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: theme.textTheme.bodySmall),
-          Text(value, style: theme.textTheme.bodyLarge),
+          Text(
+            label,
+            style: TextStyle(fontSize: 13, color: colors.labelSecondary),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 17,
+              color: colors.label,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
         ],
       ),
     );
