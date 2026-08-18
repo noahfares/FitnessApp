@@ -117,7 +117,7 @@ F-SET-007	2	done	P1	Increment steps	F-SET-001		22-UNITS
 F-SET-008	2	planned	P2	Notification preferences	F-TIM-003		22-UNITS
 F-SET-009	1	done	P1	About			22-UNITS
 F-SET-010	5	done	P3	App lock	F-BOD-004		22-UNITS
-F-SET-011	6	planned	P2	Onboarding			22-UNITS
+F-SET-011	6	done	P2	Onboarding			22-UNITS
 F-PLT-001	4	done	P1	Plate calculator	F-PLT-002	F-PRG-012, F-LOG-020	22-UNITS, 21-DATA-MODEL#bars-and-plates
 F-PLT-002	4	done	P1	Bar and plate inventory		F-PLT-001	22-UNITS, 21-DATA-MODEL#bars-and-plates
 F-PLT-003	4	done	P2	Loading visualisation	F-PLT-001		22-UNITS, 21-DATA-MODEL#bars-and-plates
@@ -136,7 +136,7 @@ F-THM-002	0	done	P0	Light and dark schemes	F-THM-001		24-DESIGN-SYSTEM, 30-featu
 F-THM-003	2	done	P2	Dynamic colour			24-DESIGN-SYSTEM
 F-THM-004	3	done	P1	Chart theming	F-THM-001, F-ANA-001		24-DESIGN-SYSTEM
 F-THM-005	0	done	P1	Typography	F-THM-001		24-DESIGN-SYSTEM
-F-THM-006	6	planned	P2	App icon and branding			24-DESIGN-SYSTEM
+F-THM-006	6	done	P2	App icon and branding			24-DESIGN-SYSTEM
 F-A11Y-001	6	done	P1	Screen reader support			24-DESIGN-SYSTEM#accessibility-baseline
 F-A11Y-002	6	done	P1	Dynamic type			24-DESIGN-SYSTEM#accessibility-baseline
 F-A11Y-003	6	done	P1	Contrast and colour independence			24-DESIGN-SYSTEM#accessibility-baseline
@@ -153,9 +153,9 @@ F-HLT-005	—	idea	P3	watchOS companion	F-HLT-004		20-ARCHITECTURE#cross-platfor
 F-REL-001	0	done	P0	CI build and checks		F-REL-002	62-RELEASE, 61-CI-CD
 F-REL-002	1	done	P0	Signed release APK	F-REL-001		62-RELEASE, 70-decisions/ADR-0007-signing
 F-REL-003	1	done	P1	GitHub Release automation	F-REL-002		62-RELEASE, 61-CI-CD
-F-REL-004	6	planned	P1	App bundle for Play	F-REL-002		62-RELEASE, 61-CI-CD
+F-REL-004	6	done	P1	App bundle for Play	F-REL-002		62-RELEASE, 61-CI-CD
 F-REL-005	1	done	P1	Versioning scheme			62-RELEASE, 61-CI-CD
-F-REL-006	6	planned	P2	Store listing assets	F-THM-006		62-RELEASE, 61-CI-CD
+F-REL-006	6	in-progress	P2	Store listing assets	F-THM-006		62-RELEASE, 61-CI-CD
 F-REL-007	6	done	P0	Privacy policy and data safety			62-RELEASE, 10-VISION#non-goals
 F-REL-008	—	idea	P2	Update check for sideloaded installs			62-RELEASE, 61-CI-CD
 F-REL-009	—	idea	P2	iOS build and TestFlight			62-RELEASE, 61-CI-CD

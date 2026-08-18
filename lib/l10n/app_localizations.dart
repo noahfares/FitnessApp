@@ -2224,6 +2224,78 @@ abstract class AppLocalizations {
   /// **'Upper back'**
   String get muscleUpperBack;
 
+  /// No description provided for @onboardingAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get onboardingAppearance;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingProgramBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Pick one to get a routine ready to train tomorrow, or build your own later.'**
+  String get onboardingProgramBody;
+
+  /// No description provided for @onboardingProgramLater.
+  ///
+  /// In en, this message translates to:
+  /// **'More programs live under Routines, and nothing here is permanent — every routine can be edited or deleted.'**
+  String get onboardingProgramLater;
+
+  /// No description provided for @onboardingProgramTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from a program?'**
+  String get onboardingProgramTitle;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingStartTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Start training'**
+  String get onboardingStartTraining;
+
+  /// No description provided for @onboardingUnitsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Display only — nothing stored ever changes, so you can switch back at any time without touching a single logged set.'**
+  String get onboardingUnitsBody;
+
+  /// No description provided for @onboardingUnitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Kilograms or pounds?'**
+  String get onboardingUnitsTitle;
+
+  /// No description provided for @onboardingWeightUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get onboardingWeightUnit;
+
+  /// No description provided for @onboardingWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited routines, real analytics, and your data on your own device. No account, no subscription, and nothing to sign up for.'**
+  String get onboardingWelcomeBody;
+
+  /// No description provided for @onboardingWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything, free'**
+  String get onboardingWelcomeTitle;
+
   /// No description provided for @progressionCarriedForward.
   ///
   /// In en, this message translates to:

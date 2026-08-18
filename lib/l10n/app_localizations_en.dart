@@ -1219,6 +1219,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get muscleUpperBack => 'Upper back';
 
   @override
+  String get onboardingAppearance => 'Appearance';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingProgramBody =>
+      'Optional. Pick one to get a routine ready to train tomorrow, or build your own later.';
+
+  @override
+  String get onboardingProgramLater =>
+      'More programs live under Routines, and nothing here is permanent — every routine can be edited or deleted.';
+
+  @override
+  String get onboardingProgramTitle => 'Start from a program?';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingStartTraining => 'Start training';
+
+  @override
+  String get onboardingUnitsBody =>
+      'Display only — nothing stored ever changes, so you can switch back at any time without touching a single logged set.';
+
+  @override
+  String get onboardingUnitsTitle => 'Kilograms or pounds?';
+
+  @override
+  String get onboardingWeightUnit => 'Weight';
+
+  @override
+  String get onboardingWelcomeBody =>
+      'Unlimited routines, real analytics, and your data on your own device. No account, no subscription, and nothing to sign up for.';
+
+  @override
+  String get onboardingWelcomeTitle => 'Everything, free';
+
+  @override
   String progressionCarriedForward(int reps, String weight, String unit) {
     return 'Carried forward from last time: $reps at $weight $unit.';
   }

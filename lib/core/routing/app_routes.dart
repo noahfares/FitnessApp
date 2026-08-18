@@ -23,6 +23,11 @@ abstract final class AppRoutes {
   /// list's empty state or app bar.
   static const String starterPrograms = '$routines/starter-programs';
 
+  /// First run only (`F-SET-011`). A real route rather than a dialog over the
+  /// dashboard: it is the whole screen until it is dismissed, and `go`ing away
+  /// from it must not leave it underneath.
+  static const String onboarding = '/onboarding';
+
   static const String start = '/start';
   static const String history = '/history';
   static const String insights = '/insights';

@@ -91,8 +91,14 @@ final activeWorkoutIsStaleProvider = Provider<bool>((ref) {
 /// It just resumes. There is deliberately no "restore session?" prompt:
 /// prompting invites the wrong answer under stress, and the right answer is
 /// never "throw it away".
-String startupLocationFor(Workout? active) =>
-    active == null ? AppRoutes.home : AppRoutes.activeWorkout;
+/// [onboardingSeen] false sends a first run to onboarding (`F-SET-011`),
+/// which wins over everything else: there is no session to resume on a first
+/// run, and a half-finished one would be a bug worth seeing rather than
+/// skipping past.
+String startupLocationFor(Workout? active, {bool onboardingSeen = true}) {
+  if (!onboardingSeen) return AppRoutes.onboarding;
+  return active == null ? AppRoutes.home : AppRoutes.activeWorkout;
+}
 
 /// Where the app opens.
 ///

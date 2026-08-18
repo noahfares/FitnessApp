@@ -601,6 +601,18 @@
   "muscleTraps": "Traps",
   "muscleTriceps": "Triceps",
   "muscleUpperBack": "Upper back",
+  "onboardingAppearance": "Appearance",
+  "onboardingNext": "Next",
+  "onboardingProgramBody": "Optional. Pick one to get a routine ready to train tomorrow, or build your own later.",
+  "onboardingProgramLater": "More programs live under Routines, and nothing here is permanent — every routine can be edited or deleted.",
+  "onboardingProgramTitle": "Start from a program?",
+  "onboardingSkip": "Skip",
+  "onboardingStartTraining": "Start training",
+  "onboardingUnitsBody": "Display only — nothing stored ever changes, so you can switch back at any time without touching a single logged set.",
+  "onboardingUnitsTitle": "Kilograms or pounds?",
+  "onboardingWeightUnit": "Weight",
+  "onboardingWelcomeBody": "Unlimited routines, real analytics, and your data on your own device. No account, no subscription, and nothing to sign up for.",
+  "onboardingWelcomeTitle": "Everything, free",
   "progressionCarriedForward": "Carried forward from last time: {reps} at {weight} {unit}.",
   "@progressionCarriedForward": {
     "placeholders": {
