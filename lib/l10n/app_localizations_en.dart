@@ -1969,6 +1969,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMatchTheDeviceSetting => 'Match the device setting';
 
   @override
+  String get settingsMeasurementReminders => 'Measurement reminders';
+
+  @override
+  String get settingsMeasurementRemindersExplainer =>
+      'Off by default. A weekly nudge to log bodyweight and measurements.';
+
+  @override
   String get settingsMeasurements => 'Measurements';
 
   @override
@@ -1985,6 +1992,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsNoPlatesConfiguredYet => 'No plates configured yet.';
+
+  @override
+  String get settingsNotifications => 'Notifications';
 
   @override
   String get settingsOk => 'OK';
@@ -2056,6 +2066,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsRestAlertLimitation =>
       'The alert needs the app to still be running. Notifications that survive the phone putting the app to sleep arrive with F-TIM-003.';
+
+  @override
+  String get settingsRestAlerts => 'Rest timer alerts';
+
+  @override
+  String get settingsRestAlertsExplainer =>
+      'A notification when a rest ends, so the phone can go back in your pocket.';
 
   @override
   String get settingsRestDefaultOverrideNote =>
@@ -2181,6 +2198,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsWipeFailedTryAgain => 'Wipe failed. Try again.';
+
+  @override
+  String get settingsWorkoutReminders => 'Workout reminders';
+
+  @override
+  String get settingsWorkoutRemindersExplainer =>
+      'Off by default. A nudge on the days your routine is scheduled for.';
 
   @override
   String get settingsWrongPin => 'Wrong PIN.';

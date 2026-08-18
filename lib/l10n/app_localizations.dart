@@ -3378,6 +3378,18 @@ abstract class AppLocalizations {
   /// **'Match the device setting'**
   String get settingsMatchTheDeviceSetting;
 
+  /// No description provided for @settingsMeasurementReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement reminders'**
+  String get settingsMeasurementReminders;
+
+  /// No description provided for @settingsMeasurementRemindersExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Off by default. A weekly nudge to log bodyweight and measurements.'**
+  String get settingsMeasurementRemindersExplainer;
+
   /// No description provided for @settingsMeasurements.
   ///
   /// In en, this message translates to:
@@ -3413,6 +3425,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No plates configured yet.'**
   String get settingsNoPlatesConfiguredYet;
+
+  /// No description provided for @settingsNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotifications;
 
   /// No description provided for @settingsOk.
   ///
@@ -3527,6 +3545,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The alert needs the app to still be running. Notifications that survive the phone putting the app to sleep arrive with F-TIM-003.'**
   String get settingsRestAlertLimitation;
+
+  /// No description provided for @settingsRestAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest timer alerts'**
+  String get settingsRestAlerts;
+
+  /// No description provided for @settingsRestAlertsExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'A notification when a rest ends, so the phone can go back in your pocket.'**
+  String get settingsRestAlertsExplainer;
 
   /// No description provided for @settingsRestDefaultOverrideNote.
   ///
@@ -3755,6 +3785,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wipe failed. Try again.'**
   String get settingsWipeFailedTryAgain;
+
+  /// No description provided for @settingsWorkoutReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout reminders'**
+  String get settingsWorkoutReminders;
+
+  /// No description provided for @settingsWorkoutRemindersExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Off by default. A nudge on the days your routine is scheduled for.'**
+  String get settingsWorkoutRemindersExplainer;
 
   /// No description provided for @settingsWrongPin.
   ///

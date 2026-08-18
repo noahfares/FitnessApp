@@ -1,4 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The rest alert (`F-TIM-003`). POST_NOTIFICATIONS is Android 13+;
+         the two alarm permissions are what make an alert land on time rather
+         than whenever the OS feels like it — USE_EXACT_ALARM is granted
+         outright for an alarm-clock-shaped app, SCHEDULE_EXACT_ALARM is the
+         older, user-granted form. Both are declared because which one applies
+         depends on the API level, and neither implies any network access. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <!-- Redeliver a scheduled rest across a reboot rather than losing it. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
     <!-- Health Connect (`F-HLT-001`, `F-HLT-002`). Exactly four: write and
          read the workout type this app produces, and read the bodyweight it
          can usefully consume. Asking for more than is used is how a permission
@@ -50,6 +63,23 @@
                 <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE"/>
             </intent-filter>
         </activity>
+        <!-- flutter_local_notifications' own receivers: one to deliver a
+             scheduled alert, one to re-register alerts after a reboot
+             (`F-TIM-003` §1-§2). -->
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

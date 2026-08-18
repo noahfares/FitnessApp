@@ -89,7 +89,7 @@
 | [F-TIM-001](TIM/F-TIM-001.md) | Rest timer core | 1 | P0 | done |
 | [F-TIM-002](TIM/F-TIM-002.md) | Auto-start on set completion | 1 | P0 | done |
 | [F-TIM-003](TIM/F-TIM-003.md) | Background execution and notification | 1 | P0 | in-progress |
-| [F-TIM-004](TIM/F-TIM-004.md) | Notification and lock-screen controls | 2 | P2 | planned |
+| [F-TIM-004](TIM/F-TIM-004.md) | Notification and lock-screen controls | 2 | P2 | done |
 | [F-TIM-005](TIM/F-TIM-005.md) | Default rest durations | 1 | P1 | done |
 | [F-TIM-006](TIM/F-TIM-006.md) | Alert style | 1 | P1 | done |
 | [F-TIM-007](TIM/F-TIM-007.md) | Rest-taken recording | 2 | P2 | done |
@@ -174,7 +174,7 @@
 | [F-SET-005](SET/F-SET-005.md) | Week start | 3 | P1 | done |
 | [F-SET-006](SET/F-SET-006.md) | e1RM formula | 3 | P2 | done |
 | [F-SET-007](SET/F-SET-007.md) | Increment steps | 2 | P1 | done |
-| [F-SET-008](SET/F-SET-008.md) | Notification preferences | 2 | P2 | planned |
+| [F-SET-008](SET/F-SET-008.md) | Notification preferences | 2 | P2 | done |
 | [F-SET-009](SET/F-SET-009.md) | About | 1 | P1 | done |
 | [F-SET-010](SET/F-SET-010.md) | App lock | 5 | P3 | done |
 | [F-SET-011](SET/F-SET-011.md) | Onboarding | 6 | P2 | done |

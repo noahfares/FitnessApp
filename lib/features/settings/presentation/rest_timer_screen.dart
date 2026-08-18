@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../domain/timing/rest_defaults.dart';
 import '../../../domain/timing/rest_settings.dart';
+import '../../../data/platform/rest_timer_service.dart';
+import '../application/notification_settings_provider.dart';
 import '../application/rest_timer_settings_provider.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../timing/presentation/rest_alert_labels.dart';
@@ -20,6 +22,27 @@ const int _automaticRest = 0;
 /// Only the global settings live here. Per-exercise and per-routine overrides
 /// belong with those entities — a settings screen listing every exercise's rest
 /// duration would be a worse exercise editor.
+/// Turning an alert *on* is the moment to ask for the permission it needs —
+/// in context, never at first launch (`F-SET-008`, `F-TIM-003` acceptance).
+/// A refusal leaves the switch off rather than pretending it is on.
+Future<void> _setRestAlerts(WidgetRef ref, {required bool enabled}) async {
+  final notifier = ref.read(notificationSettingsProvider.notifier);
+  if (!enabled) return notifier.setRestAlerts(false);
+  final granted = await ref.read(restTimerServiceProvider).requestPermission();
+  return notifier.setRestAlerts(granted);
+}
+
+Future<void> _setReminder(
+  WidgetRef ref, {
+  required bool enabled,
+  required Future<void> Function(NotificationSettingsNotifier, bool) write,
+}) async {
+  final notifier = ref.read(notificationSettingsProvider.notifier);
+  if (!enabled) return write(notifier, false);
+  final granted = await ref.read(restTimerServiceProvider).requestPermission();
+  return write(notifier, granted);
+}
+
 class RestTimerScreen extends ConsumerWidget {
   const RestTimerScreen({super.key});
 
@@ -28,6 +51,7 @@ class RestTimerScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final settings = ref.watch(restTimerSettingsProvider);
     final notifier = ref.read(restTimerSettingsProvider.notifier);
+    final notifications = ref.watch(notificationSettingsProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.catalogRestTimer)),
@@ -104,6 +128,39 @@ class RestTimerScreen extends ConsumerWidget {
             value: settings.preWarning,
             onChanged: (value) =>
                 unawaited(notifier.setPreWarning(enabled: value)),
+          ),
+          const Divider(),
+          _SectionHeading(context.l10n.settingsNotifications),
+          SwitchListTile(
+            title: Text(context.l10n.settingsRestAlerts),
+            subtitle: Text(context.l10n.settingsRestAlertsExplainer),
+            value: notifications.restAlerts,
+            onChanged: (value) =>
+                unawaited(_setRestAlerts(ref, enabled: value)),
+          ),
+          SwitchListTile(
+            title: Text(context.l10n.settingsWorkoutReminders),
+            subtitle: Text(context.l10n.settingsWorkoutRemindersExplainer),
+            value: notifications.workoutReminders,
+            onChanged: (value) => unawaited(
+              _setReminder(
+                ref,
+                enabled: value,
+                write: (n, v) => n.setWorkoutReminders(v),
+              ),
+            ),
+          ),
+          SwitchListTile(
+            title: Text(context.l10n.settingsMeasurementReminders),
+            subtitle: Text(context.l10n.settingsMeasurementRemindersExplainer),
+            value: notifications.measurementReminders,
+            onChanged: (value) => unawaited(
+              _setReminder(
+                ref,
+                enabled: value,
+                write: (n, v) => n.setMeasurementReminders(v),
+              ),
+            ),
           ),
           // The one platform limitation worth stating in the UI rather than
           // only in the code (`F-TIM-003` edge cases).
