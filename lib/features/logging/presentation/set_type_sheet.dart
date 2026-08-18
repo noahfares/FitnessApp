@@ -5,6 +5,8 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/db/tables/enums.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Set type, from a long-press on the set-number cell (`F-LOG-005` §2).
 Future<void> showSetTypeSheet(BuildContext context, {required WorkoutSet set}) {
@@ -45,7 +47,10 @@ class SetTypeSheet extends ConsumerWidget {
               AppSpacing.screen,
               AppSpacing.xs,
             ),
-            child: Text('Set type', style: theme.textTheme.titleMedium),
+            child: Text(
+              context.l10n.loggingSetType,
+              style: theme.textTheme.titleMedium,
+            ),
           ),
           for (final type in offered)
             ListTile(
@@ -54,8 +59,8 @@ class SetTypeSheet extends ConsumerWidget {
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
               ),
-              title: Text(_title(type)),
-              subtitle: Text(_subtitle(type)),
+              title: Text(_title(type, context.l10n)),
+              subtitle: Text(_subtitle(type, context.l10n)),
               onTap: () async {
                 await ref.read(setRepositoryProvider).setType(set.id, type);
                 if (context.mounted) Navigator.of(context).pop();
@@ -67,17 +72,18 @@ class SetTypeSheet extends ConsumerWidget {
     );
   }
 
-  static String _title(SetType type) => switch (type) {
+  static String _title(SetType type, AppLocalizations l10n) => switch (type) {
     SetType.warmup => 'Warm-up',
     SetType.working => 'Working',
-    SetType.drop => 'Drop set',
-    SetType.failure => 'To failure',
+    SetType.drop => l10n.loggingDropSet,
+    SetType.failure => l10n.loggingToFailure,
     SetType.amrap => 'AMRAP',
     SetType.backoff => 'Back-off',
   };
 
-  static String _subtitle(SetType type) => switch (type) {
-    SetType.warmup => 'Numbered W1, W2. Excluded from every figure.',
-    _ => 'Counts toward volume and records.',
-  };
+  static String _subtitle(SetType type, AppLocalizations l10n) =>
+      switch (type) {
+        SetType.warmup => l10n.loggingNumberedW1W2ExcludedFrom,
+        _ => l10n.loggingCountsTowardVolumeAndRecords,
+      };
 }

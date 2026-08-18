@@ -13,14 +13,7 @@ library;
 /// nobody wants the second.
 enum RestAlertStyle { silent, sound, vibration, both }
 
-extension RestAlertStyleLabel on RestAlertStyle {
-  String get label => switch (this) {
-    RestAlertStyle.silent => 'Silent',
-    RestAlertStyle.sound => 'Sound',
-    RestAlertStyle.vibration => 'Vibration',
-    RestAlertStyle.both => 'Sound and vibration',
-  };
-
+extension RestAlertStyleBehaviour on RestAlertStyle {
   bool get playsSound =>
       this == RestAlertStyle.sound || this == RestAlertStyle.both;
 

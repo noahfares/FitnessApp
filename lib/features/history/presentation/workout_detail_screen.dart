@@ -26,6 +26,9 @@ import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import '../../shell/widgets/empty_state.dart';
 import '../application/history_providers.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../data/platform/health_service.dart';
+import '../../health/application/health_providers.dart';
 
 /// A finished session, in full (`F-LOG-012`).
 ///
@@ -44,27 +47,27 @@ class WorkoutDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Workout'),
+        title: Text(context.l10n.historyWorkout),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
-            tooltip: 'Edit',
+            tooltip: context.l10n.historyEdit,
             onPressed: () =>
                 context.push(AppRoutes.historyWorkoutEdit(workoutId)),
           ),
           IconButton(
             icon: const Icon(Icons.replay_outlined),
-            tooltip: 'Repeat this workout',
+            tooltip: context.l10n.historyRepeatThisWorkout,
             onPressed: () => unawaited(_repeat(context, ref)),
           ),
           IconButton(
             icon: const Icon(Icons.playlist_add_outlined),
-            tooltip: 'Save as routine',
+            tooltip: context.l10n.historySaveAsRoutine,
             onPressed: () => unawaited(_saveAsRoutine(context, ref)),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            tooltip: 'Delete',
+            tooltip: context.l10n.catalogDelete,
             onPressed: () => unawaited(_delete(context, ref)),
           ),
         ],
@@ -86,11 +89,9 @@ class WorkoutDetailScreen extends ConsumerWidget {
       if (!context.mounted) return;
       final resume = await showConfirmSheet(
         context,
-        title: 'Already training',
-        message:
-            'A workout is already in progress. Finish or discard it '
-            'before starting another.',
-        confirmLabel: 'Resume it',
+        title: context.l10n.historyAlreadyTraining,
+        message: context.l10n.historyAlreadyTrainingExplainer,
+        confirmLabel: context.l10n.historyResumeIt,
         cancelLabel: 'Cancel',
         isDestructive: false,
       );
@@ -104,7 +105,7 @@ class WorkoutDetailScreen extends ConsumerWidget {
   Future<void> _saveAsRoutine(BuildContext context, WidgetRef ref) async {
     final name = await promptRoutineName(
       context,
-      title: 'Save as routine',
+      title: context.l10n.historySaveAsRoutine,
       initial: ref.read(workoutByIdProvider(workoutId)).value?.name ?? '',
     );
     if (name == null || name.trim().isEmpty) return;
@@ -116,16 +117,39 @@ class WorkoutDetailScreen extends ConsumerWidget {
   }
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
+    // Whether a copy of this session exists in Health Connect decides what the
+    // confirmation says: offering to remove a record that was never written
+    // would be noise, and deleting one silently would be worse
+    // (`F-HLT-001` acceptance).
+    final sharesWithHealth = ref.read(healthWriteEnabledProvider);
     final confirmed = await showConfirmSheet(
       context,
-      title: 'Delete this workout?',
-      message:
-          'This session and all its sets will be removed from your '
-          'history.',
+      title: context.l10n.historyDeleteThisWorkout,
+      message: sharesWithHealth
+          ? context.l10n.historyDeleteWorkoutHealthExplainer
+          : context.l10n.historyDeleteWorkoutExplainer,
     );
     if (!confirmed) return;
 
-    await ref.read(workoutRepositoryProvider).deleteWorkout(workoutId);
+    final repo = ref.read(workoutRepositoryProvider);
+    if (sharesWithHealth) {
+      final workout = await repo.findById(workoutId);
+      if (workout?.endedAt case final endedAt?) {
+        // Unawaited for the same reason the write is: the local delete is what
+        // actually happened, and a health store that refuses must not leave a
+        // workout undeleted here.
+        unawaited(
+          ref
+              .read(healthServiceProvider)
+              .deleteWorkout(
+                start: DateTime.fromMillisecondsSinceEpoch(workout!.startedAt),
+                end: DateTime.fromMillisecondsSinceEpoch(endedAt),
+              ),
+        );
+      }
+    }
+
+    await repo.deleteWorkout(workoutId);
     if (!context.mounted) return;
     context.go(AppRoutes.history);
   }
@@ -161,7 +185,7 @@ class _Detail extends StatelessWidget {
           runSpacing: AppSpacing.sm,
           children: [
             _Stat(
-              label: 'Duration',
+              label: context.l10n.historyDuration,
               value: workout.endedAt == null
                   ? '—'
                   : formatElapsed(
@@ -170,7 +194,10 @@ class _Detail extends StatelessWidget {
                       ),
                     ),
             ),
-            _Stat(label: 'Exercises', value: '${exercises?.length ?? 0}'),
+            _Stat(
+              label: context.l10n.historyExercises,
+              value: '${exercises?.length ?? 0}',
+            ),
           ],
         ),
         if (workout.notes != null && workout.notes!.isNotEmpty) ...[
@@ -181,9 +208,9 @@ class _Detail extends StatelessWidget {
         if (exercises == null)
           const LoadingView()
         else if (exercises.isEmpty)
-          const EmptyState(
+          EmptyState(
             icon: Icons.fitness_center,
-            title: 'No exercises in this session',
+            title: context.l10n.historyNoExercisesInThisSession,
           )
         else
           for (final exercise in exercises)

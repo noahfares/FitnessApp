@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../application/theme_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Settings › Appearance (F-SET-002).
 ///
@@ -18,7 +19,7 @@ class AppearanceScreen extends ConsumerWidget {
     final colors = context.appColors;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Appearance')),
+      appBar: AppBar(title: Text(context.l10n.settingsAppearance)),
       body: ListView(
         children: [
           RadioGroup<ThemeMode>(
@@ -33,9 +34,9 @@ class AppearanceScreen extends ConsumerWidget {
                 for (final option in ThemeMode.values)
                   RadioListTile<ThemeMode>(
                     value: option,
-                    title: Text(option.label),
+                    title: Text(option.label(context.l10n)),
                     subtitle: option == ThemeMode.system
-                        ? const Text('Match the device setting')
+                        ? Text(context.l10n.settingsMatchTheDeviceSetting)
                         : null,
                   ),
               ],
@@ -46,11 +47,8 @@ class AppearanceScreen extends ConsumerWidget {
             value: dynamicColorEnabled,
             onChanged: (enabled) =>
                 ref.read(dynamicColorEnabledProvider.notifier).set(enabled),
-            title: const Text('Dynamic colour'),
-            subtitle: const Text(
-              'Tint the app from your wallpaper. Android 12+ only — off does '
-              "nothing on a phone that doesn't support it.",
-            ),
+            title: Text(context.l10n.settingsDynamicColour),
+            subtitle: Text(context.l10n.settingsDynamicColourExplainer),
           ),
           const Divider(),
           Padding(
@@ -59,7 +57,7 @@ class AppearanceScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Colours in this theme',
+                  context.l10n.settingsColoursInThisTheme,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -77,19 +75,19 @@ class AppearanceScreen extends ConsumerWidget {
                 // The subtlest colour in the app, and the one most worth
                 // checking on a real phone under gym lighting (F-LOG-004).
                 Text(
-                  'Ghost values',
+                  context.l10n.settingsGhostValues,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Row(
                   children: [
                     Text(
-                      '100 kg × 8',
+                      context.l10n.settings100Kg8,
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(width: AppSpacing.md),
                     Text(
-                      'last time: 97.5 kg × 8',
+                      context.l10n.settingsLastTime975Kg,
                       style: Theme.of(
                         context,
                       ).textTheme.bodyLarge?.copyWith(color: colors.ghost),

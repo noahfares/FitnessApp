@@ -8,6 +8,7 @@ import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../domain/logging/rpe.dart';
 import '../../settings/application/rpe_settings_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// RPE (or RIR) picker, from a tap on the set row's RPE cell (`F-LOG-014`).
 Future<void> showRpeSheet(BuildContext context, {required WorkoutSet set}) {
@@ -53,8 +54,8 @@ class RpeSheet extends ConsumerWidget {
             const SizedBox(height: AppSpacing.xs),
             Text(
               mode == RpeDisplayMode.rpe
-                  ? 'Rate of perceived exertion — higher is harder.'
-                  : 'Reps in reserve — lower is harder.',
+                  ? context.l10n.loggingRateOfPerceivedExertionHigher
+                  : context.l10n.loggingRepsInReserveLowerIs,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

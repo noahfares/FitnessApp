@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 
@@ -14,17 +15,19 @@ Future<bool> showConfirmSheet(
   BuildContext context, {
   required String title,
   required String message,
-  String confirmLabel = 'Delete',
-  String cancelLabel = 'Keep it',
+  String? confirmLabel,
+  String? cancelLabel,
   bool isDestructive = true,
 }) async {
+  final confirm = confirmLabel ?? context.l10n.shellDelete;
+  final cancel = cancelLabel ?? context.l10n.shellKeepIt;
   final result = await showModalBottomSheet<bool>(
     context: context,
     builder: (context) => ConfirmSheet(
       title: title,
       message: message,
-      confirmLabel: confirmLabel,
-      cancelLabel: cancelLabel,
+      confirmLabel: confirm,
+      cancelLabel: cancel,
       isDestructive: isDestructive,
     ),
   );

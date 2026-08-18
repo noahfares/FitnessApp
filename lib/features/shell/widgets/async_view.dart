@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Consistent loading presentation (`F-NAV-006`), so every screen's spinner
 /// looks and centres the same way instead of each one rebuilding it.
@@ -20,18 +21,19 @@ class LoadingView extends StatelessWidget {
 /// their own [title] and [message]; the defaults are the honest fallback for
 /// a stream failure nobody anticipated.
 class ErrorView extends StatelessWidget {
-  const ErrorView({
-    super.key,
-    this.title = 'Something went wrong',
-    this.message = 'Try again in a moment.',
-  });
+  const ErrorView({super.key, this.title, this.message});
 
-  final String title;
-  final String message;
+  /// Null falls back to the generic pair below. A localised default cannot be
+  /// a `const` parameter value (`F-I18N-001`), so the fallback is resolved
+  /// here, where there is a context to resolve it against.
+  final String? title;
+  final String? message;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final title = this.title ?? context.l10n.shellSomethingWentWrong;
+    final message = this.message ?? context.l10n.shellTryAgainInAMoment;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
@@ -69,8 +71,8 @@ class ErrorView extends StatelessWidget {
 extension AsyncValueView<T> on AsyncValue<T> {
   Widget view(
     Widget Function(T data) data, {
-    String errorTitle = 'Something went wrong',
-    String errorMessage = 'Try again in a moment.',
+    String? errorTitle,
+    String? errorMessage,
   }) => when(
     data: data,
     loading: () => const LoadingView(),

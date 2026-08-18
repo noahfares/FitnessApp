@@ -36,6 +36,12 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // `flutter_local_notifications` requires it (`F-TIM-003`): it uses
+        // java.time to schedule against a zoned target, and desugaring is what
+        // makes that available below API 26. Caught by CI's debug-APK job,
+        // which is the only thing in this repository that compiles Android at
+        // all — worth remembering the next time a plugin lands.
+        isCoreLibraryDesugaringEnabled = true
     }
 
     defaultConfig {
@@ -45,7 +51,12 @@ android {
         applicationId = "com.noahfares.fitnessapp"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // Health Connect's client library requires API 26 (`F-HLT-001`).
+        // That drops Android 7.x, which is a real product decision rather than
+        // a build detail: it is a 2016 release with a fraction of a percent of
+        // active devices, and the alternative is shipping the integration to
+        // nobody. Recorded in docs/62-RELEASE.md.
+        minSdk = maxOf(flutter.minSdkVersion, 26)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -109,4 +120,10 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Required by the compileOptions flag above. Version tracks what the
+    // Android Gradle Plugin expects; bumping AGP may require bumping this.
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }

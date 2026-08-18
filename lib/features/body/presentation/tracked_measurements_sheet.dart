@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../settings/application/tracked_measurements_provider.dart';
 import 'measurement_labels.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Which measurements to track (`F-BOD-002`'s own spec: "users choose which
 /// measurements to track — showing all thirteen by default is clutter").
@@ -35,11 +36,13 @@ class TrackedMeasurementsSheet extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Measurements to track', style: theme.textTheme.titleMedium),
+              Text(
+                context.l10n.bodyMeasurementsToTrack,
+                style: theme.textTheme.titleMedium,
+              ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Bodyweight is always logged. Turn on whichever of these you '
-                'also want to track.',
+                context.l10n.bodyTrackedTypesExplainer,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -48,7 +51,7 @@ class TrackedMeasurementsSheet extends ConsumerWidget {
               for (final type in trackableMeasurementTypes)
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(type.label),
+                  title: Text(type.label(context.l10n)),
                   value: tracked.contains(type),
                   onChanged: (_) => ref
                       .read(trackedMeasurementTypesProvider.notifier)

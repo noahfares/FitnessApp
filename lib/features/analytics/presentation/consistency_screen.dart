@@ -1,13 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../domain/analytics/consistency.dart';
+import '../../../domain/analytics/schedule_adherence.dart';
+import '../../routines/application/routine_providers.dart';
 import '../../settings/application/week_start_provider.dart';
+import '../../settings/application/weekly_target_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/calendar_heatmap.dart';
 import '../application/analytics_clock_provider.dart';
 import '../application/analytics_set_records_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Consistency (`F-ANA-006`) — a calendar heatmap of training days, current
 /// and longest streak, and a rolling sessions-per-week average.
@@ -17,16 +23,16 @@ import '../application/analytics_set_records_provider.dart';
 class ConsistencyScreen extends ConsumerWidget {
   const ConsistencyScreen({super.key});
 
-  static const int _weeklyTarget = 3;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final records = ref.watch(analyticsSetRecordsProvider);
     final weekStart = ref.watch(weekStartProvider);
     final now = ref.watch(analyticsClockProvider)();
+    final weeklyTarget = ref.watch(weeklyTargetProvider);
+    final scheduled = ref.watch(scheduledWeekdaysProvider).value ?? const {};
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Consistency')),
+      appBar: AppBar(title: Text(context.l10n.analyticsConsistency)),
       body: records.view((records) {
         final days = trainingDays(records);
         final counts = weeklySessionCounts(
@@ -34,7 +40,15 @@ class ConsistencyScreen extends ConsumerWidget {
           weekStart: weekStart,
           now: now,
         );
-        final stats = consistencyStats(counts, weeklyTarget: _weeklyTarget);
+        final stats = consistencyStats(counts, weeklyTarget: weeklyTarget);
+        // Four weeks: the same trailing window the sessions-per-week average
+        // uses, so the two figures on this screen describe the same period.
+        final adherence = scheduleAdherence(
+          scheduledWeekdays: scheduled,
+          trainingDays: days,
+          from: now.subtract(const Duration(days: 27)),
+          to: now,
+        );
         final theme = Theme.of(context);
 
         return ListView(
@@ -45,24 +59,68 @@ class ConsistencyScreen extends ConsumerWidget {
             Row(
               children: [
                 _StatTile(
-                  label: 'Current streak',
+                  label: context.l10n.analyticsCurrentStreak,
                   value: '${stats.currentStreak} wk',
                 ),
                 _StatTile(
-                  label: 'Longest streak',
+                  label: context.l10n.analyticsLongestStreak,
                   value: '${stats.longestStreak} wk',
                 ),
                 _StatTile(
-                  label: 'Sessions / week',
+                  label: context.l10n.analyticsSessionsWeek,
                   value: stats.sessionsPerWeek.toStringAsFixed(1),
                 ),
               ],
             ),
+            if (adherence.ratio case final ratio?) ...[
+              const SizedBox(height: AppSpacing.lg),
+              Text(
+                context.l10n.analyticsScheduleAdherence,
+                style: theme.textTheme.titleSmall,
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                context.l10n.analyticsScheduleAdherenceValue(
+                  (ratio * 100).round(),
+                  adherence.trained,
+                  adherence.scheduled,
+                ),
+                style: theme.textTheme.bodyMedium,
+              ),
+              if (adherence.unscheduledSessions > 0)
+                Text(
+                  context.l10n.analyticsUnscheduledSessions(
+                    adherence.unscheduledSessions,
+                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+            ],
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              context.l10n.analyticsWeeklyTarget,
+              style: theme.textTheme.titleSmall,
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Row(
+              children: [
+                for (final target in const [2, 3, 4, 5, 6])
+                  Padding(
+                    padding: const EdgeInsets.only(right: AppSpacing.xs),
+                    child: ChoiceChip(
+                      label: Text('$target'),
+                      selected: target == weeklyTarget,
+                      onSelected: (_) => unawaited(
+                        ref.read(weeklyTargetProvider.notifier).set(target),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Target: $_weeklyTarget sessions a week. A streak is a run of '
-              'complete weeks meeting it — the week in progress never breaks '
-              'one, whatever it currently reads.',
+              context.l10n.analyticsStreakExplainer(weeklyTarget),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

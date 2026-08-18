@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Per-set note (`F-LOG-023`).
 Future<void> showSetNoteSheet(BuildContext context, {required WorkoutSet set}) {
@@ -59,7 +60,10 @@ class _SetNoteSheetState extends ConsumerState<SetNoteSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Set note', style: theme.textTheme.titleMedium),
+            Text(
+              context.l10n.loggingSetNote,
+              style: theme.textTheme.titleMedium,
+            ),
             const SizedBox(height: AppSpacing.sm),
             TextField(
               controller: _controller,
@@ -68,9 +72,9 @@ class _SetNoteSheetState extends ConsumerState<SetNoteSheet> {
               // then it is gone, so entry is short and immediate.
               maxLines: 3,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                hintText: 'Left shoulder twinged, belt too loose…',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: context.l10n.loggingLeftShoulderTwingedBeltToo,
+                border: const OutlineInputBorder(),
               ),
               onSubmitted: (_) => _save(),
             ),
@@ -80,10 +84,13 @@ class _SetNoteSheetState extends ConsumerState<SetNoteSheet> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
+                  child: Text(context.l10n.catalogCancel),
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                FilledButton(onPressed: _save, child: const Text('Save')),
+                FilledButton(
+                  onPressed: _save,
+                  child: Text(context.l10n.catalogSave),
+                ),
               ],
             ),
           ],

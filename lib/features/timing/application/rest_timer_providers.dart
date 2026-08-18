@@ -6,6 +6,8 @@ import '../../../data/platform/rest_timer_service.dart';
 import '../../../domain/timing/rest_settings.dart';
 import '../../../domain/timing/rest_timer.dart';
 import '../../logging/application/active_workout_providers.dart';
+import '../../../data/platform/notification_rest_timer_service.dart';
+import '../../settings/application/notification_settings_provider.dart';
 import '../../settings/application/rest_timer_settings_provider.dart';
 
 /// The clock the timer starts from.
@@ -32,6 +34,16 @@ class RestTimerController extends Notifier<RestTimer> {
   @override
   RestTimer build() {
     ref.keepAlive();
+    // Skip and +15 s from the notification itself (`F-TIM-004`), so the phone
+    // never has to be unlocked between sets. Registered here rather than at
+    // startup because this is the object that owns what those words mean; the
+    // platform layer only knows the action fired.
+    NotificationRestTimerService.onAction = (actionId) => switch (actionId) {
+      NotificationRestTimerService.skipActionId => skip(),
+      NotificationRestTimerService.extendActionId => adjust(15),
+      _ => null,
+    };
+    ref.onDispose(() => NotificationRestTimerService.onAction = null);
     // Captured rather than read on dispose: by then the service provider may
     // already have gone, and a leaked platform alert outlives the app.
     final service = ref.read(restTimerServiceProvider);
@@ -123,6 +135,13 @@ class RestTimerController extends Notifier<RestTimer> {
     }
 
     final settings = ref.read(restTimerSettingsProvider);
+    // The alert is a preference (`F-SET-008`), and one that can be refused at
+    // the OS level; the countdown itself is not, so this gates only the
+    // scheduling below and never the state above.
+    if (!ref.read(notificationSettingsProvider).restAlerts) {
+      unawaited(service.cancel());
+      return;
+    }
     unawaited(
       service.schedule(
         firesAt: DateTime.fromMillisecondsSinceEpoch(endsAtMs),
@@ -137,6 +156,20 @@ class RestTimerController extends Notifier<RestTimer> {
         },
       ),
     );
+
+    // The live countdown (`F-TIM-003` §3). Written once per reschedule rather
+    // than once per second: Android redraws an ongoing notification from the
+    // chronometer itself, and a per-second platform call for a number nobody
+    // is watching is exactly the kind of battery cost a rest timer must not
+    // have.
+    if (service case final NotificationRestTimerService notifications) {
+      unawaited(
+        notifications.showOngoing(
+          title: 'Resting',
+          body: formatCountdown(state.remainingAt(_nowMs)),
+        ),
+      );
+    }
   }
 }
 

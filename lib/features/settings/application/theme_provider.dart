@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'unit_preferences_provider.dart' show sharedPreferencesProvider;
+import '../../../l10n/app_localizations.dart';
 
 /// Light, dark, or follow the system (F-SET-002).
 ///
@@ -56,9 +57,9 @@ class DynamicColorEnabledNotifier extends Notifier<bool> {
 
 /// Labels for the appearance screen (batch 0.4).
 extension ThemeModeLabel on ThemeMode {
-  String get label => switch (this) {
-    ThemeMode.light => 'Light',
-    ThemeMode.dark => 'Dark',
-    ThemeMode.system => 'System',
+  String label(AppLocalizations l10n) => switch (this) {
+    ThemeMode.light => l10n.themeModeLight,
+    ThemeMode.dark => l10n.themeModeDark,
+    ThemeMode.system => l10n.themeModeSystem,
   };
 }

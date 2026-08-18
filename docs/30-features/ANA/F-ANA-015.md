@@ -1,6 +1,6 @@
 # F-ANA-015 — Date range and filter controls
 
-Status: in-progress | Priority: P1 | Phase: 3
+Status: done | Priority: P1 | Phase: 3
 Reads: 40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 
 ## Spec
@@ -21,3 +21,12 @@ across every chart" can't be verified until the batches after 3.2 give it a
 second and third chart to actually share with (`F-ANA-004`, batch 3.3
 onward) — closing this out now would be asserting something only one
 consumer has tested.
+
+## Status notes (closed, v0.54.0)
+
+"Shared across every chart" is now verifiable, because there are charts to
+share it with: `DateRangeSelector` drives the e1RM trend and weekly volume on
+`ExerciseDetailScreen` and every range-scoped section of `InsightsScreen`,
+through one `dateRangeSelectionProvider`. Selection persists across screens
+within a session, which is what the spec asks for — not across restarts, which
+it deliberately does not.

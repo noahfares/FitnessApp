@@ -52,6 +52,7 @@ class SessionExercise {
     this.exerciseNotes,
     this.target,
     this.groupId,
+    this.withinGroupRestSeconds,
   });
 
   final String workoutExerciseId;
@@ -63,6 +64,11 @@ class SessionExercise {
   /// Snapshotted superset grouping — same value as sibling exercises means
   /// same group, null means standalone (`F-LOG-015` §1, `ADR-0004`).
   final String? groupId;
+
+  /// Rest between members of that group, snapshotted with it. Null is no
+  /// pause at all, which is what a superset means unless someone says
+  /// otherwise (`F-ROU-005` §3).
+  final int? withinGroupRestSeconds;
 
   /// Session-specific, distinct from the exercise's persistent sticky note
   /// (`F-LOG-008`).
@@ -437,6 +443,7 @@ class WorkoutRepository {
         .customSelect(
           '''
           SELECT re.id, re.exercise_id, re.position, re.group_id,
+                 re.within_group_rest_seconds,
                  re.target_sets, re.target_reps_min, re.target_reps_max,
                  re.target_weight_grams, re.target_rpe, re.rest_seconds,
                  re.progression_rule, e.default_bar_id, e.weight_source,
@@ -598,6 +605,12 @@ class WorkoutRepository {
                 exerciseId: row.read<String>('exercise_id'),
                 position: row.read<int>('position'),
                 groupId: Value(row.read<String?>('group_id')),
+                // Snapshotted with the group it belongs to (`ADR-0004`): a
+                // later edit to the routine must not change how a session
+                // that has already started behaves.
+                withinGroupRestSeconds: Value(
+                  row.read<int?>('within_group_rest_seconds'),
+                ),
                 targetSnapshot: Value(targetSnapshot),
                 createdAt: timestamp,
                 updatedAt: timestamp,
@@ -985,6 +998,7 @@ class WorkoutRepository {
                  we.position      AS position,
                  we.notes         AS we_notes,
                  we.group_id      AS group_id,
+                 we.within_group_rest_seconds AS within_group_rest,
                  we.target_snapshot AS target_snapshot,
                  e.id             AS exercise_id,
                  e.name           AS name,
@@ -1046,6 +1060,7 @@ class WorkoutRepository {
                 completedSetCount: row.read<int>('done_count'),
                 notes: row.read<String?>('we_notes'),
                 groupId: row.read<String?>('group_id'),
+                withinGroupRestSeconds: row.read<int?>('within_group_rest'),
                 target: switch (row.read<String?>('target_snapshot')) {
                   null => null,
                   final json => SessionExerciseTarget.fromJson(json),

@@ -1,6 +1,6 @@
 # F-SET-005 — Week start
 
-Status: in-progress | Priority: P1 | Phase: 3
+Status: done | Priority: P1 | Phase: 3
 Blocks: F-ANA-004, F-ANA-006
 Reads: 22-UNITS
 
@@ -34,3 +34,12 @@ invalidate.
 Every weekly aggregate in the app depends on where the week starts.
 Getting this wrong shifts every bar in every weekly chart by a day and makes
 consistency streaks subtly wrong.
+
+## Status notes (closed, v0.54.0)
+
+Item 2's "applies uniformly" is now verifiable end to end: streaks
+(`F-ANA-006`) and the calendar (`CalendarHeatmap`) exist and both take
+`WeekStart` as a parameter, alongside weekly volume and sets-per-muscle. No
+metric computes its own week boundary anywhere in the codebase. Item 3 needs no
+mechanism — every consumer is a pure function of the current value, so changing
+it recomputes on next read; there is no cache to invalidate.

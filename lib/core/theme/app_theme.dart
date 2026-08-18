@@ -1,6 +1,7 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 
+import '../a11y/motion.dart';
 import 'app_colors.dart';
 import 'app_spacing.dart';
 
@@ -37,6 +38,18 @@ abstract final class AppTheme {
     final base = ThemeData(colorScheme: scheme, useMaterial3: true);
 
     return base.copyWith(
+      // Reduce motion is honoured app-wide here rather than route by route
+      // (`F-A11Y-005`): routes are declared in one router but pushed from
+      // everywhere, and a rule each call site opts into is a rule that decays.
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          for (final platform in TargetPlatform.values)
+            platform: ReduceMotionPageTransitionsBuilder(
+              base.pageTransitionsTheme.builders[platform] ??
+                  const ZoomPageTransitionsBuilder(),
+            ),
+        },
+      ),
       // Never pure black, even in dark mode: OLED smearing during scroll hurts
       // readability, and a set list is scrolled constantly.
       scaffoldBackgroundColor: scheme.surface,

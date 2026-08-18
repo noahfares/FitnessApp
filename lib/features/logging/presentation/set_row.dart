@@ -24,6 +24,8 @@ import 'rpe_sheet.dart';
 import 'set_note_sheet.dart';
 import 'set_type_sheet.dart';
 import 'set_value_format.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// One set (`F-LOG-003`) — the most-used widget in the app by an enormous
 /// margin, and the reason for most of the constraints elsewhere.
@@ -41,6 +43,7 @@ class SetRow extends ConsumerWidget {
     required this.equipment,
     required this.restSeconds,
     required this.exerciseId,
+    this.onCompleted,
     this.perSide = false,
     this.incrementGrams,
   });
@@ -50,6 +53,13 @@ class SetRow extends ConsumerWidget {
 
   /// Which cached PR records to check this row against (`F-LOG-013` §2).
   final String exerciseId;
+
+  /// Called the instant a set is ticked, before anything is written
+  /// (`F-LOG-015` §2 — "completing a set advances to the next exercise in the
+  /// group"). Null for a row with nowhere to advance to, which is most of
+  /// them: the logger shows every exercise at once, so "advancing" only means
+  /// something inside a superset.
+  final VoidCallback? onCompleted;
 
   /// The matching set from last time, or null (`F-LOG-004`).
   final GhostSet? ghost;
@@ -129,6 +139,7 @@ class SetRow extends ConsumerWidget {
       fields: fields,
       ghost: ghost,
       restSeconds: restSeconds,
+      onCompleted: onCompleted,
     );
 
     // Swipe to delete, with undo (`F-LOG-003` §6). Undo is a field update
@@ -145,7 +156,13 @@ class SetRow extends ConsumerWidget {
       onDismissed: (_) => _delete(context, ref),
       child: Semantics(
         container: true,
-        label: _semanticLabel(formatter, prefs, rpeSettings, isRecord),
+        label: _semanticLabel(
+          formatter,
+          prefs,
+          rpeSettings,
+          isRecord,
+          context.l10n,
+        ),
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.sm,
@@ -203,9 +220,9 @@ class SetRow extends ConsumerWidget {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('Set ${label.text} deleted'),
+          content: Text(context.l10n.loggingSetDeleted(label.text)),
           action: SnackBarAction(
-            label: 'Undo',
+            label: context.l10n.historyUndo,
             onPressed: () => unawaited(
               repo
                   .restoreSet(set.id)
@@ -223,6 +240,7 @@ class SetRow extends ConsumerWidget {
     UnitPreferences prefs,
     RpeSettings rpeSettings,
     bool isRecord,
+    AppLocalizations l10n,
   ) {
     final parts = <String>[
       label.isWarmup
@@ -237,7 +255,7 @@ class SetRow extends ConsumerWidget {
           final value =>
             '${rpeSettings.displayMode.name.toUpperCase()} ${formatRpeValue(value)}',
         },
-      set.isCompleted ? 'completed' : 'not completed',
+      set.isCompleted ? l10n.loggingCompleted : l10n.loggingNotCompleted,
       if (set.notes != null) 'has a note',
       // Colour and an icon alone are not indicators (`F-A11Y-003`) — the
       // badge's tooltip says the same thing visually, this says it to a
@@ -304,7 +322,9 @@ class _NoteButton extends ConsumerWidget {
           minWidth: AppSpacing.setNoteColumn,
           minHeight: AppSpacing.minTouchTarget,
         ),
-        tooltip: hasNote ? 'Edit note' : 'Add note',
+        tooltip: hasNote
+            ? context.l10n.loggingEditNote
+            : context.l10n.loggingAddNote,
         iconSize: 18,
         color: hasNote ? Theme.of(context).colorScheme.primary : null,
         icon: Icon(
@@ -412,12 +432,14 @@ class _CompletionToggle extends ConsumerWidget {
     required this.fields,
     required this.ghost,
     required this.restSeconds,
+    this.onCompleted,
   });
 
   final WorkoutSet set;
   final List<SetField> fields;
   final GhostSet? ghost;
   final int restSeconds;
+  final VoidCallback? onCompleted;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -429,7 +451,7 @@ class _CompletionToggle extends ConsumerWidget {
       child: Checkbox(
         value: set.isCompleted,
         onChanged: (value) => unawaited(_toggle(ref, value ?? false)),
-        semanticLabel: 'Complete set',
+        semanticLabel: context.l10n.historyCompleteSet,
       ),
     );
   }
@@ -446,6 +468,12 @@ class _CompletionToggle extends ConsumerWidget {
   /// before the write is awaited, because the countdown starts when the bar is
   /// racked, not when SQLite says so.
   Future<void> _toggle(WidgetRef ref, bool completed) async {
+    if (completed) {
+      // Before the awaits: advancing is a UI move and should happen at the
+      // moment of the tap, not after two database round trips
+      // (`F-LOG-015` §2).
+      onCompleted?.call();
+    }
     final repo = ref.read(setRepositoryProvider);
     final timer = ref.read(restTimerProvider.notifier);
     final records = ref.read(personalRecordRepositoryProvider);
@@ -509,7 +537,7 @@ class AddSetButton extends ConsumerWidget {
           ref.read(setRepositoryProvider).addSet(workoutExerciseId),
         ),
         icon: const Icon(Icons.add, size: 18),
-        label: const Text('Add set'),
+        label: Text(context.l10n.loggingAddSet),
       ),
     );
   }

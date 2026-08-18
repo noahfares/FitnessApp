@@ -12,6 +12,7 @@ import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/empty_state.dart';
 import '../application/history_providers.dart';
 import 'log_past_workout_sheet.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Past sessions, reverse-chronological, grouped by month (`F-LOG-011`).
 class HistoryScreen extends ConsumerStatefulWidget {
@@ -54,7 +55,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     final history = ref.watch(historyProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('History')),
+      appBar: AppBar(title: Text(context.l10n.catalogHistory)),
       body: Column(
         children: [
           Padding(
@@ -68,13 +69,13 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               controller: _search,
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
-                hintText: 'Search by workout or exercise',
+                hintText: context.l10n.historySearchByWorkoutOrExercise,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: search.isEmpty
                     ? null
                     : IconButton(
                         icon: const Icon(Icons.close),
-                        tooltip: 'Clear search',
+                        tooltip: context.l10n.catalogClearSearch,
                         onPressed: () {
                           _search.clear();
                           ref.read(historySearchProvider.notifier).setQuery('');
@@ -88,18 +89,18 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           ),
           Expanded(
             child: history.view(
-              errorTitle: 'History could not be read',
+              errorTitle: context.l10n.historyHistoryCouldNotBeRead,
               (entries) => entries.isEmpty
                   ? EmptyState(
                       icon: search.isNotEmpty
                           ? Icons.search_off
                           : Icons.calendar_month_outlined,
                       title: search.isNotEmpty
-                          ? 'No sessions match'
-                          : 'No sessions logged yet',
+                          ? context.l10n.historyNoSessionsMatch
+                          : context.l10n.historyNoSessionsLoggedYet,
                       message: search.isNotEmpty
-                          ? 'Try a shorter search.'
-                          : 'Finished workouts show up here.',
+                          ? context.l10n.historyTryAShorterSearch
+                          : context.l10n.historyFinishedWorkoutsShowUpHere,
                     )
                   : CustomScrollView(
                       controller: _scroll,
@@ -129,7 +130,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showLogPastWorkoutSheet(context, ref),
         icon: const Icon(Icons.add),
-        label: const Text('Log past workout'),
+        label: Text(context.l10n.historyLogPastWorkout),
       ),
     );
   }

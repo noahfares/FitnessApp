@@ -14,6 +14,7 @@ import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../application/personal_record_providers.dart';
 import 'active_workout_screen.dart' show formatElapsed;
+import '../../../core/l10n/l10n.dart';
 
 /// Shown on finishing a workout (`F-LOG-018`) — one of only two celebratory
 /// moments in the app (docs/24-DESIGN-SYSTEM.md §motion).
@@ -27,17 +28,17 @@ class SessionSummaryScreen extends ConsumerWidget {
     final stats = ref.watch(workoutSummaryStatsProvider(workoutId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Workout complete')),
+      appBar: AppBar(title: Text(context.l10n.loggingWorkoutComplete)),
       body: stats.view(
         (stats) => _Summary(workoutId: workoutId, stats: stats),
-        errorTitle: 'This summary could not be read',
+        errorTitle: context.l10n.loggingThisSummaryCouldNotBe,
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.screen),
           child: FilledButton(
             onPressed: () => context.go(AppRoutes.home),
-            child: const Text('Done'),
+            child: Text(context.l10n.historyDone),
           ),
         ),
       ),
@@ -71,24 +72,39 @@ class _Summary extends ConsumerWidget {
           color: theme.colorScheme.primary,
         ),
         const SizedBox(height: AppSpacing.md),
-        Text('Nice work.', style: theme.textTheme.headlineSmall),
+        Text(
+          context.l10n.loggingNiceWork,
+          style: theme.textTheme.headlineSmall,
+        ),
         const SizedBox(height: AppSpacing.xl),
         Wrap(
           spacing: AppSpacing.md,
           runSpacing: AppSpacing.md,
           children: [
-            _StatTile(label: 'Duration', value: formatElapsed(stats.duration)),
             _StatTile(
-              label: 'Volume',
+              label: context.l10n.historyDuration,
+              value: formatElapsed(stats.duration),
+            ),
+            _StatTile(
+              label: context.l10n.loggingVolume,
               value: formatter.volume(Mass.grams(stats.totalVolumeGrams)),
             ),
-            _StatTile(label: 'Sets', value: '${stats.completedSetCount}'),
-            _StatTile(label: 'Exercises', value: '${stats.exerciseCount}'),
+            _StatTile(
+              label: context.l10n.loggingSets,
+              value: '${stats.completedSetCount}',
+            ),
+            _StatTile(
+              label: context.l10n.historyExercises,
+              value: '${stats.exerciseCount}',
+            ),
           ],
         ),
         if (records.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.xl),
-          Text('Personal records', style: theme.textTheme.titleMedium),
+          Text(
+            context.l10n.loggingPersonalRecords,
+            style: theme.textTheme.titleMedium,
+          ),
           const SizedBox(height: AppSpacing.sm),
           for (final pr in records)
             Padding(
@@ -103,7 +119,8 @@ class _Summary extends ConsumerWidget {
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      '${pr.exerciseName} — ${_describe(pr, formatter)}',
+                      '${pr.exerciseName ?? context.l10n.loggingUnknownExercise}'
+                      ' — ${_describe(pr, formatter)}',
                       style: theme.textTheme.bodyMedium,
                     ),
                   ),
@@ -113,20 +130,26 @@ class _Summary extends ConsumerWidget {
         ],
         if (stats.muscles.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.xl),
-          Text('Muscles worked', style: theme.textTheme.titleMedium),
+          Text(
+            context.l10n.loggingMusclesWorked,
+            style: theme.textTheme.titleMedium,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
               for (final muscle in stats.muscles)
-                Chip(label: Text(muscle.label)),
+                Chip(label: Text(muscle.label(context.l10n))),
             ],
           ),
         ],
         if (stats.previous != null) ...[
           const SizedBox(height: AppSpacing.xl),
-          Text('Compared to last time', style: theme.textTheme.titleMedium),
+          Text(
+            context.l10n.loggingComparedToLastTime,
+            style: theme.textTheme.titleMedium,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             volumeDelta! >= 0

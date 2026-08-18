@@ -70,9 +70,14 @@ void main() {
     await pumpScreen(tester, const InsightsScreen(), db: db, now: clock);
 
     expect(find.text('No sessions yet'), findsNothing);
-    // The muscle-balance and training-load sections above push this well
-    // past the initial viewport.
-    await tester.ensureVisible(find.text('Overall weekly volume'));
+    // The muscle-balance, radar and training-load sections above push this
+    // well past the initial viewport — and past what a lazy list has built,
+    // so it has to be scrolled to rather than merely ensured visible.
+    await tester.scrollUntilVisible(
+      find.text('Overall weekly volume'),
+      400,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     expect(find.text('Overall weekly volume'), findsOneWidget);
     expect(find.byType(WeeklyBarChart), findsWidgets);
@@ -178,8 +183,17 @@ void main() {
       );
       expect(find.text('Muscle heat map'), findsOneWidget);
 
+      // scrollUntilVisible stops as soon as the widget exists, which can leave
+      // it half off the bottom edge; the tap needs it fully on screen.
+      await tester.ensureVisible(find.text('Muscle heat map'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Muscle heat map'));
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.text('Front'),
+        200,
+        scrollable: scrollable,
+      );
       expect(find.text('Front'), findsOneWidget);
       expect(find.text('Back'), findsOneWidget);
 

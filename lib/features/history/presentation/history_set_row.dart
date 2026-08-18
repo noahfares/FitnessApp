@@ -14,6 +14,7 @@ import '../../logging/presentation/set_note_sheet.dart';
 import '../../logging/presentation/set_type_sheet.dart';
 import '../../logging/presentation/set_value_format.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// One set on the edit-past-workout screen (`F-LOG-009` §1).
 ///
@@ -85,6 +86,9 @@ class HistorySetRow extends ConsumerWidget {
             SizedBox(
               width: AppSpacing.setNoteColumn,
               child: IconButton(
+                tooltip: (set.notes?.isNotEmpty ?? false)
+                    ? context.l10n.historyEditSetNote
+                    : context.l10n.historyAddASetNote,
                 padding: EdgeInsets.zero,
                 iconSize: 18,
                 color: (set.notes?.isNotEmpty ?? false)
@@ -149,7 +153,7 @@ class HistorySetRow extends ConsumerWidget {
               child: Checkbox(
                 value: set.isCompleted,
                 onChanged: (value) => unawaited(_toggle(ref, value ?? false)),
-                semanticLabel: 'Complete set',
+                semanticLabel: context.l10n.historyCompleteSet,
               ),
             ),
           ],
@@ -186,9 +190,9 @@ class HistorySetRow extends ConsumerWidget {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('Set ${label.text} deleted'),
+          content: Text(context.l10n.loggingSetDeleted(label.text)),
           action: SnackBarAction(
-            label: 'Undo',
+            label: context.l10n.historyUndo,
             onPressed: () => unawaited(
               repo
                   .restoreSet(set.id)

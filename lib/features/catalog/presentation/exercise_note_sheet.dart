@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The exercise's own persistent sticky note (`F-CAT-007`) — seat height,
 /// pin position, grip width. Distinct from a session's own per-exercise note
@@ -71,16 +72,19 @@ class _ExerciseNoteSheetState extends ConsumerState<ExerciseNoteSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Exercise note', style: theme.textTheme.titleMedium),
+            Text(
+              context.l10n.catalogExerciseNote,
+              style: theme.textTheme.titleMedium,
+            ),
             const SizedBox(height: AppSpacing.sm),
             TextField(
               controller: _controller,
               autofocus: true,
               maxLines: 4,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                hintText: 'Seat height 4, pin position 6…',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: context.l10n.catalogSeatHeight4PinPosition,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -89,10 +93,13 @@ class _ExerciseNoteSheetState extends ConsumerState<ExerciseNoteSheet> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
+                  child: Text(context.l10n.catalogCancel),
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                FilledButton(onPressed: _save, child: const Text('Save')),
+                FilledButton(
+                  onPressed: _save,
+                  child: Text(context.l10n.catalogSave),
+                ),
               ],
             ),
           ],

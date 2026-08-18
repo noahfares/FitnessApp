@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:fitness_app/core/theme/app_theme.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:fitness_app/features/shell/widgets/trend_chart.dart';
 
 /// Batch 3.2 — `TrendChart` (`F-ANA-003`, `F-THM-004`).
@@ -12,9 +13,15 @@ void main() {
     bool dark = false,
   }) => tester.pumpWidget(
     MaterialApp(
+      // These widgets read localised strings for their empty states
+      // (`F-I18N-001`); this test builds its own MaterialApp rather than going
+      // through `pumpScreen`, so it has to install the delegates itself.
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: dark ? AppTheme.dark() : AppTheme.light(),
       home: Scaffold(
         body: TrendChart(
+          metricLabel: 'Estimated one-rep max',
           points: points,
           valueLabel: (v) => '${v.toStringAsFixed(1)} kg',
           subtitle: 'Last 3 months · kg',
@@ -78,6 +85,7 @@ void main() {
           theme: AppTheme.light(),
           home: Scaffold(
             body: TrendChart(
+              metricLabel: 'Estimated one-rep max',
               points: const [
                 TrendChartPoint(x: 0, y: 100, label: 'Jan 1'),
                 TrendChartPoint(x: 1, y: 102, label: 'Jan 8'),
@@ -107,6 +115,7 @@ void main() {
           theme: AppTheme.light(),
           home: Scaffold(
             body: TrendChart(
+              metricLabel: 'Estimated one-rep max',
               points: const [
                 TrendChartPoint(x: 0, y: 100, label: 'Jan 1', workoutId: 'w1'),
                 TrendChartPoint(x: 1, y: 105, label: 'Jan 8', workoutId: 'w2'),

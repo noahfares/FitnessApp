@@ -13,6 +13,7 @@ import '../../../data/io/import_service.dart';
 import '../../../domain/import/csv_import_adapter.dart';
 import '../../../domain/import/import_mapping_state.dart';
 import '../../logging/presentation/exercise_picker_sheet.dart';
+import '../../../core/l10n/l10n.dart';
 
 enum _Step { pickFile, chooseUnit, mapping, importing, done, error }
 
@@ -47,7 +48,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Import')),
+      appBar: AppBar(title: Text(context.l10n.settingsImport)),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.screen),
         child: switch (_step) {
@@ -68,15 +69,14 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Import your training history from a Strong or Hevy CSV export. '
-          'Nothing is written until you confirm.',
+          context.l10n.settingsImportScreenExplainer,
           style: theme.textTheme.bodyMedium,
         ),
         const SizedBox(height: AppSpacing.lg),
         FilledButton.icon(
           onPressed: () => unawaited(_pickAndParse()),
           icon: const Icon(Icons.file_open_outlined),
-          label: const Text('Choose a CSV file'),
+          label: Text(context.l10n.settingsChooseACsvFile),
         ),
       ],
     );
@@ -98,14 +98,14 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
             Expanded(
               child: OutlinedButton(
                 onPressed: () => _reparseWithUnit('kg'),
-                child: const Text('Kilograms'),
+                child: Text(context.l10n.settingsKilograms),
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: OutlinedButton(
                 onPressed: () => _reparseWithUnit('lb'),
-                child: const Text('Pounds'),
+                child: Text(context.l10n.settingsPounds),
               ),
             ),
           ],
@@ -123,7 +123,10 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '${preview.workoutCount} workouts, ${preview.setCount} sets found.',
+          context.l10n.settingsImportPreviewFound(
+            preview.workoutCount,
+            preview.setCount,
+          ),
           style: theme.textTheme.titleMedium,
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -136,7 +139,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         const SizedBox(height: AppSpacing.lg),
         Expanded(
           child: unresolved.isEmpty
-              ? const Center(child: Text('All exercises resolved.'))
+              ? Center(child: Text(context.l10n.settingsAllExercisesResolved))
               : ListView.separated(
                   itemCount: unresolved.length,
                   separatorBuilder: (_, _) =>
@@ -162,7 +165,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
               _mappingState.isFullyResolved(preview.unmatchedExerciseNames)
               ? () => unawaited(_commit())
               : null,
-          child: const Text('Import'),
+          child: Text(context.l10n.settingsImport),
         ),
       ],
     );
@@ -175,18 +178,27 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Import complete.', style: theme.textTheme.titleMedium),
+        Text(
+          context.l10n.settingsImportComplete,
+          style: theme.textTheme.titleMedium,
+        ),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          '${result.workoutsImported} workouts and ${result.setsImported} '
-          'sets imported.'
-          '${result.workoutsSkippedAsDuplicate > 0 ? ' ${result.workoutsSkippedAsDuplicate} already-imported workout${result.workoutsSkippedAsDuplicate == 1 ? '' : 's'} skipped.' : ''}',
+          context.l10n.settingsImportDone(
+                result.workoutsImported,
+                result.setsImported,
+              ) +
+              (result.workoutsSkippedAsDuplicate > 0
+                  ? context.l10n.settingsImportSkippedDuplicates(
+                      result.workoutsSkippedAsDuplicate,
+                    )
+                  : ''),
           style: theme.textTheme.bodyMedium,
         ),
         const SizedBox(height: AppSpacing.lg),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Done'),
+          child: Text(context.l10n.historyDone),
         ),
       ],
     );
@@ -199,13 +211,13 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          _errorMessage ?? 'Import failed.',
+          _errorMessage ?? context.l10n.settingsImportFailed,
           style: theme.textTheme.bodyMedium,
         ),
         const SizedBox(height: AppSpacing.lg),
         OutlinedButton(
           onPressed: () => setState(() => _step = _Step.pickFile),
-          child: const Text('Try again'),
+          child: Text(context.l10n.settingsTryAgain),
         ),
       ],
     );
@@ -298,7 +310,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Import failed. Nothing was changed.';
+        _errorMessage = context.l10n.settingsImportFailedNothingWasChanged;
         _step = _Step.error;
       });
     }
@@ -333,13 +345,16 @@ class _UnmatchedNameTile extends StatelessWidget {
               children: [
                 OutlinedButton(
                   onPressed: onUseExisting,
-                  child: const Text('Use existing'),
+                  child: Text(context.l10n.settingsUseExisting),
                 ),
                 OutlinedButton(
                   onPressed: onCreateCustom,
-                  child: const Text('Create new'),
+                  child: Text(context.l10n.settingsCreateNew),
                 ),
-                OutlinedButton(onPressed: onSkip, child: const Text('Skip')),
+                OutlinedButton(
+                  onPressed: onSkip,
+                  child: Text(context.l10n.settingsSkip),
+                ),
               ],
             ),
           ],

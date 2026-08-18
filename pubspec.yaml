@@ -7,13 +7,19 @@ publish_to: none
 # Canonical source is the VERSION file at the repo root; CI fails if they
 # disagree. See docs/63-VERSIONING.md. The +N build number is set by the
 # release workflow (F-REL-005), not by hand.
-version: 0.48.6
+version: 0.56.3
 
 environment:
   sdk: ^3.11.0
 
 dependencies:
   flutter:
+    sdk: flutter
+
+  # Localisation delegates for the generated AppLocalizations (F-I18N-001).
+  # English-only today; the point is that adding a language is a new .arb file
+  # rather than a sweep through fifty screens.
+  flutter_localizations:
     sdk: flutter
 
   # Database — ADR-0005. drift_flutter bundles sqlite3 and path_provider.
@@ -70,6 +76,24 @@ dependencies:
   # file this feature exists to read correctly.
   csv: ^6.0.0
 
+  # The OS-delivered rest alert (F-TIM-003): fires whether or not this app's
+  # process is still alive, which the in-app Dart timer cannot promise, plus
+  # the notification actions F-TIM-004 attaches to it. Local only — it
+  # schedules against the device's own alarm clock, never a server.
+  flutter_local_notifications: ^22.3.0
+
+  # Used directly by the notification service above: scheduling an exact alarm
+  # takes a zoned timestamp, and borrowing a transitive dependency without
+  # declaring it is how a working build breaks on someone else's upgrade.
+  timezone: ^0.11.1
+
+  # Health Connect on Android, HealthKit on iOS (F-HLT-001, F-HLT-002).
+  # Opt-in and off by default: it is the one feature that moves data outside
+  # this app's own storage, which is why PRIVACY.md names it explicitly. Not a
+  # network call — Health Connect is an on-device store — but it is still
+  # someone else's copy of your training, so it asks first.
+  health: ^13.3.1
+
   # Salted PIN hashing for the app lock (F-SET-010). Dart-team maintained;
   # never hand-roll hashing for anything gating access, even a UI-only gate.
   crypto: ^3.0.6
@@ -90,6 +114,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
   assets:
     - assets/seed/
 # Dependencies deliberately not added yet — each arrives with the batch that

@@ -8,6 +8,7 @@ import '../../../domain/analytics/weekly_insights.dart';
 import '../../analytics/application/weekly_insights_provider.dart';
 import '../../analytics/presentation/weekly_insight_text.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The dashboard's weekly insight cards (`F-ANA-013`) — "the payoff for the
 /// whole analytics layer," per the feature's own doc. Renders nothing at all
@@ -31,13 +32,15 @@ class WeeklyInsightsSection extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('This week', style: theme.textTheme.titleMedium),
+          Text(context.l10n.shellThisWeek, style: theme.textTheme.titleMedium),
           const SizedBox(height: AppSpacing.sm),
           for (final insight in insights)
             Card(
               child: ListTile(
                 leading: Icon(_iconFor(insight.kind)),
-                title: Text(weeklyInsightText(insight, formatter, unit)),
+                title: Text(
+                  weeklyInsightText(insight, formatter, unit, context.l10n),
+                ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => _open(context, insight),
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/plates/plate_calculator.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// To-scale, colour-coded loaded-bar drawing, one side (`F-PLT-003`).
 ///
@@ -11,9 +12,20 @@ import '../../../domain/plates/plate_calculator.dart';
 /// inventory still uses plates that are these same physical sizes. Far
 /// faster to read mid-set than the number list beside it.
 class PlateStackVisualization extends StatelessWidget {
-  const PlateStackVisualization({super.key, required this.plates});
+  const PlateStackVisualization({
+    super.key,
+    required this.plates,
+    this.semanticsLabel,
+  });
 
   final List<PlateUsage> plates;
+
+  /// What the drawing says out loud (`F-A11Y-001`, `F-A11Y-003`). Plate colour
+  /// follows the IPF convention, which is colour-only encoding by definition,
+  /// so the same information has to exist in words. The caller passes it
+  /// because only the caller knows the user's display unit — kilograms are the
+  /// convention's units, not necessarily the reader's.
+  final String? semanticsLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -24,29 +36,35 @@ class PlateStackVisualization extends StatelessWidget {
     final sorted = [...plates]
       ..sort((a, b) => b.weightGrams.compareTo(a.weightGrams));
 
-    return SizedBox(
-      height: 96,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 14,
-            height: 20,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.outline,
-              borderRadius: const BorderRadius.horizontal(
-                left: Radius.circular(2),
+    return Semantics(
+      label: semanticsLabel ?? context.l10n.shellPlateLoadingDiagram,
+      image: true,
+      child: ExcludeSemantics(
+        child: SizedBox(
+          height: 96,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 14,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.outline,
+                  borderRadius: const BorderRadius.horizontal(
+                    left: Radius.circular(2),
+                  ),
+                ),
               ),
-            ),
+              for (final usage in sorted)
+                for (var i = 0; i < usage.pairs; i++)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 2),
+                    child: _Plate(weightGrams: usage.weightGrams),
+                  ),
+            ],
           ),
-          for (final usage in sorted)
-            for (var i = 0; i < usage.pairs; i++)
-              Padding(
-                padding: const EdgeInsets.only(left: 2),
-                child: _Plate(weightGrams: usage.weightGrams),
-              ),
-        ],
+        ),
       ),
     );
   }

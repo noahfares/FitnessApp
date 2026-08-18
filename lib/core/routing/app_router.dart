@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../data/platform/notification_rest_timer_service.dart';
 import '../../features/analytics/presentation/consistency_screen.dart';
 import '../../features/analytics/presentation/exercise_detail_screen.dart';
 import '../../features/analytics/presentation/insights_screen.dart';
@@ -11,12 +12,14 @@ import '../../features/body/presentation/progress_photos_screen.dart';
 import '../../features/catalog/presentation/exercise_catalog_screen.dart';
 import '../../features/catalog/presentation/exercise_editor_screen.dart';
 import '../../features/history/presentation/edit_past_workout_screen.dart';
+import '../../features/health/presentation/health_screen.dart';
 import '../../features/history/presentation/history_screen.dart';
 import '../../features/history/presentation/workout_detail_screen.dart';
 import '../../features/logging/application/active_workout_providers.dart';
 import '../../features/logging/presentation/active_workout_screen.dart';
 import '../../features/logging/presentation/session_summary_screen.dart';
 import '../../features/logging/presentation/start_workout_screen.dart';
+import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/routines/presentation/routine_day_editor_screen.dart';
 import '../../features/routines/presentation/routine_editor_screen.dart';
 import '../../features/routines/presentation/routine_list_screen.dart';
@@ -44,7 +47,7 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 /// acceptance criterion for `F-NAV-001`. A plain `IndexedStack` in a widget
 /// would preserve widget state but lose per-tab navigation history.
 final routerProvider = Provider<GoRouter>((ref) {
-  return GoRouter(
+  final router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     // Resolved before the first frame from whether a session is in progress
     // (`F-LOG-007` §2). Reopening after a kill lands *in* the workout, with no
@@ -175,6 +178,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       GoRoute(
+        path: AppRoutes.onboarding,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+
+      GoRoute(
         path: AppRoutes.exercises,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const ExerciseCatalogScreen(),
@@ -250,6 +259,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const AppLockScreen(),
           ),
           GoRoute(
+            path: 'health',
+            parentNavigatorKey: _rootNavigatorKey,
+            builder: (context, state) => const HealthScreen(),
+          ),
+          GoRoute(
             path: 'about',
             parentNavigatorKey: _rootNavigatorKey,
             builder: (context, state) => const AboutScreen(),
@@ -275,4 +289,13 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
     errorBuilder: (context, state) => UnknownRouteScreen(uri: state.uri),
   );
+
+  // Tapping the rest-timer notification lands in the session (`F-TIM-003` §4).
+  // Registered on the router rather than inside the platform service because
+  // `data/` may not import routing — the service knows only that a payload
+  // came back.
+  NotificationRestTimerService.onOpenRoute = router.go;
+  ref.onDispose(() => NotificationRestTimerService.onOpenRoute = null);
+
+  return router;
 });

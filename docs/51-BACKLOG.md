@@ -47,6 +47,13 @@ last step, not the first.
 Not yet worth an entry. Promote to a real feature — with an ID — before anyone
 builds anything, per the rules in [`../CLAUDE.md`](../CLAUDE.md).
 
+- **Reminder scheduling.** `F-SET-008`'s workout- and measurement-reminder
+  switches persist and gate the permission, but nothing schedules the reminders
+  themselves yet — that needs a repeating local notification keyed to
+  `routine_days.scheduled_weekdays` (`F-ROU-012`) and to the measurement types
+  someone tracks (`F-BOD-002`). Deliberately not shipped as part of the
+  notification batch: a switch whose only effect is to ask for a permission is
+  worse than no switch.
 - **Exercise-specific 1RM testing protocol.** Guided work-up to a true single,
   with the result feeding `F-PRG-010`.
 - **Session templates by time available.** "I have 40 minutes" → trim the day's

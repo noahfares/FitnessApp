@@ -16,6 +16,7 @@ import '../../shell/widgets/empty_state.dart';
 import '../application/exercise_catalog_providers.dart';
 import 'catalog_filter_bar.dart';
 import 'exercise_labels.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The exercise catalogue (`F-CAT-004`, `F-CAT-005`).
 ///
@@ -53,7 +54,9 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(showArchived ? 'Archived exercises' : 'Exercises'),
+        title: Text(
+          showArchived ? context.l10n.catalogArchivedExercises : 'Exercises',
+        ),
         actions: [
           IconButton(
             icon: Icon(
@@ -61,14 +64,16 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
                   ? Icons.checklist_outlined
                   : Icons.inventory_2_outlined,
             ),
-            tooltip: showArchived ? 'Active exercises' : 'Archived exercises',
+            tooltip: showArchived
+                ? context.l10n.catalogActiveExercises
+                : context.l10n.catalogArchivedExercises,
             onPressed: () =>
                 ref.read(exerciseListShowArchivedProvider.notifier).toggle(),
           ),
           if (!showArchived)
             IconButton(
               icon: const Icon(Icons.playlist_remove),
-              tooltip: 'Archive by equipment',
+              tooltip: context.l10n.catalogArchiveByEquipment,
               onPressed: () => unawaited(_archiveByEquipment(context, ref)),
             ),
         ],
@@ -89,13 +94,13 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
                     autocorrect: false,
                     textInputAction: TextInputAction.search,
                     decoration: InputDecoration(
-                      hintText: 'Search exercises',
+                      hintText: context.l10n.catalogSearchExercises,
                       prefixIcon: const Icon(Icons.search),
                       suffixIcon: filter.query.isEmpty
                           ? null
                           : IconButton(
                               icon: const Icon(Icons.close),
-                              tooltip: 'Clear search',
+                              tooltip: context.l10n.catalogClearSearch,
                               onPressed: () {
                                 _search.clear();
                                 ref
@@ -121,7 +126,7 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
                       total: total,
                       filter: filter,
                     ),
-                    errorTitle: 'The catalogue could not be read',
+                    errorTitle: context.l10n.catalogTheCatalogueCouldNotBe,
                   ),
                 ),
               ],
@@ -131,7 +136,7 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
           : FloatingActionButton.extended(
               onPressed: () => context.push(AppRoutes.exerciseNew),
               icon: const Icon(Icons.add),
-              label: const Text('New exercise'),
+              label: Text(context.l10n.catalogNewExercise),
             ),
     );
   }
@@ -150,13 +155,15 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
         child: ListView(
           shrinkWrap: true,
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-              child: Text('Archive by equipment'),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.screen,
+              ),
+              child: Text(context.l10n.catalogArchiveByEquipment),
             ),
             for (final item in available)
               ListTile(
-                title: Text(item.label),
+                title: Text(item.label(context.l10n)),
                 onTap: () => Navigator.of(context).pop(item),
               ),
           ],
@@ -167,12 +174,11 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
 
     final confirmed = await showConfirmSheet(
       context,
-      title: 'Archive all ${equipment.label} exercises?',
-      message:
-          'Every non-archived ${equipment.label} exercise is hidden from '
-          'pickers and search. History is untouched, and each can be '
-          'restored individually from the archived list.',
-      confirmLabel: 'Archive',
+      title: context.l10n.catalogArchiveAllTitle(equipment.label(context.l10n)),
+      message: context.l10n.catalogArchiveAllExplainer(
+        equipment.label(context.l10n),
+      ),
+      confirmLabel: context.l10n.catalogArchive,
       isDestructive: false,
     );
     if (!confirmed) return;
@@ -187,7 +193,7 @@ class _ExerciseCatalogScreenState extends ConsumerState<ExerciseCatalogScreen> {
         SnackBar(
           content: Text(
             count == 0
-                ? 'Nothing to archive.'
+                ? context.l10n.catalogNothingToArchive
                 : 'Archived $count ${equipment.label} exercise'
                       '${count == 1 ? '' : 's'}.',
           ),
@@ -203,14 +209,12 @@ class _ArchivedExerciseList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final archived = ref.watch(archivedExercisesProvider);
     return archived.view(
-      errorTitle: 'Archived exercises could not be read',
+      errorTitle: context.l10n.catalogArchivedExercisesCouldNotBe,
       (rows) => rows.isEmpty
-          ? const EmptyState(
+          ? EmptyState(
               icon: Icons.inventory_2_outlined,
-              title: 'Nothing archived',
-              message:
-                  'Archived exercises stay in your history and can be '
-                  'restored from here.',
+              title: context.l10n.catalogNothingArchived,
+              message: context.l10n.catalogArchivedExplainer,
             )
           : ListView.builder(
               padding: const EdgeInsets.all(AppSpacing.screen),
@@ -229,7 +233,7 @@ class _ArchivedExerciseList extends ConsumerWidget {
                           .read(exerciseRepositoryProvider)
                           .setArchived(exercise.id, isArchived: false),
                     ),
-                    child: const Text('Restore'),
+                    child: Text(context.l10n.catalogRestore),
                   ),
                 );
               },
@@ -255,11 +259,11 @@ class _ExerciseList extends StatelessWidget {
       return EmptyState(
         icon: filter.isActive ? Icons.search_off : Icons.fitness_center,
         title: filter.isActive
-            ? 'No exercises match'
-            : 'The catalogue is empty',
+            ? context.l10n.loggingNoExercisesMatch
+            : context.l10n.catalogTheCatalogueIsEmpty,
         message: filter.isActive
-            ? 'Try a shorter search, or clear a filter.'
-            : 'Seeding runs at startup; this should not happen.',
+            ? context.l10n.catalogTryAShorterSearchOr
+            : context.l10n.catalogSeedingRunsAtStartupThis,
       );
     }
 
@@ -275,7 +279,7 @@ class _ExerciseList extends StatelessWidget {
               vertical: AppSpacing.xs,
             ),
             child: Text(
-              '${exercises.length} of $total exercises',
+              context.l10n.catalogShownOfTotal(exercises.length, total),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -327,7 +331,7 @@ class _ExerciseTile extends ConsumerWidget {
       ),
       trailing: IconButton(
         icon: const Icon(Icons.show_chart),
-        tooltip: 'History',
+        tooltip: context.l10n.catalogHistory,
         onPressed: () => context.push(AppRoutes.exerciseDetail(exercise.id)),
       ),
       onTap: () => context.push(AppRoutes.exerciseEdit(exercise.id)),

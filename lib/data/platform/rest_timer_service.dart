@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/timing/rest_settings.dart';
+import 'notification_rest_timer_service.dart';
 
 /// Making the end of a rest audible (`F-TIM-003`, `F-TIM-006`).
 ///
@@ -139,8 +140,12 @@ class InAppRestTimerService implements RestTimerService {
   void dispose() => unawaited(cancel());
 }
 
+/// The real service (`F-TIM-003`): an OS notification wrapped around the
+/// in-app timer, never one instead of the other. Overridden with
+/// `InAppRestTimerService` — or a fake — wherever a platform channel would be
+/// noise, which is every widget test.
 final restTimerServiceProvider = Provider<RestTimerService>((ref) {
-  final service = InAppRestTimerService();
-  ref.onDispose(service.dispose);
+  final service = NotificationRestTimerService();
+  ref.onDispose(() => unawaited(service.cancel()));
   return service;
 });

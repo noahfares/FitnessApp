@@ -1,5 +1,5 @@
-# F-REL-002 (signed release APK), F-REL-003 (GitHub Release automation) — on
-# tag `v*`. See docs/62-RELEASE.md and docs/70-decisions/ADR-0007-signing.md.
+# F-REL-002 (signed release APK), F-REL-003 (GitHub Release automation),
+# F-REL-004 (App Bundle for Play) — on tag `v*`. See docs/62-RELEASE.md and docs/70-decisions/ADR-0007-signing.md.
 #
 # Deliberately fails rather than falling back to a debug-signed APK when
 # signing material is missing: an unsigned or wrongly-signed public artefact
@@ -93,6 +93,23 @@ jobs:
             --build-name="${{ env.version }}" \
             --build-number="${{ steps.build_number.outputs.number }}"
 
+      # F-REL-004 — the Play artefact, from the same tag, the same commit and
+      # the same version as the APKs above, signed with the same upload key.
+      # Building both here is the whole point: a store build produced by a
+      # separate process is a store build nobody can reconcile with the
+      # GitHub one when they behave differently.
+      - name: Build signed App Bundle
+        env:
+          REQUIRE_RELEASE_SIGNING: 'true'
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/upload-keystore.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          flutter build appbundle --release \
+            --build-name="${{ env.version }}" \
+            --build-number="${{ steps.build_number.outputs.number }}"
+
       - name: Remove decoded keystore
         if: always()
         run: rm -f "${RUNNER_TEMP}/upload-keystore.jks"
@@ -101,8 +118,9 @@ jobs:
       # is the only integrity signal a user gets (F-REL-003).
       - name: Checksums
         run: |
-          cd build/app/outputs/flutter-apk
-          sha256sum *.apk > checksums.txt
+          set -euo pipefail
+          cd build/app/outputs
+          sha256sum flutter-apk/*.apk bundle/release/*.aab > checksums.txt
           cat checksums.txt
 
       - name: Create GitHub Release
@@ -111,4 +129,5 @@ jobs:
           generate_release_notes: true
           files: |
             build/app/outputs/flutter-apk/*.apk
-            build/app/outputs/flutter-apk/checksums.txt
+            build/app/outputs/bundle/release/*.aab
+            build/app/outputs/checksums.txt

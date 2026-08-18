@@ -42,14 +42,14 @@
 | [F-ROU-002](ROU/F-ROU-002.md) | Routine days | 2 | P0 | done |
 | [F-ROU-003](ROU/F-ROU-003.md) | Exercise targets | 2 | P0 | done |
 | [F-ROU-004](ROU/F-ROU-004.md) | Reordering | 2 | P1 | done |
-| [F-ROU-005](ROU/F-ROU-005.md) | Supersets and circuits | 2 | P1 | in-progress |
-| [F-ROU-006](ROU/F-ROU-006.md) | Rest defaults | 2 | P1 | planned |
+| [F-ROU-005](ROU/F-ROU-005.md) | Supersets and circuits | 2 | P1 | done |
+| [F-ROU-006](ROU/F-ROU-006.md) | Rest defaults | 2 | P1 | done |
 | [F-ROU-007](ROU/F-ROU-007.md) | Folders | 2 | P2 | done |
 | [F-ROU-008](ROU/F-ROU-008.md) | Duplicate and version | 2 | P1 | done |
 | [F-ROU-009](ROU/F-ROU-009.md) | Archive routines | 2 | P2 | done |
 | [F-ROU-010](ROU/F-ROU-010.md) | Start a workout from a routine day | 2 | P0 | done |
 | [F-ROU-011](ROU/F-ROU-011.md) | Routine preview | 3 | P2 | done |
-| [F-ROU-012](ROU/F-ROU-012.md) | Scheduling | 3 | P2 | in-progress |
+| [F-ROU-012](ROU/F-ROU-012.md) | Scheduling | 3 | P2 | done |
 | [F-ROU-013](ROU/F-ROU-013.md) | Cycles, blocks and deload weeks | — | P2 | idea |
 | [F-ROU-014](ROU/F-ROU-014.md) | Share and import routines | — | P2 | idea |
 | [F-ROU-015](ROU/F-ROU-015.md) | Built-in starter programs | 3 | P2 | done |
@@ -72,7 +72,7 @@
 | [F-LOG-012](LOG/F-LOG-012.md) | Workout detail | 1 | P0 | done |
 | [F-LOG-013](LOG/F-LOG-013.md) | PR detection and celebration | 2 | P1 | done |
 | [F-LOG-014](LOG/F-LOG-014.md) | RPE and RIR | 2 | P1 | done |
-| [F-LOG-015](LOG/F-LOG-015.md) | Supersets in the logger | 2 | P1 | in-progress |
+| [F-LOG-015](LOG/F-LOG-015.md) | Supersets in the logger | 2 | P1 | done |
 | [F-LOG-016](LOG/F-LOG-016.md) | Repeat a previous session | 2 | P1 | done |
 | [F-LOG-017](LOG/F-LOG-017.md) | Per-side versus total weight | 2 | P1 | done |
 | [F-LOG-018](LOG/F-LOG-018.md) | Session summary | 1 | P1 | done |
@@ -89,7 +89,7 @@
 | [F-TIM-001](TIM/F-TIM-001.md) | Rest timer core | 1 | P0 | done |
 | [F-TIM-002](TIM/F-TIM-002.md) | Auto-start on set completion | 1 | P0 | done |
 | [F-TIM-003](TIM/F-TIM-003.md) | Background execution and notification | 1 | P0 | in-progress |
-| [F-TIM-004](TIM/F-TIM-004.md) | Notification and lock-screen controls | 2 | P2 | planned |
+| [F-TIM-004](TIM/F-TIM-004.md) | Notification and lock-screen controls | 2 | P2 | done |
 | [F-TIM-005](TIM/F-TIM-005.md) | Default rest durations | 1 | P1 | done |
 | [F-TIM-006](TIM/F-TIM-006.md) | Alert style | 1 | P1 | done |
 | [F-TIM-007](TIM/F-TIM-007.md) | Rest-taken recording | 2 | P2 | done |
@@ -100,21 +100,21 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-ANA-001](ANA/F-ANA-001.md) | Analytics engine | 3 | P0 | in-progress |
+| [F-ANA-001](ANA/F-ANA-001.md) | Analytics engine | 3 | P0 | done |
 | [F-ANA-002](ANA/F-ANA-002.md) | Per-exercise history | 3 | P0 | done |
 | [F-ANA-003](ANA/F-ANA-003.md) | Estimated 1RM trend | 3 | P1 | done |
 | [F-ANA-004](ANA/F-ANA-004.md) | Volume charts | 3 | P1 | done |
-| [F-ANA-005](ANA/F-ANA-005.md) | Sets per muscle group per week | 3 | P1 | in-progress |
-| [F-ANA-006](ANA/F-ANA-006.md) | Consistency | 3 | P1 | in-progress |
+| [F-ANA-005](ANA/F-ANA-005.md) | Sets per muscle group per week | 3 | P1 | done |
+| [F-ANA-006](ANA/F-ANA-006.md) | Consistency | 3 | P1 | done |
 | [F-ANA-007](ANA/F-ANA-007.md) | PR timeline | 3 | P1 | done |
-| [F-ANA-008](ANA/F-ANA-008.md) | Muscle balance | 3 | P2 | in-progress |
+| [F-ANA-008](ANA/F-ANA-008.md) | Muscle balance | 3 | P2 | done |
 | [F-ANA-009](ANA/F-ANA-009.md) | Stall detection | 4 | P2 | done |
 | [F-ANA-010](ANA/F-ANA-010.md) | Acute-to-chronic workload ratio | 4 | P2 | done |
 | [F-ANA-011](ANA/F-ANA-011.md) | Rep range and intensity distribution | 4 | P2 | done |
 | [F-ANA-012](ANA/F-ANA-012.md) | Duration and rest compliance | 4 | P3 | done |
 | [F-ANA-013](ANA/F-ANA-013.md) | Weekly insight cards | 4 | P2 | done |
 | [F-ANA-014](ANA/F-ANA-014.md) | Body map heat overlay | 4 | P3 | done |
-| [F-ANA-015](ANA/F-ANA-015.md) | Date range and filter controls | 3 | P1 | in-progress |
+| [F-ANA-015](ANA/F-ANA-015.md) | Date range and filter controls | 3 | P1 | done |
 | [F-ANA-016](ANA/F-ANA-016.md) | Chart interaction | 3 | P2 | done |
 | [F-ANA-017](ANA/F-ANA-017.md) | Year in review | — | P3 | idea |
 | [F-ANA-018](ANA/F-ANA-018.md) | Exercise comparison | — | P3 | idea |
@@ -142,7 +142,7 @@
 |---|---|---|---|---|
 | [F-BOD-001](BOD/F-BOD-001.md) | Bodyweight log | 1 | P0 | done |
 | [F-BOD-002](BOD/F-BOD-002.md) | Circumference measurements | 4 | P2 | done |
-| [F-BOD-003](BOD/F-BOD-003.md) | Trend charts with smoothing | 4 | P1 | in-progress |
+| [F-BOD-003](BOD/F-BOD-003.md) | Trend charts with smoothing | 4 | P1 | done |
 | [F-BOD-004](BOD/F-BOD-004.md) | Progress photos | 5 | P2 | done |
 | [F-BOD-005](BOD/F-BOD-005.md) | Goals | — | P3 | idea |
 | [F-BOD-006](BOD/F-BOD-006.md) | Measurement reminders | — | P3 | idea |
@@ -155,7 +155,7 @@
 | [F-DAT-002](DAT/F-DAT-002.md) | CSV export | 5 | P1 | done |
 | [F-DAT-003](DAT/F-DAT-003.md) | Backup file | 5 | P0 | done |
 | [F-DAT-004](DAT/F-DAT-004.md) | Restore | 5 | P0 | done |
-| [F-DAT-005](DAT/F-DAT-005.md) | Strong CSV import | 5 | P1 | in-progress |
+| [F-DAT-005](DAT/F-DAT-005.md) | Strong CSV import | 5 | P1 | done |
 | [F-DAT-006](DAT/F-DAT-006.md) | Hevy CSV import | 5 | P2 | done |
 | [F-DAT-007](DAT/F-DAT-007.md) | Import mapping UI | 5 | P1 | done |
 | [F-DAT-008](DAT/F-DAT-008.md) | Automatic local backups | 5 | P2 | done |
@@ -170,14 +170,14 @@
 | [F-SET-001](SET/F-SET-001.md) | Units | 0 | P0 | done |
 | [F-SET-002](SET/F-SET-002.md) | Theme mode | 0 | P0 | done |
 | [F-SET-003](SET/F-SET-003.md) | Rest-timer defaults | 1 | P1 | done |
-| [F-SET-004](SET/F-SET-004.md) | Bar and plate inventory | 4 | P1 | planned |
-| [F-SET-005](SET/F-SET-005.md) | Week start | 3 | P1 | in-progress |
+| [F-SET-004](SET/F-SET-004.md) | Bar and plate inventory | 4 | P1 | done |
+| [F-SET-005](SET/F-SET-005.md) | Week start | 3 | P1 | done |
 | [F-SET-006](SET/F-SET-006.md) | e1RM formula | 3 | P2 | done |
 | [F-SET-007](SET/F-SET-007.md) | Increment steps | 2 | P1 | done |
-| [F-SET-008](SET/F-SET-008.md) | Notification preferences | 2 | P2 | planned |
+| [F-SET-008](SET/F-SET-008.md) | Notification preferences | 2 | P2 | done |
 | [F-SET-009](SET/F-SET-009.md) | About | 1 | P1 | done |
 | [F-SET-010](SET/F-SET-010.md) | App lock | 5 | P3 | done |
-| [F-SET-011](SET/F-SET-011.md) | Onboarding | 6 | P2 | planned |
+| [F-SET-011](SET/F-SET-011.md) | Onboarding | 6 | P2 | done |
 
 ## `PLT` — Plate mathematics
 
@@ -211,23 +211,23 @@
 | [F-THM-003](THM/F-THM-003.md) | Dynamic colour | 2 | P2 | done |
 | [F-THM-004](THM/F-THM-004.md) | Chart theming | 3 | P1 | done |
 | [F-THM-005](THM/F-THM-005.md) | Typography | 0 | P1 | done |
-| [F-THM-006](THM/F-THM-006.md) | App icon and branding | 6 | P2 | planned |
+| [F-THM-006](THM/F-THM-006.md) | App icon and branding | 6 | P2 | done |
 
 ## `A11Y` — Accessibility
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-A11Y-001](A11Y/F-A11Y-001.md) | Screen reader support | 6 | P1 | planned |
-| [F-A11Y-002](A11Y/F-A11Y-002.md) | Dynamic type | 6 | P1 | planned |
-| [F-A11Y-003](A11Y/F-A11Y-003.md) | Contrast and colour independence | 6 | P1 | planned |
+| [F-A11Y-001](A11Y/F-A11Y-001.md) | Screen reader support | 6 | P1 | done |
+| [F-A11Y-002](A11Y/F-A11Y-002.md) | Dynamic type | 6 | P1 | done |
+| [F-A11Y-003](A11Y/F-A11Y-003.md) | Contrast and colour independence | 6 | P1 | done |
 | [F-A11Y-004](A11Y/F-A11Y-004.md) | Touch targets and reach | 1 | P1 | done |
-| [F-A11Y-005](A11Y/F-A11Y-005.md) | Reduce motion | 6 | P2 | planned |
+| [F-A11Y-005](A11Y/F-A11Y-005.md) | Reduce motion | 6 | P2 | done |
 
 ## `I18N` — Localisation
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-I18N-001](I18N/F-I18N-001.md) | String externalisation | 6 | P1 | planned |
+| [F-I18N-001](I18N/F-I18N-001.md) | String externalisation | 6 | P1 | done |
 | [F-I18N-002](I18N/F-I18N-002.md) | Locale-aware formatting | 0 | P1 | done |
 | [F-I18N-003](I18N/F-I18N-003.md) | Additional locales | — | P3 | idea |
 
@@ -235,8 +235,8 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-HLT-001](HLT/F-HLT-001.md) | Health Connect write | 6 | P2 | planned |
-| [F-HLT-002](HLT/F-HLT-002.md) | Health Connect read | 6 | P3 | planned |
+| [F-HLT-001](HLT/F-HLT-001.md) | Health Connect write | 6 | P2 | done |
+| [F-HLT-002](HLT/F-HLT-002.md) | Health Connect read | 6 | P3 | done |
 | [F-HLT-003](HLT/F-HLT-003.md) | HealthKit parity | — | P2 | idea |
 | [F-HLT-004](HLT/F-HLT-004.md) | Wear OS companion | — | P3 | idea |
 | [F-HLT-005](HLT/F-HLT-005.md) | watchOS companion | — | P3 | idea |
@@ -248,10 +248,10 @@
 | [F-REL-001](REL/F-REL-001.md) | CI build and checks | 0 | P0 | done |
 | [F-REL-002](REL/F-REL-002.md) | Signed release APK | 1 | P0 | done |
 | [F-REL-003](REL/F-REL-003.md) | GitHub Release automation | 1 | P1 | done |
-| [F-REL-004](REL/F-REL-004.md) | App bundle for Play | 6 | P1 | planned |
+| [F-REL-004](REL/F-REL-004.md) | App bundle for Play | 6 | P1 | done |
 | [F-REL-005](REL/F-REL-005.md) | Versioning scheme | 1 | P1 | done |
-| [F-REL-006](REL/F-REL-006.md) | Store listing assets | 6 | P2 | planned |
-| [F-REL-007](REL/F-REL-007.md) | Privacy policy and data safety | 6 | P0 | planned |
+| [F-REL-006](REL/F-REL-006.md) | Store listing assets | 6 | P2 | in-progress |
+| [F-REL-007](REL/F-REL-007.md) | Privacy policy and data safety | 6 | P0 | done |
 | [F-REL-008](REL/F-REL-008.md) | Update check for sideloaded installs | — | P2 | idea |
 | [F-REL-009](REL/F-REL-009.md) | iOS build and TestFlight | — | P2 | idea |
 | [F-REL-010](REL/F-REL-010.md) | F-Droid | — | P3 | idea |

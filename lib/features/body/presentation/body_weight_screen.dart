@@ -21,10 +21,12 @@ import '../../shell/widgets/confirm_sheet.dart';
 import '../../shell/widgets/empty_state.dart';
 import '../../shell/widgets/trend_chart.dart';
 import '../application/body_providers.dart';
+import '../application/bodyweight_goal_provider.dart';
 import 'log_bodyweight_sheet.dart';
 import 'log_measurement_sheet.dart';
 import 'measurement_labels.dart';
 import 'tracked_measurements_sheet.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The body screen: bodyweight (`F-BOD-001`), its EMA trend (`F-BOD-003`),
 /// and whichever circumference/body-fat measurements have been opted into
@@ -39,31 +41,31 @@ class BodyWeightScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Body'),
+        title: Text(context.l10n.bodyBody),
         actions: [
           IconButton(
-            tooltip: 'Progress photos',
+            tooltip: context.l10n.bodyProgressPhotos,
             icon: const Icon(Icons.photo_camera_outlined),
             onPressed: () => context.push(AppRoutes.bodyPhotos),
           ),
           IconButton(
-            tooltip: 'Measurements to track',
+            tooltip: context.l10n.bodyMeasurementsToTrack,
             icon: const Icon(Icons.tune),
             onPressed: () => unawaited(showTrackedMeasurementsSheet(context)),
           ),
         ],
       ),
       body: history.view(
-        errorTitle: 'Bodyweight history could not be read',
+        errorTitle: context.l10n.bodyBodyweightHistoryCouldNotBe,
         (entries) => ListView(
           padding: const EdgeInsets.only(bottom: 88),
           children: [
             if (entries.isEmpty)
               EmptyState(
                 icon: Icons.monitor_weight_outlined,
-                title: 'No bodyweight logged yet',
-                message: 'Log your weight to track it alongside your lifts.',
-                actionLabel: 'Log bodyweight',
+                title: context.l10n.bodyNoBodyweightLoggedYet,
+                message: context.l10n.bodyLogYourWeightToTrack,
+                actionLabel: context.l10n.bodyLogBodyweight,
                 onAction: () => unawaited(showLogBodyweightSheet(context)),
               )
             else ...[
@@ -79,7 +81,7 @@ class BodyWeightScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => unawaited(showLogBodyweightSheet(context)),
         icon: const Icon(Icons.add),
-        label: const Text('Log bodyweight'),
+        label: Text(context.l10n.bodyLogBodyweight),
       ),
     );
   }
@@ -124,18 +126,42 @@ class _BodyweightTrendSection extends ConsumerWidget {
             ),
         ];
         final rate = trend.weeklyRateGrams;
+        final goalGrams = ref.watch(bodyweightGoalProvider);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Trend', style: theme.textTheme.titleSmall),
+            Text(context.l10n.bodyTrend, style: theme.textTheme.titleSmall),
             const SizedBox(height: AppSpacing.sm),
             TrendChart(
               points: points,
+              metricLabel: context.l10n.bodyBodyweightTrend,
               secondaryPoints: raw,
               subtitle: unit.symbol,
               valueLabel: (v) => v.toStringAsFixed(1),
               zoomEnabled: false,
+              goalLine: goalGrams == null
+                  ? null
+                  : (
+                      value: Mass.grams(goalGrams).toUnit(unit),
+                      label:
+                          '${formatter.massValueOnly(Mass.grams(goalGrams), unit)} '
+                          '${unit.symbol}',
+                    ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                icon: const Icon(Icons.flag_outlined, size: 18),
+                onPressed: () => unawaited(_editGoal(context, ref, unit)),
+                label: Text(
+                  goalGrams == null
+                      ? context.l10n.bodySetGoal
+                      : '${context.l10n.bodyGoal}: '
+                            '${formatter.massValueOnly(Mass.grams(goalGrams), unit)} '
+                            '${unit.symbol}',
+                ),
+              ),
             ),
             if (rate != null) ...[
               const SizedBox(height: AppSpacing.sm),
@@ -155,6 +181,71 @@ class _BodyweightTrendSection extends ConsumerWidget {
   }
 }
 
+/// Prompts for a goal in the user's own unit and stores canonical grams
+/// (`F-BOD-003` §4, docs/22-UNITS.md).
+Future<void> _editGoal(
+  BuildContext context,
+  WidgetRef ref,
+  MassUnit unit,
+) async {
+  final parser = ref.read(quantityParserProvider);
+  final current = ref.read(bodyweightGoalProvider);
+  final controller = TextEditingController(
+    text: current == null
+        ? ''
+        : ref
+              .read(quantityFormatterProvider)
+              .massValueOnly(Mass.grams(current), unit),
+  );
+
+  final result = await showDialog<String>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(context.l10n.bodySetGoal),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: controller,
+            autofocus: true,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(suffixText: unit.symbol),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            context.l10n.bodyGoalExplainer,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop('clear'),
+          child: Text(context.l10n.bodyClearGoal),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(null),
+          child: Text(context.l10n.shellKeepIt),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(controller.text),
+          child: Text(context.l10n.catalogSave),
+        ),
+      ],
+    ),
+  );
+
+  if (result == null) return;
+  if (result == 'clear') {
+    await ref.read(bodyweightGoalProvider.notifier).set(null);
+    return;
+  }
+  final grams = parser.parseMass(result, unit);
+  if (grams == null) return;
+  await ref.read(bodyweightGoalProvider.notifier).set(grams.grams);
+}
+
 class _BodyweightTile extends ConsumerWidget {
   const _BodyweightTile({required this.entry});
 
@@ -170,7 +261,7 @@ class _BodyweightTile extends ConsumerWidget {
       direction: DismissDirection.endToStart,
       confirmDismiss: (_) => showConfirmSheet(
         context,
-        title: 'Delete this entry?',
+        title: context.l10n.bodyDeleteThisEntry,
         message:
             '${DateFormat.yMMMd().format(date)}\'s bodyweight entry will '
             'be removed.',
@@ -220,9 +311,14 @@ class _MeasurementSection extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(type.label, style: theme.textTheme.titleSmall),
+                Text(
+                  type.label(context.l10n),
+                  style: theme.textTheme.titleSmall,
+                ),
                 IconButton(
-                  tooltip: 'Log ${type.label}',
+                  tooltip: context.l10n.bodyLogMeasurement(
+                    type.label(context.l10n),
+                  ),
                   icon: const Icon(Icons.add, size: 20),
                   onPressed: () =>
                       unawaited(showLogMeasurementSheet(context, type: type)),
@@ -237,7 +333,7 @@ class _MeasurementSection extends ConsumerWidget {
                       horizontal: AppSpacing.screen,
                     ),
                     child: Text(
-                      'Not logged yet.',
+                      context.l10n.bodyNotLoggedYet,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -275,10 +371,11 @@ class _MeasurementTile extends ConsumerWidget {
       direction: DismissDirection.endToStart,
       confirmDismiss: (_) => showConfirmSheet(
         context,
-        title: 'Delete this entry?',
-        message:
-            "${DateFormat.yMMMd().format(date)}'s ${type.label.toLowerCase()} "
-            'entry will be removed.',
+        title: context.l10n.bodyDeleteThisEntry,
+        message: context.l10n.bodyDeleteEntryExplainer(
+          DateFormat.yMMMd().format(date),
+          type.label(context.l10n),
+        ),
       ),
       onDismissed: (_) => unawaited(
         ref.read(bodyMeasurementRepositoryProvider).deleteMeasurement(entry.id),

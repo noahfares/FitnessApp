@@ -1,6 +1,6 @@
 # F-ROU-005 — Supersets and circuits
 
-Status: in-progress | Priority: P1 | Phase: 2
+Status: done | Priority: P1 | Phase: 2
 Blocks: F-LOG-015
 Reads: 21-DATA-MODEL#routine_days, 70-decisions/ADR-0004-template-snapshot
 Data: `routine_exercises.group_id`
@@ -34,3 +34,18 @@ exercise's own `rest_seconds`/defaults), but within-group rest is not an
 independently configurable value — it is hardcoded to zero rather than
 backed by a column. Revisit if a real within-group rest ever needs to be
 non-zero.
+
+## Status notes (closed, v0.54.0)
+
+The two items batch 2.3 left open are built:
+
+- **Within-group rest is configurable** (§3). Schema v8 adds
+  `routine_exercises.within_group_rest_seconds` and its snapshot twin on
+  `workout_exercises`, written to every member so the value belongs to the
+  group rather than to whichever row was edited. Null — every pre-v8 row, and
+  the default — means no pause at all, which is what a superset means unless
+  someone says otherwise; a configured value is for the person who wants ten
+  seconds to walk between two machines without the timer calling it a full
+  rest. One picker per group, on the group block's own header.
+- `restSecondsForGroupMember` takes the value; the last member still rests the
+  full resolved duration, exactly as if the exercise were standalone.

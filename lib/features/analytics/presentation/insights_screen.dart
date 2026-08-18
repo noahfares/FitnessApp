@@ -15,13 +15,15 @@ import '../../../domain/analytics/muscle_balance.dart';
 import '../../../domain/analytics/muscle_heat.dart';
 import '../../../domain/analytics/sets_per_muscle.dart';
 import '../../../domain/analytics/weekly_volume.dart';
-import '../../../domain/catalog/muscle_taxonomy.dart' show BodyMapView;
+import '../../../domain/catalog/muscle_taxonomy.dart'
+    show BodyMapView, MuscleCategory;
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../settings/application/week_start_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/body_map_heat_overlay.dart';
 import '../../shell/widgets/trend_chart.dart';
+import '../../shell/widgets/radar_chart.dart';
 import '../../shell/widgets/weekly_bar_chart.dart';
 import '../application/acwr_provider.dart';
 import '../application/analytics_clock_provider.dart';
@@ -29,6 +31,8 @@ import '../application/analytics_set_records_provider.dart';
 import '../application/date_range_provider.dart';
 import '../application/duration_compliance_provider.dart';
 import 'date_range_selector.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// The Insights tab (`F-NAV-001`) — overall and per-muscle weekly volume
 /// (`F-ANA-004`) and hard sets per muscle per week (`F-ANA-005`), the two
@@ -41,7 +45,7 @@ class InsightsScreen extends ConsumerWidget {
     final records = ref.watch(analyticsSetRecordsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Insights')),
+      appBar: AppBar(title: Text(context.l10n.analyticsInsights)),
       body: records.view(
         (records) => records.isEmpty
             ? const _NoDataYet()
@@ -68,12 +72,12 @@ class _NoDataYet extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'No sessions yet',
+            context.l10n.analyticsNoSessionsYet,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Log a few workouts to see volume and muscle coverage here.',
+            context.l10n.analyticsLogAFewWorkoutsTo,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -114,7 +118,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
     final inRange = widget.records
         .where((r) => range.contains(r.date))
         .toList();
-    final rangeLabel = _rangeLabel(selection.preset);
+    final rangeLabel = _rangeLabel(selection.preset, context.l10n);
     final muscleName = _selectedMuscle.name;
 
     final overallVolume = weeklyVolume(inRange, weekStart: weekStart);
@@ -144,6 +148,8 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
     );
     final pushPull = pushPullRatio(trailingTotals);
     final quadHamstring = quadHamstringRatio(trailingTotals);
+    final shares = volumeShareByCategory(trailingWindowRecords);
+    final maxShare = shares.values.fold<double>(0, (a, b) => a > b ? a : b);
 
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.screen),
@@ -156,7 +162,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
                 child: OutlinedButton.icon(
                   onPressed: () => context.push(AppRoutes.consistency),
                   icon: const Icon(Icons.calendar_month_outlined),
-                  label: const Text('Consistency'),
+                  label: Text(context.l10n.analyticsConsistency),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -164,7 +170,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
                 child: OutlinedButton.icon(
                   onPressed: () => context.push(AppRoutes.prTimeline),
                   icon: const Icon(Icons.emoji_events_outlined),
-                  label: const Text('PR timeline'),
+                  label: Text(context.l10n.analyticsPrTimeline),
                 ),
               ),
             ],
@@ -173,13 +179,16 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         const SizedBox(height: AppSpacing.lg),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-          child: Text('Muscle balance', style: theme.textTheme.titleMedium),
+          child: Text(
+            context.l10n.analyticsMuscleBalance,
+            style: theme.textTheme.titleMedium,
+          ),
         ),
         const SizedBox(height: AppSpacing.xs),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: Text(
-            'Trailing 4 weeks. A rough guide, not a prescription.',
+            context.l10n.analyticsTrailing4WeeksARough,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -191,15 +200,43 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
           child: Row(
             children: [
               Expanded(
-                child: _RatioTile(label: 'Push : pull', ratio: pushPull.ratio),
+                child: _RatioTile(
+                  label: context.l10n.analyticsPushPull,
+                  ratio: pushPull.ratio,
+                ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: _RatioTile(
-                  label: 'Quad : hamstring',
+                  label: context.l10n.analyticsQuadHamstring,
                   ratio: quadHamstring.ratio,
                 ),
               ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        // The radar §9 actually asks for. Shares, not grams: the question is
+        // whether one side of the training dwarfs another, and a scale that
+        // depends on how strong someone is answers a different one.
+        Center(
+          child: RadarChart(
+            metricLabel: context.l10n.analyticsRelativeVolumeByMuscle,
+            axes: [
+              for (final entry in shares.entries)
+                RadarAxis(
+                  label: switch (entry.key) {
+                    MuscleCategory.push => context.l10n.analyticsPush,
+                    MuscleCategory.pull => context.l10n.analyticsPull,
+                    MuscleCategory.legs => context.l10n.analyticsLegs,
+                    MuscleCategory.core => context.l10n.analyticsCore,
+                  },
+                  // Relative to the largest share, so the biggest category
+                  // always reaches the outer ring — the shape is about
+                  // proportion, and a polygon hugging the centre says nothing.
+                  value: maxShare == 0 ? 0 : entry.value / maxShare,
+                  displayValue: '${(entry.value * 100).round()}%',
+                ),
             ],
           ),
         ),
@@ -215,7 +252,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: Text(
-            'Overall weekly volume',
+            context.l10n.analyticsOverallWeeklyVolume,
             style: theme.textTheme.titleMedium,
           ),
         ),
@@ -223,6 +260,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: WeeklyBarChart(
+            metricLabel: context.l10n.analyticsOverallWeeklyVolume,
             points: [
               for (final p in overallVolume)
                 WeeklyBarPoint(
@@ -240,7 +278,10 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('By muscle', style: theme.textTheme.titleMedium),
+              Text(
+                context.l10n.analyticsByMuscle,
+                style: theme.textTheme.titleMedium,
+              ),
               DropdownButton<Muscle>(
                 value: _selectedMuscle,
                 onChanged: (value) {
@@ -253,7 +294,10 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
                 },
                 items: [
                   for (final muscle in Muscle.values)
-                    DropdownMenuItem(value: muscle, child: Text(muscle.label)),
+                    DropdownMenuItem(
+                      value: muscle,
+                      child: Text(muscle.label(context.l10n)),
+                    ),
                 ],
               ),
             ],
@@ -263,7 +307,9 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: Text(
-            'Volume — ${_selectedMuscle.label}',
+            context.l10n.analyticsVolumeForMuscle(
+              _selectedMuscle.label(context.l10n),
+            ),
             style: theme.textTheme.bodyMedium,
           ),
         ),
@@ -271,6 +317,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: WeeklyBarChart(
+            metricLabel: context.l10n.analyticsWeeklyVolumeForMuscle,
             points: [
               for (final p in muscleVolume)
                 WeeklyBarPoint(
@@ -286,7 +333,9 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: Text(
-            'Hard sets per week — ${_selectedMuscle.label}',
+            context.l10n.analyticsHardSetsForMuscle(
+              _selectedMuscle.label(context.l10n),
+            ),
             style: theme.textTheme.bodyMedium,
           ),
         ),
@@ -294,6 +343,7 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: WeeklyBarChart(
+            metricLabel: context.l10n.analyticsHardSetsPerWeekFor,
             points: [
               for (final p in muscleSets)
                 WeeklyBarPoint(
@@ -303,6 +353,16 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
             ],
             subtitle: rangeLabel,
             valueLabel: (v) => v.toStringAsFixed(1),
+            // "Optional reference bands for common volume targets"
+            // (`F-ANA-005` §2). A range, not a line: the evidence for hard-set
+            // volume is a range, and drawing one number would turn a rough
+            // guide into a prescription — the same framing ACWR and muscle
+            // balance already use.
+            referenceBand: (
+              min: 10,
+              max: 20,
+              label: context.l10n.analyticsReferenceBand,
+            ),
             // Tap a bar to scope "Contributing exercises" to that one week
             // (`F-ANA-016`) — carried over from `F-ANA-005`'s own deferral.
             onBarTap: (index, _) =>
@@ -318,15 +378,16 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
               children: [
                 Text(
                   _selectedWeek == null
-                      ? 'Contributing exercises'
-                      : 'Contributing exercises — week of '
-                            '${DateFormat.MMMd().format(_selectedWeek!)}',
+                      ? context.l10n.analyticsContributingExercises
+                      : context.l10n.analyticsContributingExercisesForWeek(
+                          DateFormat.MMMd().format(_selectedWeek!),
+                        ),
                   style: theme.textTheme.labelLarge,
                 ),
                 if (_selectedWeek != null)
                   TextButton(
                     onPressed: () => setState(() => _selectedWeek = null),
-                    child: const Text('Clear'),
+                    child: Text(context.l10n.catalogClear),
                   ),
               ],
             ),
@@ -336,7 +397,9 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
               dense: true,
               title: Text(contributor.exerciseName),
               trailing: Text(
-                '${contributor.sets.toStringAsFixed(1)} sets',
+                context.l10n.analyticsContributorSets(
+                  contributor.sets.toStringAsFixed(1),
+                ),
                 style: theme.textTheme.bodySmall,
               ),
             ),
@@ -347,14 +410,15 @@ class _InsightsBodyState extends ConsumerState<_InsightsBody> {
     );
   }
 
-  static String _rangeLabel(RangePreset preset) => switch (preset) {
-    RangePreset.fourWeeks => 'Last 4 weeks',
-    RangePreset.threeMonths => 'Last 3 months',
-    RangePreset.sixMonths => 'Last 6 months',
-    RangePreset.oneYear => 'Last year',
-    RangePreset.allTime => 'All time',
-    RangePreset.custom => 'Custom range',
-  };
+  static String _rangeLabel(RangePreset preset, AppLocalizations l10n) =>
+      switch (preset) {
+        RangePreset.fourWeeks => l10n.analyticsLast4Weeks,
+        RangePreset.threeMonths => l10n.analyticsLast3Months,
+        RangePreset.sixMonths => l10n.analyticsLast6Months,
+        RangePreset.oneYear => l10n.analyticsLastYear,
+        RangePreset.allTime => l10n.analyticsAllTime,
+        RangePreset.custom => l10n.analyticsCustomRange,
+      };
 }
 
 class _RatioTile extends StatelessWidget {
@@ -405,11 +469,14 @@ class _AcwrSection extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Training load', style: theme.textTheme.titleMedium),
+            Text(
+              context.l10n.analyticsTrainingLoad,
+              style: theme.textTheme.titleMedium,
+            ),
             const SizedBox(height: AppSpacing.xs),
             if (result == null || result.ratio == null)
               Text(
-                'Needs at least 28 days of logged training to show.',
+                context.l10n.analyticsNeedsAtLeast28Days,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -420,9 +487,7 @@ class _AcwrSection extends ConsumerWidget {
                 style: theme.textTheme.headlineSmall,
               ),
               Text(
-                'Ratio of this week\'s volume to your trailing 4-week '
-                'average (ACWR). 0.8–1.3 is typically described as a steady '
-                'ramp rate; this is information, not a warning.',
+                context.l10n.analyticsAcwrExplainer,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -455,7 +520,7 @@ class _DurationComplianceSection extends ConsumerWidget {
     final duration = ref.watch(sessionDurationTrendProvider).value ?? const [];
     final complianceRatio = ref.watch(restComplianceProvider).value;
     final complianceLabel = complianceRatio == null
-        ? 'not enough logged rest yet'
+        ? context.l10n.analyticsNotEnoughLoggedRestYet
         : '${(complianceRatio * 100).round()}% of prescribed rest';
 
     return Padding(
@@ -463,15 +528,22 @@ class _DurationComplianceSection extends ConsumerWidget {
       child: ExpansionTile(
         initiallyExpanded: false,
         tilePadding: EdgeInsets.zero,
-        title: Text('Duration & rest', style: theme.textTheme.titleMedium),
+        title: Text(
+          context.l10n.analyticsDurationRest,
+          style: theme.textTheme.titleMedium,
+        ),
         subtitle: Text(complianceLabel),
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: Text('Session duration', style: theme.textTheme.bodyMedium),
+            child: Text(
+              context.l10n.analyticsSessionDuration,
+              style: theme.textTheme.bodyMedium,
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
           TrendChart(
+            metricLabel: context.l10n.analyticsSessionDurationInMinutes,
             points: [
               for (var i = 0; i < duration.length; i++)
                 TrendChartPoint(
@@ -481,7 +553,7 @@ class _DurationComplianceSection extends ConsumerWidget {
                 ),
             ],
             valueLabel: (v) => '${v.toStringAsFixed(0)} min',
-            subtitle: 'Every finished session',
+            subtitle: context.l10n.analyticsEveryFinishedSession,
             zoomEnabled: false,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -489,8 +561,7 @@ class _DurationComplianceSection extends ConsumerWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Average actual rest vs. each exercise\'s resolved default — '
-                'an approximation, not a per-set historical record.',
+                context.l10n.analyticsRestComplianceCaveat,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -528,15 +599,24 @@ class _MuscleHeatSectionState extends ConsumerState<_MuscleHeatSection> {
       child: ExpansionTile(
         initiallyExpanded: false,
         tilePadding: EdgeInsets.zero,
-        title: Text('Muscle heat map', style: theme.textTheme.titleMedium),
-        subtitle: const Text('Relative training volume by muscle'),
+        title: Text(
+          context.l10n.analyticsMuscleHeatMap,
+          style: theme.textTheme.titleMedium,
+        ),
+        subtitle: Text(context.l10n.analyticsRelativeVolumeByMuscle),
         children: [
           Align(
             alignment: Alignment.centerRight,
             child: SegmentedButton<BodyMapView>(
-              segments: const [
-                ButtonSegment(value: BodyMapView.front, label: Text('Front')),
-                ButtonSegment(value: BodyMapView.back, label: Text('Back')),
+              segments: [
+                ButtonSegment(
+                  value: BodyMapView.front,
+                  label: Text(context.l10n.analyticsFront),
+                ),
+                ButtonSegment(
+                  value: BodyMapView.back,
+                  label: Text(context.l10n.analyticsBack),
+                ),
               ],
               selected: {_view},
               onSelectionChanged: (s) => setState(() => _view = s.first),
@@ -546,8 +626,7 @@ class _MuscleHeatSectionState extends ConsumerState<_MuscleHeatSection> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'Relative to your hardest-trained muscle over the selected '
-              'range.',
+              context.l10n.analyticsHeatRelativeCaveat,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -615,12 +694,16 @@ class _TrainingPatternsSection extends ConsumerWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-          child: Text('Rep ranges', style: theme.textTheme.titleMedium),
+          child: Text(
+            context.l10n.analyticsRepRanges,
+            style: theme.textTheme.titleMedium,
+          ),
         ),
         const SizedBox(height: AppSpacing.sm),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: WeeklyBarChart(
+            metricLabel: context.l10n.analyticsSetsByRepRange,
             points: [
               for (final bucket in RepRangeBucket.values)
                 WeeklyBarPoint(
@@ -636,7 +719,7 @@ class _TrainingPatternsSection extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: Text(
-            'Intensity (% of e1RM)',
+            context.l10n.analyticsIntensityOfE1rm,
             style: theme.textTheme.titleMedium,
           ),
         ),
@@ -644,6 +727,7 @@ class _TrainingPatternsSection extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: WeeklyBarChart(
+            metricLabel: context.l10n.analyticsSetsByIntensityZone,
             points: [
               for (final zone in IntensityZone.values)
                 WeeklyBarPoint(
@@ -659,13 +743,16 @@ class _TrainingPatternsSection extends ConsumerWidget {
           const SizedBox(height: AppSpacing.lg),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-            child: Text('Intensity (RPE)', style: theme.textTheme.titleMedium),
+            child: Text(
+              context.l10n.analyticsIntensityRpe,
+              style: theme.textTheme.titleMedium,
+            ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
             child: Text(
-              'A more honest measure than an e1RM estimate, where logged.',
+              context.l10n.analyticsAMoreHonestMeasureThan,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -675,6 +762,7 @@ class _TrainingPatternsSection extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
             child: WeeklyBarChart(
+              metricLabel: context.l10n.analyticsSetsByLoggedRpe,
               points: [
                 for (final rpe in (rpeCounts.keys.toList()..sort()))
                   WeeklyBarPoint(

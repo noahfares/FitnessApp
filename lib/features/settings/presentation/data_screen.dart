@@ -15,6 +15,7 @@ import '../../../data/io/restore_service.dart';
 import '../../../data/platform/export_sharer.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import '../application/unit_preferences_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Settings › Data (`F-DAT-001`, `F-DAT-003`, `F-DAT-004`, `F-DAT-010`,
 /// `F-DAT-011`, `F-LOG-013` §5).
@@ -47,13 +48,12 @@ class _DataScreenState extends ConsumerState<DataScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Data')),
+      appBar: AppBar(title: Text(context.l10n.settingsData)),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.screen),
         children: [
           Text(
-            'Every table, every row, exactly as stored — a rescue copy, not '
-            'a polished backup. Share it somewhere safe.',
+            context.l10n.settingsJsonDumpExplainer,
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -66,12 +66,13 @@ class _DataScreenState extends ConsumerState<DataScreen> {
                     child: CircularProgressIndicator.adaptive(strokeWidth: 2),
                   )
                 : const Icon(Icons.ios_share),
-            label: Text(_exporting ? 'Exporting…' : 'Export data (.json)'),
+            label: Text(
+              _exporting ? 'Exporting…' : context.l10n.settingsExportDataJson,
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'For spreadsheets, not backup — one CSV each for sets, body '
-            'measurements and routines, in your display units.',
+            context.l10n.settingsCsvExportExplainer,
             style: theme.textTheme.bodySmall,
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -86,24 +87,24 @@ class _DataScreenState extends ConsumerState<DataScreen> {
                     child: CircularProgressIndicator.adaptive(strokeWidth: 2),
                   )
                 : const Icon(Icons.table_chart_outlined),
-            label: Text(_exportingCsv ? 'Exporting…' : 'Export data (.csv)'),
+            label: Text(
+              _exportingCsv ? 'Exporting…' : context.l10n.settingsExportDataCsv,
+            ),
           ),
           const SizedBox(height: AppSpacing.xl),
           Text(
-            'Bring your history over from Strong or Hevy — nothing is '
-            'written until you confirm what to do with each exercise.',
+            context.l10n.settingsImportExplainer,
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.lg),
           OutlinedButton.icon(
             onPressed: () => context.push(AppRoutes.settingsDataImport),
             icon: const Icon(Icons.file_download_outlined),
-            label: const Text('Import from Strong or Hevy'),
+            label: Text(context.l10n.settingsImportFromStrongOrHevy),
           ),
           const SizedBox(height: AppSpacing.xl),
           Text(
-            'A backup is a full, versioned copy of everything on this '
-            'device, saved here so restore can find it later.',
+            context.l10n.settingsBackupExplainer,
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -116,7 +117,11 @@ class _DataScreenState extends ConsumerState<DataScreen> {
                     child: CircularProgressIndicator.adaptive(strokeWidth: 2),
                   )
                 : const Icon(Icons.save_outlined),
-            label: Text(_backingUp ? 'Backing up…' : 'Back up now'),
+            label: Text(
+              _backingUp
+                  ? context.l10n.settingsBackingUp
+                  : context.l10n.settingsBackUpNow,
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
           OutlinedButton.icon(
@@ -128,12 +133,15 @@ class _DataScreenState extends ConsumerState<DataScreen> {
                     child: CircularProgressIndicator.adaptive(strokeWidth: 2),
                   )
                 : const Icon(Icons.restore),
-            label: Text(_restoring ? 'Restoring…' : 'Restore from backup…'),
+            label: Text(
+              _restoring
+                  ? 'Restoring…'
+                  : context.l10n.settingsRestoreFromBackup2,
+            ),
           ),
           const SizedBox(height: AppSpacing.xl),
           Text(
-            'Wiping deletes everything on this device and returns the app '
-            'to its first-run state. A backup is taken first.',
+            context.l10n.settingsWipeExplainer,
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -147,14 +155,13 @@ class _DataScreenState extends ConsumerState<DataScreen> {
                   )
                 : Icon(Icons.delete_forever, color: theme.colorScheme.error),
             label: Text(
-              _wiping ? 'Wiping…' : 'Wipe all data',
+              _wiping ? 'Wiping…' : context.l10n.settingsWipeAllData2,
               style: TextStyle(color: theme.colorScheme.error),
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
           Text(
-            'Personal records are a cache rebuilt from your logged sets. If '
-            'one ever looks wrong, rebuilding it from scratch is always safe.',
+            context.l10n.settingsRebuildPrsExplainer,
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -170,16 +177,15 @@ class _DataScreenState extends ConsumerState<DataScreen> {
                   )
                 : const Icon(Icons.refresh),
             label: Text(
-              _rebuildingPrs ? 'Rebuilding…' : 'Rebuild personal records',
+              _rebuildingPrs
+                  ? 'Rebuilding…'
+                  : context.l10n.settingsRebuildPersonalRecords,
             ),
           ),
           if (kDebugMode) ...[
             const SizedBox(height: AppSpacing.xl),
             Text(
-              'Debug build only — never reachable in a release. Adds 8 '
-              'weeks of a Push/Pull/Legs split plus weekly bodyweight, so '
-              'the analytics screens have something to show without '
-              'hand-logging sessions.',
+              context.l10n.settingsDemoDataExplainer,
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -195,7 +201,9 @@ class _DataScreenState extends ConsumerState<DataScreen> {
                     )
                   : const Icon(Icons.science_outlined),
               label: Text(
-                _seedingDemoData ? 'Loading…' : 'Load sample data (debug)',
+                _seedingDemoData
+                    ? 'Loading…'
+                    : context.l10n.settingsLoadSampleDataDebug,
               ),
             ),
           ],
@@ -209,6 +217,7 @@ class _DataScreenState extends ConsumerState<DataScreen> {
     try {
       final dumpService = ref.read(jsonDumpServiceProvider);
       final timestamp = DateFormat('yyyyMMdd-HHmmss').format(DateTime.now());
+      final subject = context.l10n.settingsFitnessappExport;
       final file = File(
         '${Directory.systemTemp.path}/fitnessapp-export-$timestamp.json',
       );
@@ -216,15 +225,13 @@ class _DataScreenState extends ConsumerState<DataScreen> {
       await dumpService.writeTo(sink);
       await sink.close();
 
-      await ref
-          .read(exportSharerProvider)
-          .share(file, subject: 'FitnessApp export');
+      await ref.read(exportSharerProvider).share(file, subject: subject);
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(content: Text('Export failed. Try again.')),
+          SnackBar(content: Text(context.l10n.settingsExportFailedTryAgain)),
         );
     } finally {
       if (mounted) setState(() => _exporting = false);
@@ -236,6 +243,9 @@ class _DataScreenState extends ConsumerState<DataScreen> {
     try {
       final service = ref.read(csvExportServiceProvider);
       final prefs = ref.read(unitPreferencesProvider);
+      // Read before the awaits below, not after: the context is only
+      // guaranteed live on this side of the gap.
+      final subject = context.l10n.settingsFitnessappCsvExport;
       final timestamp = DateFormat('yyyyMMdd-HHmmss').format(DateTime.now());
       final dir = Directory.systemTemp;
 
@@ -257,15 +267,13 @@ class _DataScreenState extends ConsumerState<DataScreen> {
         ),
       ];
 
-      await ref
-          .read(exportSharerProvider)
-          .shareAll(files, subject: 'FitnessApp CSV export');
+      await ref.read(exportSharerProvider).shareAll(files, subject: subject);
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(content: Text('Export failed. Try again.')),
+          SnackBar(content: Text(context.l10n.settingsExportFailedTryAgain)),
         );
     } finally {
       if (mounted) setState(() => _exportingCsv = false);
@@ -285,13 +293,15 @@ class _DataScreenState extends ConsumerState<DataScreen> {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('Backup saved.')));
+        ..showSnackBar(
+          SnackBar(content: Text(context.l10n.settingsBackupSaved)),
+        );
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(content: Text('Backup failed. Try again.')),
+          SnackBar(content: Text(context.l10n.settingsBackupFailedTryAgain)),
         );
     } finally {
       if (mounted) setState(() => _backingUp = false);
@@ -309,12 +319,9 @@ class _DataScreenState extends ConsumerState<DataScreen> {
 
     final confirmed = await showConfirmSheet(
       context,
-      title: 'Restore from backup?',
-      message:
-          'This replaces every workout, routine and setting on this device '
-          'with what is in the backup file. A safety copy of what is here '
-          'now is saved first.',
-      confirmLabel: 'Restore',
+      title: context.l10n.settingsRestoreFromBackup,
+      message: context.l10n.settingsRestoreConfirmExplainer,
+      confirmLabel: context.l10n.catalogRestore,
     );
     if (!confirmed) return;
     if (!context.mounted) return;
@@ -326,9 +333,9 @@ class _DataScreenState extends ConsumerState<DataScreen> {
           .restoreFrom(File(path));
       if (!context.mounted) return;
       final message = switch (result.outcome) {
-        RestoreOutcome.success => 'Restore complete.',
-        RestoreOutcome.invalidFile ||
-        RestoreOutcome.versionMismatch => result.message ?? 'Restore failed.',
+        RestoreOutcome.success => context.l10n.settingsRestoreComplete,
+        RestoreOutcome.invalidFile || RestoreOutcome.versionMismatch =>
+          result.message ?? context.l10n.settingsRestoreFailed,
       };
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
@@ -338,7 +345,7 @@ class _DataScreenState extends ConsumerState<DataScreen> {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(content: Text('Restore failed. Try again.')),
+          SnackBar(content: Text(context.l10n.settingsRestoreFailedTryAgain)),
         );
     } finally {
       if (mounted) setState(() => _restoring = false);
@@ -357,13 +364,15 @@ class _DataScreenState extends ConsumerState<DataScreen> {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('All data wiped.')));
+        ..showSnackBar(
+          SnackBar(content: Text(context.l10n.settingsAllDataWiped)),
+        );
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(content: Text('Wipe failed. Try again.')),
+          SnackBar(content: Text(context.l10n.settingsWipeFailedTryAgain)),
         );
     } finally {
       if (mounted) setState(() => _wiping = false);
@@ -380,34 +389,33 @@ class _DataScreenState extends ConsumerState<DataScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Wipe all data?'),
+          title: Text(context.l10n.settingsWipeAllData),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'This permanently deletes every workout, routine and '
-                'setting on this device. Type DELETE to confirm.',
-              ),
+              Text(context.l10n.settingsWipeConfirmExplainer),
               const SizedBox(height: AppSpacing.lg),
               TextField(
                 controller: controller,
                 autofocus: true,
                 onChanged: (_) => setDialogState(() {}),
-                decoration: const InputDecoration(hintText: 'DELETE'),
+                decoration: InputDecoration(
+                  hintText: context.l10n.settingsDelete,
+                ),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.catalogCancel),
             ),
             FilledButton(
               onPressed: controller.text == 'DELETE'
                   ? () => Navigator.of(context).pop(true)
                   : null,
-              child: const Text('Wipe'),
+              child: Text(context.l10n.settingsWipe),
             ),
           ],
         ),
@@ -426,14 +434,14 @@ class _DataScreenState extends ConsumerState<DataScreen> {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(content: Text('Personal records rebuilt.')),
+          SnackBar(content: Text(context.l10n.settingsPersonalRecordsRebuilt)),
         );
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(content: Text('Rebuild failed. Try again.')),
+          SnackBar(content: Text(context.l10n.settingsRebuildFailedTryAgain)),
         );
     } finally {
       if (mounted) setState(() => _rebuildingPrs = false);
@@ -447,13 +455,15 @@ class _DataScreenState extends ConsumerState<DataScreen> {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('Sample data loaded.')));
+        ..showSnackBar(
+          SnackBar(content: Text(context.l10n.settingsSampleDataLoaded)),
+        );
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(content: Text('Could not load sample data.')),
+          SnackBar(content: Text(context.l10n.settingsCouldNotLoadSampleData)),
         );
     } finally {
       if (mounted) setState(() => _seedingDemoData = false);

@@ -30,6 +30,7 @@ import 'dart:io';
 
 import 'package:fitness_app/app.dart';
 import 'package:fitness_app/core/theme/app_theme.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/database_provider.dart';
 import 'package:fitness_app/data/platform/app_info_service.dart';
@@ -157,7 +158,8 @@ Future<ProviderContainer> testContainer({
 /// points at the screen rather than at the router.
 ///
 /// [textScale] drives `MediaQuery`, for the 200%-scale rule that set rows have
-/// to hold to (`F-A11Y-002`).
+/// to hold to (`F-A11Y-002`); [disableAnimations] drives the same
+/// `MediaQuery`'s reduce-motion flag (`F-A11Y-005`).
 Future<ProviderContainer> pumpScreen(
   WidgetTester tester,
   Widget screen, {
@@ -166,6 +168,7 @@ Future<ProviderContainer> pumpScreen(
   String? country,
   double textScale = 1,
   bool dark = false,
+  bool disableAnimations = false,
   Map<String, Object> prefs = const {},
   List<Override> overrides = const [],
 }) async {
@@ -181,13 +184,17 @@ Future<ProviderContainer> pumpScreen(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
+        // The real app installs these (`F-I18N-001`); a screen pumped without
+        // them would fail on the first `context.l10n`, which is a harness
+        // artefact rather than anything about the screen.
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: dark ? AppTheme.dark() : AppTheme.light(),
-        home: textScale == 1
-            ? screen
-            : MediaQuery(
-                data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
-                child: screen,
-              ),
+        home: _withMediaQuery(
+          screen,
+          textScale: textScale,
+          disableAnimations: disableAnimations,
+        ),
       ),
     ),
   );
@@ -220,6 +227,8 @@ Future<ProviderContainer> pumpApp(
   String? startAt,
   DateTime? now,
   String? country,
+  double textScale = 1,
+  bool disableAnimations = false,
   Map<String, Object> prefs = const {},
   List<Override> overrides = const [],
 }) async {
@@ -235,8 +244,38 @@ Future<ProviderContainer> pumpApp(
   );
 
   await tester.pumpWidget(
-    UncontrolledProviderScope(container: container, child: const FitnessApp()),
+    UncontrolledProviderScope(
+      container: container,
+      child: _withMediaQuery(
+        const FitnessApp(),
+        textScale: textScale,
+        disableAnimations: disableAnimations,
+      ),
+    ),
   );
   await tester.pumpAndSettle();
   return container;
+}
+
+/// Wraps [child] only when something is actually being overridden.
+///
+/// An unconditional `MediaQuery` here would pin every other property to
+/// `MediaQueryData()`'s defaults — a zero-size window among them — so the
+/// wrapper has to stay opt-in rather than becoming the default environment
+/// every screen test runs in.
+Widget _withMediaQuery(
+  Widget child, {
+  required double textScale,
+  required bool disableAnimations,
+}) {
+  if (textScale == 1 && !disableAnimations) return child;
+  return Builder(
+    builder: (context) => MediaQuery(
+      data: MediaQuery.of(context).copyWith(
+        textScaler: TextScaler.linear(textScale),
+        disableAnimations: disableAnimations,
+      ),
+      child: child,
+    ),
+  );
 }

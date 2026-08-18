@@ -7,53 +7,54 @@
 library;
 
 import '../../../data/db/tables/enums.dart';
+import '../../../l10n/app_localizations.dart';
 
 extension MuscleLabel on Muscle {
-  String get label => switch (this) {
-    Muscle.chest => 'Chest',
-    Muscle.frontDelts => 'Front delts',
-    Muscle.sideDelts => 'Side delts',
-    Muscle.rearDelts => 'Rear delts',
-    Muscle.lats => 'Lats',
-    Muscle.traps => 'Traps',
-    Muscle.upperBack => 'Upper back',
-    Muscle.lowerBack => 'Lower back',
-    Muscle.biceps => 'Biceps',
-    Muscle.triceps => 'Triceps',
-    Muscle.forearms => 'Forearms',
-    Muscle.quads => 'Quads',
-    Muscle.hamstrings => 'Hamstrings',
-    Muscle.glutes => 'Glutes',
-    Muscle.calves => 'Calves',
-    Muscle.adductors => 'Adductors',
-    Muscle.abductors => 'Abductors',
-    Muscle.abs => 'Abs',
-    Muscle.obliques => 'Obliques',
-    Muscle.neck => 'Neck',
-    Muscle.fullBody => 'Full body',
+  String label(AppLocalizations l10n) => switch (this) {
+    Muscle.chest => l10n.muscleChest,
+    Muscle.frontDelts => l10n.muscleFrontDelts,
+    Muscle.sideDelts => l10n.muscleSideDelts,
+    Muscle.rearDelts => l10n.muscleRearDelts,
+    Muscle.lats => l10n.muscleLats,
+    Muscle.traps => l10n.muscleTraps,
+    Muscle.upperBack => l10n.muscleUpperBack,
+    Muscle.lowerBack => l10n.muscleLowerBack,
+    Muscle.biceps => l10n.muscleBiceps,
+    Muscle.triceps => l10n.muscleTriceps,
+    Muscle.forearms => l10n.muscleForearms,
+    Muscle.quads => l10n.muscleQuads,
+    Muscle.hamstrings => l10n.muscleHamstrings,
+    Muscle.glutes => l10n.muscleGlutes,
+    Muscle.calves => l10n.muscleCalves,
+    Muscle.adductors => l10n.muscleAdductors,
+    Muscle.abductors => l10n.muscleAbductors,
+    Muscle.abs => l10n.muscleAbs,
+    Muscle.obliques => l10n.muscleObliques,
+    Muscle.neck => l10n.muscleNeck,
+    Muscle.fullBody => l10n.muscleFullBody,
   };
 }
 
 extension EquipmentLabel on Equipment {
-  String get label => switch (this) {
-    Equipment.barbell => 'Barbell',
-    Equipment.dumbbell => 'Dumbbell',
-    Equipment.machine => 'Machine',
-    Equipment.cable => 'Cable',
-    Equipment.bodyweight => 'Bodyweight',
-    Equipment.band => 'Band',
-    Equipment.kettlebell => 'Kettlebell',
-    Equipment.other => 'Other',
+  String label(AppLocalizations l10n) => switch (this) {
+    Equipment.barbell => l10n.equipmentBarbell,
+    Equipment.dumbbell => l10n.equipmentDumbbell,
+    Equipment.machine => l10n.equipmentMachine,
+    Equipment.cable => l10n.equipmentCable,
+    Equipment.bodyweight => l10n.equipmentBodyweight,
+    Equipment.band => l10n.equipmentBand,
+    Equipment.kettlebell => l10n.equipmentKettlebell,
+    Equipment.other => l10n.equipmentOther,
   };
 }
 
 extension TrackingTypeLabel on TrackingType {
-  String get label => switch (this) {
-    TrackingType.weightReps => 'Weight × reps',
-    TrackingType.bodyweightReps => 'Bodyweight reps',
-    TrackingType.reps => 'Reps only',
-    TrackingType.time => 'Time',
-    TrackingType.distanceTime => 'Distance & time',
-    TrackingType.weightTime => 'Weight & time',
+  String label(AppLocalizations l10n) => switch (this) {
+    TrackingType.weightReps => l10n.trackingWeightReps,
+    TrackingType.bodyweightReps => l10n.trackingBodyweightReps,
+    TrackingType.reps => l10n.trackingReps,
+    TrackingType.time => l10n.trackingTime,
+    TrackingType.distanceTime => l10n.trackingDistanceTime,
+    TrackingType.weightTime => l10n.trackingWeightTime,
   };
 }

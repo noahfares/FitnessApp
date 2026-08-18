@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/database_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// A session logged from memory, after the fact (`F-LOG-009` §4).
 ///
@@ -55,13 +56,16 @@ class _LogPastWorkoutSheetState extends ConsumerState<_LogPastWorkoutSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Log a past workout', style: theme.textTheme.titleMedium),
+          Text(
+            context.l10n.historyLogAPastWorkout,
+            style: theme.textTheme.titleMedium,
+          ),
           const SizedBox(height: AppSpacing.lg),
           TextField(
             controller: _name,
-            decoration: const InputDecoration(
-              labelText: 'Name (optional)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.l10n.historyNameOptional,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -70,7 +74,7 @@ class _LogPastWorkoutSheetState extends ConsumerState<_LogPastWorkoutSheet> {
               Expanded(
                 child: ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Date'),
+                  title: Text(context.l10n.historyDate),
                   subtitle: Text(DateFormat.yMMMd().format(_date)),
                   onTap: _pickDate,
                 ),
@@ -78,7 +82,7 @@ class _LogPastWorkoutSheetState extends ConsumerState<_LogPastWorkoutSheet> {
               Expanded(
                 child: ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Start time'),
+                  title: Text(context.l10n.historyStartTime),
                   subtitle: Text(_startTime.format(context)),
                   onTap: _pickTime,
                 ),
@@ -88,7 +92,10 @@ class _LogPastWorkoutSheetState extends ConsumerState<_LogPastWorkoutSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Duration', style: theme.textTheme.bodyMedium),
+              Text(
+                context.l10n.historyDuration,
+                style: theme.textTheme.bodyMedium,
+              ),
               Text('${_duration.inMinutes} min'),
             ],
           ),
@@ -102,7 +109,10 @@ class _LogPastWorkoutSheetState extends ConsumerState<_LogPastWorkoutSheet> {
                 setState(() => _duration = Duration(minutes: value.round())),
           ),
           const SizedBox(height: AppSpacing.md),
-          FilledButton(onPressed: _submit, child: const Text('Add exercises')),
+          FilledButton(
+            onPressed: _submit,
+            child: Text(context.l10n.historyAddExercises),
+          ),
         ],
       ),
     );

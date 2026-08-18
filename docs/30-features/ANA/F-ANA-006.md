@@ -1,6 +1,6 @@
 # F-ANA-006 — Consistency
 
-Status: in-progress | Priority: P1 | Phase: 3
+Status: done | Priority: P1 | Phase: 3
 Reads: 40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 Screens: Consistency
 
@@ -28,3 +28,19 @@ to animation. `ConsistencyScreen` reached from a new button row on
 calls it "user-configurable") — no UI for it exists yet. Still
 `in-progress`: adherence against a schedule waits on `F-ROU-012`
 (scheduling), which doesn't exist.
+
+## Status notes (closed, v0.54.0)
+
+Both remaining clauses are built:
+
+- **The weekly target is a setting** (§5 rule 2), not a fixed 3 — chips on the
+  consistency screen, persisted like `WeekStart`. A streak measured against a
+  number nobody chose is a number nobody believes.
+- **Adherence against schedule**, which waited on `F-ROU-012`.
+  `domain/analytics/schedule_adherence.dart` measures the trailing four weeks —
+  the same window the sessions-per-week average uses, so the two figures on the
+  screen describe the same period. It is deliberately asymmetric: a session on
+  an unscheduled day is reported and never subtracted, because "no shame"
+  (§5 rule 4) is a maths decision here, not only a copy one. With nothing
+  scheduled there is no ratio at all rather than 0%, which would be a lie about
+  someone who never set a schedule.

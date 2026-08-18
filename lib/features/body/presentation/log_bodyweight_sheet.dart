@@ -8,6 +8,7 @@ import '../../../core/units/mass.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Quick bodyweight entry (`F-BOD-001` §4) — reachable from the dashboard, not
 /// only from a settings screen, because the whole point of unrecoverable
@@ -76,7 +77,9 @@ class _LogBodyweightSheetState extends ConsumerState<LogBodyweightSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            widget.editing == null ? 'Log bodyweight' : 'Edit bodyweight',
+            widget.editing == null
+                ? context.l10n.bodyLogBodyweight
+                : context.l10n.bodyEditBodyweight,
             style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -85,7 +88,7 @@ class _LogBodyweightSheetState extends ConsumerState<LogBodyweightSheet> {
             autofocus: true,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
-              labelText: 'Weight',
+              labelText: context.l10n.bodyWeight,
               suffixText: prefs.body.symbol,
               border: const OutlineInputBorder(),
               errorText: _error,
@@ -94,20 +97,23 @@ class _LogBodyweightSheetState extends ConsumerState<LogBodyweightSheet> {
           const SizedBox(height: AppSpacing.md),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Date'),
+            title: Text(context.l10n.historyDate),
             subtitle: Text(DateFormat.yMMMd().format(_date)),
             onTap: _pickDate,
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: _notes,
-            decoration: const InputDecoration(
-              labelText: 'Note (optional)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.l10n.bodyNoteOptional,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          FilledButton(onPressed: _submit, child: const Text('Save')),
+          FilledButton(
+            onPressed: _submit,
+            child: Text(context.l10n.catalogSave),
+          ),
         ],
       ),
     );
@@ -129,7 +135,7 @@ class _LogBodyweightSheetState extends ConsumerState<LogBodyweightSheet> {
         .read(quantityParserProvider)
         .parseMass(_value.text, prefs.body);
     if (mass == null || mass.grams <= 0) {
-      setState(() => _error = 'Enter a weight');
+      setState(() => _error = context.l10n.bodyEnterAWeight);
       return;
     }
 

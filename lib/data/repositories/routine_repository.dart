@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../core/ids/uuid.dart';
 import '../../domain/export/routine_export_row.dart';
 import '../../domain/progression/progression_rule.dart';
+import '../../domain/routines/rotation.dart';
 import '../../domain/routines/starter_programs.dart';
 import '../db/app_database.dart';
 import '../db/tables/shared.dart' show StringListConverter;
@@ -44,6 +45,7 @@ class RoutineExerciseDetail {
     this.targetWeightGrams,
     this.targetRpe,
     this.restSeconds,
+    this.withinGroupRestSeconds,
     this.exerciseDefaultRestSeconds,
     this.notes,
     this.progressionRule = const ManualCarryForwardRule(),
@@ -70,6 +72,10 @@ class RoutineExerciseDetail {
   final int? targetWeightGrams;
   final double? targetRpe;
   final int? restSeconds;
+
+  /// Rest between members of this exercise's superset (`F-ROU-005` §3). Null
+  /// is no pause at all, which is what a superset means by default.
+  final int? withinGroupRestSeconds;
   final int? exerciseDefaultRestSeconds;
   final String? notes;
 
@@ -672,6 +678,101 @@ class RoutineRepository {
         );
   }
 
+  /// The next day up in each routine that is *not* on fixed weekdays
+  /// (`F-ROU-012` — the rolling-rotation half).
+  ///
+  /// Derived, never stored: which day comes next is a fact about what was last
+  /// trained, and `workouts.source_routine_day_id` already records that. A
+  /// stored cursor would be a second source of truth, wrong the moment a
+  /// session is deleted, edited, or logged retroactively.
+  ///
+  /// A routine with any scheduled weekday at all is excluded — it has an
+  /// answer already, and showing both would be two different "next" cards for
+  /// one routine.
+  Stream<List<ScheduledDay>> watchRotationDays() {
+    return _db
+        .customSelect(
+          '''
+          SELECT r.id AS routine_id, r.name AS routine_name,
+                 d.id AS day_id, d.name AS day_name, d.position AS position,
+                 (SELECT w.source_routine_day_id
+                    FROM workouts w
+                    JOIN routine_days rd2 ON rd2.id = w.source_routine_day_id
+                   WHERE rd2.routine_id = r.id
+                     AND w.deleted_at IS NULL
+                     AND w.ended_at IS NOT NULL
+                   ORDER BY w.started_at DESC
+                   LIMIT 1) AS last_day_id
+            FROM routine_days d
+            JOIN routines r ON r.id = d.routine_id
+           WHERE d.deleted_at IS NULL
+             AND r.deleted_at IS NULL
+             AND r.archived_at IS NULL
+             AND NOT EXISTS (
+               SELECT 1 FROM routine_days sd
+                WHERE sd.routine_id = r.id
+                  AND sd.deleted_at IS NULL
+                  AND sd.scheduled_weekdays != '' 
+             )
+           ORDER BY r.position, d.position
+          ''',
+          readsFrom: {_db.routineDays, _db.routines, _db.workouts},
+        )
+        .watch()
+        .map((rows) {
+          final byRoutine = <String, List<QueryRow>>{};
+          for (final row in rows) {
+            byRoutine
+                .putIfAbsent(row.read<String>('routine_id'), () => [])
+                .add(row);
+          }
+          return [
+            for (final entry in byRoutine.entries)
+              if (nextRotationDayId(
+                    orderedDayIds: [
+                      for (final row in entry.value) row.read<String>('day_id'),
+                    ],
+                    lastTrainedDayId: entry.value.first.read<String?>(
+                      'last_day_id',
+                    ),
+                  )
+                  case final nextId?)
+                for (final row in entry.value)
+                  if (row.read<String>('day_id') == nextId)
+                    ScheduledDay(
+                      routineId: row.read<String>('routine_id'),
+                      routineName: row.read<String>('routine_name'),
+                      dayId: nextId,
+                      dayName: row.read<String>('day_name'),
+                    ),
+          ];
+        });
+  }
+
+  /// Every weekday any non-archived routine day is scheduled for
+  /// (`F-ROU-012`), as ISO weekday numbers — what `F-ANA-006`'s adherence
+  /// figure measures against. Empty means nothing is scheduled at all, which
+  /// the metric treats as "no ratio to report" rather than as 0%.
+  Stream<Set<int>> watchScheduledWeekdays() {
+    return (_db.select(_db.routineDays).join([
+          innerJoin(
+            _db.routines,
+            _db.routines.id.equalsExp(_db.routineDays.routineId),
+          ),
+        ])..where(
+          _db.routineDays.deletedAt.isNull() &
+              _db.routines.deletedAt.isNull() &
+              _db.routines.archivedAt.isNull(),
+        ))
+        .watch()
+        .map(
+          (rows) => {
+            for (final row in rows)
+              ...row.readTable(_db.routineDays).scheduledWeekdays,
+          },
+        );
+  }
+
   /// Persists the day order after a drag-to-reorder (`F-ROU-004`).
   Future<void> reorderDays(List<String> orderedDayIds) async {
     final timestamp = _now;
@@ -734,6 +835,7 @@ class RoutineRepository {
                  re.target_weight_grams AS target_weight_grams,
                  re.target_rpe        AS target_rpe,
                  re.rest_seconds      AS rest_seconds,
+                 re.within_group_rest_seconds AS within_group_rest_seconds,
                  e.default_rest_seconds AS exercise_default_rest_seconds,
                  re.notes             AS notes,
                  re.progression_rule  AS progression_rule,
@@ -768,6 +870,9 @@ class RoutineRepository {
                 targetWeightGrams: row.read<int?>('target_weight_grams'),
                 targetRpe: row.read<double?>('target_rpe'),
                 restSeconds: row.read<int?>('rest_seconds'),
+                withinGroupRestSeconds: row.read<int?>(
+                  'within_group_rest_seconds',
+                ),
                 exerciseDefaultRestSeconds: row.read<int?>(
                   'exercise_default_rest_seconds',
                 ),
@@ -964,6 +1069,23 @@ class RoutineRepository {
         );
       }
     });
+  }
+
+  /// Rest between the members of one superset (`F-ROU-005` §3).
+  ///
+  /// Written to every member so the value travels with the group rather than
+  /// with whichever row happened to be edited — and so `startFromRoutineDay`'s
+  /// snapshot picks it up per row without a join back to a group table that
+  /// does not exist. Null restores the default: no pause at all.
+  Future<void> setWithinGroupRest(String groupId, int? seconds) async {
+    await (_db.update(
+      _db.routineExercises,
+    )..where((re) => re.groupId.equals(groupId))).write(
+      RoutineExercisesCompanion(
+        withinGroupRestSeconds: Value(seconds),
+        updatedAt: Value(_now),
+      ),
+    );
   }
 
   /// Ungrouping is a single action that clears every member's `group_id`

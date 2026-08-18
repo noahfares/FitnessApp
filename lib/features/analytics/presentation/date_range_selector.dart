@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../domain/analytics/date_range.dart';
 import '../application/date_range_provider.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// The shared range selector every chart reads from (`F-ANA-015`).
 ///
@@ -25,7 +27,7 @@ class DateRangeSelector extends ConsumerWidget {
         children: [
           for (final preset in RangePreset.values) ...[
             ChoiceChip(
-              label: Text(_label(preset)),
+              label: Text(_label(preset, context.l10n)),
               selected: selection.preset == preset,
               onSelected: (_) => preset == RangePreset.custom
                   ? _pickCustom(context, notifier)
@@ -52,12 +54,13 @@ class DateRangeSelector extends ConsumerWidget {
     notifier.selectCustom(DateRange(start: picked.start, end: picked.end));
   }
 
-  static String _label(RangePreset preset) => switch (preset) {
-    RangePreset.fourWeeks => '4 weeks',
-    RangePreset.threeMonths => '3 months',
-    RangePreset.sixMonths => '6 months',
-    RangePreset.oneYear => '1 year',
-    RangePreset.allTime => 'All time',
-    RangePreset.custom => 'Custom',
-  };
+  static String _label(RangePreset preset, AppLocalizations l10n) =>
+      switch (preset) {
+        RangePreset.fourWeeks => l10n.analytics4Weeks,
+        RangePreset.threeMonths => l10n.analytics3Months,
+        RangePreset.sixMonths => l10n.analytics6Months,
+        RangePreset.oneYear => l10n.analytics1Year,
+        RangePreset.allTime => l10n.analyticsAllTime,
+        RangePreset.custom => 'Custom',
+      };
 }

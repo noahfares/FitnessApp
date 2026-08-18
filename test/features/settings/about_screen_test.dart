@@ -6,6 +6,7 @@ import 'package:fitness_app/features/settings/presentation/about_screen.dart';
 import '../../support/harness.dart';
 
 /// F-SET-009 — About: version/build, licences, repository link.
+/// F-REL-007 — the published privacy policy is reachable from inside the app.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -43,5 +44,16 @@ void main() {
       find.textContaining('No account. No server. No telemetry.'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('links to the full policy in the repository (F-REL-007)', (
+    tester,
+  ) async {
+    await pumpScreen(tester, const AboutScreen());
+
+    // The summary paragraph is not the policy. §4 wants the real text
+    // reachable, and reachable from the app rather than only from a store
+    // listing someone has already stopped reading by the time they install.
+    expect(find.text('Privacy policy'), findsOneWidget);
   });
 }

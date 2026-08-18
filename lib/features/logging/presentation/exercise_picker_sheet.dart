@@ -7,6 +7,7 @@ import '../../catalog/presentation/catalog_filter_bar.dart';
 import '../../catalog/presentation/exercise_labels.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/empty_state.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Multi-select exercise picker (`F-LOG-002`).
 ///
@@ -69,10 +70,10 @@ class _ExercisePickerSheetState extends ConsumerState<_ExercisePickerSheet> {
               child: TextField(
                 controller: _search,
                 autocorrect: false,
-                decoration: const InputDecoration(
-                  hintText: 'Search exercises',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  hintText: context.l10n.catalogSearchExercises,
+                  prefixIcon: const Icon(Icons.search),
+                  border: const OutlineInputBorder(),
                   isDense: true,
                 ),
                 onChanged: ref.read(pickerFilterProvider.notifier).setQuery,
@@ -80,33 +81,34 @@ class _ExercisePickerSheetState extends ConsumerState<_ExercisePickerSheet> {
             ),
             CatalogFilterBar(filterProvider: pickerFilterProvider),
             Expanded(
-              child: results.view(errorTitle: 'Exercises could not be read', (
-                exercises,
-              ) {
-                if (exercises.isEmpty) {
-                  return const EmptyState(
-                    icon: Icons.search_off,
-                    title: 'No exercises match',
-                  );
-                }
-                return ListView.builder(
-                  itemCount: exercises.length,
-                  itemBuilder: (context, i) {
-                    final exercise = exercises[i];
-                    return CheckboxListTile(
-                      value: selection.contains(exercise.id),
-                      title: Text(exercise.name),
-                      subtitle: Text(
-                        '${exercise.primaryMuscle.label} · '
-                        '${exercise.equipment.label}',
-                      ),
-                      onChanged: (_) => ref
-                          .read(pickerSelectionProvider.notifier)
-                          .toggle(exercise.id),
+              child: results.view(
+                errorTitle: context.l10n.loggingExercisesCouldNotBeRead,
+                (exercises) {
+                  if (exercises.isEmpty) {
+                    return EmptyState(
+                      icon: Icons.search_off,
+                      title: context.l10n.loggingNoExercisesMatch,
                     );
-                  },
-                );
-              }),
+                  }
+                  return ListView.builder(
+                    itemCount: exercises.length,
+                    itemBuilder: (context, i) {
+                      final exercise = exercises[i];
+                      return CheckboxListTile(
+                        value: selection.contains(exercise.id),
+                        title: Text(exercise.name),
+                        subtitle: Text(
+                          '${exercise.primaryMuscle.label} · '
+                          '${exercise.equipment.label}',
+                        ),
+                        onChanged: (_) => ref
+                            .read(pickerSelectionProvider.notifier)
+                            .toggle(exercise.id),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.screen),
@@ -118,8 +120,8 @@ class _ExercisePickerSheetState extends ConsumerState<_ExercisePickerSheet> {
                     : () => Navigator.of(context).pop(selection),
                 child: Text(
                   selection.isEmpty
-                      ? 'Add exercises'
-                      : 'Add ${selection.length}',
+                      ? context.l10n.loggingAddExercises
+                      : context.l10n.loggingAddCount(selection.length),
                 ),
               ),
             ),

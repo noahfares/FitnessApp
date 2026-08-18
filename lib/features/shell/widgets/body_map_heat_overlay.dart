@@ -75,17 +75,36 @@ class BodyMapHeatOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Center(
-      child: SizedBox(
-        height: _height,
-        width: _height * 100 / 220,
-        child: CustomPaint(
-          painter: _BodyMapPainter(
-            regions: view == BodyMapView.front ? _frontRegions : _backRegions,
-            intensity: intensity,
-            coldColor: theme.colorScheme.surfaceContainerHighest,
-            hotColor: theme.colorScheme.primary,
-            outlineColor: theme.colorScheme.outlineVariant,
+
+    // Spoken alternative for a drawing (`F-A11Y-001`). Ordered hottest first
+    // and cut at three: the point of the overlay is which areas are working
+    // hardest, and a listener reading out twenty regions has been told nothing.
+    final ranked = intensity.entries.where((e) => e.value > 0).toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final hottest = ranked.take(3).map((e) => e.key).join(', ');
+    final viewName = view == BodyMapView.front ? 'Front' : 'Back';
+
+    return Semantics(
+      label: hottest.isEmpty
+          ? '$viewName body map. Nothing trained in this range.'
+          : '$viewName body map. Most trained: $hottest.',
+      image: true,
+      child: ExcludeSemantics(
+        child: Center(
+          child: SizedBox(
+            height: _height,
+            width: _height * 100 / 220,
+            child: CustomPaint(
+              painter: _BodyMapPainter(
+                regions: view == BodyMapView.front
+                    ? _frontRegions
+                    : _backRegions,
+                intensity: intensity,
+                coldColor: theme.colorScheme.surfaceContainerHighest,
+                hotColor: theme.colorScheme.primary,
+                outlineColor: theme.colorScheme.outlineVariant,
+              ),
+            ),
           ),
         ),
       ),

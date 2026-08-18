@@ -12,10 +12,12 @@ import 'data/db/app_database.dart';
 import 'data/db/database_provider.dart';
 import 'data/io/backup_service.dart';
 import 'data/io/json_export_service.dart';
+import 'data/platform/notification_rest_timer_service.dart';
 import 'data/repositories/plate_repository.dart';
 import 'data/repositories/workout_repository.dart';
 import 'data/seed/exercise_seeder.dart';
 import 'features/logging/application/active_workout_providers.dart';
+import 'features/onboarding/application/onboarding_provider.dart';
 import 'features/settings/application/unit_preferences_provider.dart';
 
 Future<void> main() async {
@@ -54,12 +56,25 @@ Future<void> main() async {
   // visible flash of the dashboard.
   final active = await WorkoutRepository(database).findActive();
 
+  // Launched by tapping a rest-timer notification (`F-TIM-003` §4)? Then that
+  // is where the app opens — the alert only ever points at the session it
+  // belongs to, so this agrees with recovery rather than competing with it.
+  final notificationRoute = await NotificationRestTimerService().launchRoute();
+
   runApp(
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(sharedPreferences),
         databaseProvider.overrideWithValue(database),
-        startupLocationProvider.overrideWithValue(startupLocationFor(active)),
+        startupLocationProvider.overrideWithValue(
+          startupLocationFor(
+            active,
+            onboardingSeen:
+                sharedPreferences.getBool(onboardingSeenKey) ?? false,
+          ),
+        ),
+        if (notificationRoute != null)
+          startupLocationProvider.overrideWithValue(notificationRoute),
       ],
       child: const FitnessApp(),
     ),

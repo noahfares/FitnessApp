@@ -10,6 +10,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../domain/routines/starter_programs.dart';
 import '../../shell/widgets/confirm_sheet.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Browsable gallery of the built-in starter programs (`F-ROU-015`) —
 /// reached from the routine list's empty state so a fresh install has
@@ -22,7 +23,7 @@ class StarterProgramGalleryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Starter programs')),
+      appBar: AppBar(title: Text(context.l10n.routinesStarterPrograms)),
       body: ListView.builder(
         padding: const EdgeInsets.all(AppSpacing.screen),
         itemCount: starterPrograms.length,
@@ -53,7 +54,7 @@ class _StarterProgramCard extends ConsumerWidget {
             Text(program.summary, style: theme.textTheme.bodyMedium),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              '${program.days.length} day${program.days.length == 1 ? '' : 's'}'
+              '${context.l10n.routinesProgramDayCount(program.days.length)}'
               ' · ${program.days.map((d) => d.name).join(' · ')}',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
@@ -90,7 +91,7 @@ class _StarterProgramCard extends ConsumerWidget {
               alignment: Alignment.centerRight,
               child: FilledButton.tonal(
                 onPressed: () => unawaited(_import(context, ref)),
-                child: const Text('Add to my routines'),
+                child: Text(context.l10n.routinesAddToMyRoutines),
               ),
             ),
           ],
@@ -102,12 +103,9 @@ class _StarterProgramCard extends ConsumerWidget {
   Future<void> _import(BuildContext context, WidgetRef ref) async {
     final confirmed = await showConfirmSheet(
       context,
-      title: 'Add ${program.name}?',
-      message:
-          'Creates a new routine with ${program.days.length} day'
-          '${program.days.length == 1 ? '' : 's'}. You can edit or delete '
-          'it freely afterwards — it stays independent of this template.',
-      confirmLabel: 'Add',
+      title: context.l10n.routinesAddProgramTitle(program.name),
+      message: context.l10n.routinesImportProgramExplainer(program.days.length),
+      confirmLabel: context.l10n.routinesAdd,
       isDestructive: false,
     );
     if (!confirmed) return;
@@ -122,9 +120,9 @@ class _StarterProgramCard extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${result.skippedExternalIds.length} exercise'
-            '${result.skippedExternalIds.length == 1 ? '' : 's'} could not '
-            'be added — not found in your catalogue.',
+            context.l10n.routinesProgramSkipped(
+              result.skippedExternalIds.length,
+            ),
           ),
         ),
       );

@@ -47,7 +47,7 @@ class AppDatabase extends _$AppDatabase {
   /// asserts on the *data*, not merely that nothing threw
   /// (docs/60-ENGINEERING.md §schema changes).
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -110,6 +110,19 @@ class AppDatabase extends _$AppDatabase {
       if (from < 7) {
         // Progress photos (`F-BOD-004`) — a new table, nothing to backfill.
         await m.createTable(progressPhotos);
+      }
+      if (from < 8) {
+        // Configurable rest between superset members (`F-ROU-005` §3).
+        // Null on every existing row, which is exactly how supersets behaved
+        // before the column existed: no pause between members at all.
+        await m.addColumn(
+          routineExercises,
+          routineExercises.withinGroupRestSeconds,
+        );
+        await m.addColumn(
+          workoutExercises,
+          workoutExercises.withinGroupRestSeconds,
+        );
       }
       await _createIndexes();
     },

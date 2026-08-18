@@ -58,6 +58,12 @@ class WorkoutExercises extends Table with SyncColumns {
   /// Snapshotted superset grouping.
   TextColumn get groupId => text().named('group_id').nullable()();
 
+  /// Rest between members of this superset, snapshotted from the routine at
+  /// start (`ADR-0004`) so editing the routine later never changes how a
+  /// logged session behaved (`F-ROU-005` §3, `F-LOG-015` §3).
+  IntColumn get withinGroupRestSeconds =>
+      integer().named('within_group_rest_seconds').nullable()();
+
   /// Session-specific, distinct from the exercise's persistent sticky note.
   TextColumn get notes => text().nullable()();
 

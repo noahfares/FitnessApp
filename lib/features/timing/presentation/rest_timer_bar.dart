@@ -5,6 +5,8 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../domain/timing/rest_timer.dart';
 import '../../logging/application/active_workout_providers.dart';
 import '../application/rest_timer_providers.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// ±15 s per tap (`F-TIM-001` §2). Two taps is a minute and a half either way,
 /// which covers every real adjustment without a picker.
@@ -33,7 +35,8 @@ class RestTimerBar extends ConsumerWidget {
 
     return Semantics(
       container: true,
-      label: 'Rest timer, ${_spokenRemaining(remaining)} remaining',
+      label:
+          'Rest timer, ${_spokenRemaining(remaining, context.l10n)} remaining',
       child: Container(
         decoration: BoxDecoration(
           color: theme.colorScheme.secondaryContainer,
@@ -83,7 +86,7 @@ class RestTimerBar extends ConsumerWidget {
                   icon: Icon(timer.isPaused ? Icons.play_arrow : Icons.pause),
                 ),
                 IconButton(
-                  tooltip: 'Skip rest',
+                  tooltip: context.l10n.timingSkipRest,
                   onPressed: controller.skip,
                   icon: const Icon(Icons.stop),
                 ),
@@ -107,14 +110,14 @@ class RestTimerBar extends ConsumerWidget {
 
   /// `2:05` read aloud is "two colon zero five". Spelling it out is the
   /// difference between a usable announcement and a puzzle (`F-A11Y-001`).
-  static String _spokenRemaining(Duration remaining) {
+  static String _spokenRemaining(Duration remaining, AppLocalizations l10n) {
     final minutes = remaining.inMinutes;
     final seconds = remaining.inSeconds.remainder(60);
     final parts = [
-      if (minutes > 0) '$minutes ${minutes == 1 ? 'minute' : 'minutes'}',
-      if (seconds > 0) '$seconds ${seconds == 1 ? 'second' : 'seconds'}',
+      if (minutes > 0) l10n.timingMinutes(minutes),
+      if (seconds > 0) l10n.timingSeconds(seconds),
     ];
-    return parts.isEmpty ? 'no time' : parts.join(' ');
+    return parts.isEmpty ? l10n.timingNoTime : parts.join(' ');
   }
 }
 

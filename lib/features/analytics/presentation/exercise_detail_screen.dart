@@ -27,6 +27,8 @@ import '../application/analytics_clock_provider.dart';
 import '../application/date_range_provider.dart';
 import '../application/exercise_history_providers.dart';
 import 'date_range_selector.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// The most-visited analytics screen — "what you check before you load the
 /// bar" (`F-ANA-002`), now with the e1RM trend (`F-ANA-003`) above the
@@ -44,25 +46,28 @@ class ExerciseDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(exercise.value?.name ?? 'Exercise history'),
+        title: Text(
+          exercise.value?.name ?? context.l10n.analyticsExerciseHistory,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.functions),
-            tooltip: 'e1RM formula',
+            tooltip: context.l10n.settingsE1rmFormula,
             onPressed: () => showE1rmFormulaSheet(context),
           ),
         ],
       ),
       body: history.view(
         (sessions) => sessions.isEmpty
-            ? const EmptyState(
+            ? EmptyState(
                 icon: Icons.history,
-                title: 'No sessions yet',
-                message: 'Log this exercise in a workout to see it here.',
+                title: context.l10n.analyticsNoSessionsYet,
+                message: context.l10n.analyticsLogThisExerciseInA,
               )
             : _ExerciseDetailBody(
                 sessions: sessions,
-                exerciseName: exercise.value?.name ?? 'This exercise',
+                exerciseName:
+                    exercise.value?.name ?? context.l10n.analyticsThisExercise,
               ),
       ),
     );
@@ -185,9 +190,7 @@ class _StallSection extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              'e1RM has been flat over the last ${verdict.windowSize} '
-              'sessions. Consider a deload, a rep-range change, or an '
-              'exercise variation.',
+              context.l10n.analyticsStallExplainer(verdict.windowSize),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -195,7 +198,7 @@ class _StallSection extends ConsumerWidget {
             if (suggestion.suggested) ...[
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Deload suggested — not automatic, this is your call:',
+                context.l10n.analyticsDeloadSuggestedHeading,
                 style: theme.textTheme.bodyMedium,
               ),
               for (final reason in suggestion.reasons)
@@ -262,9 +265,12 @@ class _TrendSectionState extends ConsumerState<_TrendSection> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('e1RM trend', style: theme.textTheme.titleMedium),
               Text(
-                'Formula: ${_formulaLabel(formula)}',
+                context.l10n.analyticsE1rmTrend,
+                style: theme.textTheme.titleMedium,
+              ),
+              Text(
+                context.l10n.analyticsFormulaLabel(_formulaLabel(formula)),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -277,7 +283,9 @@ class _TrendSectionState extends ConsumerState<_TrendSection> {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: TrendChart(
             points: points,
-            subtitle: '${_rangeLabel(selection.preset)} · ${prefs.load.symbol}',
+            metricLabel: context.l10n.analyticsEstimatedOneRepMax,
+            subtitle:
+                '${_rangeLabel(selection.preset, context.l10n)} · ${prefs.load.symbol}',
             showRegression: _showRegression,
             valueLabel: (v) => v.toStringAsFixed(1),
             onPointTap: (point) =>
@@ -289,14 +297,14 @@ class _TrendSectionState extends ConsumerState<_TrendSection> {
           child: Wrap(
             children: [
               SwitchListTile(
-                title: const Text('Exclude sets over 12 reps'),
-                subtitle: const Text('Unreliable at high rep counts'),
+                title: Text(context.l10n.analyticsExcludeSetsOver12Reps),
+                subtitle: Text(context.l10n.analyticsUnreliableAtHighRepCounts),
                 value: _excludeUnreliable,
                 onChanged: (v) => setState(() => _excludeUnreliable = v),
               ),
               SwitchListTile(
-                title: const Text('Trend line'),
-                subtitle: const Text('Linear regression overlay'),
+                title: Text(context.l10n.analyticsTrendLine),
+                subtitle: Text(context.l10n.analyticsLinearRegressionOverlay),
                 value: _showRegression,
                 onChanged: (v) => setState(() => _showRegression = v),
               ),
@@ -314,14 +322,15 @@ class _TrendSectionState extends ConsumerState<_TrendSection> {
   };
 }
 
-String _rangeLabel(RangePreset preset) => switch (preset) {
-  RangePreset.fourWeeks => 'Last 4 weeks',
-  RangePreset.threeMonths => 'Last 3 months',
-  RangePreset.sixMonths => 'Last 6 months',
-  RangePreset.oneYear => 'Last year',
-  RangePreset.allTime => 'All time',
-  RangePreset.custom => 'Custom range',
-};
+String _rangeLabel(RangePreset preset, AppLocalizations l10n) =>
+    switch (preset) {
+      RangePreset.fourWeeks => l10n.analyticsLast4Weeks,
+      RangePreset.threeMonths => l10n.analyticsLast3Months,
+      RangePreset.sixMonths => l10n.analyticsLast6Months,
+      RangePreset.oneYear => l10n.analyticsLastYear,
+      RangePreset.allTime => l10n.analyticsAllTime,
+      RangePreset.custom => l10n.analyticsCustomRange,
+    };
 
 /// The weekly volume chart (`F-ANA-004`) — per-exercise volume, bucketed by
 /// the shared date range and the user's week-start setting.
@@ -355,14 +364,19 @@ class _VolumeSection extends ConsumerWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-          child: Text('Weekly volume', style: theme.textTheme.titleMedium),
+          child: Text(
+            context.l10n.analyticsWeeklyVolume,
+            style: theme.textTheme.titleMedium,
+          ),
         ),
         const SizedBox(height: AppSpacing.sm),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           child: WeeklyBarChart(
+            metricLabel: context.l10n.analyticsWeeklyVolume,
             points: points,
-            subtitle: '${_rangeLabel(selection.preset)} · ${prefs.load.symbol}',
+            subtitle:
+                '${_rangeLabel(selection.preset, context.l10n)} · ${prefs.load.symbol}',
             valueLabel: (v) => v.toStringAsFixed(0),
           ),
         ),

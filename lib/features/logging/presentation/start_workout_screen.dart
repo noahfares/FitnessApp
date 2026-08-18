@@ -12,6 +12,7 @@ import '../../../data/repositories/workout_repository.dart';
 import '../../routines/application/routine_providers.dart';
 import '../../shell/widgets/empty_state.dart';
 import '../application/active_workout_providers.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Starts a session, or offers a way out of the one already running
 /// (`F-LOG-001`).
@@ -25,7 +26,7 @@ class StartWorkoutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Start')),
+      appBar: AppBar(title: Text(context.l10n.loggingStart)),
       body: const SafeArea(child: StartWorkoutBody()),
     );
   }
@@ -59,11 +60,13 @@ class StartWorkoutBody extends ConsumerWidget {
             // Starting a second workout is refused, not resolved silently:
             // which session was meant to survive is not the app's call
             // (`F-LOG-001` §3).
-            Text('Already training', style: theme.textTheme.titleLarge),
+            Text(
+              context.l10n.historyAlreadyTraining,
+              style: theme.textTheme.titleLarge,
+            ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              '"${active.name}" is still in progress. Finish or discard it '
-              'before starting another.',
+              context.l10n.loggingAlreadyTrainingExplainer(active.name),
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -73,23 +76,29 @@ class StartWorkoutBody extends ConsumerWidget {
                 context.go(AppRoutes.activeWorkout);
               },
               icon: const Icon(Icons.play_arrow),
-              label: const Text('Resume workout'),
+              label: Text(context.l10n.loggingResumeWorkout),
             ),
           ] else ...[
-            Text('Start a workout', style: theme.textTheme.titleLarge),
+            Text(
+              context.l10n.loggingStartAWorkout,
+              style: theme.textTheme.titleLarge,
+            ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              'An empty session you add exercises to as you go.',
+              context.l10n.loggingAnEmptySessionYouAdd,
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: AppSpacing.lg),
             FilledButton.icon(
               onPressed: () => unawaited(_start(context, ref)),
               icon: const Icon(Icons.add),
-              label: const Text('Start empty workout'),
+              label: Text(context.l10n.loggingStartEmptyWorkout),
             ),
             const SizedBox(height: AppSpacing.xl),
-            Text('Or start from a routine', style: theme.textTheme.titleMedium),
+            Text(
+              context.l10n.loggingOrStartFromARoutine,
+              style: theme.textTheme.titleMedium,
+            ),
             const SizedBox(height: AppSpacing.sm),
             const _RoutineDayList(),
           ],
@@ -117,10 +126,10 @@ class _RoutineDayList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final routines = ref.watch(routinesProvider).value ?? const [];
     if (routines.isEmpty) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.checklist_outlined,
-        title: 'No routines yet',
-        message: 'Build one from the Routines tab.',
+        title: context.l10n.loggingNoRoutinesYet,
+        message: context.l10n.loggingBuildOneFromTheRoutines,
       );
     }
     return Column(

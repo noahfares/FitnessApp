@@ -50,3 +50,34 @@ project.**
 
 Phones go in pockets between sets. A timer that only runs with the
 app in the foreground is useless.
+
+## Status note — batch 6.5 (v0.55.0)
+
+Everything buildable without a device is built. `flutter_local_notifications`
+is a dependency; `NotificationRestTimerService` implements the interface this
+file's own doc has described since batch 1.5, and it **wraps**
+`InAppRestTimerService` rather than replacing it — the in-app timer is the
+floor, correct whenever the process is alive and needing no permission, and the
+notification is what survives the process being killed. Two alerts firing is a
+non-event; none firing is the failure the feature exists to prevent.
+
+- §2 — `zonedSchedule` with `exactAllowWhileIdle`, sound and vibration taken
+  from `RestAlertStyle` (`F-TIM-006`).
+- §3 — an ongoing, silent, low-importance notification, rewritten per
+  reschedule rather than per second: a platform call every second for a number
+  nobody is watching is exactly the battery cost a rest timer must not have.
+- §4 — the payload is the active-workout route, honoured both on tap while
+  running and via `getNotificationAppLaunchDetails` when the tap *is* the
+  launch. `data/` may not import `core/routing/`, so the constant is duplicated
+  and a test asserts the two agree.
+- Manifest: `POST_NOTIFICATIONS`, both exact-alarm permissions, boot-completed
+  redelivery, and the plugin's two receivers. Still **no INTERNET permission**.
+- Permission is requested at the first rest or when the switch is turned on
+  (`F-SET-008`), never at launch — the third acceptance criterion, and the only
+  one this environment can prove.
+
+**Still `in-progress`, deliberately.** The first two acceptance criteria are
+on-device by nature: firing with the screen off, and firing under an aggressive
+OEM battery manager. This session had no device, and a green CI APK build
+proves the manifest merges, not that Samsung lets the alarm through. Whoever
+runs it on hardware first should check those two and tick them here.

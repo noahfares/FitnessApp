@@ -11,6 +11,7 @@ import '../../../domain/plates/plate_calculator.dart';
 import '../../../domain/plates/weight_source_calculator.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/plate_stack_visualization.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The load calculator, one tap from any weight field (`F-PLT-001` §4).
 ///
@@ -72,7 +73,7 @@ class PlateCalculatorSheet extends ConsumerWidget {
             }
             final exercise = data.exercise;
             if (exercise == null) {
-              return const _Message('This exercise no longer exists.');
+              return _Message(context.l10n.loggingExerciseNoLongerExists);
             }
             return switch (exercise.weightSource) {
               WeightSource.plateLoaded => _PlateLoadedView(
@@ -134,9 +135,7 @@ class _PlateLoadedView extends StatelessWidget {
     final theme = Theme.of(context);
     final bar = this.bar;
     if (bar == null) {
-      return const _Message(
-        'No bar configured yet — add one in Settings › Bars & plates.',
-      );
+      return _Message(context.l10n.loggingNoBarConfigured);
     }
     final specs = [
       for (final p in inventory ?? const <Plate>[])
@@ -152,7 +151,10 @@ class _PlateLoadedView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Plate calculator', style: theme.textTheme.titleMedium),
+        Text(
+          context.l10n.loggingPlateCalculator,
+          style: theme.textTheme.titleMedium,
+        ),
         const SizedBox(height: AppSpacing.sm),
         Text('${bar.name} · ${_weight(bar.weightGrams)} ${unit.symbol}'),
         const SizedBox(height: AppSpacing.md),
@@ -162,8 +164,8 @@ class _PlateLoadedView extends StatelessWidget {
             weight: _weight,
             unit: unit,
           ),
-          PlateSolveStatus.belowBar => const Text(
-            'Target is below the bar itself — nothing to load.',
+          PlateSolveStatus.belowBar => Text(
+            context.l10n.loggingTargetIsBelowTheBar,
           ),
           PlateSolveStatus.oddLoad => const Text(
             "This target can't be split evenly across both sides.",
@@ -207,16 +209,32 @@ class _PlateResult extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (plates.isEmpty) {
-      return const Text('Bar only — no plates needed.');
+      return Text(context.l10n.loggingBarOnlyNoPlatesNeeded);
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PlateStackVisualization(plates: plates),
+        PlateStackVisualization(
+          plates: plates,
+          // The same sentence the row below shows, in the user's own unit —
+          // the drawing is a picture of it, not extra information.
+          semanticsLabel: context.l10n.loggingPlatesPerSide(
+            plates
+                .map(
+                  (p) => '${p.pairs} × ${weight(p.weightGrams)} ${unit.symbol}',
+                )
+                .join(', '),
+          ),
+        ),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'Per side: '
-          '${plates.map((p) => '${p.pairs} × ${weight(p.weightGrams)} ${unit.symbol}').join(', ')}',
+          context.l10n.loggingPerSide(
+            plates
+                .map(
+                  (p) => '${p.pairs} × ${weight(p.weightGrams)} ${unit.symbol}',
+                )
+                .join(', '),
+          ),
         ),
       ],
     );
@@ -262,16 +280,19 @@ class _FixedIncrementView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Available weights', style: theme.textTheme.titleMedium),
+        Text(
+          context.l10n.catalogAvailableWeights,
+          style: theme.textTheme.titleMedium,
+        ),
         const SizedBox(height: AppSpacing.sm),
         Text(available.map(w).join(', ')),
         const SizedBox(height: AppSpacing.md),
         if (below == targetGrams)
-          Text('Exact match: ${w(targetGrams)}')
+          Text(context.l10n.loggingExactMatch(w(targetGrams)))
         else ...[
-          if (below != null) Text('Closest below: ${w(below)}'),
+          if (below != null) Text(context.l10n.loggingClosestBelow(w(below))),
           if (above != null && above != below)
-            Text('Closest above: ${w(above)}'),
+            Text(context.l10n.loggingClosestAbove(w(above))),
         ],
       ],
     );
@@ -297,10 +318,7 @@ class _StackView extends StatelessWidget {
     final base = exercise.stackBaseGrams;
     final step = exercise.stackStepGrams;
     if (base == null || step == null) {
-      return const _Message(
-        'No stack configured yet — add its base and step weight on this '
-        "exercise's editor.",
-      );
+      return _Message(context.l10n.loggingNoStackConfigured);
     }
     final halfStep = exercise.stackHalfStepGrams;
     final below = closestAchievableStack(
@@ -323,21 +341,26 @@ class _StackView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Weight stack', style: theme.textTheme.titleMedium),
+        Text(
+          context.l10n.catalogWeightStack,
+          style: theme.textTheme.titleMedium,
+        ),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'Base ${w(base)}, step ${w(step)}'
-          '${halfStep != null ? ', half step ${w(halfStep)}' : ''}',
+          context.l10n.loggingStackBaseStep(w(base), w(step)) +
+              (halfStep != null
+                  ? context.l10n.loggingStackHalfStep(w(halfStep))
+                  : ''),
         ),
         const SizedBox(height: AppSpacing.md),
         if (below == targetGrams)
-          Text('Exact match: ${w(targetGrams)}')
+          Text(context.l10n.loggingExactMatch(w(targetGrams)))
         else if (below == null && above == null)
-          const Text('Target is below the stack\'s own minimum.')
+          Text(context.l10n.loggingTargetIsBelowTheStack)
         else ...[
-          if (below != null) Text('Closest below: ${w(below)}'),
+          if (below != null) Text(context.l10n.loggingClosestBelow(w(below))),
           if (above != null && above != below)
-            Text('Closest above: ${w(above)}'),
+            Text(context.l10n.loggingClosestAbove(w(above))),
         ],
       ],
     );

@@ -1,6 +1,6 @@
 # F-ANA-005 — Sets per muscle group per week
 
-Status: in-progress | Priority: P1 | Phase: 3
+Status: done | Priority: P1 | Phase: 3
 Depends on: F-CAT-013 | Blocks: F-ROU-011
 Reads: 40-ANALYTICS-SPEC, 21-DATA-MODEL#sets
 
@@ -40,3 +40,13 @@ The metric that actually drives hypertrophy programming, and the one
 most consumer apps omit entirely. Training literature talks in hard sets per
 muscle per week; nothing else in the app answers "am I doing enough for rear
 delts?"
+
+## Status notes (closed, v0.54.0)
+
+§2's reference bands are built: `WeeklyBarChart` takes an optional
+`referenceBand`, drawn as an `fl_chart` range annotation behind the bars, and
+the hard-sets chart passes 10–20 sets a week. A **range, not a line** — the
+evidence is a range, and one number would turn a rough guide into a
+prescription, the same framing ACWR and muscle balance already use. The band is
+shaded, and shading is colour, so it is also named in words beside the chart
+(`F-A11Y-003`) and folded into the spoken summary (`F-A11Y-001`).

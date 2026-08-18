@@ -11,6 +11,8 @@ import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/empty_state.dart';
 import '../application/pr_timeline_provider.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// PR timeline (`F-ANA-007`) — "the app's highlight reel": every personal
 /// record, newest first, filterable by exercise and kind.
@@ -31,13 +33,13 @@ class _PrTimelineScreenState extends ConsumerState<PrTimelineScreen> {
     final formatter = ref.watch(quantityFormatterProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('PR timeline')),
+      appBar: AppBar(title: Text(context.l10n.analyticsPrTimeline)),
       body: timeline.view((entries) {
         if (entries.isEmpty) {
-          return const EmptyState(
+          return EmptyState(
             icon: Icons.emoji_events_outlined,
-            title: 'No records yet',
-            message: 'Every personal record you set will show up here.',
+            title: context.l10n.analyticsNoRecordsYet,
+            message: context.l10n.analyticsEveryPersonalRecordYouSet,
           );
         }
 
@@ -65,13 +67,13 @@ class _PrTimelineScreenState extends ConsumerState<PrTimelineScreen> {
                     child: DropdownButton<String?>(
                       isExpanded: true,
                       value: _exerciseFilter,
-                      hint: const Text('All exercises'),
+                      hint: Text(context.l10n.analyticsAllExercises),
                       onChanged: (value) =>
                           setState(() => _exerciseFilter = value),
                       items: [
-                        const DropdownMenuItem(
+                        DropdownMenuItem(
                           value: null,
-                          child: Text('All exercises'),
+                          child: Text(context.l10n.analyticsAllExercises),
                         ),
                         for (final name in exerciseNames)
                           DropdownMenuItem(value: name, child: Text(name)),
@@ -83,17 +85,17 @@ class _PrTimelineScreenState extends ConsumerState<PrTimelineScreen> {
                     child: DropdownButton<PrKind?>(
                       isExpanded: true,
                       value: _kindFilter,
-                      hint: const Text('All kinds'),
+                      hint: Text(context.l10n.analyticsAllKinds),
                       onChanged: (value) => setState(() => _kindFilter = value),
                       items: [
-                        const DropdownMenuItem(
+                        DropdownMenuItem(
                           value: null,
-                          child: Text('All kinds'),
+                          child: Text(context.l10n.analyticsAllKinds),
                         ),
                         for (final kind in PrKind.values)
                           DropdownMenuItem(
                             value: kind,
-                            child: Text(_kindLabel(kind)),
+                            child: Text(_kindLabel(kind, context.l10n)),
                           ),
                       ],
                     ),
@@ -103,9 +105,9 @@ class _PrTimelineScreenState extends ConsumerState<PrTimelineScreen> {
             ),
             Expanded(
               child: filtered.isEmpty
-                  ? const EmptyState(
+                  ? EmptyState(
                       icon: Icons.filter_alt_off_outlined,
-                      title: 'Nothing matches these filters',
+                      title: context.l10n.analyticsNoMatches,
                     )
                   : ListView.builder(
                       itemCount: filtered.length,
@@ -114,7 +116,9 @@ class _PrTimelineScreenState extends ConsumerState<PrTimelineScreen> {
                         return ListTile(
                           leading: const Icon(Icons.emoji_events_outlined),
                           title: Text(entry.exerciseName),
-                          subtitle: Text(_describe(entry, formatter)),
+                          subtitle: Text(
+                            _describe(entry, formatter, context.l10n),
+                          ),
                           trailing: Text(
                             DateFormat.yMMMd().format(
                               DateTime.fromMillisecondsSinceEpoch(
@@ -135,7 +139,11 @@ class _PrTimelineScreenState extends ConsumerState<PrTimelineScreen> {
   /// Mirrors `SessionSummaryScreen._describe` — same four kinds, same
   /// wording, so a record reads identically whether it's celebrated in the
   /// moment or found later here.
-  String _describe(PrTimelineEntry entry, QuantityFormatter formatter) {
+  String _describe(
+    PrTimelineEntry entry,
+    QuantityFormatter formatter,
+    AppLocalizations l10n,
+  ) {
     return switch (entry.kind) {
       PrKind.maxWeight =>
         'Heaviest set: ${formatter.setWeight(Mass.grams(entry.valueGrams), showUnit: true)}',
@@ -149,10 +157,11 @@ class _PrTimelineScreenState extends ConsumerState<PrTimelineScreen> {
     };
   }
 
-  static String _kindLabel(PrKind kind) => switch (kind) {
-    PrKind.maxWeight => 'Heaviest set',
-    PrKind.bestE1rm => 'Best e1RM',
-    PrKind.maxRepsAtWeight => 'Most reps at a weight',
-    PrKind.maxSessionVolume => 'Most session volume',
-  };
+  static String _kindLabel(PrKind kind, AppLocalizations l10n) =>
+      switch (kind) {
+        PrKind.maxWeight => l10n.analyticsHeaviestSet,
+        PrKind.bestE1rm => l10n.analyticsBestE1rm,
+        PrKind.maxRepsAtWeight => l10n.analyticsMostRepsAtAWeight,
+        PrKind.maxSessionVolume => l10n.analyticsMostSessionVolume,
+      };
 }

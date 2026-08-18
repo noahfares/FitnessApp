@@ -4742,6 +4742,16 @@ class $RoutineExercisesTable extends RoutineExercises
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _withinGroupRestSecondsMeta =
+      const VerificationMeta('withinGroupRestSeconds');
+  @override
+  late final GeneratedColumn<int> withinGroupRestSeconds = GeneratedColumn<int>(
+    'within_group_rest_seconds',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _progressionRuleMeta = const VerificationMeta(
     'progressionRule',
   );
@@ -4779,6 +4789,7 @@ class $RoutineExercisesTable extends RoutineExercises
     targetWeightGrams,
     targetRpe,
     restSeconds,
+    withinGroupRestSeconds,
     progressionRule,
     notes,
   ];
@@ -4908,6 +4919,15 @@ class $RoutineExercisesTable extends RoutineExercises
         ),
       );
     }
+    if (data.containsKey('within_group_rest_seconds')) {
+      context.handle(
+        _withinGroupRestSecondsMeta,
+        withinGroupRestSeconds.isAcceptableOrUnknown(
+          data['within_group_rest_seconds']!,
+          _withinGroupRestSecondsMeta,
+        ),
+      );
+    }
     if (data.containsKey('progression_rule')) {
       context.handle(
         _progressionRuleMeta,
@@ -4992,6 +5012,10 @@ class $RoutineExercisesTable extends RoutineExercises
         DriftSqlType.int,
         data['${effectivePrefix}rest_seconds'],
       ),
+      withinGroupRestSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}within_group_rest_seconds'],
+      ),
       progressionRule: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}progression_rule'],
@@ -5053,6 +5077,12 @@ class RoutineExercise extends DataClass implements Insertable<RoutineExercise> {
   final double? targetRpe;
   final int? restSeconds;
 
+  /// Rest *between* members of a superset (`F-ROU-005` §3). Null means the
+  /// original behaviour — no pause at all between members, which is what a
+  /// superset means when nobody says otherwise — and is what every row
+  /// created before this column existed keeps.
+  final int? withinGroupRestSeconds;
+
   /// JSON-serialised progression rule (`F-PRG-001`).
   final String? progressionRule;
   final String? notes;
@@ -5072,6 +5102,7 @@ class RoutineExercise extends DataClass implements Insertable<RoutineExercise> {
     this.targetWeightGrams,
     this.targetRpe,
     this.restSeconds,
+    this.withinGroupRestSeconds,
     this.progressionRule,
     this.notes,
   });
@@ -5108,6 +5139,9 @@ class RoutineExercise extends DataClass implements Insertable<RoutineExercise> {
     }
     if (!nullToAbsent || restSeconds != null) {
       map['rest_seconds'] = Variable<int>(restSeconds);
+    }
+    if (!nullToAbsent || withinGroupRestSeconds != null) {
+      map['within_group_rest_seconds'] = Variable<int>(withinGroupRestSeconds);
     }
     if (!nullToAbsent || progressionRule != null) {
       map['progression_rule'] = Variable<String>(progressionRule);
@@ -5151,6 +5185,9 @@ class RoutineExercise extends DataClass implements Insertable<RoutineExercise> {
       restSeconds: restSeconds == null && nullToAbsent
           ? const Value.absent()
           : Value(restSeconds),
+      withinGroupRestSeconds: withinGroupRestSeconds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(withinGroupRestSeconds),
       progressionRule: progressionRule == null && nullToAbsent
           ? const Value.absent()
           : Value(progressionRule),
@@ -5181,6 +5218,9 @@ class RoutineExercise extends DataClass implements Insertable<RoutineExercise> {
       targetWeightGrams: serializer.fromJson<int?>(json['targetWeightGrams']),
       targetRpe: serializer.fromJson<double?>(json['targetRpe']),
       restSeconds: serializer.fromJson<int?>(json['restSeconds']),
+      withinGroupRestSeconds: serializer.fromJson<int?>(
+        json['withinGroupRestSeconds'],
+      ),
       progressionRule: serializer.fromJson<String?>(json['progressionRule']),
       notes: serializer.fromJson<String?>(json['notes']),
     );
@@ -5204,6 +5244,7 @@ class RoutineExercise extends DataClass implements Insertable<RoutineExercise> {
       'targetWeightGrams': serializer.toJson<int?>(targetWeightGrams),
       'targetRpe': serializer.toJson<double?>(targetRpe),
       'restSeconds': serializer.toJson<int?>(restSeconds),
+      'withinGroupRestSeconds': serializer.toJson<int?>(withinGroupRestSeconds),
       'progressionRule': serializer.toJson<String?>(progressionRule),
       'notes': serializer.toJson<String?>(notes),
     };
@@ -5225,6 +5266,7 @@ class RoutineExercise extends DataClass implements Insertable<RoutineExercise> {
     Value<int?> targetWeightGrams = const Value.absent(),
     Value<double?> targetRpe = const Value.absent(),
     Value<int?> restSeconds = const Value.absent(),
+    Value<int?> withinGroupRestSeconds = const Value.absent(),
     Value<String?> progressionRule = const Value.absent(),
     Value<String?> notes = const Value.absent(),
   }) => RoutineExercise(
@@ -5249,6 +5291,9 @@ class RoutineExercise extends DataClass implements Insertable<RoutineExercise> {
         : this.targetWeightGrams,
     targetRpe: targetRpe.present ? targetRpe.value : this.targetRpe,
     restSeconds: restSeconds.present ? restSeconds.value : this.restSeconds,
+    withinGroupRestSeconds: withinGroupRestSeconds.present
+        ? withinGroupRestSeconds.value
+        : this.withinGroupRestSeconds,
     progressionRule: progressionRule.present
         ? progressionRule.value
         : this.progressionRule,
@@ -5285,6 +5330,9 @@ class RoutineExercise extends DataClass implements Insertable<RoutineExercise> {
       restSeconds: data.restSeconds.present
           ? data.restSeconds.value
           : this.restSeconds,
+      withinGroupRestSeconds: data.withinGroupRestSeconds.present
+          ? data.withinGroupRestSeconds.value
+          : this.withinGroupRestSeconds,
       progressionRule: data.progressionRule.present
           ? data.progressionRule.value
           : this.progressionRule,
@@ -5310,6 +5358,7 @@ class RoutineExercise extends DataClass implements Insertable<RoutineExercise> {
           ..write('targetWeightGrams: $targetWeightGrams, ')
           ..write('targetRpe: $targetRpe, ')
           ..write('restSeconds: $restSeconds, ')
+          ..write('withinGroupRestSeconds: $withinGroupRestSeconds, ')
           ..write('progressionRule: $progressionRule, ')
           ..write('notes: $notes')
           ..write(')'))
@@ -5333,6 +5382,7 @@ class RoutineExercise extends DataClass implements Insertable<RoutineExercise> {
     targetWeightGrams,
     targetRpe,
     restSeconds,
+    withinGroupRestSeconds,
     progressionRule,
     notes,
   );
@@ -5355,6 +5405,7 @@ class RoutineExercise extends DataClass implements Insertable<RoutineExercise> {
           other.targetWeightGrams == this.targetWeightGrams &&
           other.targetRpe == this.targetRpe &&
           other.restSeconds == this.restSeconds &&
+          other.withinGroupRestSeconds == this.withinGroupRestSeconds &&
           other.progressionRule == this.progressionRule &&
           other.notes == this.notes);
 }
@@ -5375,6 +5426,7 @@ class RoutineExercisesCompanion extends UpdateCompanion<RoutineExercise> {
   final Value<int?> targetWeightGrams;
   final Value<double?> targetRpe;
   final Value<int?> restSeconds;
+  final Value<int?> withinGroupRestSeconds;
   final Value<String?> progressionRule;
   final Value<String?> notes;
   final Value<int> rowid;
@@ -5394,6 +5446,7 @@ class RoutineExercisesCompanion extends UpdateCompanion<RoutineExercise> {
     this.targetWeightGrams = const Value.absent(),
     this.targetRpe = const Value.absent(),
     this.restSeconds = const Value.absent(),
+    this.withinGroupRestSeconds = const Value.absent(),
     this.progressionRule = const Value.absent(),
     this.notes = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -5414,6 +5467,7 @@ class RoutineExercisesCompanion extends UpdateCompanion<RoutineExercise> {
     this.targetWeightGrams = const Value.absent(),
     this.targetRpe = const Value.absent(),
     this.restSeconds = const Value.absent(),
+    this.withinGroupRestSeconds = const Value.absent(),
     this.progressionRule = const Value.absent(),
     this.notes = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -5439,6 +5493,7 @@ class RoutineExercisesCompanion extends UpdateCompanion<RoutineExercise> {
     Expression<int>? targetWeightGrams,
     Expression<double>? targetRpe,
     Expression<int>? restSeconds,
+    Expression<int>? withinGroupRestSeconds,
     Expression<String>? progressionRule,
     Expression<String>? notes,
     Expression<int>? rowid,
@@ -5459,6 +5514,8 @@ class RoutineExercisesCompanion extends UpdateCompanion<RoutineExercise> {
       if (targetWeightGrams != null) 'target_weight_grams': targetWeightGrams,
       if (targetRpe != null) 'target_rpe': targetRpe,
       if (restSeconds != null) 'rest_seconds': restSeconds,
+      if (withinGroupRestSeconds != null)
+        'within_group_rest_seconds': withinGroupRestSeconds,
       if (progressionRule != null) 'progression_rule': progressionRule,
       if (notes != null) 'notes': notes,
       if (rowid != null) 'rowid': rowid,
@@ -5481,6 +5538,7 @@ class RoutineExercisesCompanion extends UpdateCompanion<RoutineExercise> {
     Value<int?>? targetWeightGrams,
     Value<double?>? targetRpe,
     Value<int?>? restSeconds,
+    Value<int?>? withinGroupRestSeconds,
     Value<String?>? progressionRule,
     Value<String?>? notes,
     Value<int>? rowid,
@@ -5501,6 +5559,8 @@ class RoutineExercisesCompanion extends UpdateCompanion<RoutineExercise> {
       targetWeightGrams: targetWeightGrams ?? this.targetWeightGrams,
       targetRpe: targetRpe ?? this.targetRpe,
       restSeconds: restSeconds ?? this.restSeconds,
+      withinGroupRestSeconds:
+          withinGroupRestSeconds ?? this.withinGroupRestSeconds,
       progressionRule: progressionRule ?? this.progressionRule,
       notes: notes ?? this.notes,
       rowid: rowid ?? this.rowid,
@@ -5555,6 +5615,11 @@ class RoutineExercisesCompanion extends UpdateCompanion<RoutineExercise> {
     if (restSeconds.present) {
       map['rest_seconds'] = Variable<int>(restSeconds.value);
     }
+    if (withinGroupRestSeconds.present) {
+      map['within_group_rest_seconds'] = Variable<int>(
+        withinGroupRestSeconds.value,
+      );
+    }
     if (progressionRule.present) {
       map['progression_rule'] = Variable<String>(progressionRule.value);
     }
@@ -5585,6 +5650,7 @@ class RoutineExercisesCompanion extends UpdateCompanion<RoutineExercise> {
           ..write('targetWeightGrams: $targetWeightGrams, ')
           ..write('targetRpe: $targetRpe, ')
           ..write('restSeconds: $restSeconds, ')
+          ..write('withinGroupRestSeconds: $withinGroupRestSeconds, ')
           ..write('progressionRule: $progressionRule, ')
           ..write('notes: $notes, ')
           ..write('rowid: $rowid')
@@ -6531,6 +6597,16 @@ class $WorkoutExercisesTable extends WorkoutExercises
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _withinGroupRestSecondsMeta =
+      const VerificationMeta('withinGroupRestSeconds');
+  @override
+  late final GeneratedColumn<int> withinGroupRestSeconds = GeneratedColumn<int>(
+    'within_group_rest_seconds',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -6562,6 +6638,7 @@ class $WorkoutExercisesTable extends WorkoutExercises
     exerciseId,
     position,
     groupId,
+    withinGroupRestSeconds,
     notes,
     targetSnapshot,
   ];
@@ -6640,6 +6717,15 @@ class $WorkoutExercisesTable extends WorkoutExercises
         groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
       );
     }
+    if (data.containsKey('within_group_rest_seconds')) {
+      context.handle(
+        _withinGroupRestSecondsMeta,
+        withinGroupRestSeconds.isAcceptableOrUnknown(
+          data['within_group_rest_seconds']!,
+          _withinGroupRestSecondsMeta,
+        ),
+      );
+    }
     if (data.containsKey('notes')) {
       context.handle(
         _notesMeta,
@@ -6700,6 +6786,10 @@ class $WorkoutExercisesTable extends WorkoutExercises
         DriftSqlType.string,
         data['${effectivePrefix}group_id'],
       ),
+      withinGroupRestSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}within_group_rest_seconds'],
+      ),
       notes: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
@@ -6752,6 +6842,11 @@ class WorkoutExercise extends DataClass implements Insertable<WorkoutExercise> {
   /// Snapshotted superset grouping.
   final String? groupId;
 
+  /// Rest between members of this superset, snapshotted from the routine at
+  /// start (`ADR-0004`) so editing the routine later never changes how a
+  /// logged session behaved (`F-ROU-005` §3, `F-LOG-015` §3).
+  final int? withinGroupRestSeconds;
+
   /// Session-specific, distinct from the exercise's persistent sticky note.
   final String? notes;
 
@@ -6769,6 +6864,7 @@ class WorkoutExercise extends DataClass implements Insertable<WorkoutExercise> {
     required this.exerciseId,
     required this.position,
     this.groupId,
+    this.withinGroupRestSeconds,
     this.notes,
     this.targetSnapshot,
   });
@@ -6787,6 +6883,9 @@ class WorkoutExercise extends DataClass implements Insertable<WorkoutExercise> {
     map['position'] = Variable<int>(position);
     if (!nullToAbsent || groupId != null) {
       map['group_id'] = Variable<String>(groupId);
+    }
+    if (!nullToAbsent || withinGroupRestSeconds != null) {
+      map['within_group_rest_seconds'] = Variable<int>(withinGroupRestSeconds);
     }
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
@@ -6812,6 +6911,9 @@ class WorkoutExercise extends DataClass implements Insertable<WorkoutExercise> {
       groupId: groupId == null && nullToAbsent
           ? const Value.absent()
           : Value(groupId),
+      withinGroupRestSeconds: withinGroupRestSeconds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(withinGroupRestSeconds),
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
@@ -6836,6 +6938,9 @@ class WorkoutExercise extends DataClass implements Insertable<WorkoutExercise> {
       exerciseId: serializer.fromJson<String>(json['exerciseId']),
       position: serializer.fromJson<int>(json['position']),
       groupId: serializer.fromJson<String?>(json['groupId']),
+      withinGroupRestSeconds: serializer.fromJson<int?>(
+        json['withinGroupRestSeconds'],
+      ),
       notes: serializer.fromJson<String?>(json['notes']),
       targetSnapshot: serializer.fromJson<String?>(json['targetSnapshot']),
     );
@@ -6853,6 +6958,7 @@ class WorkoutExercise extends DataClass implements Insertable<WorkoutExercise> {
       'exerciseId': serializer.toJson<String>(exerciseId),
       'position': serializer.toJson<int>(position),
       'groupId': serializer.toJson<String?>(groupId),
+      'withinGroupRestSeconds': serializer.toJson<int?>(withinGroupRestSeconds),
       'notes': serializer.toJson<String?>(notes),
       'targetSnapshot': serializer.toJson<String?>(targetSnapshot),
     };
@@ -6868,6 +6974,7 @@ class WorkoutExercise extends DataClass implements Insertable<WorkoutExercise> {
     String? exerciseId,
     int? position,
     Value<String?> groupId = const Value.absent(),
+    Value<int?> withinGroupRestSeconds = const Value.absent(),
     Value<String?> notes = const Value.absent(),
     Value<String?> targetSnapshot = const Value.absent(),
   }) => WorkoutExercise(
@@ -6880,6 +6987,9 @@ class WorkoutExercise extends DataClass implements Insertable<WorkoutExercise> {
     exerciseId: exerciseId ?? this.exerciseId,
     position: position ?? this.position,
     groupId: groupId.present ? groupId.value : this.groupId,
+    withinGroupRestSeconds: withinGroupRestSeconds.present
+        ? withinGroupRestSeconds.value
+        : this.withinGroupRestSeconds,
     notes: notes.present ? notes.value : this.notes,
     targetSnapshot: targetSnapshot.present
         ? targetSnapshot.value
@@ -6898,6 +7008,9 @@ class WorkoutExercise extends DataClass implements Insertable<WorkoutExercise> {
           : this.exerciseId,
       position: data.position.present ? data.position.value : this.position,
       groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      withinGroupRestSeconds: data.withinGroupRestSeconds.present
+          ? data.withinGroupRestSeconds.value
+          : this.withinGroupRestSeconds,
       notes: data.notes.present ? data.notes.value : this.notes,
       targetSnapshot: data.targetSnapshot.present
           ? data.targetSnapshot.value
@@ -6917,6 +7030,7 @@ class WorkoutExercise extends DataClass implements Insertable<WorkoutExercise> {
           ..write('exerciseId: $exerciseId, ')
           ..write('position: $position, ')
           ..write('groupId: $groupId, ')
+          ..write('withinGroupRestSeconds: $withinGroupRestSeconds, ')
           ..write('notes: $notes, ')
           ..write('targetSnapshot: $targetSnapshot')
           ..write(')'))
@@ -6934,6 +7048,7 @@ class WorkoutExercise extends DataClass implements Insertable<WorkoutExercise> {
     exerciseId,
     position,
     groupId,
+    withinGroupRestSeconds,
     notes,
     targetSnapshot,
   );
@@ -6950,6 +7065,7 @@ class WorkoutExercise extends DataClass implements Insertable<WorkoutExercise> {
           other.exerciseId == this.exerciseId &&
           other.position == this.position &&
           other.groupId == this.groupId &&
+          other.withinGroupRestSeconds == this.withinGroupRestSeconds &&
           other.notes == this.notes &&
           other.targetSnapshot == this.targetSnapshot);
 }
@@ -6964,6 +7080,7 @@ class WorkoutExercisesCompanion extends UpdateCompanion<WorkoutExercise> {
   final Value<String> exerciseId;
   final Value<int> position;
   final Value<String?> groupId;
+  final Value<int?> withinGroupRestSeconds;
   final Value<String?> notes;
   final Value<String?> targetSnapshot;
   final Value<int> rowid;
@@ -6977,6 +7094,7 @@ class WorkoutExercisesCompanion extends UpdateCompanion<WorkoutExercise> {
     this.exerciseId = const Value.absent(),
     this.position = const Value.absent(),
     this.groupId = const Value.absent(),
+    this.withinGroupRestSeconds = const Value.absent(),
     this.notes = const Value.absent(),
     this.targetSnapshot = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -6991,6 +7109,7 @@ class WorkoutExercisesCompanion extends UpdateCompanion<WorkoutExercise> {
     required String exerciseId,
     required int position,
     this.groupId = const Value.absent(),
+    this.withinGroupRestSeconds = const Value.absent(),
     this.notes = const Value.absent(),
     this.targetSnapshot = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -7010,6 +7129,7 @@ class WorkoutExercisesCompanion extends UpdateCompanion<WorkoutExercise> {
     Expression<String>? exerciseId,
     Expression<int>? position,
     Expression<String>? groupId,
+    Expression<int>? withinGroupRestSeconds,
     Expression<String>? notes,
     Expression<String>? targetSnapshot,
     Expression<int>? rowid,
@@ -7024,6 +7144,8 @@ class WorkoutExercisesCompanion extends UpdateCompanion<WorkoutExercise> {
       if (exerciseId != null) 'exercise_id': exerciseId,
       if (position != null) 'position': position,
       if (groupId != null) 'group_id': groupId,
+      if (withinGroupRestSeconds != null)
+        'within_group_rest_seconds': withinGroupRestSeconds,
       if (notes != null) 'notes': notes,
       if (targetSnapshot != null) 'target_snapshot': targetSnapshot,
       if (rowid != null) 'rowid': rowid,
@@ -7040,6 +7162,7 @@ class WorkoutExercisesCompanion extends UpdateCompanion<WorkoutExercise> {
     Value<String>? exerciseId,
     Value<int>? position,
     Value<String?>? groupId,
+    Value<int?>? withinGroupRestSeconds,
     Value<String?>? notes,
     Value<String?>? targetSnapshot,
     Value<int>? rowid,
@@ -7054,6 +7177,8 @@ class WorkoutExercisesCompanion extends UpdateCompanion<WorkoutExercise> {
       exerciseId: exerciseId ?? this.exerciseId,
       position: position ?? this.position,
       groupId: groupId ?? this.groupId,
+      withinGroupRestSeconds:
+          withinGroupRestSeconds ?? this.withinGroupRestSeconds,
       notes: notes ?? this.notes,
       targetSnapshot: targetSnapshot ?? this.targetSnapshot,
       rowid: rowid ?? this.rowid,
@@ -7090,6 +7215,11 @@ class WorkoutExercisesCompanion extends UpdateCompanion<WorkoutExercise> {
     if (groupId.present) {
       map['group_id'] = Variable<String>(groupId.value);
     }
+    if (withinGroupRestSeconds.present) {
+      map['within_group_rest_seconds'] = Variable<int>(
+        withinGroupRestSeconds.value,
+      );
+    }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
@@ -7114,6 +7244,7 @@ class WorkoutExercisesCompanion extends UpdateCompanion<WorkoutExercise> {
           ..write('exerciseId: $exerciseId, ')
           ..write('position: $position, ')
           ..write('groupId: $groupId, ')
+          ..write('withinGroupRestSeconds: $withinGroupRestSeconds, ')
           ..write('notes: $notes, ')
           ..write('targetSnapshot: $targetSnapshot, ')
           ..write('rowid: $rowid')
@@ -13933,6 +14064,7 @@ typedef $$RoutineExercisesTableCreateCompanionBuilder =
       Value<int?> targetWeightGrams,
       Value<double?> targetRpe,
       Value<int?> restSeconds,
+      Value<int?> withinGroupRestSeconds,
       Value<String?> progressionRule,
       Value<String?> notes,
       Value<int> rowid,
@@ -13954,6 +14086,7 @@ typedef $$RoutineExercisesTableUpdateCompanionBuilder =
       Value<int?> targetWeightGrams,
       Value<double?> targetRpe,
       Value<int?> restSeconds,
+      Value<int?> withinGroupRestSeconds,
       Value<String?> progressionRule,
       Value<String?> notes,
       Value<int> rowid,
@@ -14075,6 +14208,11 @@ class $$RoutineExercisesTableFilterComposer
 
   ColumnFilters<int> get restSeconds => $composableBuilder(
     column: $table.restSeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get withinGroupRestSeconds => $composableBuilder(
+    column: $table.withinGroupRestSeconds,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14209,6 +14347,11 @@ class $$RoutineExercisesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get withinGroupRestSeconds => $composableBuilder(
+    column: $table.withinGroupRestSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get progressionRule => $composableBuilder(
     column: $table.progressionRule,
     builder: (column) => ColumnOrderings(column),
@@ -14324,6 +14467,11 @@ class $$RoutineExercisesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get withinGroupRestSeconds => $composableBuilder(
+    column: $table.withinGroupRestSeconds,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get progressionRule => $composableBuilder(
     column: $table.progressionRule,
     builder: (column) => column,
@@ -14424,6 +14572,7 @@ class $$RoutineExercisesTableTableManager
                 Value<int?> targetWeightGrams = const Value.absent(),
                 Value<double?> targetRpe = const Value.absent(),
                 Value<int?> restSeconds = const Value.absent(),
+                Value<int?> withinGroupRestSeconds = const Value.absent(),
                 Value<String?> progressionRule = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -14443,6 +14592,7 @@ class $$RoutineExercisesTableTableManager
                 targetWeightGrams: targetWeightGrams,
                 targetRpe: targetRpe,
                 restSeconds: restSeconds,
+                withinGroupRestSeconds: withinGroupRestSeconds,
                 progressionRule: progressionRule,
                 notes: notes,
                 rowid: rowid,
@@ -14464,6 +14614,7 @@ class $$RoutineExercisesTableTableManager
                 Value<int?> targetWeightGrams = const Value.absent(),
                 Value<double?> targetRpe = const Value.absent(),
                 Value<int?> restSeconds = const Value.absent(),
+                Value<int?> withinGroupRestSeconds = const Value.absent(),
                 Value<String?> progressionRule = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -14483,6 +14634,7 @@ class $$RoutineExercisesTableTableManager
                 targetWeightGrams: targetWeightGrams,
                 targetRpe: targetRpe,
                 restSeconds: restSeconds,
+                withinGroupRestSeconds: withinGroupRestSeconds,
                 progressionRule: progressionRule,
                 notes: notes,
                 rowid: rowid,
@@ -15257,6 +15409,7 @@ typedef $$WorkoutExercisesTableCreateCompanionBuilder =
       required String exerciseId,
       required int position,
       Value<String?> groupId,
+      Value<int?> withinGroupRestSeconds,
       Value<String?> notes,
       Value<String?> targetSnapshot,
       Value<int> rowid,
@@ -15272,6 +15425,7 @@ typedef $$WorkoutExercisesTableUpdateCompanionBuilder =
       Value<String> exerciseId,
       Value<int> position,
       Value<String?> groupId,
+      Value<int?> withinGroupRestSeconds,
       Value<String?> notes,
       Value<String?> targetSnapshot,
       Value<int> rowid,
@@ -15380,6 +15534,11 @@ class $$WorkoutExercisesTableFilterComposer
 
   ColumnFilters<String> get groupId => $composableBuilder(
     column: $table.groupId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get withinGroupRestSeconds => $composableBuilder(
+    column: $table.withinGroupRestSeconds,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15509,6 +15668,11 @@ class $$WorkoutExercisesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get withinGroupRestSeconds => $composableBuilder(
+    column: $table.withinGroupRestSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get notes => $composableBuilder(
     column: $table.notes,
     builder: (column) => ColumnOrderings(column),
@@ -15595,6 +15759,11 @@ class $$WorkoutExercisesTableAnnotationComposer
 
   GeneratedColumn<String> get groupId =>
       $composableBuilder(column: $table.groupId, builder: (column) => column);
+
+  GeneratedColumn<int> get withinGroupRestSeconds => $composableBuilder(
+    column: $table.withinGroupRestSeconds,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
@@ -15719,6 +15888,7 @@ class $$WorkoutExercisesTableTableManager
                 Value<String> exerciseId = const Value.absent(),
                 Value<int> position = const Value.absent(),
                 Value<String?> groupId = const Value.absent(),
+                Value<int?> withinGroupRestSeconds = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<String?> targetSnapshot = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -15732,6 +15902,7 @@ class $$WorkoutExercisesTableTableManager
                 exerciseId: exerciseId,
                 position: position,
                 groupId: groupId,
+                withinGroupRestSeconds: withinGroupRestSeconds,
                 notes: notes,
                 targetSnapshot: targetSnapshot,
                 rowid: rowid,
@@ -15747,6 +15918,7 @@ class $$WorkoutExercisesTableTableManager
                 required String exerciseId,
                 required int position,
                 Value<String?> groupId = const Value.absent(),
+                Value<int?> withinGroupRestSeconds = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<String?> targetSnapshot = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -15760,6 +15932,7 @@ class $$WorkoutExercisesTableTableManager
                 exerciseId: exerciseId,
                 position: position,
                 groupId: groupId,
+                withinGroupRestSeconds: withinGroupRestSeconds,
                 notes: notes,
                 targetSnapshot: targetSnapshot,
                 rowid: rowid,

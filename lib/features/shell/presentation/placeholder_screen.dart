@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/app_routes.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Stands in for a tab whose features have not been built yet.
 ///
@@ -63,7 +64,7 @@ class UnknownRouteScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Not found')),
+      appBar: AppBar(title: Text(context.l10n.shellNotFound)),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),
@@ -78,7 +79,7 @@ class UnknownRouteScreen extends StatelessWidget {
               const SizedBox(height: AppSpacing.xl),
               FilledButton(
                 onPressed: () => context.go(AppRoutes.home),
-                child: const Text('Go home'),
+                child: Text(context.l10n.shellGoHome),
               ),
             ],
           ),
