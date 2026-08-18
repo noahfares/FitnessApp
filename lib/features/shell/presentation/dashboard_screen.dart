@@ -36,8 +36,8 @@ import '../../../core/l10n/l10n.dart';
 /// landed in Phase 4's closing pass.
 ///
 /// No app bar: a large inline title reads as more Home-like than chrome, per
-/// the Apple-style pass, so Settings moves to a flush row at the foot of the
-/// screen (`_SettingsRow`) instead of an app-bar action.
+/// the Apple-style pass. Settings stays reachable as a small icon button in
+/// the header's top-right corner instead of an app-bar action.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -90,7 +90,6 @@ class DashboardScreen extends ConsumerWidget {
                   title: context.l10n.historyExercises,
                   onTap: () => context.push(AppRoutes.exercises),
                 ),
-                _SettingsRow(colors: colors),
               ],
             ),
           ],
@@ -107,23 +106,36 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(
-          DateFormat('EEEE, d MMMM').format(DateTime.now()),
-          style: TextStyle(fontSize: 13, color: colors.labelSecondary),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          context.l10n.shellHomeTitle,
-          style: TextStyle(
-            fontSize: 34,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -1.02,
-            height: 1.1,
-            color: colors.label,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                DateFormat('EEEE, d MMMM').format(DateTime.now()),
+                style: TextStyle(fontSize: 13, color: colors.labelSecondary),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                context.l10n.shellHomeTitle,
+                style: TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -1.02,
+                  height: 1.1,
+                  color: colors.label,
+                ),
+              ),
+            ],
           ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        _RoundIconButton(
+          icon: Icons.settings_outlined,
+          tooltip: context.l10n.shellSettings,
+          onPressed: () => context.push(AppRoutes.settings),
         ),
       ],
     );
@@ -366,20 +378,6 @@ class _RecentWorkoutRow extends ConsumerWidget {
           '${entry.exerciseCount == 1 ? 'exercise' : 'exercises'} · '
           '${formatter.volume(Mass.grams(entry.totalVolumeGrams))}',
       onTap: () => context.push(AppRoutes.historyWorkout(entry.id)),
-    );
-  }
-}
-
-class _SettingsRow extends StatelessWidget {
-  const _SettingsRow({required this.colors});
-
-  final AppColors colors;
-
-  @override
-  Widget build(BuildContext context) {
-    return _FlushRow(
-      title: context.l10n.shellSettings,
-      onTap: () => context.push(AppRoutes.settings),
     );
   }
 }

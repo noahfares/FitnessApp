@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fitness_app/core/routing/app_routes.dart';
 import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/features/settings/application/notification_settings_provider.dart';
+import 'package:fitness_app/features/shell/widgets/apple_list.dart';
 
 import '../../support/harness.dart';
 
@@ -40,7 +41,7 @@ void main() {
       startAt: AppRoutes.settingsRestTimer,
     );
 
-    final reminder = find.widgetWithText(SwitchListTile, 'Workout reminders');
+    final reminder = find.widgetWithText(AppleSwitchRow, 'Workout reminders');
     await tester.scrollUntilVisible(
       reminder,
       200,

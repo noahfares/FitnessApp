@@ -75,14 +75,8 @@ void main() {
     testWidgets('settings pushes over the shell and pops back', (tester) async {
       await pumpApp(tester, db: testDatabase());
 
-      // Settings is a flush row at the bottom of Home now, not an AppBar
-      // action — scroll it into view before tapping.
-      await tester.scrollUntilVisible(
-        find.text('Settings'),
-        300,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.tap(find.text('Settings'));
+      // A header icon on Home now, not an AppBar action.
+      await tester.tap(find.byIcon(Icons.settings_outlined));
       await tester.pumpAndSettle();
       expect(find.text('Units'), findsOneWidget);
 
