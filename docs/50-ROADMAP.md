@@ -647,12 +647,30 @@ Everything required to hand the app to strangers.
 **Health** `F-HLT-001` `F-HLT-002`
 
 **Exit criteria**
-- [ ] Full app usable with a screen reader and at 200% text scale.
-- [ ] Privacy policy and data-safety declarations match actual behaviour, with
-      "no network calls" verified rather than asserted.
-- [ ] Play internal testing track live, then production.
-- [ ] The upgrade path from a sideloaded APK to the Play build is documented and
-      tested — see [ADR-0007](70-decisions/ADR-0007-signing.md).
+- [x] Full app usable with a screen reader and at 200% text scale.
+      `test/features/a11y/accessibility_test.dart` pumps all eleven top-level
+      destinations at `TextScaler.linear(2)` and asserts a spoken alternative
+      for every chart; `F-A11Y-001`–`005` are done.
+- [x] Privacy policy and data-safety declarations match actual behaviour, with
+      "no network calls" verified rather than asserted —
+      `tools/check-network.sh` is a required CI check, and the manifest still
+      declares no `INTERNET` permission (`PRIVACY.md`, `64-PRIVACY.md`).
+- [ ] **Play internal testing track live, then production.** Needs a Play
+      developer account and a human at the console; nothing in the repository
+      blocks it. `store/LISTING.md` holds the copy, `release.yml` builds the
+      `.aab` (`F-REL-004`), and the only missing artefact is screenshots,
+      which need a device (`F-REL-006`).
+- [ ] **The upgrade path from a sideloaded APK to the Play build is documented
+      and tested.** Documented — [ADR-0007](70-decisions/ADR-0007-signing.md)
+      and [`62-RELEASE.md`](62-RELEASE.md) §the-signing-hazard. **Not tested**,
+      and untestable without both artefacts on a real device.
+
+**Status: every scheduled feature is `done` except two, both blocked on
+hardware rather than on work**: `F-TIM-003`'s "fires with the screen off /
+under an aggressive battery manager" and `F-REL-006`'s screenshots. Declaring
+the phase complete is the project owner's call, per `CLAUDE.md` — the two
+criteria above are unmet, and both need a person with a phone and a Play
+account rather than another session.
 
 ---
 
