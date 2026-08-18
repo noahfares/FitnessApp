@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/plates/plate_calculator.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// To-scale, colour-coded loaded-bar drawing, one side (`F-PLT-003`).
 ///
@@ -36,7 +37,7 @@ class PlateStackVisualization extends StatelessWidget {
       ..sort((a, b) => b.weightGrams.compareTo(a.weightGrams));
 
     return Semantics(
-      label: semanticsLabel ?? 'Plate loading diagram',
+      label: semanticsLabel ?? context.l10n.shellPlateLoadingDiagram,
       image: true,
       child: ExcludeSemantics(
         child: SizedBox(

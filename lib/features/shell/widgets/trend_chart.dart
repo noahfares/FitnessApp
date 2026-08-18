@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../domain/analytics/linear_regression.dart';
 import 'empty_state.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// One plotted point. `x` is the point's index in the series, not a date —
 /// sessions are irregularly spaced, and spacing by index keeps the line
@@ -95,10 +96,10 @@ class TrendChart extends StatelessWidget {
     final theme = Theme.of(context);
 
     if (points.length < 3) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.show_chart,
-        title: 'Not enough data yet',
-        message: 'At least three sessions are needed for a trend.',
+        title: context.l10n.shellNotEnoughDataYet,
+        message: context.l10n.shellAtLeastThreeSessionsAre,
       );
     }
 

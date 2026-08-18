@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import '../application/app_lock_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Set, change or remove the app-lock PIN (`F-SET-010`).
 ///
@@ -28,28 +29,30 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
     final hasLock = ref.watch(hasAppLockProvider);
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('App lock')),
+      appBar: AppBar(title: Text(context.l10n.settingsAppLock)),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.screen),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'A PIN gates the whole app on launch and whenever it returns '
-              'from the background. This is a screen lock, not encryption — '
-              'it protects against a casual look, not a determined one.',
+              context.l10n.settingsAppLockExplainer,
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: AppSpacing.lg),
             FilledButton(
               onPressed: () => unawaited(_setOrChangePin(hasLock)),
-              child: Text(hasLock ? 'Change PIN' : 'Set a PIN'),
+              child: Text(
+                hasLock
+                    ? context.l10n.settingsChangePin
+                    : context.l10n.settingsSetAPin,
+              ),
             ),
             if (hasLock) ...[
               const SizedBox(height: AppSpacing.sm),
               OutlinedButton(
                 onPressed: () => unawaited(_removePin()),
-                child: const Text('Remove PIN'),
+                child: Text(context.l10n.settingsRemovePin),
               ),
             ],
           ],
@@ -60,23 +63,27 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
 
   Future<void> _setOrChangePin(bool hasExisting) async {
     if (hasExisting) {
-      final current = await _promptForPin('Enter the current PIN');
+      final current = await _promptForPin(
+        context.l10n.settingsEnterTheCurrentPin,
+      );
       if (current == null) return;
       final valid = ref.read(appLockNotifierProvider).verify(current);
       if (!valid) {
         if (!mounted) return;
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
-          ..showSnackBar(const SnackBar(content: Text('Wrong PIN.')));
+          ..showSnackBar(
+            SnackBar(content: Text(context.l10n.settingsWrongPin)),
+          );
         return;
       }
     }
 
     if (!mounted) return;
-    final pin = await _promptForPin('Choose a PIN (4 or more digits)');
+    final pin = await _promptForPin(context.l10n.settingsChooseAPin4Or);
     if (pin == null || pin.length < 4) return;
     if (!mounted) return;
-    final confirm = await _promptForPin('Confirm the new PIN');
+    final confirm = await _promptForPin(context.l10n.settingsConfirmTheNewPin);
     if (confirm != pin) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
@@ -91,9 +98,9 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
   Future<void> _removePin() async {
     final confirmed = await showConfirmSheet(
       context,
-      title: 'Remove app lock?',
-      message: 'The app will open without a PIN.',
-      confirmLabel: 'Remove',
+      title: context.l10n.settingsRemoveAppLock,
+      message: context.l10n.settingsTheAppWillOpenWithout,
+      confirmLabel: context.l10n.historyRemove,
     );
     if (!confirmed) return;
     await ref.read(appLockNotifierProvider).clearPin();
@@ -114,11 +121,11 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.catalogCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(controller.text),
-            child: const Text('OK'),
+            child: Text(context.l10n.settingsOk),
           ),
         ],
       ),

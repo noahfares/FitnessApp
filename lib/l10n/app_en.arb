@@ -1,0 +1,1095 @@
+{
+  "@@locale": "en",
+  "analytics1Year": "1 year",
+  "analytics3Months": "3 months",
+  "analytics4Weeks": "4 weeks",
+  "analytics6Months": "6 months",
+  "analyticsAMoreHonestMeasureThan": "A more honest measure than an e1RM estimate, where logged.",
+  "analyticsAcwrExplainer": "Ratio of this week's volume to your trailing 4-week average (ACWR). 0.8–1.3 is typically described as a steady ramp rate; this is information, not a warning.",
+  "analyticsAllExercises": "All exercises",
+  "analyticsAllKinds": "All kinds",
+  "analyticsAllTime": "All time",
+  "analyticsBack": "Back",
+  "analyticsBestE1rm": "Best e1RM",
+  "analyticsByMuscle": "By muscle",
+  "analyticsConsistency": "Consistency",
+  "analyticsContributingExercises": "Contributing exercises",
+  "analyticsContributingExercisesForWeek": "Contributing exercises — week of {week}",
+  "@analyticsContributingExercisesForWeek": {
+    "placeholders": {
+      "week": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsContributorSets": "{sets} sets",
+  "@analyticsContributorSets": {
+    "placeholders": {
+      "sets": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsCurrentStreak": "Current streak",
+  "analyticsCustomRange": "Custom range",
+  "analyticsDeloadSuggestedHeading": "Deload suggested — not automatic, this is your call:",
+  "analyticsDurationRest": "Duration & rest",
+  "analyticsE1rmTrend": "e1RM trend",
+  "analyticsEstimatedOneRepMax": "Estimated one-rep max",
+  "analyticsEveryFinishedSession": "Every finished session",
+  "analyticsEveryPersonalRecordYouSet": "Every personal record you set will show up here.",
+  "analyticsExcludeSetsOver12Reps": "Exclude sets over 12 reps",
+  "analyticsExerciseHistory": "Exercise history",
+  "analyticsFormulaLabel": "Formula: {formula}",
+  "@analyticsFormulaLabel": {
+    "placeholders": {
+      "formula": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsFront": "Front",
+  "analyticsHardSetsForMuscle": "Hard sets per week — {muscle}",
+  "@analyticsHardSetsForMuscle": {
+    "placeholders": {
+      "muscle": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsHardSetsPerWeekFor": "Hard sets per week for the selected muscle",
+  "analyticsHeatRelativeCaveat": "Relative to your hardest-trained muscle over the selected range.",
+  "analyticsHeaviestSet": "Heaviest set",
+  "analyticsInsights": "Insights",
+  "analyticsIntensityOfE1rm": "Intensity (% of e1RM)",
+  "analyticsIntensityRpe": "Intensity (RPE)",
+  "analyticsLast3Months": "Last 3 months",
+  "analyticsLast4Weeks": "Last 4 weeks",
+  "analyticsLast6Months": "Last 6 months",
+  "analyticsLastYear": "Last year",
+  "analyticsLinearRegressionOverlay": "Linear regression overlay",
+  "analyticsLogAFewWorkoutsTo": "Log a few workouts to see volume and muscle coverage here.",
+  "analyticsLogThisExerciseInA": "Log this exercise in a workout to see it here.",
+  "analyticsLongestStreak": "Longest streak",
+  "analyticsMostRepsAtAWeight": "Most reps at a weight",
+  "analyticsMostSessionVolume": "Most session volume",
+  "analyticsMuscleBalance": "Muscle balance",
+  "analyticsMuscleHeatMap": "Muscle heat map",
+  "analyticsNeedsAtLeast28Days": "Needs at least 28 days of logged training to show.",
+  "analyticsNoMatches": "Nothing matches these filters",
+  "analyticsNoRecordsYet": "No records yet",
+  "analyticsNoSessionsYet": "No sessions yet",
+  "analyticsNotEnoughLoggedRestYet": "not enough logged rest yet",
+  "analyticsOverallWeeklyVolume": "Overall weekly volume",
+  "analyticsPrTimeline": "PR timeline",
+  "analyticsPushPull": "Push : pull",
+  "analyticsQuadHamstring": "Quad : hamstring",
+  "analyticsRelativeVolumeByMuscle": "Relative training volume by muscle",
+  "analyticsRepRanges": "Rep ranges",
+  "analyticsRestComplianceCaveat": "Average actual rest vs. each exercise's resolved default — an approximation, not a per-set historical record.",
+  "analyticsSessionDuration": "Session duration",
+  "analyticsSessionDurationInMinutes": "Session duration in minutes",
+  "analyticsSessionsWeek": "Sessions / week",
+  "analyticsSetsByIntensityZone": "Sets by intensity zone",
+  "analyticsSetsByLoggedRpe": "Sets by logged RPE",
+  "analyticsSetsByRepRange": "Sets by rep range",
+  "analyticsStallExplainer": "e1RM has been flat over the last {sessions} sessions. Consider a deload, a rep-range change, or an exercise variation.",
+  "@analyticsStallExplainer": {
+    "placeholders": {
+      "sessions": {
+        "type": "int"
+      }
+    }
+  },
+  "analyticsStreakExplainer": "Target: {target} sessions a week. A streak is a run of complete weeks meeting it — the week in progress never breaks one, whatever it currently reads.",
+  "@analyticsStreakExplainer": {
+    "placeholders": {
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "analyticsThisExercise": "This exercise",
+  "analyticsThisMuscle": "This muscle",
+  "analyticsTrailing4WeeksARough": "Trailing 4 weeks. A rough guide, not a prescription.",
+  "analyticsTrainingLoad": "Training load",
+  "analyticsTrendLine": "Trend line",
+  "analyticsUnreliableAtHighRepCounts": "Unreliable at high rep counts",
+  "analyticsVolumeForMuscle": "Volume — {muscle}",
+  "@analyticsVolumeForMuscle": {
+    "placeholders": {
+      "muscle": {
+        "type": "String"
+      }
+    }
+  },
+  "analyticsWeeklyVolume": "Weekly volume",
+  "analyticsWeeklyVolumeForMuscle": "Weekly volume for the selected muscle",
+  "appTitle": "FitnessApp",
+  "bodyAddOneToStartA": "Add one to start a date-tagged record.",
+  "bodyBody": "Body",
+  "bodyBodyweightHistoryCouldNotBe": "Bodyweight history could not be read",
+  "bodyBodyweightTrend": "Bodyweight trend",
+  "bodyCancelCompare": "Cancel compare",
+  "bodyCompare": "Compare",
+  "bodyCompareTwoPhotos": "Compare two photos",
+  "bodyCouldNotLoadPhotos": "Could not load photos.",
+  "bodyDeleteEntryExplainer": "The {type} entry from {date} will be removed.",
+  "@bodyDeleteEntryExplainer": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyDeleteThisEntry": "Delete this entry?",
+  "bodyDeleteThisPhoto": "Delete this photo?",
+  "bodyEditBodyweight": "Edit bodyweight",
+  "bodyEditMeasurement": "Edit {type}",
+  "@bodyEditMeasurement": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyEnterAValue": "Enter a value",
+  "bodyEnterAWeight": "Enter a weight",
+  "bodyLogBodyweight": "Log bodyweight",
+  "bodyLogMeasurement": "Log {type}",
+  "@bodyLogMeasurement": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyLogYourWeightToTrack": "Log your weight to track it alongside your lifts.",
+  "bodyMeasurementsToTrack": "Measurements to track",
+  "bodyNoBodyweightLoggedYet": "No bodyweight logged yet",
+  "bodyNoProgressPhotosYet": "No progress photos yet",
+  "bodyNotLoggedYet": "Not logged yet.",
+  "bodyNoteOptional": "Note (optional)",
+  "bodyProgressPhotos": "Progress photos",
+  "bodyThisPermanentlyRemovesThePhoto": "This permanently removes the photo from this device.",
+  "bodyTrackedTypesExplainer": "Bodyweight is always logged. Turn on whichever of these you also want to track.",
+  "bodyTrend": "Trend",
+  "bodyWeight": "Weight",
+  "catalogActiveExercises": "Active exercises",
+  "catalogAddAlias": "Add alias",
+  "catalogAddAnAlias": "Add an alias",
+  "catalogAliases": "Aliases",
+  "catalogAliasesHint": "Other names this is searchable by — \"RDL\" for Romanian Deadlift.",
+  "catalogAnotherExerciseAlreadyHasThis": "Another exercise already has this name. That is allowed.",
+  "catalogArchive": "Archive",
+  "catalogArchiveAllExplainer": "Every non-archived {equipment} exercise is hidden from pickers and search. History is untouched, and each can be restored individually from the archived list.",
+  "@catalogArchiveAllExplainer": {
+    "placeholders": {
+      "equipment": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogArchiveAllTitle": "Archive all {equipment} exercises?",
+  "@catalogArchiveAllTitle": {
+    "placeholders": {
+      "equipment": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogArchiveByEquipment": "Archive by equipment",
+  "catalogArchiveConfirmExplainer": "Archiving hides an exercise from pickers without touching any workout it appears in.",
+  "catalogArchiveInstead": "Archive instead",
+  "catalogArchivedExercises": "Archived exercises",
+  "catalogArchivedExercisesCouldNotBe": "Archived exercises could not be read",
+  "catalogArchivedExplainer": "Archived exercises stay in your history and can be restored from here.",
+  "catalogAvailableWeights": "Available weights",
+  "catalogBar": "Bar",
+  "catalogBase": "Base",
+  "catalogBlankUses100TheFull": "Blank uses 100% — the full bodyweight.",
+  "catalogBlankUsesDefault": "Blank uses the default, {defaultLabel}.",
+  "@catalogBlankUsesDefault": {
+    "placeholders": {
+      "defaultLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogBodyweightLoaded": "Bodyweight loaded",
+  "catalogBuiltInExerciseYourEdits": "Built-in exercise — your edits survive catalogue updates",
+  "catalogCancel": "Cancel",
+  "catalogClear": "Clear",
+  "catalogClearAll": "Clear all",
+  "catalogClearSearch": "Clear search",
+  "catalogCreateExercise": "Create exercise",
+  "catalogCustomExercise": "Custom exercise",
+  "catalogDecidesWhichInputsTheLogger": "Decides which inputs the logger shows.",
+  "catalogDefault": "Default",
+  "catalogDelete": "Delete",
+  "catalogDeleteExerciseTitle": "Delete {name}?",
+  "@catalogDeleteExerciseTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogDeleteUnusedExplainer": "It will be removed from the catalogue. Nothing else is affected — this exercise has never been logged.",
+  "catalogDeriveFromBestE1rm90": "Derive from best e1RM (~90%)",
+  "catalogEditExercise": "Edit exercise",
+  "catalogEquipment": "Equipment",
+  "catalogExercise": "Exercise",
+  "catalogExerciseNote": "Exercise note",
+  "catalogExerciseNoteHint": "Seat height, pin position, grip width — visible inline during a session.",
+  "catalogFilter": "Filter",
+  "catalogFixedDumbbells": "Fixed dumbbells",
+  "catalogFixedIncrementsHint": "Comma-separated, e.g. \"5, 10, 15, 20\" — exactly what the rack stocks.",
+  "catalogHalfStep": "Half step",
+  "catalogHistory": "History",
+  "catalogMuscle": "Muscle",
+  "catalogName": "Name",
+  "catalogNewExercise": "New exercise",
+  "catalogNoLoggedHistoryForThis": "No logged history for this exercise yet.",
+  "catalogNotes": "Notes",
+  "catalogNothingArchived": "Nothing archived",
+  "catalogNothingToArchive": "Nothing to archive.",
+  "catalogOptional": "Optional",
+  "catalogPerSide": "Per side",
+  "catalogPerSideIsDoubledAnd": "Per side is doubled and stored as total load.",
+  "catalogPlateLoaded": "Plate-loaded",
+  "catalogPrimaryMuscle": "Primary muscle",
+  "catalogRestOverrideHint": "Overrides the global default for this exercise.",
+  "catalogRestTimer": "Rest timer",
+  "catalogRestore": "Restore",
+  "catalogSave": "Save",
+  "catalogSearchExercises": "Search exercises",
+  "catalogSeatHeight4PinPosition": "Seat height 4, pin position 6…",
+  "catalogSecondaryMuscles": "Secondary muscles",
+  "catalogSeedingRunsAtStartupThis": "Seeding runs at startup; this should not happen.",
+  "catalogShownOfTotal": "{shown} of {total} exercises",
+  "@catalogShownOfTotal": {
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogStep": "Step",
+  "catalogStepperIncrement": "Stepper increment",
+  "catalogTheCatalogueCouldNotBe": "The catalogue could not be read",
+  "catalogTheCatalogueIsEmpty": "The catalogue is empty",
+  "catalogThisExercise": "this exercise",
+  "catalogThisExerciseNoLongerExists": "This exercise no longer exists.",
+  "catalogTotalLoad": "Total load",
+  "catalogTracking": "Tracking",
+  "catalogTrainingMax": "Training max",
+  "catalogTrainingMaxHint": "Used by percentage-based progression.",
+  "catalogTryAShorterSearchOr": "Try a shorter search, or clear a filter.",
+  "catalogUsedInPastWorkouts": "Used in past workouts",
+  "catalogUsedInPastWorkoutsExplainer": "{name} appears in workouts you have already logged, so it cannot be deleted without breaking that history.\\n\\nArchiving hides it from pickers and leaves your history intact.",
+  "@catalogUsedInPastWorkoutsExplainer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogWeightEntry": "Weight entry",
+  "catalogWeightSource": "Weight source",
+  "catalogWeightStack": "Weight stack",
+  "equipmentBand": "Band",
+  "equipmentBarbell": "Barbell",
+  "equipmentBodyweight": "Bodyweight",
+  "equipmentCable": "Cable",
+  "equipmentDumbbell": "Dumbbell",
+  "equipmentKettlebell": "Kettlebell",
+  "equipmentMachine": "Machine",
+  "equipmentOther": "Other",
+  "historyAddASetNote": "Add a set note",
+  "historyAddExercises": "Add exercises",
+  "historyAddTheFirstOneBelow": "Add the first one below.",
+  "historyAlreadyTraining": "Already training",
+  "historyAlreadyTrainingExplainer": "A workout is already in progress. Finish or discard it before starting another.",
+  "historyCompleteSet": "Complete set",
+  "historyDate": "Date",
+  "historyDeleteThisWorkout": "Delete this workout?",
+  "historyDeleteWorkoutExplainer": "This session and all its sets will be removed from your history.",
+  "historyDone": "Done",
+  "historyDuration": "Duration",
+  "historyEdit": "Edit",
+  "historyEditSetNote": "Edit set note",
+  "historyEditWorkout": "Edit workout",
+  "historyExercises": "Exercises",
+  "historyFinishedWorkoutsShowUpHere": "Finished workouts show up here.",
+  "historyHistoryCouldNotBeRead": "History could not be read",
+  "historyItsSetsInThisSession": "Its sets in this session will be removed too.",
+  "historyLogAPastWorkout": "Log a past workout",
+  "historyLogPastWorkout": "Log past workout",
+  "historyNameOptional": "Name (optional)",
+  "historyNoExercisesInThisSession": "No exercises in this session",
+  "historyNoExercisesYet": "No exercises yet",
+  "historyNoSessionsLoggedYet": "No sessions logged yet",
+  "historyNoSessionsMatch": "No sessions match",
+  "historyRemove": "Remove",
+  "historyRemoveExercise": "Remove exercise",
+  "historyRemoveExerciseTitle": "Remove {name}?",
+  "@historyRemoveExerciseTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "historyRepeatThisWorkout": "Repeat this workout",
+  "historyResumeIt": "Resume it",
+  "historySaveAsRoutine": "Save as routine",
+  "historySearchByWorkoutOrExercise": "Search by workout or exercise",
+  "historyStartTime": "Start time",
+  "historyTime": "Time",
+  "historyTryAShorterSearch": "Try a shorter search.",
+  "historyUndo": "Undo",
+  "historyWorkout": "Workout",
+  "loggingAddAtLeastOneStep": "Add at least one step",
+  "loggingAddCount": "Add {count}",
+  "@loggingAddCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loggingAddExercises": "Add exercises",
+  "loggingAddNote": "Add note",
+  "loggingAddSet": "Add set",
+  "loggingAddStep": "Add step",
+  "loggingAddTheFirstOneTo": "Add the first one to start logging.",
+  "loggingAlreadyTrainingExplainer": "\"{name}\" is still in progress. Finish or discard it before starting another.",
+  "@loggingAlreadyTrainingExplainer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "loggingAnEmptySessionYouAdd": "An empty session you add exercises to as you go.",
+  "loggingBarOnlyNoPlatesNeeded": "Bar only — no plates needed.",
+  "loggingBuildOneFromTheRoutines": "Build one from the Routines tab.",
+  "loggingClosestAbove": "Closest above: {weight}",
+  "@loggingClosestAbove": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "loggingClosestBelow": "Closest below: {weight}",
+  "@loggingClosestBelow": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "loggingComparedToLastTime": "Compared to last time",
+  "loggingCompleted": "completed",
+  "loggingCountsTowardVolumeAndRecords": "Counts toward volume and records.",
+  "loggingDecimalPoint": "Decimal point",
+  "loggingDecrease": "Decrease",
+  "loggingDiscard": "Discard",
+  "loggingDiscardTally": "{exercises, plural, =1{1 exercise} other{{exercises} exercises}} and {sets, plural, =1{1 completed set} other{{sets} completed sets}} will be removed from this session.",
+  "@loggingDiscardTally": {
+    "placeholders": {
+      "exercises": {
+        "type": "int"
+      },
+      "sets": {
+        "type": "int"
+      }
+    }
+  },
+  "loggingDiscardThisWorkout": "Discard this workout?",
+  "loggingDiscardWorkout": "Discard workout",
+  "loggingDropSet": "Drop set",
+  "loggingEditNote": "Edit note",
+  "loggingEmptySessionExplainer": "No sets were completed, so this would be an empty entry in your history. Discard it instead?",
+  "loggingEnterTheWorkingWeight": "Enter the working weight",
+  "loggingExactMatch": "Exact match: {weight}",
+  "@loggingExactMatch": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "loggingExerciseNoLongerExists": "This exercise no longer exists.",
+  "loggingExerciseRemoved": "{name} removed",
+  "@loggingExerciseRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "loggingExercisesCouldNotBeRead": "Exercises could not be read",
+  "loggingFinish": "Finish",
+  "loggingFinishAnyway": "Finish anyway",
+  "loggingGenerateWarmUps": "Generate warm-ups",
+  "loggingGroupWithNext": "Group with next",
+  "loggingIncrease": "Increase",
+  "loggingKeepTraining": "Keep training",
+  "loggingLastTime": "Last time",
+  "loggingLeftShoulderTwingedBeltToo": "Left shoulder twinged, belt too loose…",
+  "loggingMusclesWorked": "Muscles worked",
+  "loggingNiceWork": "Nice work.",
+  "loggingNoBarConfigured": "No bar configured yet — add one in Settings › Bars & plates.",
+  "loggingNoExercisesMatch": "No exercises match",
+  "loggingNoRoutinesYet": "No routines yet",
+  "loggingNoStackConfigured": "No stack configured yet — add its base and step weight on this exercise's editor.",
+  "loggingNoWorkoutInProgress": "No workout in progress.",
+  "loggingNotCompleted": "not completed",
+  "loggingNothingHasBeenAddedTo": "Nothing has been added to it yet.",
+  "loggingNothingLoggedYet": "Nothing logged yet",
+  "loggingNumberedW1W2ExcludedFrom": "Numbered W1, W2. Excluded from every figure.",
+  "loggingOfWorkingWeight": "% of working weight",
+  "loggingOrStartFromARoutine": "Or start from a routine",
+  "loggingPerSide": "Per side: {plates}",
+  "@loggingPerSide": {
+    "placeholders": {
+      "plates": {
+        "type": "String"
+      }
+    }
+  },
+  "loggingPersonalRecords": "Personal records",
+  "loggingPlateCalculator": "Plate calculator",
+  "loggingPlatesPerSide": "Plates per side: {plates}",
+  "@loggingPlatesPerSide": {
+    "placeholders": {
+      "plates": {
+        "type": "String"
+      }
+    }
+  },
+  "loggingRamp": "Ramp",
+  "loggingRateOfPerceivedExertionHigher": "Rate of perceived exertion — higher is harder.",
+  "loggingRemoveExerciseTally": "{sets, plural, =0{No sets have been completed for it.} =1{1 completed set will be removed from this session too.} other{{sets} completed sets will be removed from this session too.}}",
+  "@loggingRemoveExerciseTally": {
+    "placeholders": {
+      "sets": {
+        "type": "int"
+      }
+    }
+  },
+  "loggingRemoveExerciseTitle": "Remove {name}?",
+  "@loggingRemoveExerciseTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "loggingRemoveStep": "Remove step",
+  "loggingReps": "Reps",
+  "loggingRepsInReserveLowerIs": "Reps in reserve — lower is harder.",
+  "loggingResetToDefault": "Reset to default",
+  "loggingResumeWorkout": "Resume workout",
+  "loggingSetDeleted": "Set {label} deleted",
+  "@loggingSetDeleted": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "loggingSetNote": "Set note",
+  "loggingSetType": "Set type",
+  "loggingSets": "Sets",
+  "loggingSetsDone": "{done} of {total, plural, =1{1 set} other{{total} sets}} done",
+  "@loggingSetsDone": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "loggingStackBaseStep": "Base {base}, step {step}",
+  "@loggingStackBaseStep": {
+    "placeholders": {
+      "base": {
+        "type": "String"
+      },
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "loggingStackHalfStep": ", half step {step}",
+  "@loggingStackHalfStep": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "loggingStaleSessionNotice": "This workout has been open for more than 12 hours. Finish or discard it if you are done.",
+  "loggingStart": "Start",
+  "loggingStartAWorkout": "Start a workout",
+  "loggingStartEmptyWorkout": "Start empty workout",
+  "loggingStartOne": "Start one",
+  "loggingStartStopwatch": "Start stopwatch",
+  "loggingStopStopwatch": "Stop stopwatch",
+  "loggingSuperset": "Superset",
+  "loggingSwapExercise": "Swap exercise",
+  "loggingTargetIsBelowTheBar": "Target is below the bar itself — nothing to load.",
+  "loggingTargetIsBelowTheStack": "Target is below the stack's own minimum.",
+  "loggingTargetSummary": "Target: {summary}",
+  "@loggingTargetSummary": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "loggingThisSummaryCouldNotBe": "This summary could not be read",
+  "loggingThisWorkoutCouldNotBe": "This workout could not be read",
+  "loggingToFailure": "To failure",
+  "loggingUnknownExercise": "Unknown exercise",
+  "loggingVolume": "Volume",
+  "loggingWorkingWeight": "Working weight",
+  "loggingWorkoutComplete": "Workout complete",
+  "measurementBodyFatPercent": "Body fat",
+  "measurementBodyweight": "Bodyweight",
+  "measurementChest": "Chest",
+  "measurementHips": "Hips",
+  "measurementLeftArm": "Left arm",
+  "measurementLeftCalf": "Left calf",
+  "measurementLeftThigh": "Left thigh",
+  "measurementNeck": "Neck",
+  "measurementRightArm": "Right arm",
+  "measurementRightCalf": "Right calf",
+  "measurementRightThigh": "Right thigh",
+  "measurementShoulders": "Shoulders",
+  "measurementWaist": "Waist",
+  "muscleAbductors": "Abductors",
+  "muscleAbs": "Abs",
+  "muscleAdductors": "Adductors",
+  "muscleBiceps": "Biceps",
+  "muscleCalves": "Calves",
+  "muscleChest": "Chest",
+  "muscleForearms": "Forearms",
+  "muscleFrontDelts": "Front delts",
+  "muscleFullBody": "Full body",
+  "muscleGlutes": "Glutes",
+  "muscleHamstrings": "Hamstrings",
+  "muscleLats": "Lats",
+  "muscleLowerBack": "Lower back",
+  "muscleNeck": "Neck",
+  "muscleObliques": "Obliques",
+  "muscleQuads": "Quads",
+  "muscleRearDelts": "Rear delts",
+  "muscleSideDelts": "Side delts",
+  "muscleTraps": "Traps",
+  "muscleTriceps": "Triceps",
+  "muscleUpperBack": "Upper back",
+  "progressionCarriedForward": "Carried forward from last time: {reps} at {weight} {unit}.",
+  "@progressionCarriedForward": {
+    "placeholders": {
+      "reps": {
+        "type": "int"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "progressionDeload": "Missed target {failures} sessions in a row — deloading to {weight} {unit}.",
+  "@progressionDeload": {
+    "placeholders": {
+      "failures": {
+        "type": "int"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "progressionFailure": "Missed target last time ({failures} in a row) — repeating the same weight.",
+  "@progressionFailure": {
+    "placeholders": {
+      "failures": {
+        "type": "int"
+      }
+    }
+  },
+  "progressionFirstRun": "No history for this exercise yet — using the routine's own target.",
+  "progressionFromTrainingMax": "Computed from your training max.",
+  "progressionPartial": "Some sets missed target last time — repeating the same weight.",
+  "progressionPercentOfTrainingMax": "{percent}% of your training max ({weight} {unit}).",
+  "@progressionPercentOfTrainingMax": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "progressionPlateRoundingHeld": "The next jump isn't assemblable from your plates, so weight stays at {weight} {unit} and reps go up by one instead.",
+  "@progressionPlateRoundingHeld": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "progressionRepRangeTopMet": "You hit the top of your rep range at {weight} {unit} last time, so this is +{delta} {unit} — back to the bottom of the range.",
+  "@progressionRepRangeTopMet": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "progressionSuccess": "You hit every set at {weight} {unit} last time, so this is +{delta} {unit}.",
+  "@progressionSuccess": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "restAlertBoth": "Sound and vibration",
+  "restAlertSilent": "Silent",
+  "restAlertSound": "Sound",
+  "restAlertVibration": "Vibration",
+  "routinesActiveRoutines": "Active routines",
+  "routinesAdd": "Add",
+  "routinesAddADay": "Add a day",
+  "routinesAddExercisesThenSetTargets": "Add exercises, then set targets for each.",
+  "routinesAddOnSuccessWithUnit": "Add when I hit every set ({unit})",
+  "@routinesAddOnSuccessWithUnit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "routinesAddProgramTitle": "Add {name}?",
+  "@routinesAddProgramTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "routinesAddRepsThenWeight": "Add reps, then weight",
+  "routinesAddToMyRoutines": "Add to my routines",
+  "routinesAddWeightOnSuccess": "Add weight on success",
+  "routinesArchivedExplainer": "Archived routines stay startable and can be restored from here.",
+  "routinesArchivedRoutines": "Archived routines",
+  "routinesArchivedRoutinesCouldNotBe": "Archived routines could not be read",
+  "routinesBaseStepWithUnit": "Base step ({unit})",
+  "@routinesBaseStepWithUnit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "routinesBrowseStarterPrograms": "Browse starter programs",
+  "routinesDayCouldNotBeRead": "Day could not be read",
+  "routinesDayNameHint": "\"Push\", \"Pull\", \"Legs\" — a day is what you start a workout from.",
+  "routinesDaysCouldNotBeRead": "Days could not be read",
+  "routinesDeleteDayExplainer": "Its days and targets will be removed. Workouts you have already logged from it are never affected.",
+  "routinesDeleteDayTitle": "Delete {name}?",
+  "@routinesDeleteDayTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "routinesDeleteRoutineExplainer": "Its days and targets will be removed. Workouts you have already logged from it are never affected (`ADR-0004`).",
+  "routinesDeleteRoutineTitle": "Delete {name}?",
+  "@routinesDeleteRoutineTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "routinesDoubleProgressionExplainer": "Uses the Reps min/max above as the range. Deloads after three sessions in a row below the minimum.",
+  "routinesDuplicate": "Duplicate",
+  "routinesEmptyStateExplainer": "A routine holds days; a day is what you start a workout from. A starter program is the fastest way to get one.",
+  "routinesGroup": "Group",
+  "routinesILlDecide": "I'll decide",
+  "routinesImportProgramExplainer": "Creates a new routine with {days, plural, =1{1 day} other{{days} days}}. You can edit or delete it freely afterwards — it stays independent of this template.",
+  "@routinesImportProgramExplainer": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "routinesItsExercisesAndTargetsWill": "Its exercises and targets will be removed.",
+  "routinesLinearRuleExplainer": "Repeats the same weight on a partial miss; deloads after three misses in a row.",
+  "routinesMatchEffortRpe": "Match effort (RPE)",
+  "routinesMoveToFolder": "Move to folder",
+  "routinesMustBeAdjacent": "Must be adjacent",
+  "routinesNewDay": "New day",
+  "routinesNewFolder": "New folder",
+  "routinesNewRoutine": "New routine",
+  "routinesNoDaysYet": "No days yet",
+  "routinesNoFolder": "No folder",
+  "routinesNoTargetsSet": "No targets set",
+  "routinesNoTrainingMaxSet": "No training max set on this exercise. Set one on the exercise's own editor first.",
+  "routinesOfTm": "% of TM",
+  "routinesOptionalPickTheWeekdaysYou": "Optional — pick the weekdays you plan to train this day.",
+  "routinesPercentOfTrainingMax": "Percent of training max",
+  "routinesPlannedSetsPerMuscle": "Planned sets per muscle",
+  "routinesProgramDayCount": "{days, plural, =1{1 day} other{{days} days}}",
+  "@routinesProgramDayCount": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "routinesProgramSkipped": "{count, plural, =1{1 exercise} other{{count} exercises}} could not be added — not found in your catalogue.",
+  "@routinesProgramSkipped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "routinesProgression": "Progression",
+  "routinesRename": "Rename",
+  "routinesRenameDay": "Rename day",
+  "routinesRenameRoutine": "Rename routine",
+  "routinesRepsMax": "Reps max",
+  "routinesRepsMin": "Reps min",
+  "routinesRest": "Rest",
+  "routinesRestOverrideHint": "Overrides the exercise and global defaults.",
+  "routinesRoutineCouldNotBeRead": "Routine could not be read",
+  "routinesRoutinesCouldNotBeRead": "Routines could not be read",
+  "routinesSaveTargets": "Save targets",
+  "routinesSchedule": "Schedule",
+  "routinesSelectedCount": "{count} selected",
+  "@routinesSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "routinesSetTargetsToSeeSets": "Set targets to see sets per muscle here.",
+  "routinesSetsPerMuscle": "Sets per muscle",
+  "routinesStartWorkout": "Start workout",
+  "routinesStarterPrograms": "Starter programs",
+  "routinesTargetRpe": "Target RPE",
+  "routinesTargetRpeHint": "How hard the last set should feel. Comes in easier — add more; harder — add less or back off.",
+  "routinesTargetWeightWithUnit": "Target weight ({unit})",
+  "@routinesTargetWeightWithUnit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "routinesThisDayNoLongerExists": "This day no longer exists.",
+  "routinesThisRoutineNoLongerExists": "This routine no longer exists.",
+  "routinesTrainingMaxIs": "Training max {weight} {unit}. Recomputed every time this day is started — no week/cycle variation yet.",
+  "@routinesTrainingMaxIs": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "routinesUngroup": "Ungroup",
+  "settings100Kg8": "100 kg × 8",
+  "settingsAbout": "About",
+  "settingsAddABar": "Add a bar",
+  "settingsAddAPlate": "Add a plate",
+  "settingsAllDataWiped": "All data wiped.",
+  "settingsAllExercisesResolved": "All exercises resolved.",
+  "settingsAppLock": "App lock",
+  "settingsAppLockExplainer": "A PIN gates the whole app on launch and whenever it returns from the background. This is a screen lock, not encryption — it protects against a casual look, not a determined one.",
+  "settingsAppearance": "Appearance",
+  "settingsAppliesToWeeklyVolumeSets": "Applies to weekly volume, sets-per-muscle and streaks.",
+  "settingsAutoStartRestExplainer": "Completing a set starts the rest timer, and completing the next one restarts it.",
+  "settingsAutomatic": "Automatic",
+  "settingsAutomaticLength": "automatic length",
+  "settingsBackUpNow": "Back up now",
+  "settingsBackingUp": "Backing up…",
+  "settingsBackupExplainer": "A backup is a full, versioned copy of everything on this device, saved here so restore can find it later.",
+  "settingsBackupFailedTryAgain": "Backup failed. Try again.",
+  "settingsBackupSaved": "Backup saved.",
+  "settingsBarsPlates": "Bars & plates",
+  "settingsBodyweight": "Bodyweight",
+  "settingsCardio": "Cardio",
+  "settingsChangePin": "Change PIN",
+  "settingsChooseACsvFile": "Choose a CSV file",
+  "settingsChooseAPin4Or": "Choose a PIN (4 or more digits)",
+  "settingsCircumferences": "Circumferences",
+  "settingsColoursInThisTheme": "Colours in this theme",
+  "settingsConfirmTheNewPin": "Confirm the new PIN",
+  "settingsCouldNotLoadSampleData": "Could not load sample data.",
+  "settingsCreateNew": "Create new",
+  "settingsCsvExportExplainer": "For spreadsheets, not backup — one CSV each for sets, body measurements and routines, in your display units.",
+  "settingsData": "Data",
+  "settingsDefaultBar": "Default bar",
+  "settingsDefaultRest": "Default rest",
+  "settingsDelete": "DELETE",
+  "settingsDemoDataExplainer": "Debug build only — never reachable in a release. Adds 8 weeks of a Push/Pull/Legs split plus weekly bodyweight, so the analytics screens have something to show without hand-logging sessions.",
+  "settingsDistance": "Distance",
+  "settingsDistanceUnitNote": "Separate from weights on purpose",
+  "settingsDynamicColour": "Dynamic colour",
+  "settingsDynamicColourExplainer": "Tint the app from your wallpaper. Android 12+ only — off does nothing on a phone that doesn't support it.",
+  "settingsE1rmFormula": "e1RM formula",
+  "settingsEditBar": "Edit bar",
+  "settingsEnterTheCurrentPin": "Enter the current PIN",
+  "settingsEpleyDefault": "Epley (default)",
+  "settingsExportDataCsv": "Export data (.csv)",
+  "settingsExportDataJson": "Export data (.json)",
+  "settingsExportFailedTryAgain": "Export failed. Try again.",
+  "settingsFewerPairs": "Fewer pairs",
+  "settingsFitnessappCsvExport": "FitnessApp CSV export",
+  "settingsFitnessappExport": "FitnessApp export",
+  "settingsGhostValues": "Ghost values",
+  "settingsImport": "Import",
+  "settingsImportComplete": "Import complete.",
+  "settingsImportDone": "{workouts, plural, =1{1 workout} other{{workouts} workouts}} and {sets, plural, =1{1 set} other{{sets} sets}} imported.",
+  "@settingsImportDone": {
+    "placeholders": {
+      "workouts": {
+        "type": "int"
+      },
+      "sets": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsImportExplainer": "Bring your history over from Strong or Hevy — nothing is written until you confirm what to do with each exercise.",
+  "settingsImportFailed": "Import failed.",
+  "settingsImportFailedNothingWasChanged": "Import failed. Nothing was changed.",
+  "settingsImportFromStrongOrHevy": "Import from Strong or Hevy",
+  "settingsImportPreviewFound": "{workouts, plural, =1{1 workout} other{{workouts} workouts}}, {sets, plural, =1{1 set} other{{sets} sets}} found.",
+  "@settingsImportPreviewFound": {
+    "placeholders": {
+      "workouts": {
+        "type": "int"
+      },
+      "sets": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsImportScreenExplainer": "Import your training history from a Strong or Hevy CSV export. Nothing is written until you confirm.",
+  "settingsImportSkippedDuplicates": " {count, plural, =1{1 already-imported workout skipped.} other{{count} already-imported workouts skipped.}}",
+  "@settingsImportSkippedDuplicates": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsJsonDumpExplainer": "Every table, every row, exactly as stored — a rescue copy, not a polished backup. Share it somewhere safe.",
+  "settingsKilograms": "Kilograms",
+  "settingsLastTime975Kg": "last time: 97.5 kg × 8",
+  "settingsLoadSampleDataDebug": "Load sample data (debug)",
+  "settingsManualStart": "Manual start",
+  "settingsMatchTheDeviceSetting": "Match the device setting",
+  "settingsMeasurements": "Measurements",
+  "settingsMorePairs": "More pairs",
+  "settingsNewBar": "New bar",
+  "settingsNewPlate": "New plate",
+  "settingsNoBarsConfiguredYet": "No bars configured yet.",
+  "settingsNoPlatesConfiguredYet": "No plates configured yet.",
+  "settingsOk": "OK",
+  "settingsOpenSourceLicences": "Open-source licences",
+  "settingsPairsAvailable": "{count, plural, =0{None available} =1{1 pair available} other{{count} pairs available}}",
+  "@settingsPairsAvailable": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsPairsAvailableLabel": "Pairs available",
+  "settingsPersonalRecordsRebuilt": "Personal records rebuilt.",
+  "settingsPounds": "Pounds",
+  "settingsPreview": "Preview",
+  "settingsPrivacy": "Privacy",
+  "settingsPrivacyPolicy": "Privacy policy",
+  "settingsPrivacySummary": "No account. No server. No telemetry. This app makes no network calls at all, and your training data never leaves the device unless you export it yourself.",
+  "settingsRateOfPerceivedExertionPer": "Rate of perceived exertion per set, 6.0–10.0.",
+  "settingsRebuildFailedTryAgain": "Rebuild failed. Try again.",
+  "settingsRebuildPersonalRecords": "Rebuild personal records",
+  "settingsRebuildPrsExplainer": "Personal records are a cache rebuilt from your logged sets. If one ever looks wrong, rebuilding it from scratch is always safe.",
+  "settingsRemoveAppLock": "Remove app lock?",
+  "settingsRemovePin": "Remove PIN",
+  "settingsRemovePlateNote": "The calculator will stop proposing it.",
+  "settingsRemoveThisPlate": "Remove this plate?",
+  "settingsRestAlertLimitation": "The alert needs the app to still be running. Notifications that survive the phone putting the app to sleep arrive with F-TIM-003.",
+  "settingsRestDefaultOverrideNote": "An exercise with its own rest duration always wins over this.",
+  "settingsRestDefaultsHint": "Longer for barbell and compound work, shorter for isolation.",
+  "settingsRestoreComplete": "Restore complete.",
+  "settingsRestoreConfirmExplainer": "This replaces every workout, routine and setting on this device with what is in the backup file. A safety copy of what is here now is saved first.",
+  "settingsRestoreFailed": "Restore failed.",
+  "settingsRestoreFailedTryAgain": "Restore failed. Try again.",
+  "settingsRestoreFromBackup": "Restore from backup?",
+  "settingsRestoreFromBackup2": "Restore from backup…",
+  "settingsRpe": "RPE",
+  "settingsSampleDataLoaded": "Sample data loaded.",
+  "settingsSessionVolume": "Session volume",
+  "settingsSetAPin": "Set a PIN",
+  "settingsSetsTargetsPlatesAndBars": "Sets, targets, plates and bars",
+  "settingsSkip": "Skip",
+  "settingsSourceCode": "Source code",
+  "settingsStartAutomatically": "Start automatically",
+  "settingsStartsAutomatically": "Starts automatically",
+  "settingsTheAppWillOpenWithout": "The app will open without a PIN.",
+  "settingsTheFullTextInThe": "The full text, in the app's repository",
+  "settingsTopSet": "Top set",
+  "settingsTryAgain": "Try again",
+  "settingsUnits": "Units",
+  "settingsUnitsExplainer": "Changing a unit only changes how numbers are shown. Nothing stored is rewritten, so switching back is lossless.",
+  "settingsUseExisting": "Use existing",
+  "settingsVersion": "Version",
+  "settingsW1Reps30": "w × (1 + reps / 30)",
+  "settingsW3637Reps": "w × 36 / (37 − reps)",
+  "settingsWReps010": "w × reps^0.10",
+  "settingsWarnBeforeTheEnd": "Warn before the end",
+  "settingsWeekStartsOn": "Week starts on",
+  "settingsWeightWithUnit": "Weight ({unit})",
+  "@settingsWeightWithUnit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsWeights": "Weights",
+  "settingsWipe": "Wipe",
+  "settingsWipeAllData": "Wipe all data?",
+  "settingsWipeAllData2": "Wipe all data",
+  "settingsWipeConfirmExplainer": "This permanently deletes every workout, routine and setting on this device. Type DELETE to confirm.",
+  "settingsWipeExplainer": "Wiping deletes everything on this device and returns the app to its first-run state. A backup is taken first.",
+  "settingsWipeFailedTryAgain": "Wipe failed. Try again.",
+  "settingsWrongPin": "Wrong PIN.",
+  "shellAtLeastThreeSessionsAre": "At least three sessions are needed for a trend.",
+  "shellDelete": "Delete",
+  "shellEnterPin": "Enter PIN",
+  "shellGoHome": "Go home",
+  "shellHoldTo": "Hold to {action}",
+  "@shellHoldTo": {
+    "placeholders": {
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "shellInProgressElapsed": "In progress · {elapsed}",
+  "@shellInProgressElapsed": {
+    "placeholders": {
+      "elapsed": {
+        "type": "String"
+      }
+    }
+  },
+  "shellKeepIt": "Keep it",
+  "shellLogAFewSessionsTo": "Log a few sessions to see this chart.",
+  "shellLogItToTrackAlongside": "Log it to track alongside your lifts.",
+  "shellNoBodyweightLoggedYet": "No bodyweight logged yet",
+  "shellNoWorkoutsYet": "No workouts yet",
+  "shellNotEnoughDataYet": "Not enough data yet",
+  "shellNotFound": "Not found",
+  "shellPersonalRecord": "Personal record",
+  "shellPlateLoadingDiagram": "Plate loading diagram",
+  "shellReadyToTrain": "Ready to train?",
+  "shellRecentWorkouts": "Recent workouts",
+  "shellRecentWorkoutsCouldNotBe": "Recent workouts could not be read",
+  "shellSettings": "Settings",
+  "shellSomethingWentWrong": "Something went wrong",
+  "shellStartAWorkout": "Start a workout",
+  "shellThisWeek": "This week",
+  "shellTodaysDay": "Today: {day}",
+  "@shellTodaysDay": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "shellTryAgainInAMoment": "Try again in a moment.",
+  "shellUnlock": "Unlock",
+  "shellWrongPin": "Wrong PIN",
+  "shellYourFinishedSessionsWillShow": "Your finished sessions will show up here.",
+  "themeModeDark": "Dark",
+  "themeModeLight": "Light",
+  "themeModeSystem": "System",
+  "timingMinutes": "{count, plural, =1{1 minute} other{{count} minutes}}",
+  "@timingMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timingNoTime": "no time",
+  "timingSeconds": "{count, plural, =1{1 second} other{{count} seconds}}",
+  "@timingSeconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timingSkipRest": "Skip rest",
+  "trackingBodyweightReps": "Bodyweight reps",
+  "trackingDistanceTime": "Distance & time",
+  "trackingReps": "Reps only",
+  "trackingTime": "Time",
+  "trackingWeightReps": "Weight × reps",
+  "trackingWeightTime": "Weight & time"
+}

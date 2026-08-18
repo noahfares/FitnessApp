@@ -7,6 +7,8 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../domain/timing/rest_defaults.dart';
 import '../../../domain/timing/rest_settings.dart';
 import '../application/rest_timer_settings_provider.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../timing/presentation/rest_alert_labels.dart';
 
 /// The "automatic" choice, as a radio value. Zero is the same sentinel the
 /// stored preference uses, so the screen and the notifier agree without a
@@ -28,22 +30,19 @@ class RestTimerScreen extends ConsumerWidget {
     final notifier = ref.read(restTimerSettingsProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Rest timer')),
+      appBar: AppBar(title: Text(context.l10n.catalogRestTimer)),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
         children: [
           SwitchListTile(
-            title: const Text('Start automatically'),
-            subtitle: const Text(
-              'Completing a set starts the rest timer, and completing the next '
-              'one restarts it.',
-            ),
+            title: Text(context.l10n.settingsStartAutomatically),
+            subtitle: Text(context.l10n.settingsAutoStartRestExplainer),
             value: settings.autoStart,
             onChanged: (value) =>
                 unawaited(notifier.setAutoStart(enabled: value)),
           ),
           const Divider(),
-          const _SectionHeading('Default rest'),
+          _SectionHeading(context.l10n.settingsDefaultRest),
           RadioGroup<int>(
             groupValue: settings.defaultSeconds ?? _automaticRest,
             onChanged: (value) => unawaited(
@@ -53,13 +52,10 @@ class RestTimerScreen extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                const RadioListTile<int>(
+                RadioListTile<int>(
                   value: _automaticRest,
-                  title: Text('Automatic'),
-                  subtitle: Text(
-                    'Longer for barbell and compound work, shorter for '
-                    'isolation.',
-                  ),
+                  title: Text(context.l10n.settingsAutomatic),
+                  subtitle: Text(context.l10n.settingsRestDefaultsHint),
                 ),
                 for (final seconds in restDurationChoices)
                   RadioListTile<int>(
@@ -77,7 +73,7 @@ class RestTimerScreen extends ConsumerWidget {
               AppSpacing.md,
             ),
             child: Text(
-              'An exercise with its own rest duration always wins over this.',
+              context.l10n.settingsRestDefaultOverrideNote,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -95,13 +91,13 @@ class RestTimerScreen extends ConsumerWidget {
                 for (final style in RestAlertStyle.values)
                   RadioListTile<RestAlertStyle>(
                     value: style,
-                    title: Text(style.label),
+                    title: Text(style.label(context.l10n)),
                   ),
               ],
             ),
           ),
           SwitchListTile(
-            title: const Text('Warn before the end'),
+            title: Text(context.l10n.settingsWarnBeforeTheEnd),
             subtitle: const Text(
               'A short buzz $restPreWarningSeconds seconds before zero.',
             ),
@@ -114,9 +110,7 @@ class RestTimerScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.all(AppSpacing.screen),
             child: Text(
-              'The alert needs the app to still be running. Notifications that '
-              'survive the phone putting the app to sleep arrive with '
-              'F-TIM-003.',
+              context.l10n.settingsRestAlertLimitation,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

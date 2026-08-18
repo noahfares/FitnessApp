@@ -30,6 +30,7 @@ import 'dart:io';
 
 import 'package:fitness_app/app.dart';
 import 'package:fitness_app/core/theme/app_theme.dart';
+import 'package:fitness_app/l10n/app_localizations.dart';
 import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/database_provider.dart';
 import 'package:fitness_app/data/platform/app_info_service.dart';
@@ -183,6 +184,11 @@ Future<ProviderContainer> pumpScreen(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
+        // The real app installs these (`F-I18N-001`); a screen pumped without
+        // them would fail on the first `context.l10n`, which is a harness
+        // artefact rather than anything about the screen.
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: dark ? AppTheme.dark() : AppTheme.light(),
         home: _withMediaQuery(
           screen,

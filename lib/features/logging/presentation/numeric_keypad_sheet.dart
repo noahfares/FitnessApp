@@ -17,6 +17,7 @@ import '../../../domain/timing/stopwatch.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import 'plate_calculator_sheet.dart';
 import 'set_value_format.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Opens the keypad for one set, focused on [initialField] (`F-LOG-006`).
 ///
@@ -190,8 +191,8 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
                 if (_field == SetField.duration)
                   IconButton(
                     tooltip: _stopwatch == null
-                        ? 'Start stopwatch'
-                        : 'Stop stopwatch',
+                        ? context.l10n.loggingStartStopwatch
+                        : context.l10n.loggingStopStopwatch,
                     icon: Icon(
                       _stopwatch == null
                           ? Icons.play_circle_outline
@@ -204,7 +205,7 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
                 // the sheet itself from the exercise row (`F-PLT-005`).
                 if (_field == SetField.weight && widget.exerciseId != null)
                   IconButton(
-                    tooltip: 'Plate calculator',
+                    tooltip: context.l10n.loggingPlateCalculator,
                     icon: const Icon(Icons.calculate_outlined),
                     onPressed: () {
                       final grams = _parseGrams();
@@ -222,7 +223,7 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
                     },
                   ),
                 IconButton(
-                  tooltip: 'Done',
+                  tooltip: context.l10n.historyDone,
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.keyboard_hide_outlined),
                 ),
@@ -233,7 +234,7 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
               children: [
                 _StepperButton(
                   icon: Icons.remove,
-                  semanticLabel: 'Decrease',
+                  semanticLabel: context.l10n.loggingDecrease,
                   onPressed: () => _stepBy(-1),
                   onHold: () => _startRepeat(-1),
                   onRelease: _stopRepeat,
@@ -249,7 +250,7 @@ class _NumericKeypadSheetState extends ConsumerState<NumericKeypadSheet> {
                 ),
                 _StepperButton(
                   icon: Icons.add,
-                  semanticLabel: 'Increase',
+                  semanticLabel: context.l10n.loggingIncrease,
                   onPressed: () => _stepBy(1),
                   onHold: () => _startRepeat(1),
                   onRelease: _stopRepeat,
@@ -605,7 +606,7 @@ class _Keys extends StatelessWidget {
             key(
               Text(decimalSeparator ?? '.'),
               decimalSeparator == null ? null : onDecimal,
-              semantics: 'Decimal point',
+              semantics: context.l10n.loggingDecimalPoint,
             ),
             digit('0'),
             key(
@@ -617,7 +618,10 @@ class _Keys extends StatelessWidget {
         ),
         Align(
           alignment: Alignment.centerRight,
-          child: TextButton(onPressed: onClear, child: const Text('Clear')),
+          child: TextButton(
+            onPressed: onClear,
+            child: Text(context.l10n.catalogClear),
+          ),
         ),
       ],
     );

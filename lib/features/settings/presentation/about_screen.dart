@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/app_version.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../data/platform/app_info_service.dart';
+import '../../../core/l10n/l10n.dart';
 
 const _repositoryUrl = 'https://github.com/noahfares/fitnessapp';
 
@@ -35,13 +36,16 @@ class AboutScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('About')),
+      appBar: AppBar(title: Text(context.l10n.settingsAbout)),
       body: ListView(
         children: [
-          ListTile(title: const Text('Version'), subtitle: Text(versionText)),
+          ListTile(
+            title: Text(context.l10n.settingsVersion),
+            subtitle: Text(versionText),
+          ),
           const Divider(),
           ListTile(
-            title: const Text('Source code'),
+            title: Text(context.l10n.settingsSourceCode),
             subtitle: const Text(_repositoryUrl),
             trailing: const Icon(Icons.open_in_new),
             onTap: () => launchUrl(
@@ -50,7 +54,7 @@ class AboutScreen extends ConsumerWidget {
             ),
           ),
           ListTile(
-            title: const Text('Open-source licences'),
+            title: Text(context.l10n.settingsOpenSourceLicences),
             onTap: () => showLicensePage(
               context: context,
               applicationName: 'FitnessApp',
@@ -63,20 +67,21 @@ class AboutScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Privacy', style: theme.textTheme.titleMedium),
+                Text(
+                  context.l10n.settingsPrivacy,
+                  style: theme.textTheme.titleMedium,
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'No account. No server. No telemetry. This app makes no '
-                  'network calls at all, and your training data never leaves '
-                  'the device unless you export it yourself.',
+                  context.l10n.settingsPrivacySummary,
                   style: theme.textTheme.bodyMedium,
                 ),
               ],
             ),
           ),
           ListTile(
-            title: const Text('Privacy policy'),
-            subtitle: const Text('The full text, in the app\'s repository'),
+            title: Text(context.l10n.settingsPrivacyPolicy),
+            subtitle: Text(context.l10n.settingsTheFullTextInThe),
             trailing: const Icon(Icons.open_in_new),
             onTap: () => launchUrl(
               Uri.parse(_privacyPolicyUrl),

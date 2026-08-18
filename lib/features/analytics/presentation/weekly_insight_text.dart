@@ -2,6 +2,7 @@ import '../../../core/formatting/quantity_formatter.dart';
 import '../../../core/units/mass.dart';
 import '../../../data/db/tables/enums.dart';
 import '../../../domain/analytics/weekly_insights.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../catalog/presentation/exercise_labels.dart';
 
 /// "Chest volume is up 40% versus your 4-week average." (`F-ANA-013` §1) —
@@ -12,13 +13,14 @@ String weeklyInsightText(
   WeeklyInsight insight,
   QuantityFormatter formatter,
   MassUnit unit,
+  AppLocalizations l10n,
 ) {
   String muscleLabel(String? name) {
-    if (name == null) return 'This muscle';
+    if (name == null) return l10n.analyticsThisMuscle;
     // No DB-level guarantee every stored name is still a recognised
     // `Muscle` (same reasoning `F-ROU-011`'s preview chart already used) —
     // the raw name is still a readable fallback.
-    return Muscle.values.asNameMap()[name]?.label ?? name;
+    return Muscle.values.asNameMap()[name]?.label(l10n) ?? name;
   }
 
   switch (insight.kind) {
@@ -34,7 +36,7 @@ String weeklyInsightText(
     case InsightKind.exerciseE1rmNewHigh:
       final deltaGrams = (insight.currentValue - (insight.previousValue ?? 0))
           .round();
-      final name = insight.exerciseName ?? 'This exercise';
+      final name = insight.exerciseName ?? l10n.analyticsThisExercise;
       return '$name e1RM up '
           '${formatter.massValueOnly(Mass.grams(deltaGrams), unit, maxDecimals: 1)} '
           '${unit.symbol} this week.';

@@ -142,7 +142,7 @@ F-A11Y-002	6	done	P1	Dynamic type			24-DESIGN-SYSTEM#accessibility-baseline
 F-A11Y-003	6	done	P1	Contrast and colour independence			24-DESIGN-SYSTEM#accessibility-baseline
 F-A11Y-004	1	done	P1	Touch targets and reach			24-DESIGN-SYSTEM#accessibility-baseline
 F-A11Y-005	6	done	P2	Reduce motion			24-DESIGN-SYSTEM#accessibility-baseline
-F-I18N-001	6	planned	P1	String externalisation			22-UNITS, 24-DESIGN-SYSTEM
+F-I18N-001	6	done	P1	String externalisation			22-UNITS, 24-DESIGN-SYSTEM
 F-I18N-002	0	done	P1	Locale-aware formatting	F-SET-001		22-UNITS, 24-DESIGN-SYSTEM
 F-I18N-003	—	idea	P3	Additional locales			22-UNITS, 24-DESIGN-SYSTEM
 F-HLT-001	6	planned	P2	Health Connect write			20-ARCHITECTURE#cross-platform-discipline

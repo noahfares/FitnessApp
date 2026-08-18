@@ -17,7 +17,10 @@ class SessionPr {
   const SessionPr({required this.record, required this.exerciseName});
 
   final PersonalRecord record;
-  final String exerciseName;
+
+  /// Null when the exercise has since been deleted — the screen decides what
+  /// that reads as, since only it can localise (`F-I18N-001`).
+  final String? exerciseName;
 }
 
 /// The records achieved in [workoutId], for the finish summary.
@@ -41,9 +44,10 @@ final sessionRecordsProvider = FutureProvider.family<List<SessionPr>, String>((
     for (final record in records)
       SessionPr(
         record: record,
-        exerciseName:
-            (await exercises.findById(record.exerciseId))?.name ??
-            'Unknown exercise',
+        // Null rather than a placeholder string: this is the application
+        // layer, with no context to localise against (`F-I18N-001`). The
+        // screen showing it decides what a missing name reads as.
+        exerciseName: (await exercises.findById(record.exerciseId))?.name,
       ),
   ];
 });

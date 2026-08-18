@@ -8,6 +8,7 @@ import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/calendar_heatmap.dart';
 import '../application/analytics_clock_provider.dart';
 import '../application/analytics_set_records_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Consistency (`F-ANA-006`) — a calendar heatmap of training days, current
 /// and longest streak, and a rolling sessions-per-week average.
@@ -26,7 +27,7 @@ class ConsistencyScreen extends ConsumerWidget {
     final now = ref.watch(analyticsClockProvider)();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Consistency')),
+      appBar: AppBar(title: Text(context.l10n.analyticsConsistency)),
       body: records.view((records) {
         final days = trainingDays(records);
         final counts = weeklySessionCounts(
@@ -45,24 +46,22 @@ class ConsistencyScreen extends ConsumerWidget {
             Row(
               children: [
                 _StatTile(
-                  label: 'Current streak',
+                  label: context.l10n.analyticsCurrentStreak,
                   value: '${stats.currentStreak} wk',
                 ),
                 _StatTile(
-                  label: 'Longest streak',
+                  label: context.l10n.analyticsLongestStreak,
                   value: '${stats.longestStreak} wk',
                 ),
                 _StatTile(
-                  label: 'Sessions / week',
+                  label: context.l10n.analyticsSessionsWeek,
                   value: stats.sessionsPerWeek.toStringAsFixed(1),
                 ),
               ],
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Target: $_weeklyTarget sessions a week. A streak is a run of '
-              'complete weeks meeting it — the week in progress never breaks '
-              'one, whatever it currently reads.',
+              context.l10n.analyticsStreakExplainer(_weeklyTarget),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

@@ -6,6 +6,7 @@ import '../../../core/a11y/motion.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import 'empty_state.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// One bar.
 class WeeklyBarPoint {
@@ -53,10 +54,10 @@ class WeeklyBarChart extends StatelessWidget {
     final theme = Theme.of(context);
 
     if (points.isEmpty) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.bar_chart,
-        title: 'Not enough data yet',
-        message: 'Log a few sessions to see this chart.',
+        title: context.l10n.shellNotEnoughDataYet,
+        message: context.l10n.shellLogAFewSessionsTo,
       );
     }
 

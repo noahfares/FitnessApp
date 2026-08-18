@@ -13,6 +13,7 @@ import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import '../application/plate_providers.dart';
 import '../application/unit_preferences_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Settings › Bars & plates (`F-PLT-002`).
 ///
@@ -30,18 +31,18 @@ class PlateSettingsScreen extends ConsumerWidget {
     final formatter = ref.watch(quantityFormatterProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Bars & plates')),
+      appBar: AppBar(title: Text(context.l10n.settingsBarsPlates)),
       body: ListView(
         padding: const EdgeInsets.only(bottom: AppSpacing.xl),
         children: [
           _SectionHeading(
             'Bars',
-            addLabel: 'Add a bar',
+            addLabel: context.l10n.settingsAddABar,
             onAdd: () => _showBarSheet(context, ref, unit: unit),
           ),
           bars.view(
             (rows) => rows.isEmpty
-                ? const _EmptyRow('No bars configured yet.')
+                ? _EmptyRow(context.l10n.settingsNoBarsConfiguredYet)
                 : Column(
                     children: [
                       for (final bar in rows)
@@ -65,12 +66,12 @@ class PlateSettingsScreen extends ConsumerWidget {
           const Divider(),
           _SectionHeading(
             'Plates',
-            addLabel: 'Add a plate',
+            addLabel: context.l10n.settingsAddAPlate,
             onAdd: () => _showPlateSheet(context, ref, unit: unit),
           ),
           plates.view(
             (rows) => rows.isEmpty
-                ? const _EmptyRow('No plates configured yet.')
+                ? _EmptyRow(context.l10n.settingsNoPlatesConfiguredYet)
                 : Column(
                     children: [
                       for (final plate in rows)
@@ -183,7 +184,7 @@ class _PlateRow extends ConsumerWidget {
     final repo = ref.read(plateRepositoryProvider);
     return ListTile(
       title: Text(formatter.massValueOnly(Mass.grams(plate.weightGrams), unit)),
-      subtitle: Text('${plate.countAvailable} pair(s) available'),
+      subtitle: Text(context.l10n.settingsPairsAvailable(plate.countAvailable)),
       leading: Switch(
         value: plate.isEnabled,
         onChanged: (value) =>
@@ -193,7 +194,7 @@ class _PlateRow extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            tooltip: 'Fewer pairs',
+            tooltip: context.l10n.settingsFewerPairs,
             icon: const Icon(Icons.remove),
             onPressed: plate.countAvailable <= 0
                 ? null
@@ -203,20 +204,20 @@ class _PlateRow extends ConsumerWidget {
           ),
           Text('${plate.countAvailable}'),
           IconButton(
-            tooltip: 'More pairs',
+            tooltip: context.l10n.settingsMorePairs,
             icon: const Icon(Icons.add),
             onPressed: () => unawaited(
               repo.setPlateCount(plate.id, plate.countAvailable + 1),
             ),
           ),
           IconButton(
-            tooltip: 'Remove',
+            tooltip: context.l10n.historyRemove,
             icon: const Icon(Icons.delete_outline),
             onPressed: () async {
               final confirmed = await showConfirmSheet(
                 context,
-                title: 'Remove this plate?',
-                message: 'The calculator will stop proposing it.',
+                title: context.l10n.settingsRemoveThisPlate,
+                message: context.l10n.settingsRemovePlateNote,
               );
               if (confirmed) await repo.deletePlate(plate.id);
             },
@@ -271,13 +272,15 @@ class _BarEditSheetState extends ConsumerState<_BarEditSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              widget.bar == null ? 'New bar' : 'Edit bar',
+              widget.bar == null
+                  ? context.l10n.settingsNewBar
+                  : context.l10n.settingsEditBar,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: AppSpacing.md),
             TextField(
               controller: _name,
-              decoration: const InputDecoration(labelText: 'Name'),
+              decoration: InputDecoration(labelText: context.l10n.catalogName),
             ),
             const SizedBox(height: AppSpacing.sm),
             TextField(
@@ -286,12 +289,14 @@ class _BarEditSheetState extends ConsumerState<_BarEditSheet> {
                 decimal: true,
               ),
               decoration: InputDecoration(
-                labelText: 'Weight (${widget.unit.symbol})',
+                labelText: context.l10n.settingsWeightWithUnit(
+                  widget.unit.symbol,
+                ),
               ),
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Default bar'),
+              title: Text(context.l10n.settingsDefaultBar),
               value: _isDefault,
               onChanged: (value) => setState(() => _isDefault = value),
             ),
@@ -319,7 +324,7 @@ class _BarEditSheetState extends ConsumerState<_BarEditSheet> {
                 }
                 if (context.mounted) Navigator.of(context).pop();
               },
-              child: const Text('Save'),
+              child: Text(context.l10n.catalogSave),
             ),
           ],
         ),
@@ -363,7 +368,10 @@ class _PlateAddSheetState extends ConsumerState<_PlateAddSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('New plate', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              context.l10n.settingsNewPlate,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: AppSpacing.md),
             TextField(
               controller: _weight,
@@ -371,14 +379,18 @@ class _PlateAddSheetState extends ConsumerState<_PlateAddSheet> {
                 decimal: true,
               ),
               decoration: InputDecoration(
-                labelText: 'Weight (${widget.unit.symbol})',
+                labelText: context.l10n.settingsWeightWithUnit(
+                  widget.unit.symbol,
+                ),
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
             TextField(
               controller: _pairs,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Pairs available'),
+              decoration: InputDecoration(
+                labelText: context.l10n.settingsPairsAvailableLabel,
+              ),
             ),
             const SizedBox(height: AppSpacing.sm),
             FilledButton(
@@ -393,7 +405,7 @@ class _PlateAddSheetState extends ConsumerState<_PlateAddSheet> {
                 );
                 if (context.mounted) Navigator.of(context).pop();
               },
-              child: const Text('Save'),
+              child: Text(context.l10n.catalogSave),
             ),
           ],
         ),

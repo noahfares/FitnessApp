@@ -6,6 +6,7 @@ import '../../../data/db/tables/enums.dart';
 import '../../../domain/catalog/exercise_search.dart';
 import '../application/exercise_catalog_providers.dart';
 import 'exercise_labels.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The filter type shared by the catalogue screen and the exercise picker.
 typedef CatalogFilterProvider =
@@ -41,13 +42,13 @@ class CatalogFilterBar extends ConsumerWidget {
           for (final muscle in Muscle.values)
             if (filter.muscles.contains(muscle.name))
               _RemovableFacet(
-                label: muscle.label,
+                label: muscle.label(context.l10n),
                 onRemoved: () => notifier.toggleMuscle(muscle),
               ),
           for (final item in Equipment.values)
             if (filter.equipment.contains(item.name))
               _RemovableFacet(
-                label: item.label,
+                label: item.label(context.l10n),
                 onRemoved: () => notifier.toggleEquipment(item),
               ),
           if (filter.hasFacets)
@@ -56,7 +57,7 @@ class CatalogFilterBar extends ConsumerWidget {
               child: Center(
                 child: TextButton(
                   onPressed: notifier.clearFacets,
-                  child: const Text('Clear'),
+                  child: Text(context.l10n.catalogClear),
                 ),
               ),
             ),
@@ -132,15 +133,21 @@ class _FilterSheet extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Filter', style: theme.textTheme.titleLarge),
+                  Text(
+                    context.l10n.catalogFilter,
+                    style: theme.textTheme.titleLarge,
+                  ),
                   TextButton(
                     onPressed: filter.hasFacets ? notifier.clearFacets : null,
-                    child: const Text('Clear all'),
+                    child: Text(context.l10n.catalogClearAll),
                   ),
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text('Muscle', style: theme.textTheme.titleSmall),
+              Text(
+                context.l10n.catalogMuscle,
+                style: theme.textTheme.titleSmall,
+              ),
               const SizedBox(height: AppSpacing.sm),
               Wrap(
                 spacing: AppSpacing.sm,
@@ -149,14 +156,17 @@ class _FilterSheet extends ConsumerWidget {
                   for (final muscle
                       in index?.availableMuscles ?? const <Muscle>[])
                     FilterChip(
-                      label: Text(muscle.label),
+                      label: Text(muscle.label(context.l10n)),
                       selected: filter.muscles.contains(muscle.name),
                       onSelected: (_) => notifier.toggleMuscle(muscle),
                     ),
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
-              Text('Equipment', style: theme.textTheme.titleSmall),
+              Text(
+                context.l10n.catalogEquipment,
+                style: theme.textTheme.titleSmall,
+              ),
               const SizedBox(height: AppSpacing.sm),
               Wrap(
                 spacing: AppSpacing.sm,
@@ -165,7 +175,7 @@ class _FilterSheet extends ConsumerWidget {
                   for (final item
                       in index?.availableEquipment ?? const <Equipment>[])
                     FilterChip(
-                      label: Text(item.label),
+                      label: Text(item.label(context.l10n)),
                       selected: filter.equipment.contains(item.name),
                       onSelected: (_) => notifier.toggleEquipment(item),
                     ),

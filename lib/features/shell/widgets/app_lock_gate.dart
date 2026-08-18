@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../settings/application/app_lock_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Gates the whole app behind a PIN when one is configured (`F-SET-010`).
 ///
@@ -91,7 +92,7 @@ class _LockScreenState extends ConsumerState<_LockScreen> {
       return;
     }
     setState(() {
-      _error = 'Wrong PIN';
+      _error = context.l10n.shellWrongPin;
       _controller.clear();
     });
   }
@@ -109,7 +110,7 @@ class _LockScreenState extends ConsumerState<_LockScreen> {
                 const Icon(Icons.lock_outline, size: 48),
                 const SizedBox(height: AppSpacing.lg),
                 Text(
-                  'Enter PIN',
+                  context.l10n.shellEnterPin,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: AppSpacing.lg),
@@ -123,7 +124,10 @@ class _LockScreenState extends ConsumerState<_LockScreen> {
                   decoration: InputDecoration(errorText: _error),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                FilledButton(onPressed: _submit, child: const Text('Unlock')),
+                FilledButton(
+                  onPressed: _submit,
+                  child: Text(context.l10n.shellUnlock),
+                ),
               ],
             ),
           ),

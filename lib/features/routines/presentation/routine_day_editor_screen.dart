@@ -29,6 +29,8 @@ import '../../shell/widgets/empty_state.dart';
 import '../../shell/widgets/weekly_bar_chart.dart';
 import '../application/routine_providers.dart';
 import 'routine_list_screen.dart' show promptRoutineName;
+import '../../../core/l10n/l10n.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// A routine day's exercises and targets (`F-ROU-003`) — the day's own
 /// screen, reached from a multi-day routine's day list.
@@ -47,14 +49,16 @@ class RoutineDayEditorScreen extends ConsumerWidget {
     final days = ref.watch(routineDaysProvider(routineId));
     final exercises = ref.watch(routineDayExercisesProvider(dayId));
 
-    return days.view(errorTitle: 'Day could not be read', (rows) {
+    return days.view(errorTitle: context.l10n.routinesDayCouldNotBeRead, (
+      rows,
+    ) {
       RoutineDay? day;
       for (final d in rows) {
         if (d.id == dayId) day = d;
       }
       if (day == null) {
-        return const Scaffold(
-          body: Center(child: Text('This day no longer exists.')),
+        return Scaffold(
+          body: Center(child: Text(context.l10n.routinesThisDayNoLongerExists)),
         );
       }
       final loadedDay = day;
@@ -65,18 +69,18 @@ class RoutineDayEditorScreen extends ConsumerWidget {
           actions: [
             IconButton(
               icon: const Icon(Icons.calendar_today_outlined),
-              tooltip: 'Schedule',
+              tooltip: context.l10n.routinesSchedule,
               onPressed: () => unawaited(_schedule(context, ref, loadedDay)),
             ),
             IconButton(
               icon: const Icon(Icons.edit_outlined),
-              tooltip: 'Rename',
+              tooltip: context.l10n.routinesRename,
               onPressed: () => unawaited(_rename(context, ref, loadedDay)),
             ),
           ],
         ),
         body: exercises.view(
-          errorTitle: 'Exercises could not be read',
+          errorTitle: context.l10n.loggingExercisesCouldNotBeRead,
           (exerciseRows) => DayExerciseList(
             routineId: routineId,
             day: loadedDay,
@@ -100,7 +104,7 @@ class RoutineDayEditorScreen extends ConsumerWidget {
   ) async {
     final name = await promptRoutineName(
       context,
-      title: 'Rename day',
+      title: context.l10n.routinesRenameDay,
       initial: day.name,
     );
     if (name != null && name.trim().isNotEmpty) {
@@ -137,7 +141,7 @@ const List<String> _weekdayAbbreviations = [
 ];
 
 /// `"Mon, Wed, Fri"`, empty when nothing's scheduled (`F-ROU-012`).
-String formatScheduledWeekdays(List<int> weekdays) {
+String formatScheduledWeekdays(List<int> weekdays, AppLocalizations l10n) {
   if (weekdays.isEmpty) return '';
   final sorted = [...weekdays]..sort();
   return sorted.map((day) => _weekdayAbbreviations[day - 1]).join(', ');
@@ -184,10 +188,13 @@ class _WeekdaySchedulerSheetState extends State<_WeekdaySchedulerSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Schedule', style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              context.l10n.routinesSchedule,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              'Optional — pick the weekdays you plan to train this day.',
+              context.l10n.routinesOptionalPickTheWeekdaysYou,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: AppSpacing.md),
@@ -212,7 +219,7 @@ class _WeekdaySchedulerSheetState extends State<_WeekdaySchedulerSheet> {
             FilledButton(
               onPressed: () =>
                   Navigator.of(context).pop(_selected.toList()..sort()),
-              child: const Text('Save'),
+              child: Text(context.l10n.catalogSave),
             ),
           ],
         ),
@@ -251,9 +258,9 @@ class _DayExerciseListState extends ConsumerState<DayExerciseList> {
     if (rows.isEmpty) {
       return EmptyState(
         icon: Icons.fitness_center,
-        title: 'No exercises yet',
-        message: 'Add exercises, then set targets for each.',
-        actionLabel: 'Add exercises',
+        title: context.l10n.historyNoExercisesYet,
+        message: context.l10n.routinesAddExercisesThenSetTargets,
+        actionLabel: context.l10n.historyAddExercises,
         onAction: () => unawaited(_addExercises(context)),
       );
     }
@@ -286,13 +293,13 @@ class _DayExerciseListState extends ConsumerState<DayExerciseList> {
             ),
             child: Row(
               children: [
-                Text('${_selected.length} selected'),
+                Text(context.l10n.routinesSelectedCount(_selected.length)),
                 const Spacer(),
                 if (!canGroup && selectedIndices.length >= 2)
                   Padding(
                     padding: const EdgeInsets.only(right: AppSpacing.sm),
                     child: Text(
-                      'Must be adjacent',
+                      context.l10n.routinesMustBeAdjacent,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
@@ -301,11 +308,11 @@ class _DayExerciseListState extends ConsumerState<DayExerciseList> {
                       ? () => unawaited(_group(selectedIndices))
                       : null,
                   icon: const Icon(Icons.link),
-                  label: const Text('Group'),
+                  label: Text(context.l10n.routinesGroup),
                 ),
                 TextButton(
                   onPressed: () => setState(_selected.clear),
-                  child: const Text('Cancel'),
+                  child: Text(context.l10n.catalogCancel),
                 ),
               ],
             ),
@@ -352,7 +359,7 @@ class _DayExerciseListState extends ConsumerState<DayExerciseList> {
           child: OutlinedButton.icon(
             onPressed: () => unawaited(_addExercises(context)),
             icon: const Icon(Icons.add),
-            label: const Text('Add exercises'),
+            label: Text(context.l10n.historyAddExercises),
           ),
         ),
       ],
@@ -441,13 +448,15 @@ class _ExerciseTargetTile extends ConsumerWidget {
             : null,
         title: Text(row.exerciseName),
         subtitle: Text(
-          summary.isEmpty ? 'No targets set' : summary.join(' · '),
+          summary.isEmpty
+              ? context.l10n.routinesNoTargetsSet
+              : summary.join(' · '),
         ),
         trailing: selecting
             ? null
             : IconButton(
                 icon: const Icon(Icons.close),
-                tooltip: 'Remove',
+                tooltip: context.l10n.historyRemove,
                 onPressed: () => unawaited(
                   ref
                       .read(routineRepositoryProvider)
@@ -495,7 +504,7 @@ class _ExerciseTargetTile extends ConsumerWidget {
                   Icon(Icons.link, size: 16, color: theme.colorScheme.primary),
                   const SizedBox(width: 4),
                   Text(
-                    'Superset',
+                    context.l10n.loggingSuperset,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
@@ -505,7 +514,7 @@ class _ExerciseTargetTile extends ConsumerWidget {
                   if (onUngroup != null)
                     TextButton(
                       onPressed: onUngroup,
-                      child: const Text('Ungroup'),
+                      child: Text(context.l10n.routinesUngroup),
                     ),
                 ],
               ),
@@ -623,9 +632,9 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                     child: TextField(
                       controller: _sets,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Sets',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.loggingSets,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ),
@@ -634,9 +643,9 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                     child: TextField(
                       controller: _repsMin,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Reps min',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.routinesRepsMin,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ),
@@ -645,9 +654,9 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                     child: TextField(
                       controller: _repsMax,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Reps max',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.routinesRepsMax,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ),
@@ -660,20 +669,25 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                   decimal: true,
                 ),
                 decoration: InputDecoration(
-                  labelText: 'Target weight (${prefs.load.symbol})',
+                  labelText: context.l10n.routinesTargetWeightWithUnit(
+                    prefs.load.symbol,
+                  ),
                   border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
               DropdownButtonFormField<int>(
                 initialValue: _restSeconds ?? 0,
-                decoration: const InputDecoration(
-                  labelText: 'Rest',
-                  border: OutlineInputBorder(),
-                  helperText: 'Overrides the exercise and global defaults.',
+                decoration: InputDecoration(
+                  labelText: context.l10n.routinesRest,
+                  border: const OutlineInputBorder(),
+                  helperText: context.l10n.routinesRestOverrideHint,
                 ),
                 items: [
-                  const DropdownMenuItem(value: 0, child: Text('Default')),
+                  DropdownMenuItem(
+                    value: 0,
+                    child: Text(context.l10n.catalogDefault),
+                  ),
                   for (final seconds in restDurationChoices)
                     DropdownMenuItem(
                       value: seconds,
@@ -685,32 +699,35 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
-              Text('Progression', style: theme.textTheme.titleMedium),
+              Text(
+                context.l10n.routinesProgression,
+                style: theme.textTheme.titleMedium,
+              ),
               const SizedBox(height: AppSpacing.sm),
               // Plain language, not a configuration form (`F-PRG-007`) — the
               // concepts are simple ("keep it the same" vs. "add weight when I
               // hit my sets") even though the vocabulary underneath isn't.
               SegmentedButton<ProgressionRuleType>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: ProgressionRuleType.manualCarryForward,
-                    label: Text('I\'ll decide'),
+                    label: Text(context.l10n.routinesILlDecide),
                   ),
                   ButtonSegment(
                     value: ProgressionRuleType.linear,
-                    label: Text('Add weight on success'),
+                    label: Text(context.l10n.routinesAddWeightOnSuccess),
                   ),
                   ButtonSegment(
                     value: ProgressionRuleType.doubleProgression,
-                    label: Text('Add reps, then weight'),
+                    label: Text(context.l10n.routinesAddRepsThenWeight),
                   ),
                   ButtonSegment(
                     value: ProgressionRuleType.rpeAutoregulation,
-                    label: Text('Match effort (RPE)'),
+                    label: Text(context.l10n.routinesMatchEffortRpe),
                   ),
                   ButtonSegment(
                     value: ProgressionRuleType.percentageOfTrainingMax,
-                    label: Text('% of TM'),
+                    label: Text(context.l10n.routinesOfTm),
                   ),
                 ],
                 selected: {_ruleType},
@@ -725,12 +742,11 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                     decimal: true,
                   ),
                   decoration: InputDecoration(
-                    labelText:
-                        'Add when I hit every set (${prefs.load.symbol})',
+                    labelText: context.l10n.routinesAddOnSuccessWithUnit(
+                      prefs.load.symbol,
+                    ),
                     border: const OutlineInputBorder(),
-                    helperText:
-                        'Repeats the same weight on a partial miss; deloads '
-                        'after three misses in a row.',
+                    helperText: context.l10n.routinesLinearRuleExplainer,
                   ),
                 ),
               ],
@@ -742,13 +758,11 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                     decimal: true,
                   ),
                   decoration: InputDecoration(
-                    labelText:
-                        'Add when I hit the top of my rep range '
-                        '(${prefs.load.symbol})',
+                    labelText: context.l10n.routinesAddOnSuccessWithUnit(
+                      prefs.load.symbol,
+                    ),
                     border: const OutlineInputBorder(),
-                    helperText:
-                        'Uses the Reps min/max above as the range. Deloads '
-                        'after three sessions in a row below the minimum.',
+                    helperText: context.l10n.routinesDoubleProgressionExplainer,
                   ),
                 ),
               ],
@@ -756,12 +770,10 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                 const SizedBox(height: AppSpacing.sm),
                 DropdownButtonFormField<double>(
                   initialValue: _targetRpe,
-                  decoration: const InputDecoration(
-                    labelText: 'Target RPE',
-                    border: OutlineInputBorder(),
-                    helperText:
-                        'How hard the last set should feel. Comes in easier — '
-                        'add more; harder — add less or back off.',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.routinesTargetRpe,
+                    border: const OutlineInputBorder(),
+                    helperText: context.l10n.routinesTargetRpeHint,
                   ),
                   items: [
                     for (final step in rpeSteps)
@@ -779,7 +791,9 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                     decimal: true,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Base step (${prefs.load.symbol})',
+                    labelText: context.l10n.routinesBaseStepWithUnit(
+                      prefs.load.symbol,
+                    ),
                     border: const OutlineInputBorder(),
                   ),
                 ),
@@ -790,24 +804,25 @@ class _TargetEditorSheetState extends ConsumerState<_TargetEditorSheet> {
                   controller: _percent,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    labelText: 'Percent of training max',
+                    labelText: context.l10n.routinesPercentOfTrainingMax,
                     border: const OutlineInputBorder(),
                     suffixText: '%',
                     helperText: widget.row.trainingMaxGrams == null
-                        ? 'No training max set on this exercise yet — set '
-                              "one on the exercise's own editor first."
-                        : 'Training max: '
-                              '${formatter.massValueOnly(Mass.grams(widget.row.trainingMaxGrams!), prefs.load)} '
-                              '${prefs.load.symbol}. Recomputed every time '
-                              'this day is started — no week/cycle variation '
-                              'yet.',
+                        ? context.l10n.routinesNoTrainingMaxSet
+                        : context.l10n.routinesTrainingMaxIs(
+                            formatter.massValueOnly(
+                              Mass.grams(widget.row.trainingMaxGrams!),
+                              prefs.load,
+                            ),
+                            prefs.load.symbol,
+                          ),
                   ),
                 ),
               ],
               const SizedBox(height: AppSpacing.lg),
               FilledButton(
                 onPressed: () => unawaited(_save(context)),
-                child: const Text('Save targets'),
+                child: Text(context.l10n.routinesSaveTargets),
               ),
             ],
           ),
@@ -925,7 +940,7 @@ class _RoutinePreviewCard extends ConsumerWidget {
     final barPoints = [
       for (final entry in setsByMuscle.entries)
         if (muscleNames[entry.key] case final muscle?)
-          WeeklyBarPoint(value: entry.value, label: muscle.label),
+          WeeklyBarPoint(value: entry.value, label: muscle.label(context.l10n)),
     ]..sort((a, b) => b.value.compareTo(a.value));
 
     final durationLabel = durationSeconds == 0
@@ -944,7 +959,10 @@ class _RoutinePreviewCard extends ConsumerWidget {
       // it of layout height (it did, once, before this became collapsible).
       child: ExpansionTile(
         initiallyExpanded: false,
-        title: Text('Preview', style: theme.textTheme.titleMedium),
+        title: Text(
+          context.l10n.settingsPreview,
+          style: theme.textTheme.titleMedium,
+        ),
         subtitle: Text('$durationLabel · $volumeLabel'),
         childrenPadding: const EdgeInsets.fromLTRB(
           AppSpacing.md,
@@ -955,15 +973,15 @@ class _RoutinePreviewCard extends ConsumerWidget {
         children: [
           if (barPoints.isNotEmpty)
             WeeklyBarChart(
-              metricLabel: 'Planned sets per muscle',
+              metricLabel: context.l10n.routinesPlannedSetsPerMuscle,
               points: barPoints,
-              subtitle: 'Sets per muscle',
+              subtitle: context.l10n.routinesSetsPerMuscle,
               valueLabel: (v) => v.toStringAsFixed(1),
             )
           else
-            const Padding(
-              padding: EdgeInsets.only(bottom: AppSpacing.sm),
-              child: Text('Set targets to see sets per muscle here.'),
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Text(context.l10n.routinesSetTargetsToSeeSets),
             ),
         ],
       ),
@@ -983,7 +1001,7 @@ class StartDayButton extends ConsumerWidget {
     return FilledButton.icon(
       onPressed: () => unawaited(_start(context, ref)),
       icon: const Icon(Icons.play_arrow),
-      label: const Text('Start workout'),
+      label: Text(context.l10n.routinesStartWorkout),
     );
   }
 
@@ -995,11 +1013,9 @@ class StartDayButton extends ConsumerWidget {
       if (!context.mounted) return;
       final resume = await showConfirmSheet(
         context,
-        title: 'Already training',
-        message:
-            'A workout is already in progress. Finish or discard it '
-            'before starting another.',
-        confirmLabel: 'Resume it',
+        title: context.l10n.historyAlreadyTraining,
+        message: context.l10n.historyAlreadyTrainingExplainer,
+        confirmLabel: context.l10n.historyResumeIt,
         cancelLabel: 'Cancel',
         isDestructive: false,
       );

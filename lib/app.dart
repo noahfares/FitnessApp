@@ -6,6 +6,7 @@ import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/settings/application/theme_provider.dart';
 import 'features/shell/widgets/app_lock_gate.dart';
+import 'l10n/app_localizations.dart';
 
 /// Root widget.
 class FitnessApp extends ConsumerWidget {
@@ -22,8 +23,13 @@ class FitnessApp extends ConsumerWidget {
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) {
         return MaterialApp.router(
-          title: 'FitnessApp',
+          onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
           debugShowCheckedModeBanner: false,
+          // `F-I18N-001`. English-only today; the delegates are what make
+          // adding a language a new .arb file rather than a sweep through
+          // fifty screens.
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           theme: AppTheme.light(
             dynamicScheme: dynamicColorEnabled ? lightDynamic : null,
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/a11y/motion.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Inline PR marker (`F-LOG-013` §2, docs/24-DESIGN-SYSTEM.md
 /// §component-inventory).
@@ -15,13 +16,15 @@ import '../../../core/a11y/motion.dart';
 /// (`F-A11Y-005`): the record still shows, which is the part that carries
 /// meaning — only the flourish is dropped.
 class PrBadge extends StatelessWidget {
-  const PrBadge({super.key, this.tooltip = 'Personal record'});
+  const PrBadge({super.key, this.tooltip});
 
-  final String tooltip;
+  /// Null uses the generic label; a localised default cannot be `const`.
+  final String? tooltip;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final tooltip = this.tooltip ?? context.l10n.shellPersonalRecord;
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
       duration: motionDuration(context, const Duration(milliseconds: 350)),

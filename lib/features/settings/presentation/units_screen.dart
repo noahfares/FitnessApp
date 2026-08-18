@@ -6,6 +6,7 @@ import '../../../core/units/distance.dart';
 import '../../../core/units/length.dart';
 import '../../../core/units/mass.dart';
 import '../application/unit_preferences_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Settings › Units (F-SET-001).
 ///
@@ -26,37 +27,37 @@ class UnitsScreen extends ConsumerWidget {
     final formatter = ref.watch(quantityFormatterProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Units')),
+      appBar: AppBar(title: Text(context.l10n.settingsUnits)),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
         children: [
           _UnitChoice<MassUnit>(
-            title: 'Weights',
-            subtitle: 'Sets, targets, plates and bars',
+            title: context.l10n.settingsWeights,
+            subtitle: context.l10n.settingsSetsTargetsPlatesAndBars,
             values: MassUnit.values,
             selected: units.load,
             labelOf: (unit) => unit.symbol,
             onChanged: notifier.setLoad,
           ),
           _UnitChoice<MassUnit>(
-            title: 'Bodyweight',
-            subtitle: 'Separate from weights on purpose',
+            title: context.l10n.settingsBodyweight,
+            subtitle: context.l10n.settingsDistanceUnitNote,
             values: MassUnit.values,
             selected: units.body,
             labelOf: (unit) => unit.symbol,
             onChanged: notifier.setBody,
           ),
           _UnitChoice<LengthUnit>(
-            title: 'Measurements',
-            subtitle: 'Circumferences',
+            title: context.l10n.settingsMeasurements,
+            subtitle: context.l10n.settingsCircumferences,
             values: LengthUnit.values,
             selected: units.length,
             labelOf: (unit) => unit.symbol,
             onChanged: notifier.setLength,
           ),
           _UnitChoice<DistanceUnit>(
-            title: 'Distance',
-            subtitle: 'Cardio',
+            title: context.l10n.settingsDistance,
+            subtitle: context.l10n.settingsCardio,
             values: DistanceUnit.values,
             selected: units.distance,
             labelOf: (unit) => unit.symbol,
@@ -71,24 +72,26 @@ class UnitsScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Preview', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  context.l10n.settingsPreview,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'Changing a unit only changes how numbers are shown. Nothing '
-                  'stored is rewritten, so switching back is lossless.',
+                  context.l10n.settingsUnitsExplainer,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 _PreviewRow(
-                  'Top set',
+                  context.l10n.settingsTopSet,
                   formatter.setWeight(const Mass.grams(102500), showUnit: true),
                 ),
                 _PreviewRow(
-                  'Session volume',
+                  context.l10n.settingsSessionVolume,
                   formatter.volume(const Mass.grams(12480000)),
                 ),
                 _PreviewRow(
-                  'Bodyweight',
+                  context.l10n.measurementBodyweight,
                   formatter.bodyweight(const Mass.grams(80000)),
                 ),
                 _PreviewRow(

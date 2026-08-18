@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/formatting/quantity_formatter.dart';
 import '../../../core/units/mass.dart';
 import '../../../domain/progression/progression_rationale.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// "You hit every set at 100 kg last time, so this is +2.5 kg." — the one
 /// sentence every proposed target carries (`F-PRG-008` §1). Composed here,
@@ -13,6 +14,7 @@ String progressionRationaleText(
   ProgressionRationale rationale,
   QuantityFormatter formatter,
   MassUnit unit,
+  AppLocalizations l10n,
 ) {
   String weight(int grams) =>
       formatter.massValueOnly(Mass.grams(grams), unit, maxDecimals: 2);
@@ -23,44 +25,53 @@ String progressionRationaleText(
 
   switch (rationale.outcome) {
     case ProgressionOutcome.firstRun:
-      return "No history for this exercise yet — using the routine's own "
-          'target.';
+      return l10n.progressionFirstRun;
     case ProgressionOutcome.manualCarryForward:
       return hadPrevious
-          ? 'Carried forward from last time: $previousReps at '
-                '${weight(previousWeight)} ${unit.symbol}.'
-          : "No history yet — using the routine's own target.";
+          ? l10n.progressionCarriedForward(
+              previousReps,
+              weight(previousWeight),
+              unit.symbol,
+            )
+          : l10n.progressionFirstRun;
     case ProgressionOutcome.success:
-      return 'You hit every set at ${weight(previousWeight!)} '
-          '${unit.symbol} last time, so this is +'
-          '${weight(rationale.deltaGrams)} ${unit.symbol}.';
+      return l10n.progressionSuccess(
+        weight(previousWeight!),
+        unit.symbol,
+        weight(rationale.deltaGrams),
+      );
     case ProgressionOutcome.partial:
-      return 'Some sets missed target last time — repeating the same '
-          'weight.';
+      return l10n.progressionPartial;
     case ProgressionOutcome.failure:
-      return 'Missed target last time (${rationale.consecutiveFailures} in '
-          'a row) — repeating the same weight.';
+      return l10n.progressionFailure(rationale.consecutiveFailures);
     case ProgressionOutcome.deload:
-      return 'Missed target ${rationale.consecutiveFailures} sessions in a '
-          'row — deloading to ${weight(previousWeight! + rationale.deltaGrams)} '
-          '${unit.symbol}.';
+      return l10n.progressionDeload(
+        rationale.consecutiveFailures,
+        weight(previousWeight! + rationale.deltaGrams),
+        unit.symbol,
+      );
     case ProgressionOutcome.repRangeTopMet:
-      return 'You hit the top of your rep range at '
-          '${weight(previousWeight!)} ${unit.symbol} last time, so this is +'
-          '${weight(rationale.deltaGrams)} ${unit.symbol} — back to the '
-          'bottom of the range.';
+      return l10n.progressionRepRangeTopMet(
+        weight(previousWeight!),
+        unit.symbol,
+        weight(rationale.deltaGrams),
+      );
     case ProgressionOutcome.plateRoundingHeld:
-      return "The next jump isn't assemblable from your plates, so weight "
-          'stays at ${weight(previousWeight!)} ${unit.symbol} and reps go up '
-          'by one instead.';
+      return l10n.progressionPlateRoundingHeld(
+        weight(previousWeight!),
+        unit.symbol,
+      );
     case ProgressionOutcome.percentageOfTrainingMax:
       final trainingMax = rationale.trainingMaxGrams;
       final percent = rationale.percent;
       if (trainingMax == null || percent == null) {
-        return 'Computed from your training max.';
+        return l10n.progressionFromTrainingMax;
       }
-      return '${(percent * 100).round()}% of your training max '
-          '(${weight(trainingMax)} ${unit.symbol}).';
+      return l10n.progressionPercentOfTrainingMax(
+        (percent * 100).round(),
+        weight(trainingMax),
+        unit.symbol,
+      );
   }
 }
 

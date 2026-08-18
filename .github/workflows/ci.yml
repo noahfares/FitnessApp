@@ -45,6 +45,9 @@ jobs:
       - name: No network calls — the claim every privacy declaration rests on
         run: ./tools/check-network.sh
 
+      - name: User-facing text lives in the ARB file
+        run: ./tools/check-strings.sh
+
       - name: Version consistency
         run: |
           set -euo pipefail

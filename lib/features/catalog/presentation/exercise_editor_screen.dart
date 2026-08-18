@@ -19,6 +19,7 @@ import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import 'exercise_labels.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Create or edit an exercise (`F-CAT-003`).
 ///
@@ -177,9 +178,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
     if (!mounted) return;
     if (bestE1rm == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No logged history for this exercise yet.'),
-        ),
+        SnackBar(content: Text(context.l10n.catalogNoLoggedHistoryForThis)),
       );
       return;
     }
@@ -335,18 +334,15 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
   Future<void> _delete() async {
     final id = widget.exerciseId!;
     final repo = ref.read(exerciseRepositoryProvider);
-    final name = _existing?.name ?? 'this exercise';
+    final name = _existing?.name ?? context.l10n.catalogThisExercise;
 
     if (await repo.hasHistory(id)) {
       if (!mounted) return;
       final archive = await showConfirmSheet(
         context,
-        title: 'Used in past workouts',
-        message:
-            '$name appears in workouts you have already logged, so it cannot '
-            'be deleted without breaking that history.\n\n'
-            'Archiving hides it from pickers and leaves your history intact.',
-        confirmLabel: 'Archive instead',
+        title: context.l10n.catalogUsedInPastWorkouts,
+        message: context.l10n.catalogUsedInPastWorkoutsExplainer(name),
+        confirmLabel: context.l10n.catalogArchiveInstead,
         cancelLabel: 'Cancel',
         isDestructive: false,
       );
@@ -357,10 +353,8 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
     if (!mounted) return;
     final confirmed = await showConfirmSheet(
       context,
-      title: 'Delete $name?',
-      message:
-          'It will be removed from the catalogue. Nothing else is '
-          'affected — this exercise has never been logged.',
+      title: context.l10n.catalogDeleteExerciseTitle(name),
+      message: context.l10n.catalogDeleteUnusedExplainer,
       cancelLabel: 'Cancel',
     );
     if (!confirmed) return;
@@ -403,8 +397,10 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
 
     if (!widget.isNew && _existing == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Exercise')),
-        body: const Center(child: Text('This exercise no longer exists.')),
+        appBar: AppBar(title: Text(context.l10n.catalogExercise)),
+        body: Center(
+          child: Text(context.l10n.catalogThisExerciseNoLongerExists),
+        ),
       );
     }
 
@@ -413,12 +409,16 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isNew ? 'New exercise' : 'Edit exercise'),
+        title: Text(
+          widget.isNew
+              ? context.l10n.catalogNewExercise
+              : context.l10n.catalogEditExercise,
+        ),
         actions: [
           if (!widget.isNew)
             IconButton(
               icon: const Icon(Icons.delete_outline),
-              tooltip: 'Delete',
+              tooltip: context.l10n.catalogDelete,
               onPressed: _saving ? null : () => unawaited(_delete()),
             ),
         ],
@@ -433,8 +433,8 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
               padding: const EdgeInsets.only(bottom: AppSpacing.lg),
               child: Text(
                 existing.isCustom
-                    ? 'Custom exercise'
-                    : 'Built-in exercise — your edits survive catalogue updates',
+                    ? context.l10n.catalogCustomExercise
+                    : context.l10n.catalogBuiltInExerciseYourEdits,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -445,10 +445,10 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
             autofocus: widget.isNew,
             textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
-              labelText: 'Name',
+              labelText: context.l10n.catalogName,
               border: const OutlineInputBorder(),
               helperText: _duplicateName
-                  ? 'Another exercise already has this name. That is allowed.'
+                  ? context.l10n.catalogAnotherExerciseAlreadyHasThis
                   : null,
               helperMaxLines: 2,
               helperStyle: TextStyle(color: theme.colorScheme.tertiary),
@@ -461,13 +461,16 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
           const SizedBox(height: AppSpacing.lg),
           DropdownButtonFormField<Muscle>(
             initialValue: _primaryMuscle,
-            decoration: const InputDecoration(
-              labelText: 'Primary muscle',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.l10n.catalogPrimaryMuscle,
+              border: const OutlineInputBorder(),
             ),
             items: [
               for (final muscle in Muscle.values)
-                DropdownMenuItem(value: muscle, child: Text(muscle.label)),
+                DropdownMenuItem(
+                  value: muscle,
+                  child: Text(muscle.label(context.l10n)),
+                ),
             ],
             onChanged: (muscle) {
               if (muscle != null) setState(() => _primaryMuscle = muscle);
@@ -476,13 +479,16 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
           const SizedBox(height: AppSpacing.lg),
           DropdownButtonFormField<Equipment>(
             initialValue: _equipment,
-            decoration: const InputDecoration(
-              labelText: 'Equipment',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.l10n.catalogEquipment,
+              border: const OutlineInputBorder(),
             ),
             items: [
               for (final item in Equipment.values)
-                DropdownMenuItem(value: item, child: Text(item.label)),
+                DropdownMenuItem(
+                  value: item,
+                  child: Text(item.label(context.l10n)),
+                ),
             ],
             onChanged: (item) {
               if (item != null) setState(() => _equipment = item);
@@ -491,14 +497,17 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
           const SizedBox(height: AppSpacing.lg),
           DropdownButtonFormField<TrackingType>(
             initialValue: _trackingType,
-            decoration: const InputDecoration(
-              labelText: 'Tracking',
-              border: OutlineInputBorder(),
-              helperText: 'Decides which inputs the logger shows.',
+            decoration: InputDecoration(
+              labelText: context.l10n.catalogTracking,
+              border: const OutlineInputBorder(),
+              helperText: context.l10n.catalogDecidesWhichInputsTheLogger,
             ),
             items: [
               for (final type in TrackingType.values)
-                DropdownMenuItem(value: type, child: Text(type.label)),
+                DropdownMenuItem(
+                  value: type,
+                  child: Text(type.label(context.l10n)),
+                ),
             ],
             onChanged: (type) {
               if (type != null) setState(() => _trackingType = type);
@@ -513,11 +522,11 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
             TextField(
               controller: _bodyweightCoefficient,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Bodyweight loaded',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.catalogBodyweightLoaded,
+                border: const OutlineInputBorder(),
                 suffixText: '%',
-                helperText: 'Blank uses 100% — the full bodyweight.',
+                helperText: context.l10n.catalogBlankUses100TheFull,
               ),
             ),
           ],
@@ -528,19 +537,19 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
             DropdownButtonFormField<WeightEntryMode>(
               initialValue:
                   _weightEntryMode ?? defaultWeightEntryModeFor(_equipment),
-              decoration: const InputDecoration(
-                labelText: 'Weight entry',
-                border: OutlineInputBorder(),
-                helperText: 'Per side is doubled and stored as total load.',
+              decoration: InputDecoration(
+                labelText: context.l10n.catalogWeightEntry,
+                border: const OutlineInputBorder(),
+                helperText: context.l10n.catalogPerSideIsDoubledAnd,
               ),
-              items: const [
+              items: [
                 DropdownMenuItem(
                   value: WeightEntryMode.total,
-                  child: Text('Total load'),
+                  child: Text(context.l10n.catalogTotalLoad),
                 ),
                 DropdownMenuItem(
                   value: WeightEntryMode.perSide,
-                  child: Text('Per side'),
+                  child: Text(context.l10n.catalogPerSide),
                 ),
               ],
               onChanged: (mode) {
@@ -554,13 +563,16 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
           // what almost every exercise wants.
           DropdownButtonFormField<int>(
             initialValue: _defaultRestSeconds ?? 0,
-            decoration: const InputDecoration(
-              labelText: 'Rest timer',
-              border: OutlineInputBorder(),
-              helperText: 'Overrides the global default for this exercise.',
+            decoration: InputDecoration(
+              labelText: context.l10n.catalogRestTimer,
+              border: const OutlineInputBorder(),
+              helperText: context.l10n.catalogRestOverrideHint,
             ),
             items: [
-              const DropdownMenuItem(value: 0, child: Text('Default')),
+              DropdownMenuItem(
+                value: 0,
+                child: Text(context.l10n.catalogDefault),
+              ),
               for (final seconds in restDurationChoices)
                 DropdownMenuItem(
                   value: seconds,
@@ -578,22 +590,22 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
             // weight to (`F-PLT-005`).
             DropdownButtonFormField<WeightSource>(
               initialValue: _weightSource ?? defaultWeightSourceFor(_equipment),
-              decoration: const InputDecoration(
-                labelText: 'Weight source',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.catalogWeightSource,
+                border: const OutlineInputBorder(),
               ),
-              items: const [
+              items: [
                 DropdownMenuItem(
                   value: WeightSource.plateLoaded,
-                  child: Text('Plate-loaded'),
+                  child: Text(context.l10n.catalogPlateLoaded),
                 ),
                 DropdownMenuItem(
                   value: WeightSource.fixedIncrement,
-                  child: Text('Fixed dumbbells'),
+                  child: Text(context.l10n.catalogFixedDumbbells),
                 ),
                 DropdownMenuItem(
                   value: WeightSource.stack,
-                  child: Text('Weight stack'),
+                  child: Text(context.l10n.catalogWeightStack),
                 ),
               ],
               onChanged: (source) => setState(() => _weightSource = source),
@@ -612,15 +624,18 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
                   initialValue: bars.any((b) => b.id == _defaultBarId)
                       ? _defaultBarId
                       : null,
-                  decoration: const InputDecoration(
-                    labelText: 'Bar',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.catalogBar,
+                    border: const OutlineInputBorder(),
                     helperText:
                         "Left as Default, uses the inventory's own "
                         'default bar (Settings › Bars & plates).',
                   ),
                   items: [
-                    const DropdownMenuItem(value: null, child: Text('Default')),
+                    DropdownMenuItem(
+                      value: null,
+                      child: Text(context.l10n.catalogDefault),
+                    ),
                     for (final bar in bars)
                       DropdownMenuItem(value: bar.id, child: Text(bar.name)),
                   ],
@@ -637,12 +652,10 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
                 return TextField(
                   controller: _fixedIncrements,
                   decoration: InputDecoration(
-                    labelText: 'Available weights',
+                    labelText: context.l10n.catalogAvailableWeights,
                     border: const OutlineInputBorder(),
                     suffixText: unit.symbol,
-                    helperText:
-                        'Comma-separated, e.g. "5, 10, 15, 20" — '
-                        'exactly what the rack stocks.',
+                    helperText: context.l10n.catalogFixedIncrementsHint,
                     helperMaxLines: 2,
                   ),
                 );
@@ -663,7 +676,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
                           decimal: true,
                         ),
                         decoration: InputDecoration(
-                          labelText: 'Base',
+                          labelText: context.l10n.catalogBase,
                           border: const OutlineInputBorder(),
                           suffixText: unit.symbol,
                         ),
@@ -677,7 +690,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
                           decimal: true,
                         ),
                         decoration: InputDecoration(
-                          labelText: 'Step',
+                          labelText: context.l10n.catalogStep,
                           border: const OutlineInputBorder(),
                           suffixText: unit.symbol,
                         ),
@@ -691,10 +704,10 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
                           decimal: true,
                         ),
                         decoration: InputDecoration(
-                          labelText: 'Half step',
+                          labelText: context.l10n.catalogHalfStep,
                           border: const OutlineInputBorder(),
                           suffixText: unit.symbol,
-                          helperText: 'Optional',
+                          helperText: context.l10n.catalogOptional,
                         ),
                       ),
                     ),
@@ -724,10 +737,12 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
                     decimal: true,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Stepper increment',
+                    labelText: context.l10n.catalogStepperIncrement,
                     border: const OutlineInputBorder(),
                     suffixText: unit.symbol,
-                    helperText: 'Blank uses the default, $defaultLabel.',
+                    helperText: context.l10n.catalogBlankUsesDefault(
+                      defaultLabel,
+                    ),
                   ),
                 );
               },
@@ -745,14 +760,14 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
                     decimal: true,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Training max',
+                    labelText: context.l10n.catalogTrainingMax,
                     border: const OutlineInputBorder(),
                     suffixText: unit.symbol,
-                    helperText: 'Used by percentage-based progression.',
+                    helperText: context.l10n.catalogTrainingMaxHint,
                     suffixIcon: widget.isNew
                         ? null
                         : IconButton(
-                            tooltip: 'Derive from best e1RM (~90%)',
+                            tooltip: context.l10n.catalogDeriveFromBestE1rm90,
                             icon: const Icon(Icons.auto_awesome),
                             onPressed: () => unawaited(_deriveTrainingMax()),
                           ),
@@ -762,7 +777,10 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
             ),
           ],
           const SizedBox(height: AppSpacing.lg),
-          Text('Secondary muscles', style: theme.textTheme.titleSmall),
+          Text(
+            context.l10n.catalogSecondaryMuscles,
+            style: theme.textTheme.titleSmall,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: AppSpacing.sm,
@@ -771,7 +789,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
               for (final muscle in Muscle.values)
                 if (muscle != _primaryMuscle)
                   FilterChip(
-                    label: Text(muscle.label),
+                    label: Text(muscle.label(context.l10n)),
                     selected: _secondaryMuscles.contains(muscle),
                     onSelected: (selected) => setState(() {
                       if (selected) {
@@ -788,20 +806,18 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
             controller: _notes,
             maxLines: 3,
             textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'Notes',
-              helperText:
-                  'Seat height, pin position, grip width — visible '
-                  'inline during a session.',
+            decoration: InputDecoration(
+              labelText: context.l10n.catalogNotes,
+              helperText: context.l10n.catalogExerciseNoteHint,
               helperMaxLines: 2,
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text('Aliases', style: theme.textTheme.titleSmall),
+          Text(context.l10n.catalogAliases, style: theme.textTheme.titleSmall),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Other names this is searchable by — "RDL" for Romanian Deadlift.',
+            context.l10n.catalogAliasesHint,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -822,12 +838,12 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
           TextField(
             controller: _aliasInput,
             decoration: InputDecoration(
-              hintText: 'Add an alias',
+              hintText: context.l10n.catalogAddAnAlias,
               border: const OutlineInputBorder(),
               isDense: true,
               suffixIcon: IconButton(
                 icon: const Icon(Icons.add),
-                tooltip: 'Add alias',
+                tooltip: context.l10n.catalogAddAlias,
                 onPressed: () => _addAlias(_aliasInput.text),
               ),
             ),
@@ -846,8 +862,7 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Archiving hides an exercise from pickers without touching any '
-              'workout it appears in.',
+              context.l10n.catalogArchiveConfirmExplainer,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -864,7 +879,9 @@ class _ExerciseEditorScreenState extends ConsumerState<ExerciseEditorScreen> {
             onPressed: _name.text.trim().isEmpty || _saving
                 ? null
                 : () => unawaited(_save()),
-            child: Text(widget.isNew ? 'Create exercise' : 'Save'),
+            child: Text(
+              widget.isNew ? context.l10n.catalogCreateExercise : 'Save',
+            ),
           ),
         ),
       ),

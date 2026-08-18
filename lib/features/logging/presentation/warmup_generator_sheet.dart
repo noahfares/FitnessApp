@@ -11,6 +11,7 @@ import '../../../domain/logging/warmup_generator.dart';
 import '../../../domain/plates/plate_calculator.dart';
 import '../../../domain/plates/weight_source_calculator.dart';
 import '../../settings/application/unit_preferences_provider.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Generate a warm-up ramp into a working weight, in one tap (`F-LOG-020`).
 ///
@@ -105,7 +106,7 @@ class _WarmupGeneratorSheetState extends ConsumerState<WarmupGeneratorSheet> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Generate warm-ups',
+                      context.l10n.loggingGenerateWarmUps,
                       style: theme.textTheme.titleMedium,
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -117,7 +118,7 @@ class _WarmupGeneratorSheetState extends ConsumerState<WarmupGeneratorSheet> {
                         decimal: true,
                       ),
                       decoration: InputDecoration(
-                        labelText: 'Working weight',
+                        labelText: context.l10n.loggingWorkingWeight,
                         suffixText: unit.symbol,
                         border: const OutlineInputBorder(),
                         errorText: _error,
@@ -127,12 +128,15 @@ class _WarmupGeneratorSheetState extends ConsumerState<WarmupGeneratorSheet> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Ramp', style: theme.textTheme.titleSmall),
+                        Text(
+                          context.l10n.loggingRamp,
+                          style: theme.textTheme.titleSmall,
+                        ),
                         TextButton(
                           onPressed: () => setState(
                             () => _ruleset = [...defaultWarmupRuleset],
                           ),
-                          child: const Text('Reset to default'),
+                          child: Text(context.l10n.loggingResetToDefault),
                         ),
                       ],
                     ),
@@ -152,7 +156,7 @@ class _WarmupGeneratorSheetState extends ConsumerState<WarmupGeneratorSheet> {
                           ],
                         ),
                         icon: const Icon(Icons.add),
-                        label: const Text('Add step'),
+                        label: Text(context.l10n.loggingAddStep),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -169,7 +173,7 @@ class _WarmupGeneratorSheetState extends ConsumerState<WarmupGeneratorSheet> {
 
   Future<void> _generate() async {
     if (_ruleset.isEmpty) {
-      setState(() => _error = 'Add at least one step');
+      setState(() => _error = context.l10n.loggingAddAtLeastOneStep);
       return;
     }
     final unit = ref.read(unitPreferencesProvider).load;
@@ -177,7 +181,7 @@ class _WarmupGeneratorSheetState extends ConsumerState<WarmupGeneratorSheet> {
         .read(quantityParserProvider)
         .parseMass(_weight.text, unit);
     if (workingWeight == null || workingWeight.grams <= 0) {
-      setState(() => _error = 'Enter the working weight');
+      setState(() => _error = context.l10n.loggingEnterTheWorkingWeight);
       return;
     }
 
@@ -291,10 +295,10 @@ class _StepRow extends StatelessWidget {
             child: TextFormField(
               initialValue: (step.percent * 100).round().toString(),
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: '% of working weight',
+              decoration: InputDecoration(
+                labelText: context.l10n.loggingOfWorkingWeight,
                 isDense: true,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
               onChanged: (value) {
                 final percent = int.tryParse(value);
@@ -311,10 +315,10 @@ class _StepRow extends StatelessWidget {
             child: TextFormField(
               initialValue: step.reps.toString(),
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Reps',
+              decoration: InputDecoration(
+                labelText: context.l10n.loggingReps,
                 isDense: true,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
               onChanged: (value) {
                 final reps = int.tryParse(value);
@@ -325,7 +329,7 @@ class _StepRow extends StatelessWidget {
             ),
           ),
           IconButton(
-            tooltip: 'Remove step',
+            tooltip: context.l10n.loggingRemoveStep,
             icon: const Icon(Icons.close),
             onPressed: onRemove,
           ),

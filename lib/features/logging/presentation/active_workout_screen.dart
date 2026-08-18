@@ -33,6 +33,7 @@ import 'progression_rationale_text.dart';
 import 'set_row.dart';
 import 'set_value_format.dart';
 import 'warmup_generator_sheet.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The session in progress (`F-LOG-001`, `F-LOG-002`, `F-LOG-007`).
 ///
@@ -55,8 +56,8 @@ class ActiveWorkoutScreen extends ConsumerWidget {
     return active.when(
       loading: () => const Scaffold(body: LoadingView()),
       error: (error, _) => Scaffold(
-        appBar: AppBar(title: const Text('Workout')),
-        body: const ErrorView(title: 'This workout could not be read'),
+        appBar: AppBar(title: Text(context.l10n.historyWorkout)),
+        body: ErrorView(title: context.l10n.loggingThisWorkoutCouldNotBe),
       ),
       data: (workout) => switch (workout) {
         // Finishing or discarding removes the session from the stream a
@@ -79,18 +80,18 @@ class _NoActiveWorkout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Workout')),
+      appBar: AppBar(title: Text(context.l10n.historyWorkout)),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('No workout in progress.'),
+              Text(context.l10n.loggingNoWorkoutInProgress),
               const SizedBox(height: AppSpacing.lg),
               FilledButton(
                 onPressed: () => context.go(AppRoutes.start),
-                child: const Text('Start one'),
+                child: Text(context.l10n.loggingStartOne),
               ),
             ],
           ),
@@ -119,8 +120,11 @@ class _ActiveWorkout extends ConsumerWidget {
             onSelected: (value) {
               if (value == 'discard') unawaited(_discard(context, ref));
             },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'discard', child: Text('Discard workout')),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'discard',
+                child: Text(context.l10n.loggingDiscardWorkout),
+              ),
             ],
           ),
         ],
@@ -163,10 +167,10 @@ class _ActiveWorkout extends ConsumerWidget {
             child: exercises == null
                 ? const LoadingView()
                 : exercises.isEmpty
-                ? const EmptyState(
+                ? EmptyState(
                     icon: Icons.fitness_center,
-                    title: 'No exercises yet',
-                    message: 'Add the first one to start logging.',
+                    title: context.l10n.historyNoExercisesYet,
+                    message: context.l10n.loggingAddTheFirstOneTo,
                   )
                 : ReorderableListView.builder(
                     // Handles rather than long-press-anywhere: every tile is
@@ -222,14 +226,14 @@ class _ActiveWorkout extends ConsumerWidget {
                     child: FilledButton.tonalIcon(
                       onPressed: () => unawaited(_addExercises(context, ref)),
                       icon: const Icon(Icons.add),
-                      label: const Text('Add exercises'),
+                      label: Text(context.l10n.historyAddExercises),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: FilledButton(
                       onPressed: () => unawaited(_finish(context, ref)),
-                      child: const Text('Finish'),
+                      child: Text(context.l10n.loggingFinish),
                     ),
                   ),
                 ],
@@ -271,23 +275,20 @@ class _ActiveWorkout extends ConsumerWidget {
       final choice = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Nothing logged yet'),
-          content: const Text(
-            'No sets were completed, so this would be an empty entry in your '
-            'history. Discard it instead?',
-          ),
+          title: Text(context.l10n.loggingNothingLoggedYet),
+          content: Text(context.l10n.loggingEmptySessionExplainer),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop('cancel'),
-              child: const Text('Keep training'),
+              child: Text(context.l10n.loggingKeepTraining),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop('finish'),
-              child: const Text('Finish anyway'),
+              child: Text(context.l10n.loggingFinishAnyway),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop('discard'),
-              child: const Text('Discard'),
+              child: Text(context.l10n.loggingDiscard),
             ),
           ],
         ),
@@ -357,18 +358,17 @@ class _ActiveWorkout extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Discard this workout?',
+                context.l10n.loggingDiscardThisWorkout,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
                 tally.exercises == 0
-                    ? 'Nothing has been added to it yet.'
-                    : '${tally.exercises} '
-                          '${tally.exercises == 1 ? 'exercise' : 'exercises'} '
-                          'and ${tally.completedSets} completed '
-                          '${tally.completedSets == 1 ? 'set' : 'sets'} will '
-                          'be removed from this session.',
+                    ? context.l10n.loggingNothingHasBeenAddedTo
+                    : context.l10n.loggingDiscardTally(
+                        tally.exercises,
+                        tally.completedSets,
+                      ),
               ),
               const SizedBox(height: AppSpacing.lg),
               Row(
@@ -376,13 +376,13 @@ class _ActiveWorkout extends ConsumerWidget {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Keep training'),
+                      child: Text(context.l10n.loggingKeepTraining),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: HoldToConfirmButton(
-                      label: 'Discard',
+                      label: context.l10n.loggingDiscard,
                       onConfirmed: () => Navigator.of(context).pop(true),
                     ),
                   ),
@@ -415,8 +415,7 @@ class _StaleSessionNotice extends StatelessWidget {
       color: theme.colorScheme.tertiaryContainer,
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Text(
-        'This workout has been open for more than 12 hours. Finish or discard '
-        'it if you are done.',
+        context.l10n.loggingStaleSessionNotice,
         style: theme.textTheme.bodySmall?.copyWith(
           color: theme.colorScheme.onTertiaryContainer,
         ),
@@ -506,14 +505,16 @@ class _SessionExerciseTile extends ConsumerWidget {
                 style: theme.textTheme.bodySmall,
               ),
               Text(
-                '${exercise.completedSetCount} of ${exercise.setCount} '
-                '${exercise.setCount == 1 ? 'set' : 'sets'} done',
+                context.l10n.loggingSetsDone(
+                  exercise.completedSetCount,
+                  exercise.setCount,
+                ),
                 style: theme.textTheme.bodySmall,
               ),
               if (_targetSummary(exercise.target, perSide, ref)
                   case final summary?)
                 Text(
-                  'Target: $summary',
+                  context.l10n.loggingTargetSummary(summary),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.primary,
                   ),
@@ -525,6 +526,7 @@ class _SessionExerciseTile extends ConsumerWidget {
                     target.rationale!,
                     ref.watch(quantityFormatterProvider),
                     prefs.load,
+                    context.l10n,
                   ),
                 ),
               // The exercise's own persistent note, distinct from anything
@@ -562,7 +564,9 @@ class _SessionExerciseTile extends ConsumerWidget {
               PopupMenuItem(
                 value: 'note',
                 child: Text(
-                  exercise.exerciseNotes == null ? 'Add note' : 'Edit note',
+                  exercise.exerciseNotes == null
+                      ? context.l10n.loggingAddNote
+                      : context.l10n.loggingEditNote,
                 ),
               ),
               // Only exercises with a weight field have a working weight to
@@ -570,12 +574,18 @@ class _SessionExerciseTile extends ConsumerWidget {
               if (setFieldsFor(
                 exercise.trackingType.name,
               ).contains(SetField.weight))
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'warmups',
-                  child: Text('Generate warm-ups'),
+                  child: Text(context.l10n.loggingGenerateWarmUps),
                 ),
-              const PopupMenuItem(value: 'swap', child: Text('Swap exercise')),
-              const PopupMenuItem(value: 'remove', child: Text('Remove')),
+              PopupMenuItem(
+                value: 'swap',
+                child: Text(context.l10n.loggingSwapExercise),
+              ),
+              PopupMenuItem(
+                value: 'remove',
+                child: Text(context.l10n.historyRemove),
+              ),
             ],
           ),
         ),
@@ -616,7 +626,7 @@ class _SessionExerciseTile extends ConsumerWidget {
                 exercise.groupId != null &&
                         exercise.groupId == nextExercise!.groupId
                     ? 'Ungroup'
-                    : 'Group with next',
+                    : context.l10n.loggingGroupWithNext,
               ),
             ),
           ),
@@ -647,7 +657,7 @@ class _SessionExerciseTile extends ConsumerWidget {
                   Icon(Icons.link, size: 16, color: theme.colorScheme.primary),
                   const SizedBox(width: 4),
                   Text(
-                    'Superset',
+                    context.l10n.loggingSuperset,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
@@ -682,12 +692,11 @@ class _SessionExerciseTile extends ConsumerWidget {
     if (exercise.completedSetCount > 0) {
       final confirmed = await showConfirmSheet(
         context,
-        title: 'Remove ${exercise.name}?',
-        message:
-            '${exercise.completedSetCount} completed '
-            '${exercise.completedSetCount == 1 ? 'set' : 'sets'} will be '
-            'removed from this session too.',
-        confirmLabel: 'Remove',
+        title: context.l10n.loggingRemoveExerciseTitle(exercise.name),
+        message: context.l10n.loggingRemoveExerciseTally(
+          exercise.completedSetCount,
+        ),
+        confirmLabel: context.l10n.historyRemove,
       );
       if (!confirmed) return;
     }
@@ -703,9 +712,9 @@ class _SessionExerciseTile extends ConsumerWidget {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('${exercise.name} removed'),
+          content: Text(context.l10n.loggingExerciseRemoved(exercise.name)),
           action: SnackBarAction(
-            label: 'Undo',
+            label: context.l10n.historyUndo,
             onPressed: () => unawaited(
               repo.restoreExercise(exercise.workoutExerciseId, tombstonedAt),
             ),
@@ -840,7 +849,7 @@ class _ColumnHeaders extends StatelessWidget {
                 AppSpacing.setNoteColumn +
                 (showRpe ? AppSpacing.setRpeColumn : 0),
           ),
-          Expanded(flex: 3, child: cell('Last time')),
+          Expanded(flex: 3, child: cell(context.l10n.loggingLastTime)),
           for (final field in fields)
             Expanded(
               flex: 2,

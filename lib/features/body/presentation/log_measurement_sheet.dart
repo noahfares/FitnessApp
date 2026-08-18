@@ -10,6 +10,7 @@ import '../../../data/db/database_provider.dart';
 import '../../../data/db/tables/enums.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import 'measurement_labels.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Log or edit a non-bodyweight measurement entry (`F-BOD-002`).
 ///
@@ -72,7 +73,7 @@ class _LogMeasurementSheetState extends ConsumerState<LogMeasurementSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final prefs = ref.watch(unitPreferencesProvider);
-    final label = widget.type.label;
+    final label = widget.type.label(context.l10n);
 
     return Padding(
       padding: EdgeInsets.only(
@@ -86,7 +87,9 @@ class _LogMeasurementSheetState extends ConsumerState<LogMeasurementSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            widget.editing == null ? 'Log $label' : 'Edit $label',
+            widget.editing == null
+                ? context.l10n.bodyLogMeasurement(label)
+                : context.l10n.bodyEditMeasurement(label),
             style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -111,9 +114,9 @@ class _LogMeasurementSheetState extends ConsumerState<LogMeasurementSheet> {
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: _notes,
-            decoration: const InputDecoration(
-              labelText: 'Note (optional)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.l10n.bodyNoteOptional,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -144,7 +147,7 @@ class _LogMeasurementSheetState extends ConsumerState<LogMeasurementSheet> {
           ?.millimetres;
     }
     if (canonical == null || canonical < 0) {
-      setState(() => _error = 'Enter a value');
+      setState(() => _error = context.l10n.bodyEnterAValue);
       return;
     }
 

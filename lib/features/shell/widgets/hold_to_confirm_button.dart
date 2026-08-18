@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// A press-and-hold destructive action, for the one confirmation in the app
 /// that a single sweaty tap must not be able to trigger: discarding a whole
@@ -70,7 +71,7 @@ class _HoldToConfirmButtonState extends State<HoldToConfirmButton>
               ),
               Text(
                 _controller.value == 0
-                    ? 'Hold to ${widget.label.toLowerCase()}'
+                    ? context.l10n.shellHoldTo(widget.label.toLowerCase())
                     : widget.label,
                 style: Theme.of(
                   context,

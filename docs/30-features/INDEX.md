@@ -227,7 +227,7 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-I18N-001](I18N/F-I18N-001.md) | String externalisation | 6 | P1 | planned |
+| [F-I18N-001](I18N/F-I18N-001.md) | String externalisation | 6 | P1 | done |
 | [F-I18N-002](I18N/F-I18N-002.md) | Locale-aware formatting | 0 | P1 | done |
 | [F-I18N-003](I18N/F-I18N-003.md) | Additional locales | — | P3 | idea |
 
