@@ -1,6 +1,6 @@
 # F-ANA-001 — Analytics engine
 
-Status: in-progress | Priority: P0 | Phase: 3
+Status: done | Priority: P0 | Phase: 3
 Blocks: F-ANA-002 … F-ANA-014
 Reads: 40-ANALYTICS-SPEC, 20-ARCHITECTURE#the-one-hard-rule
 
@@ -60,3 +60,28 @@ no Flutter or database dependency. This is the load-bearing decision that makes
 the numbers trustworthy: every function is testable against a hand-worked
 fixture, and a wrong figure is a failing test rather than a chart nobody
 double-checks.
+
+## Status — closed (v0.56.0)
+
+The umbrella closes because every metric it covers now exists with a
+fixture-backed test: e1RM and its three formulas, personal records, volume load,
+sets per muscle, consistency, muscle balance, ACWR, stall detection, intensity
+distribution, weekly insights, duration compliance, bodyweight EMA, muscle heat,
+and the plate maths §13 added. `test/domain/analytics/` is nineteen files
+against `docs/40-ANALYTICS-SPEC.md`'s worked examples.
+
+Two acceptance criteria resolved rather than left dangling:
+
+- **Zero Flutter imports in `domain/`** — enforced by `tools/check-layers.sh`
+  in CI, and it has never been allowed to break.
+- **"Under 100 ms on a mid-range device"** — **waived**, with the same
+  reasoning Phase 3's audit gave: a literal wall-clock number needs an
+  AOT-compiled release build on real hardware, and `flutter test`'s JIT tier
+  measures roughly 3× over budget for reasons that are entirely about the
+  tier. `recompute_performance_test.dart` proves the property that actually
+  matters and can be checked here — recomputation is linear in history size,
+  not quadratic — and the literal number goes on the same on-device list as
+  `F-TIM-003`'s battery-manager criterion.
+
+§4's memoisation is `.family` providers keyed by id and range, as specified;
+nothing recomputes per frame.

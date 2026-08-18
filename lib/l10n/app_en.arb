@@ -160,6 +160,7 @@
   "bodyBodyweightHistoryCouldNotBe": "Bodyweight history could not be read",
   "bodyBodyweightTrend": "Bodyweight trend",
   "bodyCancelCompare": "Cancel compare",
+  "bodyClearGoal": "Clear goal",
   "bodyCompare": "Compare",
   "bodyCompareTwoPhotos": "Compare two photos",
   "bodyCouldNotLoadPhotos": "Could not load photos.",
@@ -187,6 +188,8 @@
   },
   "bodyEnterAValue": "Enter a value",
   "bodyEnterAWeight": "Enter a weight",
+  "bodyGoal": "Goal",
+  "bodyGoalExplainer": "Drawn as a dashed line on the trend. A target, not a prediction — nothing else in the app reads it.",
   "bodyLogBodyweight": "Log bodyweight",
   "bodyLogMeasurement": "Log {type}",
   "@bodyLogMeasurement": {
@@ -203,6 +206,7 @@
   "bodyNotLoggedYet": "Not logged yet.",
   "bodyNoteOptional": "Note (optional)",
   "bodyProgressPhotos": "Progress photos",
+  "bodySetGoal": "Set a bodyweight goal",
   "bodyThisPermanentlyRemovesThePhoto": "This permanently removes the photo from this device.",
   "bodyTrackedTypesExplainer": "Bodyweight is always logged. Turn on whichever of these you also want to track.",
   "bodyTrend": "Trend",
@@ -1147,6 +1151,14 @@
   "shellKeepIt": "Keep it",
   "shellLogAFewSessionsTo": "Log a few sessions to see this chart.",
   "shellLogItToTrackAlongside": "Log it to track alongside your lifts.",
+  "shellNextUpDay": "Next up: {day}",
+  "@shellNextUpDay": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
   "shellNoBodyweightLoggedYet": "No bodyweight logged yet",
   "shellNoWorkoutsYet": "No workouts yet",
   "shellNotEnoughDataYet": "Not enough data yet",

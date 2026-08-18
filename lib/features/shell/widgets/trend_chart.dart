@@ -59,6 +59,7 @@ class TrendChart extends StatelessWidget {
     this.onPointTap,
     this.zoomEnabled = true,
     this.secondaryPoints,
+    this.goalLine,
   });
 
   final List<TrendChartPoint> points;
@@ -86,6 +87,11 @@ class TrendChart extends StatelessWidget {
   /// tap gesture entirely rather than tapping to nowhere.
   final void Function(TrendChartPoint point)? onPointTap;
 
+  /// A horizontal reference line — the bodyweight goal (`F-BOD-003` §4).
+  /// Dashed and muted: it is a target, not data, and drawing it like a second
+  /// series would invite reading it as one.
+  final ({double value, String label})? goalLine;
+
   /// Pinch-to-zoom on the time axis (`docs/24-DESIGN-SYSTEM.md` §Charts,
   /// `F-ANA-016`). Off for a chart embedded in a scrolling container that
   /// would otherwise fight the gesture for the same pointer.
@@ -106,6 +112,8 @@ class TrendChart extends StatelessWidget {
     final ys = [
       ...points.map((p) => p.y),
       ...?secondaryPoints?.map((p) => p.y),
+      // The goal has to fit, or a goal nobody is near simply would not show.
+      if (goalLine != null) goalLine!.value,
     ];
     final minY = ys.reduce((a, b) => a < b ? a : b);
     final maxY = ys.reduce((a, b) => a > b ? a : b);
@@ -143,7 +151,9 @@ class TrendChart extends StatelessWidget {
         // out as a stream of loose numbers underneath it.
         Semantics(
           label: trendChartSummary(
-            metric: metricLabel,
+            metric: goalLine == null
+                ? metricLabel
+                : '$metricLabel, goal ${goalLine!.label}',
             values: [for (final p in points) p.y],
             format: valueLabel,
             firstLabel: points.first.label,
@@ -174,6 +184,17 @@ class TrendChart extends StatelessWidget {
                         FlLine(color: theme.dividerColor, strokeWidth: 0.5),
                   ),
                   borderData: FlBorderData(show: false),
+                  extraLinesData: ExtraLinesData(
+                    horizontalLines: [
+                      if (goalLine case final goal?)
+                        HorizontalLine(
+                          y: goal.value,
+                          color: theme.colorScheme.onSurfaceVariant,
+                          strokeWidth: 1.5,
+                          dashArray: const [4, 4],
+                        ),
+                    ],
+                  ),
                   titlesData: FlTitlesData(
                     topTitles: const AxisTitles(),
                     rightTitles: const AxisTitles(),

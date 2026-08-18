@@ -49,7 +49,7 @@
 | [F-ROU-009](ROU/F-ROU-009.md) | Archive routines | 2 | P2 | done |
 | [F-ROU-010](ROU/F-ROU-010.md) | Start a workout from a routine day | 2 | P0 | done |
 | [F-ROU-011](ROU/F-ROU-011.md) | Routine preview | 3 | P2 | done |
-| [F-ROU-012](ROU/F-ROU-012.md) | Scheduling | 3 | P2 | in-progress |
+| [F-ROU-012](ROU/F-ROU-012.md) | Scheduling | 3 | P2 | done |
 | [F-ROU-013](ROU/F-ROU-013.md) | Cycles, blocks and deload weeks | — | P2 | idea |
 | [F-ROU-014](ROU/F-ROU-014.md) | Share and import routines | — | P2 | idea |
 | [F-ROU-015](ROU/F-ROU-015.md) | Built-in starter programs | 3 | P2 | done |
@@ -100,7 +100,7 @@
 
 | ID | Title | Phase | Pri | Status |
 |---|---|---|---|---|
-| [F-ANA-001](ANA/F-ANA-001.md) | Analytics engine | 3 | P0 | in-progress |
+| [F-ANA-001](ANA/F-ANA-001.md) | Analytics engine | 3 | P0 | done |
 | [F-ANA-002](ANA/F-ANA-002.md) | Per-exercise history | 3 | P0 | done |
 | [F-ANA-003](ANA/F-ANA-003.md) | Estimated 1RM trend | 3 | P1 | done |
 | [F-ANA-004](ANA/F-ANA-004.md) | Volume charts | 3 | P1 | done |
@@ -142,7 +142,7 @@
 |---|---|---|---|---|
 | [F-BOD-001](BOD/F-BOD-001.md) | Bodyweight log | 1 | P0 | done |
 | [F-BOD-002](BOD/F-BOD-002.md) | Circumference measurements | 4 | P2 | done |
-| [F-BOD-003](BOD/F-BOD-003.md) | Trend charts with smoothing | 4 | P1 | in-progress |
+| [F-BOD-003](BOD/F-BOD-003.md) | Trend charts with smoothing | 4 | P1 | done |
 | [F-BOD-004](BOD/F-BOD-004.md) | Progress photos | 5 | P2 | done |
 | [F-BOD-005](BOD/F-BOD-005.md) | Goals | — | P3 | idea |
 | [F-BOD-006](BOD/F-BOD-006.md) | Measurement reminders | — | P3 | idea |
@@ -155,7 +155,7 @@
 | [F-DAT-002](DAT/F-DAT-002.md) | CSV export | 5 | P1 | done |
 | [F-DAT-003](DAT/F-DAT-003.md) | Backup file | 5 | P0 | done |
 | [F-DAT-004](DAT/F-DAT-004.md) | Restore | 5 | P0 | done |
-| [F-DAT-005](DAT/F-DAT-005.md) | Strong CSV import | 5 | P1 | in-progress |
+| [F-DAT-005](DAT/F-DAT-005.md) | Strong CSV import | 5 | P1 | done |
 | [F-DAT-006](DAT/F-DAT-006.md) | Hevy CSV import | 5 | P2 | done |
 | [F-DAT-007](DAT/F-DAT-007.md) | Import mapping UI | 5 | P1 | done |
 | [F-DAT-008](DAT/F-DAT-008.md) | Automatic local backups | 5 | P2 | done |

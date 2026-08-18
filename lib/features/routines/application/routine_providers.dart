@@ -68,3 +68,8 @@ final todaysScheduledDaysProvider = StreamProvider<List<ScheduledDay>>((ref) {
 final scheduledWeekdaysProvider = StreamProvider<Set<int>>(
   (ref) => ref.watch(routineRepositoryProvider).watchScheduledWeekdays(),
 );
+
+/// The next day up in each rolling-rotation routine (`F-ROU-012`).
+final rotationDaysProvider = StreamProvider<List<ScheduledDay>>(
+  (ref) => ref.watch(routineRepositoryProvider).watchRotationDays(),
+);

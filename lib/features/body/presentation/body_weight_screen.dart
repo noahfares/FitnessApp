@@ -21,6 +21,7 @@ import '../../shell/widgets/confirm_sheet.dart';
 import '../../shell/widgets/empty_state.dart';
 import '../../shell/widgets/trend_chart.dart';
 import '../application/body_providers.dart';
+import '../application/bodyweight_goal_provider.dart';
 import 'log_bodyweight_sheet.dart';
 import 'log_measurement_sheet.dart';
 import 'measurement_labels.dart';
@@ -125,6 +126,7 @@ class _BodyweightTrendSection extends ConsumerWidget {
             ),
         ];
         final rate = trend.weeklyRateGrams;
+        final goalGrams = ref.watch(bodyweightGoalProvider);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,6 +140,28 @@ class _BodyweightTrendSection extends ConsumerWidget {
               subtitle: unit.symbol,
               valueLabel: (v) => v.toStringAsFixed(1),
               zoomEnabled: false,
+              goalLine: goalGrams == null
+                  ? null
+                  : (
+                      value: Mass.grams(goalGrams).toUnit(unit),
+                      label:
+                          '${formatter.massValueOnly(Mass.grams(goalGrams), unit)} '
+                          '${unit.symbol}',
+                    ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                icon: const Icon(Icons.flag_outlined, size: 18),
+                onPressed: () => unawaited(_editGoal(context, ref, unit)),
+                label: Text(
+                  goalGrams == null
+                      ? context.l10n.bodySetGoal
+                      : '${context.l10n.bodyGoal}: '
+                            '${formatter.massValueOnly(Mass.grams(goalGrams), unit)} '
+                            '${unit.symbol}',
+                ),
+              ),
             ),
             if (rate != null) ...[
               const SizedBox(height: AppSpacing.sm),
@@ -155,6 +179,71 @@ class _BodyweightTrendSection extends ConsumerWidget {
       }),
     );
   }
+}
+
+/// Prompts for a goal in the user's own unit and stores canonical grams
+/// (`F-BOD-003` §4, docs/22-UNITS.md).
+Future<void> _editGoal(
+  BuildContext context,
+  WidgetRef ref,
+  MassUnit unit,
+) async {
+  final parser = ref.read(quantityParserProvider);
+  final current = ref.read(bodyweightGoalProvider);
+  final controller = TextEditingController(
+    text: current == null
+        ? ''
+        : ref
+              .read(quantityFormatterProvider)
+              .massValueOnly(Mass.grams(current), unit),
+  );
+
+  final result = await showDialog<String>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(context.l10n.bodySetGoal),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: controller,
+            autofocus: true,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(suffixText: unit.symbol),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            context.l10n.bodyGoalExplainer,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop('clear'),
+          child: Text(context.l10n.bodyClearGoal),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(null),
+          child: Text(context.l10n.shellKeepIt),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(controller.text),
+          child: Text(context.l10n.catalogSave),
+        ),
+      ],
+    ),
+  );
+
+  if (result == null) return;
+  if (result == 'clear') {
+    await ref.read(bodyweightGoalProvider.notifier).set(null);
+    return;
+  }
+  final grams = parser.parseMass(result, unit);
+  if (grams == null) return;
+  await ref.read(bodyweightGoalProvider.notifier).set(grams.grams);
 }
 
 class _BodyweightTile extends ConsumerWidget {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:fitness_app/core/routing/app_routes.dart';
 import 'package:fitness_app/data/db/app_database.dart';
 import 'package:fitness_app/data/db/tables/enums.dart';
 import 'package:fitness_app/data/repositories/body_measurement_repository.dart';
@@ -8,6 +9,8 @@ import 'package:fitness_app/features/body/presentation/body_weight_screen.dart';
 import 'package:fitness_app/features/body/presentation/log_bodyweight_sheet.dart';
 import 'package:fitness_app/features/body/presentation/log_measurement_sheet.dart';
 import 'package:fitness_app/features/body/presentation/tracked_measurements_sheet.dart';
+
+import 'package:fitness_app/features/body/application/bodyweight_goal_provider.dart';
 
 import '../../support/harness.dart';
 
@@ -133,5 +136,44 @@ void main() {
     );
 
     expect(find.text('18.5%'), findsOneWidget);
+  });
+
+  testWidgets('a bodyweight goal draws a line and can be cleared', (
+    tester,
+  ) async {
+    // Three entries so the trend section renders at all.
+    final repo = BodyMeasurementRepository(db);
+    for (final (day, grams) in [(1, 82000), (8, 81500), (15, 81000)]) {
+      await repo.logBodyweight(
+        grams: grams,
+        measuredAt: DateTime(2026, 3, day),
+      );
+    }
+
+    final container = await pumpApp(
+      tester,
+      db: db,
+      startAt: AppRoutes.body,
+      now: DateTime(2026, 3, 20),
+    );
+
+    expect(container.read(bodyweightGoalProvider), isNull);
+
+    await tester.tap(find.text('Set a bodyweight goal'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '78');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    expect(container.read(bodyweightGoalProvider), 78000);
+    expect(find.textContaining('Goal:'), findsOneWidget);
+
+    await tester.tap(find.textContaining('Goal:'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Clear goal'));
+    await tester.pumpAndSettle();
+
+    // A goal you no longer have leaves no line behind.
+    expect(container.read(bodyweightGoalProvider), isNull);
   });
 }

@@ -195,17 +195,28 @@ class _TodaysScheduleCard extends ConsumerWidget {
     if (active != null) return const SizedBox.shrink();
 
     final scheduled = ref.watch(todaysScheduledDaysProvider).value ?? const [];
-    if (scheduled.isEmpty) return const SizedBox.shrink();
+    // A routine on fixed weekdays answers "what today" by the calendar; one on
+    // a rolling rotation answers it by what was last trained (`F-ROU-012`).
+    // Both end up in the same card, because the question is the same.
+    final rotation = ref.watch(rotationDaysProvider).value ?? const [];
+    final days = [...scheduled, ...rotation];
+    if (days.isEmpty) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.only(top: AppSpacing.md),
       child: Column(
         children: [
-          for (final day in scheduled)
+          for (final day in days)
             Card(
               child: ListTile(
-                leading: const Icon(Icons.today_outlined),
-                title: Text(context.l10n.shellTodaysDay(day.dayName)),
+                leading: Icon(
+                  scheduled.contains(day) ? Icons.today_outlined : Icons.repeat,
+                ),
+                title: Text(
+                  scheduled.contains(day)
+                      ? context.l10n.shellTodaysDay(day.dayName)
+                      : context.l10n.shellNextUpDay(day.dayName),
+                ),
                 subtitle: Text(day.routineName),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push(

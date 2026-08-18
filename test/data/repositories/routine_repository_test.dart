@@ -750,4 +750,52 @@ void main() {
       expect(await repo.findById(second.routineId), isNotNull);
     });
   });
+
+  group('rolling rotation (F-ROU-012)', () {
+    test('proposes the day after whichever was last trained', () async {
+      await db
+          .into(db.exercises)
+          .insert(
+            ExercisesCompanion.insert(
+              id: 'bench',
+              name: 'Bench',
+              primaryMuscle: Muscle.chest,
+              equipment: Equipment.barbell,
+              trackingType: TrackingType.weightReps,
+              createdAt: 1,
+              updatedAt: 1,
+            ),
+          );
+      final routine = await repo.create(name: 'A/B');
+      final a = await repo.addDay(routine.id, name: 'A');
+      final b = await repo.addDay(routine.id, name: 'B');
+      await repo.addExercises(a.id, ['bench']);
+      await repo.addExercises(b.id, ['bench']);
+
+      // Nothing trained yet: the rotation starts at the first day.
+      expect((await repo.watchRotationDays().first).single.dayName, 'A');
+
+      final workouts = WorkoutRepository(db);
+      final first = await workouts.startFromRoutineDay(a.id);
+      await workouts.finish(first.id);
+
+      expect((await repo.watchRotationDays().first).single.dayName, 'B');
+
+      final second = await workouts.startFromRoutineDay(b.id);
+      await workouts.finish(second.id);
+
+      // And it wraps.
+      expect((await repo.watchRotationDays().first).single.dayName, 'A');
+    });
+
+    test('a routine on fixed weekdays is left to the calendar', () async {
+      final routine = await repo.create(name: 'PPL');
+      final day = await repo.addDay(routine.id, name: 'Push');
+      await repo.setScheduledWeekdays(day.id, const [1]);
+
+      // Two "next" cards for one routine would be two different answers to
+      // the same question.
+      expect(await repo.watchRotationDays().first, isEmpty);
+    });
+  });
 }

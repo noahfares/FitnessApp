@@ -1,6 +1,6 @@
 # F-BOD-003 — Trend charts with smoothing
 
-Status: in-progress | Priority: P1 | Phase: 4
+Status: done | Priority: P1 | Phase: 4
 Depends on: F-BOD-001, F-ANA-001
 Reads: 21-DATA-MODEL#body_measurements, 22-UNITS
 
@@ -34,3 +34,18 @@ this batch, so this feature stays `in-progress` rather than `done`.
 Daily bodyweight is dominated by water, food, and time of day; the
 raw series swings by kilograms and reading it as progress is actively
 misleading. The smoothed line is the only part that carries information.
+
+## Status — closed (v0.56.0)
+
+§4's goal line is built, narrower than `F-BOD-005` on purpose: that feature is
+goals in general and is still an unscheduled idea, while §4 names exactly one
+goal and the chart that needed it exists today. `bodyweightGoalProvider` stores
+canonical grams beside the other scalar preferences — it is a display
+annotation, not a logged measurement, and a table would invite it into
+analytics where it does not belong.
+
+`TrendChart` draws it as a dashed, muted horizontal line: a target, not data,
+and drawing it like a second series would invite reading it as one. It is named
+in the chart's spoken summary too, since a dashed line is exactly the kind of
+visual-only encoding `F-A11Y-001` exists for. Clearing it removes the line
+entirely — a goal you no longer have should leave nothing behind.

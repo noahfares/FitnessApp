@@ -1,6 +1,6 @@
 # F-DAT-005 — Strong CSV import
 
-Status: in-progress | Priority: P1 | Phase: 5
+Status: done | Priority: P1 | Phase: 5
 Blocks: F-CAT-010
 Reads: 22-UNITS#import-and-export, 21-DATA-MODEL
 
@@ -15,8 +15,8 @@ Reads: 22-UNITS#import-and-export, 21-DATA-MODEL
 5. Idempotent — re-importing the same file doesn't duplicate.
 
 ## Acceptance
-- [ ] A real export imports with correct dates, weights and set types. **Not
-      verified this session** — no real Strong export file was available to
+- [~] A real export imports with correct dates, weights and set types.
+      **Waived, not met** — see the status note below. Not verified — no real Strong export file was available to
       test against, the same waiver shape Phases 1 and 3 used for their own
       on-device-only criteria. Worth re-checking against a real file.
 - [x] Ambiguous units halt and ask rather than assuming.
@@ -80,3 +80,17 @@ through the importer — the project owner accepted it as sufficient to
 close Phase 5 regardless, waiving the criterion rather than leaving it
 open indefinitely. Worth re-running against a real Strong export if one
 ever turns up.
+
+## Status — closed (v0.56.0)
+
+Closed with its one open criterion **waived**, not met: no real Strong export
+was available in any session that touched this feature, and a fabricated CSV
+proves only that the parser handles a CSV somebody wrote to match the parser.
+Everything checkable without one is checked — the ambiguous-unit halt, the
+preview counts, idempotency on re-import, and the round trip through
+`ImportService` against a hand-built file in the format Strong documents.
+
+This is the same waiver shape Phase 1 used for "two weeks of real training" and
+Phase 3 for its performance number: recorded as an outstanding real-world
+check rather than quietly marked done. First person with a real export should
+run it and tick the box — or file what broke.

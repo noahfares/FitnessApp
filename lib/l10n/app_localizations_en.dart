@@ -328,6 +328,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bodyCancelCompare => 'Cancel compare';
 
   @override
+  String get bodyClearGoal => 'Clear goal';
+
+  @override
   String get bodyCompare => 'Compare';
 
   @override
@@ -362,6 +365,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bodyEnterAWeight => 'Enter a weight';
 
   @override
+  String get bodyGoal => 'Goal';
+
+  @override
+  String get bodyGoalExplainer =>
+      'Drawn as a dashed line on the trend. A target, not a prediction — nothing else in the app reads it.';
+
+  @override
   String get bodyLogBodyweight => 'Log bodyweight';
 
   @override
@@ -390,6 +400,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bodyProgressPhotos => 'Progress photos';
+
+  @override
+  String get bodySetGoal => 'Set a bodyweight goal';
 
   @override
   String get bodyThisPermanentlyRemovesThePhoto =>
@@ -2241,6 +2254,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get shellLogItToTrackAlongside =>
       'Log it to track alongside your lifts.';
+
+  @override
+  String shellNextUpDay(String day) {
+    return 'Next up: $day';
+  }
 
   @override
   String get shellNoBodyweightLoggedYet => 'No bodyweight logged yet';

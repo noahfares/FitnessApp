@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../core/ids/uuid.dart';
 import '../../domain/export/routine_export_row.dart';
 import '../../domain/progression/progression_rule.dart';
+import '../../domain/routines/rotation.dart';
 import '../../domain/routines/starter_programs.dart';
 import '../db/app_database.dart';
 import '../db/tables/shared.dart' show StringListConverter;
@@ -675,6 +676,77 @@ class RoutineRepository {
                 ),
           ],
         );
+  }
+
+  /// The next day up in each routine that is *not* on fixed weekdays
+  /// (`F-ROU-012` — the rolling-rotation half).
+  ///
+  /// Derived, never stored: which day comes next is a fact about what was last
+  /// trained, and `workouts.source_routine_day_id` already records that. A
+  /// stored cursor would be a second source of truth, wrong the moment a
+  /// session is deleted, edited, or logged retroactively.
+  ///
+  /// A routine with any scheduled weekday at all is excluded — it has an
+  /// answer already, and showing both would be two different "next" cards for
+  /// one routine.
+  Stream<List<ScheduledDay>> watchRotationDays() {
+    return _db
+        .customSelect(
+          '''
+          SELECT r.id AS routine_id, r.name AS routine_name,
+                 d.id AS day_id, d.name AS day_name, d.position AS position,
+                 (SELECT w.source_routine_day_id
+                    FROM workouts w
+                    JOIN routine_days rd2 ON rd2.id = w.source_routine_day_id
+                   WHERE rd2.routine_id = r.id
+                     AND w.deleted_at IS NULL
+                     AND w.ended_at IS NOT NULL
+                   ORDER BY w.started_at DESC
+                   LIMIT 1) AS last_day_id
+            FROM routine_days d
+            JOIN routines r ON r.id = d.routine_id
+           WHERE d.deleted_at IS NULL
+             AND r.deleted_at IS NULL
+             AND r.archived_at IS NULL
+             AND NOT EXISTS (
+               SELECT 1 FROM routine_days sd
+                WHERE sd.routine_id = r.id
+                  AND sd.deleted_at IS NULL
+                  AND sd.scheduled_weekdays != '' 
+             )
+           ORDER BY r.position, d.position
+          ''',
+          readsFrom: {_db.routineDays, _db.routines, _db.workouts},
+        )
+        .watch()
+        .map((rows) {
+          final byRoutine = <String, List<QueryRow>>{};
+          for (final row in rows) {
+            byRoutine
+                .putIfAbsent(row.read<String>('routine_id'), () => [])
+                .add(row);
+          }
+          return [
+            for (final entry in byRoutine.entries)
+              if (nextRotationDayId(
+                    orderedDayIds: [
+                      for (final row in entry.value) row.read<String>('day_id'),
+                    ],
+                    lastTrainedDayId: entry.value.first.read<String?>(
+                      'last_day_id',
+                    ),
+                  )
+                  case final nextId?)
+                for (final row in entry.value)
+                  if (row.read<String>('day_id') == nextId)
+                    ScheduledDay(
+                      routineId: row.read<String>('routine_id'),
+                      routineName: row.read<String>('routine_name'),
+                      dayId: nextId,
+                      dayName: row.read<String>('day_name'),
+                    ),
+          ];
+        });
   }
 
   /// Every weekday any non-archived routine day is scheduled for

@@ -644,6 +644,12 @@ abstract class AppLocalizations {
   /// **'Cancel compare'**
   String get bodyCancelCompare;
 
+  /// No description provided for @bodyClearGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear goal'**
+  String get bodyClearGoal;
+
   /// No description provided for @bodyCompare.
   ///
   /// In en, this message translates to:
@@ -704,6 +710,18 @@ abstract class AppLocalizations {
   /// **'Enter a weight'**
   String get bodyEnterAWeight;
 
+  /// No description provided for @bodyGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal'**
+  String get bodyGoal;
+
+  /// No description provided for @bodyGoalExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawn as a dashed line on the trend. A target, not a prediction — nothing else in the app reads it.'**
+  String get bodyGoalExplainer;
+
   /// No description provided for @bodyLogBodyweight.
   ///
   /// In en, this message translates to:
@@ -757,6 +775,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Progress photos'**
   String get bodyProgressPhotos;
+
+  /// No description provided for @bodySetGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a bodyweight goal'**
+  String get bodySetGoal;
 
   /// No description provided for @bodyThisPermanentlyRemovesThePhoto.
   ///
@@ -3857,6 +3881,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log it to track alongside your lifts.'**
   String get shellLogItToTrackAlongside;
+
+  /// No description provided for @shellNextUpDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Next up: {day}'**
+  String shellNextUpDay(String day);
 
   /// No description provided for @shellNoBodyweightLoggedYet.
   ///
