@@ -24,6 +24,7 @@ import '../../settings/application/unit_preferences_provider.dart';
 import '../widgets/async_view.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/section_header.dart';
+import '../widgets/tab_header.dart';
 import '../widgets/weekly_insights_section.dart';
 import '../../../core/l10n/l10n.dart';
 
@@ -52,7 +53,17 @@ class DashboardScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(AppSpacing.screen),
           children: [
-            _Header(colors: colors),
+            TabHeader(
+              title: context.l10n.shellHomeTitle,
+              caption: DateFormat('EEEE, d MMMM').format(DateTime.now()),
+              actions: [
+                _RoundIconButton(
+                  icon: Icons.settings_outlined,
+                  tooltip: context.l10n.shellSettings,
+                  onPressed: () => context.push(AppRoutes.settings),
+                ),
+              ],
+            ),
             const SizedBox(height: AppSpacing.xl),
             const _ResumeOrStartCard(),
             const SizedBox(height: AppSpacing.xl),
@@ -95,49 +106,6 @@ class DashboardScreen extends ConsumerWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header({required this.colors});
-
-  final AppColors colors;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                DateFormat('EEEE, d MMMM').format(DateTime.now()),
-                style: TextStyle(fontSize: 13, color: colors.labelSecondary),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                context.l10n.shellHomeTitle,
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -1.02,
-                  height: 1.1,
-                  color: colors.label,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        _RoundIconButton(
-          icon: Icons.settings_outlined,
-          tooltip: context.l10n.shellSettings,
-          onPressed: () => context.push(AppRoutes.settings),
-        ),
-      ],
     );
   }
 }

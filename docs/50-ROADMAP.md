@@ -638,7 +638,7 @@ Everything required to hand the app to strangers.
 
 **Accessibility** `F-A11Y-001` `F-A11Y-002` `F-A11Y-003` `F-A11Y-005`
 
-**Localisation & branding** `F-I18N-001` `F-THM-006` `F-THM-007`
+**Localisation & branding** `F-I18N-001` `F-THM-006` `F-THM-007` `F-THM-008`
 
 **Onboarding** `F-SET-011`
 

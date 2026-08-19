@@ -22,6 +22,7 @@ import '../../settings/application/unit_preferences_provider.dart';
 import '../../settings/application/week_start_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/body_map_heat_overlay.dart';
+import '../../shell/widgets/tab_header.dart';
 import '../../shell/widgets/trend_chart.dart';
 import '../../shell/widgets/radar_chart.dart';
 import '../../shell/widgets/weekly_bar_chart.dart';
@@ -45,11 +46,27 @@ class InsightsScreen extends ConsumerWidget {
     final records = ref.watch(analyticsSetRecordsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.analyticsInsights)),
-      body: records.view(
-        (records) => records.isEmpty
-            ? const _NoDataYet()
-            : _InsightsBody(records: records),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.sm,
+                AppSpacing.screen,
+                AppSpacing.sm,
+              ),
+              child: TabHeader(title: context.l10n.analyticsInsights),
+            ),
+            Expanded(
+              child: records.view(
+                (records) => records.isEmpty
+                    ? const _NoDataYet()
+                    : _InsightsBody(records: records),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

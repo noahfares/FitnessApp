@@ -11,6 +11,7 @@ import '../../../data/db/database_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/confirm_sheet.dart';
 import '../../shell/widgets/empty_state.dart';
+import '../../shell/widgets/tab_header.dart';
 import '../application/routine_providers.dart';
 import '../../../core/l10n/l10n.dart';
 
@@ -25,43 +26,62 @@ class RoutineListScreen extends ConsumerWidget {
     final showArchived = ref.watch(routineListShowArchivedProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          showArchived ? context.l10n.routinesArchivedRoutines : 'Routines',
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              showArchived
-                  ? Icons.checklist_outlined
-                  : Icons.inventory_2_outlined,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.sm,
+                AppSpacing.screen,
+                AppSpacing.sm,
+              ),
+              child: TabHeader(
+                title: showArchived
+                    ? context.l10n.routinesArchivedRoutines
+                    : 'Routines',
+                actions: [
+                  IconButton(
+                    icon: Icon(
+                      showArchived
+                          ? Icons.checklist_outlined
+                          : Icons.inventory_2_outlined,
+                    ),
+                    tooltip: showArchived
+                        ? context.l10n.routinesActiveRoutines
+                        : context.l10n.routinesArchivedRoutines,
+                    onPressed: () => ref
+                        .read(routineListShowArchivedProvider.notifier)
+                        .toggle(),
+                  ),
+                  if (!showArchived) ...[
+                    IconButton(
+                      icon: const Icon(Icons.library_add_outlined),
+                      tooltip: context.l10n.routinesStarterPrograms,
+                      onPressed: () => context.push(AppRoutes.starterPrograms),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.create_new_folder_outlined),
+                      tooltip: context.l10n.routinesNewFolder,
+                      onPressed: () => unawaited(_createFolder(context, ref)),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      tooltip: context.l10n.routinesNewRoutine,
+                      onPressed: () => unawaited(_createRoutine(context, ref)),
+                    ),
+                  ],
+                ],
+              ),
             ),
-            tooltip: showArchived
-                ? context.l10n.routinesActiveRoutines
-                : context.l10n.routinesArchivedRoutines,
-            onPressed: () =>
-                ref.read(routineListShowArchivedProvider.notifier).toggle(),
-          ),
-          if (!showArchived) ...[
-            IconButton(
-              icon: const Icon(Icons.library_add_outlined),
-              tooltip: context.l10n.routinesStarterPrograms,
-              onPressed: () => context.push(AppRoutes.starterPrograms),
-            ),
-            IconButton(
-              icon: const Icon(Icons.create_new_folder_outlined),
-              tooltip: context.l10n.routinesNewFolder,
-              onPressed: () => unawaited(_createFolder(context, ref)),
-            ),
-            IconButton(
-              icon: const Icon(Icons.add),
-              tooltip: context.l10n.routinesNewRoutine,
-              onPressed: () => unawaited(_createRoutine(context, ref)),
+            Expanded(
+              child: showArchived
+                  ? const _ArchivedRoutineList()
+                  : const _RoutineList(),
             ),
           ],
-        ],
+        ),
       ),
-      body: showArchived ? const _ArchivedRoutineList() : const _RoutineList(),
     );
   }
 

@@ -138,6 +138,7 @@ F-THM-004	3	done	P1	Chart theming	F-THM-001, F-ANA-001		24-DESIGN-SYSTEM
 F-THM-005	0	done	P1	Typography	F-THM-001		24-DESIGN-SYSTEM
 F-THM-006	6	done	P2	App icon and branding			24-DESIGN-SYSTEM
 F-THM-007	6	done	P2	Apple-style visual redesign — light and dark			24-DESIGN-SYSTEM
+F-THM-008	6	done	P2	Unify large-title header across Home, Routines, History, Insights			24-DESIGN-SYSTEM
 F-A11Y-001	6	done	P1	Screen reader support			24-DESIGN-SYSTEM#accessibility-baseline
 F-A11Y-002	6	done	P1	Dynamic type			24-DESIGN-SYSTEM#accessibility-baseline
 F-A11Y-003	6	done	P1	Contrast and colour independence			24-DESIGN-SYSTEM#accessibility-baseline

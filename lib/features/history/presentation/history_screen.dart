@@ -10,6 +10,7 @@ import '../../../domain/history/workout_history.dart';
 import '../../settings/application/unit_preferences_provider.dart';
 import '../../shell/widgets/async_view.dart';
 import '../../shell/widgets/empty_state.dart';
+import '../../shell/widgets/tab_header.dart';
 import '../application/history_providers.dart';
 import 'log_past_workout_sheet.dart';
 import '../../../core/l10n/l10n.dart';
@@ -55,77 +56,89 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     final history = ref.watch(historyProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.catalogHistory)),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.screen,
-              AppSpacing.sm,
-              AppSpacing.screen,
-              AppSpacing.sm,
-            ),
-            child: TextField(
-              controller: _search,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: context.l10n.historySearchByWorkoutOrExercise,
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: search.isEmpty
-                    ? null
-                    : IconButton(
-                        icon: const Icon(Icons.close),
-                        tooltip: context.l10n.catalogClearSearch,
-                        onPressed: () {
-                          _search.clear();
-                          ref.read(historySearchProvider.notifier).setQuery('');
-                        },
-                      ),
-                border: const OutlineInputBorder(),
-                isDense: true,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.sm,
+                AppSpacing.screen,
+                AppSpacing.sm,
               ),
-              onChanged: ref.read(historySearchProvider.notifier).setQuery,
+              child: TabHeader(title: context.l10n.catalogHistory),
             ),
-          ),
-          Expanded(
-            child: history.view(
-              errorTitle: context.l10n.historyHistoryCouldNotBeRead,
-              (entries) => entries.isEmpty
-                  ? EmptyState(
-                      icon: search.isNotEmpty
-                          ? Icons.search_off
-                          : Icons.calendar_month_outlined,
-                      title: search.isNotEmpty
-                          ? context.l10n.historyNoSessionsMatch
-                          : context.l10n.historyNoSessionsLoggedYet,
-                      message: search.isNotEmpty
-                          ? context.l10n.historyTryAShorterSearch
-                          : context.l10n.historyFinishedWorkoutsShowUpHere,
-                    )
-                  : CustomScrollView(
-                      controller: _scroll,
-                      slivers: [
-                        for (final group in months) ...[
-                          SliverPersistentHeader(
-                            pinned: true,
-                            delegate: _MonthHeader(_monthLabel(group)),
-                          ),
-                          SliverList.builder(
-                            itemCount: group.entries.length,
-                            itemBuilder: (context, i) =>
-                                _WorkoutTile(entry: group.entries[i]),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.sm,
+                AppSpacing.screen,
+                AppSpacing.sm,
+              ),
+              child: TextField(
+                controller: _search,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: context.l10n.historySearchByWorkoutOrExercise,
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: search.isEmpty
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.close),
+                          tooltip: context.l10n.catalogClearSearch,
+                          onPressed: () {
+                            _search.clear();
+                            ref
+                                .read(historySearchProvider.notifier)
+                                .setQuery('');
+                          },
+                        ),
+                  border: const OutlineInputBorder(),
+                  isDense: true,
+                ),
+                onChanged: ref.read(historySearchProvider.notifier).setQuery,
+              ),
+            ),
+            Expanded(
+              child: history.view(
+                errorTitle: context.l10n.historyHistoryCouldNotBeRead,
+                (entries) => entries.isEmpty
+                    ? EmptyState(
+                        icon: search.isNotEmpty
+                            ? Icons.search_off
+                            : Icons.calendar_month_outlined,
+                        title: search.isNotEmpty
+                            ? context.l10n.historyNoSessionsMatch
+                            : context.l10n.historyNoSessionsLoggedYet,
+                        message: search.isNotEmpty
+                            ? context.l10n.historyTryAShorterSearch
+                            : context.l10n.historyFinishedWorkoutsShowUpHere,
+                      )
+                    : CustomScrollView(
+                        controller: _scroll,
+                        slivers: [
+                          for (final group in months) ...[
+                            SliverPersistentHeader(
+                              pinned: true,
+                              delegate: _MonthHeader(_monthLabel(group)),
+                            ),
+                            SliverList.builder(
+                              itemCount: group.entries.length,
+                              itemBuilder: (context, i) =>
+                                  _WorkoutTile(entry: group.entries[i]),
+                            ),
+                          ],
+                          // Room for the FAB, so the last row is never
+                          // trapped underneath it.
+                          const SliverPadding(
+                            padding: EdgeInsets.only(bottom: 88),
                           ),
                         ],
-                        // Room for the FAB, so the last row is never trapped
-                        // underneath it.
-                        const SliverPadding(
-                          padding: EdgeInsets.only(bottom: 88),
-                        ),
-                      ],
-                    ),
+                      ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showLogPastWorkoutSheet(context, ref),
