@@ -42,3 +42,23 @@ int totalVolumeGrams(Iterable<CountedSet> sets) {
   }
   return total;
 }
+
+/// The live volume of one set as it's being logged (`F-LOG-024`) — weight ×
+/// reps, or null when there is nothing to show yet.
+///
+/// Deliberately *not* gated on `isCompleted`: this is a running preview shown
+/// while the lifter is still typing, not a contribution to any aggregate.
+/// Warm-ups and non-volume-eligible tracking types are still excluded, same
+/// as [totalVolumeGrams] — this row's number must never disagree with what
+/// the totals it feeds into would say (docs/40-ANALYTICS-SPEC.md §2 rule 1).
+int? setVolumeGrams({
+  required String setType,
+  required String trackingType,
+  required int? weightGrams,
+  required int? reps,
+}) {
+  if (setType == 'warmup') return null;
+  if (!isVolumeEligible(trackingType)) return null;
+  if (weightGrams == null || reps == null) return null;
+  return weightGrams * reps;
+}

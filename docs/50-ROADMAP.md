@@ -646,6 +646,8 @@ Everything required to hand the app to strangers.
 
 **Health** `F-HLT-001` `F-HLT-002`
 
+**Logging** `F-LOG-024`
+
 **Exit criteria**
 - [x] Full app usable with a screen reader and at 200% text scale.
       `test/features/a11y/accessibility_test.dart` pumps all eleven top-level

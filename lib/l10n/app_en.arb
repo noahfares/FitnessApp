@@ -620,6 +620,15 @@
   "loggingToFailure": "To failure",
   "loggingUnknownExercise": "Unknown exercise",
   "loggingVolume": "Volume",
+  "loggingVolumeColumnHeader": "Vol",
+  "loggingSetVolumeSemantics": "volume {volume}",
+  "@loggingSetVolumeSemantics": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
   "loggingWorkingWeight": "Working weight",
   "loggingWorkoutComplete": "Workout complete",
   "measurementBodyFatPercent": "Body fat",

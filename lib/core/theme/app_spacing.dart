@@ -31,4 +31,9 @@ abstract final class AppSpacing {
   /// is not one of the two fixed columns above because most rows never render
   /// it at all.
   static const double setRpeColumn = 36;
+
+  /// The live volume cell (`F-LOG-024`). Fixed width like the number and
+  /// note columns: it always renders, so the weight/reps cells beside it must
+  /// not shift width as its digit count changes mid-edit.
+  static const double setVolumeColumn = 56;
 }

@@ -2162,6 +2162,18 @@ abstract class AppLocalizations {
   /// **'Volume'**
   String get loggingVolume;
 
+  /// No description provided for @loggingVolumeColumnHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Vol'**
+  String get loggingVolumeColumnHeader;
+
+  /// No description provided for @loggingSetVolumeSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'volume {volume}'**
+  String loggingSetVolumeSemantics(String volume);
+
   /// No description provided for @loggingWorkingWeight.
   ///
   /// In en, this message translates to:

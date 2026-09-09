@@ -198,7 +198,8 @@ void main() {
         find.byWidgetPredicate(
           (widget) =>
               widget is Semantics &&
-              widget.properties.label == 'Set 1, kg 100, Reps 8, completed',
+              widget.properties.label ==
+                  'Set 1, kg 100, Reps 8, volume 800 kg, completed',
         ),
         findsOneWidget,
       );
@@ -250,7 +251,9 @@ void main() {
 
       await pumpSession(tester);
 
-      expect(find.text('—'), findsOneWidget);
+      // The ghost and the live volume cell (`F-LOG-024`) both have nothing
+      // to show yet — two dashes, not a zero anywhere.
+      expect(find.text('—'), findsNWidgets(2));
       expect(find.text('0 kg × 0'), findsNothing);
     });
 
@@ -310,9 +313,10 @@ void main() {
       await pumpSession(tester);
 
       // Last time's working set is not a target for today's warm-up
-      // (`F-LOG-004` §6).
+      // (`F-LOG-004` §6). The volume cell shows a dash too: warm-ups are
+      // excluded from volume, same as everywhere else (`F-LOG-024`).
       expect(find.text('100 kg × 8'), findsNothing);
-      expect(find.text('—'), findsOneWidget);
+      expect(find.text('—'), findsNWidgets(2));
     });
 
     testWidgets('follows the display unit setting', (tester) async {

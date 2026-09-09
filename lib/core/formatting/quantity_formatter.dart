@@ -56,6 +56,12 @@ class QuantityFormatter {
     showUnit: showUnit,
   );
 
+  /// A single set's volume load, rounded to the nearest whole unit — the
+  /// numeric twin of [volume]'s `maxDecimals: 0`, but an `int` rather than a
+  /// grouped string so a live display (`F-LOG-024`) can animate digit by
+  /// digit instead of diffing text.
+  int volumeWholeUnits(Mass mass) => mass.toUnit(prefs.load).round();
+
   /// Estimated 1RM: one decimal.
   String e1rm(Mass mass, {bool showUnit = true}) => _mass(
     mass,

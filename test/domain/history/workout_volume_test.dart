@@ -93,4 +93,66 @@ void main() {
       expect(totalVolumeGrams(const []), 0);
     });
   });
+
+  group('setVolumeGrams (F-LOG-024)', () {
+    test('weight × reps for a volume-eligible working set', () {
+      expect(
+        setVolumeGrams(
+          setType: 'working',
+          trackingType: 'weightReps',
+          weightGrams: 100000,
+          reps: 5,
+        ),
+        500000,
+      );
+    });
+
+    test('warm-ups are excluded, same as the aggregate', () {
+      expect(
+        setVolumeGrams(
+          setType: 'warmup',
+          trackingType: 'weightReps',
+          weightGrams: 100000,
+          reps: 5,
+        ),
+        isNull,
+      );
+    });
+
+    test(
+      'bodyweightReps is not volume-eligible despite having both fields',
+      () {
+        expect(
+          setVolumeGrams(
+            setType: 'working',
+            trackingType: 'bodyweightReps',
+            weightGrams: 20000,
+            reps: 10,
+          ),
+          isNull,
+        );
+      },
+    );
+
+    test('null weight or reps is excluded, not treated as zero', () {
+      expect(
+        setVolumeGrams(
+          setType: 'working',
+          trackingType: 'weightReps',
+          weightGrams: null,
+          reps: 5,
+        ),
+        isNull,
+      );
+      expect(
+        setVolumeGrams(
+          setType: 'working',
+          trackingType: 'weightReps',
+          weightGrams: 100000,
+          reps: null,
+        ),
+        isNull,
+      );
+    });
+  });
 }

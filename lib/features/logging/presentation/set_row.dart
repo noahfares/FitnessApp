@@ -8,10 +8,13 @@ import '../../../core/formatting/quantity_formatter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/units/mass.dart';
 import '../../../core/units/unit_preferences.dart';
+import '../../../core/widgets/rolling_number.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/db/database_provider.dart';
 import '../../../data/repositories/set_repository.dart';
+import '../../../domain/history/workout_volume.dart';
 import '../../../domain/logging/rpe.dart';
 import '../../../domain/logging/set_fields.dart';
 import '../../../domain/logging/set_numbering.dart';
@@ -44,6 +47,7 @@ class SetRow extends ConsumerWidget {
     required this.equipment,
     required this.restSeconds,
     required this.exerciseId,
+    required this.trackingType,
     this.onCompleted,
     this.perSide = false,
     this.incrementGrams,
@@ -51,6 +55,12 @@ class SetRow extends ConsumerWidget {
 
   final WorkoutSet set;
   final SetLabel label;
+
+  /// Stored `TrackingType` name — passed down rather than re-derived from
+  /// [fields], because `bodyweightReps` renders the same weight+reps columns
+  /// as `weightReps` but is not volume-eligible (`domain/analytics/
+  /// analytics_boundary.dart`); only the tracking type itself says which.
+  final String trackingType;
 
   /// Which cached PR records to check this row against (`F-LOG-013` §2).
   final String exerciseId;
@@ -142,6 +152,13 @@ class SetRow extends ConsumerWidget {
       restSeconds: restSeconds,
       onCompleted: onCompleted,
     );
+    final volumeGrams = setVolumeGrams(
+      setType: set.setType.name,
+      trackingType: trackingType,
+      weightGrams: set.weightGrams,
+      reps: set.reps,
+    );
+    final volumeCell = _VolumeCell(grams: volumeGrams, formatter: formatter);
 
     // Swipe to delete, with undo (`F-LOG-003` §6). Undo is a field update
     // rather than a resurrection because the delete is a tombstone (ADR-0008).
@@ -163,6 +180,7 @@ class SetRow extends ConsumerWidget {
           rpeSettings,
           isRecord,
           context.l10n,
+          volumeGrams,
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -185,6 +203,7 @@ class SetRow extends ConsumerWidget {
                     Row(
                       children: [
                         for (final cell in valueCells) Expanded(child: cell),
+                        volumeCell,
                         toggle,
                       ],
                     ),
@@ -199,6 +218,7 @@ class SetRow extends ConsumerWidget {
                     Expanded(flex: 3, child: ghostCell),
                     for (final cell in valueCells)
                       Expanded(flex: 2, child: cell),
+                    volumeCell,
                     toggle,
                   ],
                 ),
@@ -242,6 +262,7 @@ class SetRow extends ConsumerWidget {
     RpeSettings rpeSettings,
     bool isRecord,
     AppLocalizations l10n,
+    int? volumeGrams,
   ) {
     final parts = <String>[
       label.isWarmup
@@ -250,6 +271,10 @@ class SetRow extends ConsumerWidget {
       for (final field in fields)
         '${fieldHeader(field, prefs, perSide: field == SetField.weight && perSide)} '
             '${formatSetField(set, field, formatter, prefs, perSide: perSide) ?? 'empty'}',
+      if (volumeGrams != null)
+        l10n.loggingSetVolumeSemantics(
+          formatter.volume(Mass.grams(volumeGrams)),
+        ),
       if (rpeSettings.enabled)
         switch (displayRpe(set.rpe, rpeSettings.displayMode)) {
           null => 'no ${rpeSettings.displayMode.name.toUpperCase()} logged',
@@ -423,6 +448,41 @@ class _ValueCell extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Live weight × reps, rolling to its new value on every edit (`F-LOG-024`).
+///
+/// Read-only — unlike the other cells it has nowhere to send a tap, since it
+/// is derived from them rather than logged directly. `—` for warm-ups and
+/// tracking types the volume formula excludes (`setVolumeGrams`), matching
+/// how those sets are left out of every other volume figure in the app.
+class _VolumeCell extends StatelessWidget {
+  const _VolumeCell({required this.grams, required this.formatter});
+
+  final int? grams;
+  final QuantityFormatter formatter;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.bodyMedium?.copyWith(
+      color: context.appColors.labelSecondary,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    final grams = this.grams;
+    return SizedBox(
+      width: AppSpacing.setVolumeColumn,
+      height: AppSpacing.minTouchTarget,
+      child: Center(
+        child: grams == null
+            ? Text('—', style: style)
+            : RollingNumber(
+                value: formatter.volumeWholeUnits(Mass.grams(grams)),
+                style: style ?? const TextStyle(),
+              ),
       ),
     );
   }

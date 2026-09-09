@@ -701,6 +701,7 @@ class _SessionExerciseTile extends ConsumerWidget {
               restSeconds: restSeconds,
               perSide: perSide,
               exerciseId: exercise.exerciseId,
+              trackingType: exercise.trackingType.name,
             ),
         AddSetButton(workoutExerciseId: exercise.workoutExerciseId),
         if (nextExercise != null)
@@ -953,6 +954,10 @@ class _ColumnHeaders extends StatelessWidget {
                 ),
               ),
             ),
+          SizedBox(
+            width: AppSpacing.setVolumeColumn,
+            child: cell(context.l10n.loggingVolumeColumnHeader),
+          ),
           const SizedBox(width: AppSpacing.setRowTouchTarget),
         ],
       ),

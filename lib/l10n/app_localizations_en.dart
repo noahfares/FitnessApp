@@ -1227,6 +1227,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loggingVolume => 'Volume';
 
   @override
+  String get loggingVolumeColumnHeader => 'Vol';
+
+  @override
+  String loggingSetVolumeSemantics(String volume) {
+    return 'volume $volume';
+  }
+
+  @override
   String get loggingWorkingWeight => 'Working weight';
 
   @override
