@@ -76,6 +76,23 @@ builds anything, per the rules in [`../CLAUDE.md`](../CLAUDE.md).
   `F-ROU-013` to declare them.
 - **Export to a spreadsheet template** with pivot tables and charts already set
   up, for people who want to do their own analysis.
+- **Interactive body map: tap-to-drill-in, finer sub-regions, alternate colour
+  scales.** Prompted by a look at
+  [melihcolpan/MuscleMap](https://github.com/melihcolpan/MuscleMap) (MIT
+  licence), a SwiftUI SDK for the same category of widget. Not portable
+  directly — it's Swift/SwiftUI `Canvas`, this app is Flutter/Dart, and its
+  README doesn't state where its anatomical SVGs themselves originated, which
+  is exactly the provenance gap `F-ANA-014` sidestepped by drawing an
+  original, non-anatomical silhouette instead of sourcing or tracing one. The
+  ideas worth taking are conceptual, not code: (1) tap a region to jump to
+  that muscle's own volume trend rather than only reading the static shade;
+  (2) finer sub-regions (upper/lower chest, front/side/rear delts already
+  split — theirs also splits quads and back further) if `F-CAT-013`'s
+  granularity open question ever gets revisited; (3) a chosen-not-fixed colour
+  scale (their "thermal/medical/monochrome" presets) for colour-vision
+  accessibility, layered on `F-A11Y-001`'s existing spoken alternative rather
+  than replacing it. `BodyMapHeatOverlay` is `done`; this is a v2 enhancement,
+  not a gap in it.
 
 ---
 
